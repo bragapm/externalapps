@@ -1,8 +1,107 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from "tailwindcss";
 
 export default <Partial<Config>>{
-    theme: {
-        extend: {
-        }
-    }
-}
+  darkMode: "class",
+  theme: {
+    colors: {
+      white: "#FFFFFF",
+      black: "#000000",
+      brand: {
+        50: "#FEF9EF",
+        100: "#FCE6C5",
+        200: "#FACE9B",
+        300: "#F8B271",
+        400: "#F59047",
+        500: "#F36A1D",
+        600: "#CD541B",
+        700: "#A84118",
+        800: "#703D27",
+        900: "#632D1F",
+        950: "#3C221D",
+      },
+      grey: {
+        50: "#F9F8F7",
+        100: "#F4F3F1",
+        200: "#E2E1DF",
+        300: "#C3C3BF",
+        400: "#B4B4AF",
+        500: "#777674",
+        600: "#4F4D4A",
+        700: "#353332",
+        800: "#232221",
+        900: "#191919",
+        950: "#161414",
+      },
+      green: {
+        10: "#DEFBE6",
+        20: "#A7F0BA",
+        30: "#6FDC8C",
+        40: "#42BE65",
+        50: "#24A148",
+        60: "#198038",
+        70: "#0E6027",
+        80: "#044317",
+        90: "#022D0D",
+        100: "#071908",
+      },
+      yellow: {
+        10: "#FCF4D6",
+        20: "#FDDC69",
+        30: "#F1C21B",
+        40: "#D2A106",
+        50: "#B28600",
+        60: "#8E6A00",
+        70: "#684E00",
+        80: "#483700",
+        90: "#302400",
+        100: "#1C1500",
+      },
+      red: {
+        10: "#FFF1F1",
+        20: "#FFD7D9",
+        30: "#FFB3B8",
+        40: "#FF8389",
+        50: "#FA4D56",
+        60: "#DA1E28",
+        70: "#A2191F",
+        80: "#750E13",
+        90: "#520408",
+        100: "#2D0709",
+      },
+      warning: {
+        50: "#FEF4F0",
+        100: "#F9D5C9",
+        200: "#F5B6A2",
+        300: "#EF957C",
+        400: "#E97456",
+        500: "#E35131",
+        600: "#C4432C",
+        700: "#A63626",
+        800: "#882B20",
+        900: "#6B201A",
+        950: "#4D1613",
+      },
+    },
+    extend: {
+      fontSize: {
+        "2xs": ["10px", "16px"],
+      },
+      animation: {
+        navbarexpandanimate: "navbarexpand 2s ease-in-out",
+        navbarshrinkanimate: "navbarshrink 2s ease-in-out",
+      },
+      keyframes: {
+        navbarexpand: {
+          "0%": { width: "10%", padding: "0px" },
+          "50%": { width: "100%", padding: "0px" },
+          "100%": { padding: "12px 0px" },
+        },
+        navbarshrink: {
+          "0%": { width: "100%", padding: "12px 0px" },
+          "50%": { width: "100%", padding: "0px" },
+          "100%": { width: "10%" },
+        },
+      },
+    },
+  },
+};
