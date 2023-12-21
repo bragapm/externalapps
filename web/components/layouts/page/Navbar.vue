@@ -11,7 +11,7 @@ const route = useRoute();
 const colorMode = useColorMode();
 
 // const isExpand = useState('isExpand', () => true)
-const isExpand = ref(true);
+const isExpand = ref(route.path === "/map" ? false : true);
 
 const isDark = computed({
   get() {
@@ -25,8 +25,20 @@ const isDark = computed({
 
 <template>
   <div class="sticky top-0 z-50 p-6 flex">
+    <Presence>
+      <Motion
+        v-show="isExpand && route.path === '/map'"
+        :initial="{ opacity: 1 }"
+        :animate="{ opacity: 1 }"
+        :exit="{ opacity: 0 }"
+        :transition="{ duration: 0.5 }"
+      >
+        <div
+          class="bg-black/50 backdrop-blur-sm fixed top-0 left-0 w-screen h-screen z-50"
+        ></div> </Motion
+    ></Presence>
     <Motion
-      :initial="{ width: '100%', padding: '12px 0px' }"
+      :initial="false"
       :animate="{
         width: isExpand ? '100%' : '0%',
         padding: isExpand ? '12px 0px' : '0px',
@@ -62,7 +74,7 @@ const isDark = computed({
               :transition="{ duration: 0.5, delay: 1 }"
               class="absolute right-0 translate-x-full flex gap-4 whitespace-nowrap"
             >
-              <NuxtLink to="/map">
+              <NuxtLink to="/map" @click="isExpand = !isExpand">
                 <UButton
                   :color="route.path === '/map' ? 'navActive' : 'navMenu'"
                   label="Map"
