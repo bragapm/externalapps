@@ -12,7 +12,7 @@ export async function up(knex) {
     layout_circle_sort_key int4 NULL,
     layout_visibility varchar(255) NULL DEFAULT 'visible'::character varying,
     paint_circle_stroke_color varchar(255) NULL DEFAULT '#000000'::character varying,
-    paint_circle_stroke_opacity numeric(10, 5) NULL DEFAULT '1'::numeric,
+    paint_circle_stroke_opacity text NULL DEFAULT '1'::character varying,
     paint_circle_stroke_width int4 NULL DEFAULT 0,
     paint_circle_translate varchar(255) NULL,
     paint_circle_translate_anchor varchar(255) NULL DEFAULT 'map'::character varying,
