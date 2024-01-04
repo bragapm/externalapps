@@ -1,0 +1,22 @@
+{
+  "name": "braga-migrations",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bootstrap": "directus bootstrap",
+    "start": "directus start",
+    "migrate:up": "directus database migrate:up",
+    "migrate:down": "directus database migrate:down"
+  },
+  "keywords": [],
+  "author": "Miko",
+  "license": "ISC",
+  "devDependencies": {
+    "@directus/errors": "^0.2.0",
+    "@directus/storage-driver-s3": "^10.0.14",
+    "directus": "^10.8.2",
+    "pg": "^8.11.3"
+  }
+}
