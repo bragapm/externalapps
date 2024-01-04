@@ -11,7 +11,7 @@ export async function up(knex) {
     $BODY$;
 
     CREATE OR REPLACE TRIGGER on_vector_tiles_class_columns_update
-    AFTER UPDATE OF class_columns
+    AFTER UPDATE OF fill_class_columns, line_class_columns, circle_class_columns, symbol_class_columns
     ON vector_tiles
     FOR EACH ROW
     EXECUTE FUNCTION handle_vector_tiles_class_columns_update();

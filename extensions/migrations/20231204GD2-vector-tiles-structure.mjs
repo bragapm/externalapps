@@ -17,7 +17,6 @@ export async function up(knex) {
       date_updated timestamp with time zone,
       geometry_type character varying(255) NOT NULL,
       bounds json NOT NULL,
-      class_columns text,
       minzoom integer,
       maxzoom integer,
       layer_alias character varying(255),
@@ -38,7 +37,11 @@ export async function up(knex) {
       circle_style integer REFERENCES circle (id)
         ON DELETE SET NULL,
       symbol_style integer REFERENCES symbol (id)
-        ON DELETE SET NULL
+        ON DELETE SET NULL,
+      fill_class_columns text,
+      line_class_columns text,
+      circle_class_columns text,
+      symbol_class_columns text
     );
 
     INSERT INTO directus_collections(collection,icon,color,"group",collapse)
@@ -65,7 +68,6 @@ export async function up(knex) {
       ('vector_tiles','date_updated','date-updated','datetime',NULL,'datetime','{"relative":true}',TRUE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','geometry_type',NULL,'input',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','bounds',NULL,'map',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('vector_tiles','class_columns',NULL,'input',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','minzoom',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','maxzoom',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','layer_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
@@ -82,6 +84,10 @@ export async function up(knex) {
       ('vector_tiles','line_style','m2o','select-dropdown-m2o','{"template":"{{name}}"}','related-values','{"template":"{{name}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"No POINT","rule":{"geometry_type":{"_contains":"POINT"}},"hidden":true}]',FALSE,NULL,NULL,NULL),
       ('vector_tiles','circle_style','m2o','select-dropdown-m2o','{"template":"{{name}}"}','related-values','{"template":"{{name}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','symbol_style','m2o','select-dropdown-m2o','{"template":"{{name}}"}','related-values','{"template":"{{name}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('vector_tiles','fill_class_columns',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('vector_tiles','line_class_columns',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('vector_tiles','circle_class_columns',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('vector_tiles','symbol_class_columns',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles_directus_roles','id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles_directus_roles','vector_tiles_layer_name',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles_directus_roles','directus_roles_id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL);

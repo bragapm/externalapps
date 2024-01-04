@@ -48,7 +48,13 @@ export default (router, { database, logger }) => {
     let layerConfig;
     try {
       layerConfig = await database("vector_tiles")
-        .select("class_columns", "cache_duration")
+        .select(
+          "fill_class_columns",
+          "line_class_columns",
+          "circle_class_columns",
+          "symbol_class_columns",
+          "cache_duration"
+        )
         .where("layer_name", layerName)
         .first();
     } catch (error) {
@@ -67,13 +73,27 @@ export default (router, { database, logger }) => {
 
     // Prepare query parameters for fetching the tile
     let queryParams = [z, x, y];
+
     let classColumnParam = "";
-    if (layerConfig.class_columns) {
-      const classColumnSplit = layerConfig.class_columns.split(",");
-      for (const classColumn of classColumnSplit) {
+    const classColumnsArr = [];
+    if (layerConfig.fill_class_columns) {
+      classColumnsArr.push(...layerConfig.fill_class_columns.split(","));
+    }
+    if (layerConfig.line_class_columns) {
+      classColumnsArr.push(...layerConfig.line_class_columns.split(","));
+    }
+    if (layerConfig.circle_class_columns) {
+      classColumnsArr.push(...layerConfig.circle_class_columns.split(","));
+    }
+    if (layerConfig.symbol_class_columns) {
+      classColumnsArr.push(...layerConfig.symbol_class_columns.split(","));
+    }
+    if (classColumnsArr.length) {
+      const classColumnsSet = new Set(classColumnsArr);
+      classColumnsSet.forEach((col) => {
         classColumnParam += ", ??";
-        queryParams.push(classColumn);
-      }
+        queryParams.push(col);
+      });
     }
 
     // SQL query to generate the Mapbox Vector Tile (MVT)
