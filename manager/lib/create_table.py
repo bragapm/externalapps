@@ -14,15 +14,15 @@ def create_table_from_header_info(conn, header_info: dict, table_name: str):
     }
 
     fields = header_info["fields"]
+    # Adding an auto-incrementing primary key column and geom column for geometry; assuming 2D geometries in WGS 84 for now
     columns_sql = ", ".join(
-        [f'"{field["name"].lower()}" {type_mapping[field["type"]]}' for field in fields]
+        ["ogc_fid SERIAL PRIMARY KEY"]
+        + [
+            f'"{field["name"].lower()}" {type_mapping[field["type"]]}'
+            for field in fields
+        ]
+        + ["geom GEOMETRY(Geometry, 4326)"]
     )
-
-    # Adding geom column for geometry; assuming 2D geometries in WGS 84 for now
-    columns_sql += f", geom GEOMETRY(Geometry, 4326)"
-
-    # Adding an auto-incrementing primary key column
-    columns_sql = "ogc_fid SERIAL PRIMARY KEY, " + columns_sql
 
     create_table_sql = f"""CREATE TABLE {table_name} ({columns_sql}); 
         CREATE INDEX IF NOT EXISTS {table_name}_geom_geom_idx ON {table_name} USING gist (geom);"""

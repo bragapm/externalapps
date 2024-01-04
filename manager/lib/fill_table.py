@@ -41,9 +41,11 @@ def fill_table_with_layer_feature(dataSource, header_info, conn, table_name):
                 for field in fields:
                     columns.append(f'"{field["name"].lower()}"')
                     values.append(feature.GetField(field["name"]))
-                columns_str = ", ".join(columns)
-                placeholders = ", ".join(["%s" for _ in values])
-                insert_sql = f"INSERT INTO {table_name} (geom, {columns_str}) VALUES (ST_GeomFromText('{wkt_geom}', 4326), {placeholders});"
+                columns_str = ", ".join(["geom"] + columns)
+                geom_and_placeholders = ", ".join(
+                    [f"ST_GeomFromText('{wkt_geom}', 4326)"] + ["%s" for _ in values]
+                )
+                insert_sql = f"INSERT INTO {table_name} ({columns_str}) VALUES ({geom_and_placeholders});"
                 cur.execute(insert_sql, values)
 
     logger.info("Fill table with layer feature")
