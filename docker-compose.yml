@@ -11,7 +11,7 @@ services:
 
   directus:
     build:
-      context: directus
+      context: extensions
     depends_on:
       - redis
     environment:
@@ -36,7 +36,7 @@ services:
       - RATE_LIMITER_STORE=redis
       - RATE_LIMITER_REDIS=redis://redis:6379
       # cache
-      - CACHE_ENABLED=false
+      - CACHE_ENABLED=true
       - CACHE_STORE=redis
       - CACHE_REDIS=redis://redis:6379
       # file storage
