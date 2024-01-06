@@ -1,0 +1,90 @@
+version: "3"
+services:
+  redis:
+    image: redis:6-alpine
+    volumes:
+      - ./cache/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+
+  directus:
+    build:
+      context: directus
+    depends_on:
+      - redis
+    environment:
+      # general
+      - PUBLIC_URL=${DIRECTUS_PUBLIC_URL}
+      # database
+      - DB_CLIENT=pg
+      - DB_CONNECTION_STRING
+      # security
+      - KEY=${DIRECTUS_KEY}
+      - SECRET=${DIRECTUS_SECRET}
+      - REFRESH_TOKEN_TTL=1d
+      - REFRESH_TOKEN_COOKIE_SECURE=true
+      - REFRESH_TOKEN_COOKIE_SAME_SITE=strict
+      - REFRESH_TOKEN_COOKIE_NAME=geodashboard_refresh_token
+      - PASSWORD_RESET_URL_ALLOW_LIST=${DIRECTUS_PASSWORD_RESET_URL_ALLOW_LIST}
+      # cors
+      - CORS_ENABLED=true
+      - CORS_ORIGIN=true
+      # rate limiting
+      - RATE_LIMITER_ENABLED=true
+      - RATE_LIMITER_STORE=redis
+      - RATE_LIMITER_REDIS=redis://redis:6379
+      # cache
+      - CACHE_ENABLED=false
+      - CACHE_STORE=redis
+      - CACHE_REDIS=redis://redis:6379
+      # file storage
+      - STORAGE_LOCATIONS=s3
+      - STORAGE_S3_DRIVER=s3
+      - STORAGE_S3_KEY
+      - STORAGE_S3_SECRET
+      - STORAGE_S3_BUCKET
+      - STORAGE_S3_ENDPOINT
+      - STORAGE_S3_REGION
+      # telemetry
+      - TELEMETRY=false
+      # email
+      - EMAIL_TRANSPORT=ses
+      - EMAIL_FROM
+      - EMAIL_SES_CREDENTIALS__ACCESS_KEY_ID=${STORAGE_S3_KEY}
+      - EMAIL_SES_CREDENTIALS__SECRET_ACCESS_KEY=${STORAGE_S3_SECRET}
+      - EMAIL_SES_REGION=${STORAGE_S3_REGION}
+      # auths
+      - SECUREWATCH_MAXAR_USERNAME
+      - SECUREWATCH_MAXAR_PASSWORD
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: manager
+    environment:
+      - DB_CONNECTION_STRING
+      - STORAGE_S3_KEY
+      - STORAGE_S3_SECRET
+      - STORAGE_S3_ENDPOINT
+      - STORAGE_S3_BUCKET
+      - STORAGE_S3_REGION
+      - ADMIN_TOKEN
+    restart: unless-stopped
+
+  # web:
+  #   build:
+  #     context: web
+  #   restart: unless-stopped
+
+  nginx:
+    image: nginx:1-alpine
+    ports:
+      - "80:80"
+    depends_on:
+      - directus
+      # - web
+    volumes:
+      - "./server/nginx.conf:/etc/nginx/nginx.conf:ro"
+    restart: unless-stopped
