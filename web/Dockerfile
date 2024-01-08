@@ -1,13 +1,9 @@
-FROM node:20-slim
+FROM node:20-alpine
 
-RUN npm i -g pnpm
+WORKDIR /src
 
-COPY package.json pnpm-lock.yaml ./
+COPY ./.output /src/.output
+# Optional, only needed if you rely on unbundled dependencies
+# COPY ./node_modules /src/node_modules
 
-RUN pnpm i
-
-COPY . .
-
-RUN pnpm build
-
-CMD [ "pnpm", "start" ]
+CMD [ "node", ".output/server/index.mjs" ]
