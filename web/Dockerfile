@@ -1,6 +1,13 @@
 FROM node:20-slim
 
-COPY .output .output
-COPY node_modules node_modules
+RUN npm i -g pnpm
 
-CMD [ "node", ".output/server/index.mjs" ]
+COPY package.json pnpm-lock.yaml ./
+
+RUN pnpm i
+
+COPY . .
+
+RUN pnpm build
+
+CMD [ "pnpm", "start" ]
