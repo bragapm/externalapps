@@ -6,7 +6,7 @@
     "start": "directus start",
     "migrate:up": "directus database migrate:up",
     "migrate:down": "directus database migrate:down",
-    "build": "rollup --config",
+    "build": "rollup --config && mkdir -p dist/modules/api-viewer && cp extensions/modules/api-viewer/index.js dist/modules/api-viewer/index.js",
     "dev": "rollup --config --watch --no-minify"
   },
   "author": "Braga Technologies",

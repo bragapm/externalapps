@@ -2,7 +2,6 @@ FROM node:20-slim AS builder
 WORKDIR /extensions
 COPY ./package.json ./pnpm-lock.yaml ./rollup.config.mjs ./
 RUN corepack enable && pnpm install --frozen-lockfile --prod
-COPY ./dist dist
 COPY ./extensions extensions
 RUN pnpm build
 
