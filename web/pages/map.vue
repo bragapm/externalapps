@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import IcBasemap from "~/assets/icons/ic-basemap.svg";
-import IcMapLayer from "~/assets/icons/ic-map-layer.svg";
-import { Motion, Presence } from "motion/vue";
-const isShowLayerManagement = ref(false);
-const isShowLegend = ref(false);
+// import IcBasemap from "~/assets/icons/ic-basemap.svg";
+// import IcMapLayer from "~/assets/icons/ic-map-layer.svg";
+// import { Motion, Presence } from "motion/vue";
+// const isShowLayerManagement = ref(false);
+// const isShowLegend = ref(false);
 </script>
 
 <template>
   <div class="fixed top-0 left-0 w-screen h-screen flex flex-col items-start">
     <Map></Map>
-    <Presence>
+    <!-- <Presence>
       <Motion
         v-show="isShowLayerManagement"
         :initial="false"
@@ -77,6 +77,6 @@ const isShowLegend = ref(false);
           <IcBasemap class="text-base" />
         </div>
       </UButton>
-    </Motion>
+    </Motion> -->
   </div>
 </template>

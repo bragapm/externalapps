@@ -25,7 +25,7 @@ const isDark = computed({
 
 <template>
   <div class="sticky top-0 z-50 p-6 flex">
-    <Presence>
+    <!-- <Presence>
       <Motion
         v-show="isExpand && route.path === '/map'"
         :initial="{ opacity: 1 }"
@@ -167,6 +167,6 @@ const isDark = computed({
         alt="Avatar"
         size="md"
       />
-    </div>
+    </div> -->
   </div>
 </template>
