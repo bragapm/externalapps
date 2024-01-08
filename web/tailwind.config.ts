@@ -3,6 +3,17 @@ import type { Config } from "tailwindcss";
 export default <Partial<Config>>{
   darkMode: "class",
   theme: {
+    borderRadius: {
+      none: "0",
+      xxs: "4px",
+      xs: "8px",
+      sm: "12px",
+      md: "16px",
+      lg: "20px",
+      xl: "24px",
+      xxl: "32px",
+      full: "9999px",
+    },
     colors: {
       white: "#FFFFFF",
       black: "#000000",
@@ -15,9 +26,9 @@ export default <Partial<Config>>{
         500: "#F36A1D",
         600: "#CD541B",
         700: "#A84118",
-        800: "#703D27",
-        900: "#632D1F",
-        950: "#3C221D",
+        800: "#842F15",
+        900: "#663121",
+        950: "#412820",
       },
       grey: {
         50: "#F9F8F7",
@@ -85,22 +96,6 @@ export default <Partial<Config>>{
     extend: {
       fontSize: {
         "2xs": ["10px", "16px"],
-      },
-      animation: {
-        navbarexpandanimate: "navbarexpand 2s ease-in-out",
-        navbarshrinkanimate: "navbarshrink 2s ease-in-out",
-      },
-      keyframes: {
-        navbarexpand: {
-          "0%": { width: "10%", padding: "0px" },
-          "50%": { width: "100%", padding: "0px" },
-          "100%": { padding: "12px 0px" },
-        },
-        navbarshrink: {
-          "0%": { width: "100%", padding: "12px 0px" },
-          "50%": { width: "100%", padding: "0px" },
-          "100%": { width: "10%" },
-        },
       },
     },
   },

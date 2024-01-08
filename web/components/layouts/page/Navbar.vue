@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Motion, Presence } from "motion/vue";
+import { TransitionRoot } from "@headlessui/vue";
 import IcHome from "~/assets/icons/ic-home.svg";
 import IcLogoGeodashboardFull from "~/assets/icons/ic-logo-geodashboard-full.svg";
 import IcLink from "~/assets/icons/ic-link.svg";
@@ -35,20 +35,12 @@ const isDark = computed({
       >
         <div
           class="bg-black/50 backdrop-blur-sm fixed top-0 left-0 w-screen h-screen z-50"
-        ></div> </Motion
-    ></Presence>
-    <Motion
-      :initial="false"
-      :animate="{
-        width: isExpand ? '100%' : '0%',
-        padding: isExpand ? '12px 0px' : '0px',
-      }"
-      :transition="{
-        easing: 'ease-in-out',
-        width: { duration: 1, delay: isExpand ? 0 : 1 },
-        padding: { duration: 1, delay: isExpand ? 1 : 0 },
-      }"
-      class="relative bg-grey-700 rounded-lg flex items-center justify-between z-50 min-w-fit"
+        ></div>
+      </Motion>
+    </Presence> -->
+    <div
+      :class="isExpand ? 'w-full py-3 px-0' : 'w-0 p-0'"
+      class="relative bg-grey-700 rounded-xs flex items-center justify-between z-50 min-w-fit transition-all duration-300 ease-in-out"
     >
       <div class="flex items-center gap-2">
         <div class="relative flex items-center p-3 gap-3 h-12">
@@ -65,87 +57,88 @@ const isDark = computed({
             class="w-40 text-white"
             :fontControlled="false"
           />
-          <Presence>
-            <Motion
-              v-show="isExpand"
-              :initial="{ opacity: 1 }"
-              :animate="{ opacity: 1 }"
-              :exit="{ opacity: 0 }"
-              :transition="{ duration: 0.5, delay: 1 }"
-              class="absolute right-0 translate-x-full flex gap-4 whitespace-nowrap"
-            >
-              <NuxtLink to="/map" @click="isExpand = !isExpand">
-                <UButton
-                  :color="route.path === '/map' ? 'navActive' : 'navMenu'"
-                  label="Map"
-                  :ui="{ rounded: 'rounded-full' }"
-                  class="text-2xs py-2 px-3 ring-0"
-                >
-                  <template #leading>
-                    <IcMapFlat class="text-base" />
-                  </template>
-                </UButton>
-              </NuxtLink>
-              <NuxtLink to="/">
-                <UButton
-                  :color="route.path === '/' ? 'navActive' : 'navMenu'"
-                  label="Landing Page"
-                  :ui="{ rounded: 'rounded-full' }"
-                  class="text-2xs py-2 px-3 ring-0"
-                >
-                  <template #leading>
-                    <IcHome class="text-base" />
-                  </template>
-                </UButton>
-              </NuxtLink>
-            </Motion>
-          </Presence>
+          <TransitionRoot
+            :show="isExpand"
+            enter="transition-opacity duration-100"
+            enter-from="opacity-0"
+            enter-to="opacity-1"
+            leave="transition-opacity duration-100"
+            leave-from="opacity-1"
+            leave-to="opacity-0"
+            class="absolute right-0 translate-x-full flex gap-4 whitespace-nowrap overflow-hidden opacity-1"
+          >
+            <NuxtLink to="/map" @click="isExpand = !isExpand">
+              <UButton
+                :color="route.path === '/map' ? 'navActive' : 'navMenu'"
+                label="Map"
+                :ui="{ rounded: 'rounded-full' }"
+                class="text-2xs py-2 px-3 ring-0"
+              >
+                <template #leading>
+                  <IcMapFlat class="text-base" />
+                </template>
+              </UButton>
+            </NuxtLink>
+            <NuxtLink to="/">
+              <UButton
+                :color="route.path === '/' ? 'navActive' : 'navMenu'"
+                label="Landing Page"
+                :ui="{ rounded: 'rounded-full' }"
+                class="text-2xs py-2 px-3 ring-0"
+              >
+                <template #leading>
+                  <IcHome class="text-base" />
+                </template>
+              </UButton>
+            </NuxtLink>
+          </TransitionRoot>
         </div>
       </div>
 
-      <Presence>
-        <Motion
-          v-show="isExpand"
-          :initial="{ opacity: 1 }"
-          :animate="{ opacity: 1, transition: { delay: 0.5 } }"
-          :exit="{ opacity: 0 }"
-          :transition="{ duration: 0.5 }"
-          class="absolute right-0 flex items-center gap-2 px-3"
-        >
-          <UButton label="Share Map">
-            <template #trailing>
-              <IcLink class="text-base" />
-            </template>
-          </UButton>
-          <UAvatar
-            src="https://avatars.githubusercontent.com/u/739984?v=4"
-            alt="Avatar"
-            size="md"
-          />
-        </Motion>
-      </Presence>
-      <Presence>
-        <Motion
-          v-show="!isExpand"
-          :initial="{ opacity: 0 }"
-          :animate="{ opacity: 1, transition: { delay: 1.5 } }"
-          :exit="{ opacity: 0 }"
-          :transition="{ duration: 0.5 }"
-          class="absolute top-0 -right-5 translate-x-full bg-grey-700/30 rounded-lg h-12 p-3 max-w-2xl text-white"
-        >
-          <div class="whitespace-nowrap truncate">
-            Map Title Here With Max Character
-            <span class="ml-3 text-sm"
-              >Map Subtitle Here can contain minimum and maximum character and
-              with three dots if space not sufficient Lorem Ipsum Dolor sit
-              ame</span
-            >
-          </div>
-        </Motion>
-      </Presence>
-    </Motion>
+      <TransitionRoot
+        :show="isExpand"
+        enter="transition-opacity duration-100"
+        enter-from="opacity-0"
+        enter-to="opacity-1"
+        leave="transition-opacity duration-100"
+        leave-from="opacity-1"
+        leave-to="opacity-0"
+        class="absolute right-0 flex items-center gap-2 px-3"
+      >
+        <UButton label="Share Map">
+          <template #trailing>
+            <IcLink class="text-base" />
+          </template>
+        </UButton>
+        <UAvatar
+          src="https://avatars.githubusercontent.com/u/739984?v=4"
+          alt="Avatar"
+          size="md"
+          :ui="{ rounded: 'rounded-full' }"
+        />
+      </TransitionRoot>
+      <TransitionRoot
+        :show="!isExpand"
+        enter="transition-opacity duration-1000"
+        enter-from="opacity-0"
+        enter-to="opacity-1"
+        leave="transition-opacity duration-100"
+        leave-from="opacity-1"
+        leave-to="opacity-0"
+        class="absolute top-0 -right-5 translate-x-full bg-grey-700/30 rounded-xs h-12 p-3 max-w-2xl text-white transition-opacity ease-in-out duration-100"
+      >
+        <div class="whitespace-nowrap truncate">
+          Map Title Here With Max Character
+          <span class="ml-3 text-sm"
+            >Map Subtitle Here can contain minimum and maximum character and
+            with three dots if space not sufficient Lorem Ipsum Dolor sit
+            ame</span
+          >
+        </div>
+      </TransitionRoot>
+    </div>
     <div
-      class="absolute top-6 right-6 z-40 flex items-center gap-2 bg-grey-700 p-[6px] h-12 rounded-lg"
+      class="absolute top-6 right-6 z-40 flex items-center gap-2 bg-grey-700 p-[6px] h-12 rounded-xs"
     >
       <UInput placeholder="Search Location">
         <template #trailing>
@@ -166,7 +159,8 @@ const isDark = computed({
         src="https://avatars.githubusercontent.com/u/739984?v=4"
         alt="Avatar"
         size="md"
+        :ui="{ rounded: 'rounded-full' }"
       />
-    </div> -->
+    </div>
   </div>
 </template>
