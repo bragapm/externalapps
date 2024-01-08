@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:20-slim AS builder
 WORKDIR /extensions
 COPY ./package.json ./pnpm-lock.yaml ./rollup.config.mjs ./
 RUN corepack enable && pnpm install --frozen-lockfile --prod

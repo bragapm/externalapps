@@ -74,18 +74,18 @@ services:
     restart: unless-stopped
     network_mode: host
 
-  # web:
-  #   build:
-  #     context: web
-  #   restart: unless-stopped
+  web:
+    build:
+      context: web
+    restart: unless-stopped
 
   nginx:
     image: nginx:1-alpine
     ports:
       - "80:80"
     depends_on:
-    - directus
-    # - web
+      - directus
+      - web
     volumes:
       - "./server/nginx.conf:/etc/nginx/nginx.conf:ro"
     restart: unless-stopped
