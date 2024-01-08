@@ -1,8 +1,7 @@
 FROM node:18-alpine AS builder
 WORKDIR /extensions
 COPY ./package.json ./pnpm-lock.yaml ./rollup.config.mjs ./
-RUN corepack enable
-RUN pnpm install --frozen-lockfile --prod
+RUN corepack enable && pnpm install --frozen-lockfile --prod
 COPY ./dist dist
 COPY ./extensions extensions
 RUN pnpm build
