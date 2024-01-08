@@ -39,7 +39,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Install and build client site
+      - name: Install and build directus
+        run: |
+          pnpm install
+          pnpm build
+        working-directory: extensions
+
+      - name: Install and build client
         run: |
           pnpm install
           pnpm build
