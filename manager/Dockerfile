@@ -1,4 +1,4 @@
-FROM ghcr.io/osgeo/gdal:alpine-normal-3.7.2
+FROM ghcr.io/osgeo/gdal:alpine-normal-3.8.2
 
 # Install Poetry
 RUN wget -O - https://install.python-poetry.org | python3 - --version 1.6.1 && \
