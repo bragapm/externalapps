@@ -6,7 +6,8 @@
     "start": "directus start",
     "migrate:up": "directus database migrate:up",
     "migrate:down": "directus database migrate:down",
-    "build": "rollup --config"
+    "build": "rollup --config",
+    "dev": "rollup --config --watch --no-minify"
   },
   "author": "Braga Technologies",
   "license": "ISC",
