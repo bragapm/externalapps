@@ -1,9 +1,2 @@
-FROM node:20-slim AS builder
-WORKDIR /extensions
-COPY ./package.json ./pnpm-lock.yaml ./rollup.config.mjs ./
-RUN corepack enable && pnpm install --frozen-lockfile --prod
-COPY ./extensions extensions
-RUN pnpm build
-
-FROM directus/directus:10.8.2 AS runtime
-COPY --from=builder /extensions/dist /directus/extensions
+FROM directus/directus:10.8.2
+COPY ./dist /directus/extensions

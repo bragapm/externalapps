@@ -37,3 +37,8 @@ manager/test/
 
 .git
 .gitignore
+
+# directus
+extensions/
+!extensions/dist/
+!extensions/Dockerfile
