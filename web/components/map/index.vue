@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Map, NavigationControl } from "maplibre-gl";
 import type { Raw } from "vue";
-import type { ShallowRef } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
+import { useMapRef } from "~/stores/use-map-ref";
 
 useHead({
   link: [
@@ -13,10 +13,12 @@ useHead({
   ],
 });
 
-const mapContainer: ShallowRef<null | HTMLElement> = shallowRef(null);
-const map: ShallowRef<null | Raw<Map>> = shallowRef(null);
+const mapContainer = shallowRef<null | HTMLElement>(null);
+const map = shallowRef<null | Raw<Map>>(null);
+const store = useMapRef();
 
 onMounted(() => {
+  store.setMapLoad(false);
   const apiKey = "D7JUUxLv3oK21JM9jscD";
 
   const initialState = { lng: 107.60981, lat: -6.914744, zoom: 14 };
@@ -31,8 +33,12 @@ onMounted(() => {
   );
 
   // map.value.addControl(new NavigationControl(), "top-right");
+  map.value.on("load", () => {
+    store.setMapLoad(true);
+  });
 });
 onUnmounted(() => {
+  store.setMapLoad(false);
   map.value?.remove();
 });
 </script>
@@ -45,6 +51,8 @@ onUnmounted(() => {
         alt="MapTiler logo"
     /></a>
     <div class="map" ref="mapContainer"></div>
+
+    <MapMvtLayer :mapRef="map" v-if="store.mapLoad" />
   </div>
 </template>
 
