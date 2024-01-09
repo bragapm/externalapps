@@ -17,7 +17,7 @@ RUN poetry install --without=dev --no-root && rm -rf $POETRY_CACHE_DIR
 
 COPY . .
 ENTRYPOINT ["poetry", "run", "dramatiq"]
-CMD ["-p", "2", "-t", "2", "main"]
+CMD ["-p", "1", "-t", "2", "main"]
 # T3 Micro has 2 vCPU ~ 2 processes
 # T3 Micro has 1GB RAM ~ 2-4 threads is considered safe
 

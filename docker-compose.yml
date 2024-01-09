@@ -59,8 +59,6 @@ services:
       - SECUREWATCH_MAXAR_USERNAME
       - SECUREWATCH_MAXAR_PASSWORD
     restart: unless-stopped
-    ports:
-      - "8055:8055"
 
   worker:
     build:
@@ -80,8 +78,6 @@ services:
     build:
       context: web
     restart: unless-stopped
-    ports:
-      - "3000:3000"
 
   nginx:
     image: nginx:1-alpine
