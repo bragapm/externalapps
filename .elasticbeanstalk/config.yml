@@ -1,12 +1,12 @@
 branch-defaults:
   main:
-    environment: dev-geod2-env
+    environment: dev-geo2-env
 environment-defaults:
-  dev-geod2-env:
+  dev-geo2-env:
     branch: null
     repository: null
 global:
-  application_name: braga-geod-2
+  application_name: geo2
   default_ec2_keyname: null
   default_platform: Docker running on 64bit Amazon Linux 2023
   default_region: ap-southeast-1
