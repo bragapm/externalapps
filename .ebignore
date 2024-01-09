@@ -16,8 +16,8 @@ extensions/
 
 # nuxtjs
 web/
+!web/.output/
 !web/Dockerfile
-!web/.output
 
 # worker manager
 __pycache__
