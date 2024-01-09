@@ -10,29 +10,11 @@ from lib.get_input_data import (
 logger = logging.getLogger(__name__)
 
 
-def get_driver_short_name(format_file: str):
-    match format_file:
-        case "shapefile":
-            return "ESRI Shapefile"
-        case "kml":
-            return "KML"
-        case "xls":
-            return "XLS"
-        case "xlsx":
-            return "XLSX"
-        case "csv":
-            return "CSV"
-        case "geojson":
-            return "GeoJSON"
-        case "gdb":
-            return "OpenFileGDB"
-
-
-def get_header_info_from_datasource(
-    dataSource: gdal.Dataset,
+def get_header_info_from_data_source(
+    data_source: gdal.Dataset,
 ) -> dict:
     try:
-        layer: ogr.Layer = dataSource.GetLayer()
+        layer: ogr.Layer = data_source.GetLayer()
         geom_type = layer.GetGeomType()
         temp_geom = ogr.Geometry(geom_type)
         geom_name = temp_geom.GetGeometryName()
@@ -46,21 +28,23 @@ def get_header_info_from_datasource(
             srs_name = srs.GetAuthorityName(None)
             srs_code = srs.GetAuthorityCode(None)
         else:
-            projection = "null from datasource, set default to WGS 84"
+            projection = "null from data source, set default to WGS 84"
             srs_name = "EPSG"
             srs_code = "4326"
-        
+
         # Get the bounding box and convert it to GeoJSON format
         bbox = layer.GetExtent()
         bbox_geojson = {
             "type": "Polygon",
-            "coordinates": [[
-                [bbox[0], bbox[2]],  # Lower left
-                [bbox[0], bbox[3]],  # Upper left
-                [bbox[1], bbox[3]],  # Upper right
-                [bbox[1], bbox[2]],  # Lower right
-                [bbox[0], bbox[2]]   # Close the polygon (back to Lower left)
-            ]]
+            "coordinates": [
+                [
+                    [bbox[0], bbox[2]],  # Lower left
+                    [bbox[0], bbox[3]],  # Upper left
+                    [bbox[1], bbox[3]],  # Upper right
+                    [bbox[1], bbox[2]],  # Lower right
+                    [bbox[0], bbox[2]],  # Close the polygon (back to Lower left)
+                ]
+            ],
         }
 
         header_info = {
@@ -73,56 +57,63 @@ def get_header_info_from_datasource(
                 for field in layer.schema
             ],
             "geom_name": geom_name,
-            "bbox": bbox_geojson
+            "bbox": bbox_geojson,
         }
-        logger.info("Get header info from datasource")
+        logger.info("Get header info from data source")
         return header_info
 
     except Exception as err:
         raise Exception("Error:", err)
 
 
+def get_driver_short_name(format_file: str):
+    match format_file:
+        case "shapefile":
+            return "ESRI Shapefile"
+        case "kml":
+            return "KML"
+
+
 def get_header_info(format_file, bucket, object_key, is_zipped, table_name):
-    driver_short_name = get_driver_short_name(format_file)
     match format_file:
         case "xls":
-            dataSource = get_input_data_without_vsi_with_vrt(
-                bucket, object_key, is_zipped, driver_short_name, table_name
+            data_source = get_input_data_without_vsi_with_vrt(
+                bucket, object_key, is_zipped, "XLS", table_name
             )
-            header_info = get_header_info_from_datasource(dataSource)
+            header_info = get_header_info_from_data_source(data_source)
         case "xlsx":
-            dataSource = get_input_data_with_vsi_with_vrt(
-                bucket, object_key, is_zipped, driver_short_name, table_name
+            data_source = get_input_data_with_vsi_with_vrt(
+                bucket, object_key, is_zipped, "XLSX", table_name
             )
-            header_info = get_header_info_from_datasource(dataSource)
+            header_info = get_header_info_from_data_source(data_source)
         case "csv":
-            dataSource = get_input_data_with_vsi(
+            data_source = get_input_data_with_vsi(
                 bucket,
                 object_key,
                 is_zipped,
-                driver_short_name,
+                "CSV",
                 ["X_POSSIBLE_NAMES=lon", "Y_POSSIBLE_NAMES=lat"],
             )
-            header_info = get_header_info_from_datasource(dataSource)
+            header_info = get_header_info_from_data_source(data_source)
         case "geojson":
-            dataSource = get_input_data_with_vsi(
+            data_source = get_input_data_with_vsi(
                 bucket,
                 object_key,
                 is_zipped,
-                driver_short_name,
+                "GeoJSON",
                 ["FLATTEN_NESTED_ATTRIBUTES=YES"],
             )
-            header_info = get_header_info_from_datasource(dataSource)
+            header_info = get_header_info_from_data_source(data_source)
         case "gdb":
             object_key_gdb = get_gdb_directory(bucket, object_key)
-            dataSource = get_input_data_with_vsi(
-                bucket, object_key_gdb, is_zipped, driver_short_name
+            data_source = get_input_data_with_vsi(
+                bucket, object_key_gdb, is_zipped, "OpenFileGDB"
             )
-            header_info = get_header_info_from_datasource(dataSource)
+            header_info = get_header_info_from_data_source(data_source)
         case _:
-            dataSource = get_input_data_with_vsi(
-                bucket, object_key, is_zipped, driver_short_name
+            data_source = get_input_data_with_vsi(
+                bucket, object_key, is_zipped, get_driver_short_name(format_file)
             )
-            header_info = get_header_info_from_datasource(dataSource)
+            header_info = get_header_info_from_data_source(data_source)
 
-    return header_info, dataSource
+    return header_info, data_source

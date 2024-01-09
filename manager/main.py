@@ -56,12 +56,12 @@ def transform(
         "table_name", os.path.splitext(os.path.basename(object_key))[0]
     )
     try:
-        header_info, dataSource = get_header_info(
+        header_info, data_source = get_header_info(
             format_file, bucket, object_key, is_zipped, table_name
         )
         conn = pool.getconn()
         create_table_from_header_info(conn, header_info, table_name)
-        fill_table_with_layer_feature(dataSource, header_info, conn, table_name)
+        fill_table_with_layer_feature(data_source, header_info, conn, table_name)
         register_table_to_directus(
             conn, table_name, header_info, uploader, not is_dev_mode()
         )

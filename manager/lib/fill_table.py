@@ -5,8 +5,8 @@ from osgeo import osr
 logger = logging.getLogger(__name__)
 
 
-def fill_table_with_layer_feature(dataSource, header_info, conn, table_name):
-    layer = dataSource.GetLayer()
+def fill_table_with_layer_feature(data_source, header_info, conn, table_name):
+    layer = data_source.GetLayer()
     fields = header_info["fields"]
 
     # Define the source and target spatial reference systems

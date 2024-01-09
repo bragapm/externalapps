@@ -72,7 +72,6 @@ services:
       - STORAGE_S3_REGION
       - ADMIN_TOKEN
     restart: unless-stopped
-    network_mode: host
 
   web:
     build:
