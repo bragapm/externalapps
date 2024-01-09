@@ -15,9 +15,12 @@ extensions/
 !extensions/Dockerfile
 
 # nuxtjs
-web/*
-!web/.output/
-!web/Dockerfile
+web/assets
+web/components
+web/layouts
+web/pages
+web/public
+web/server
 
 # worker manager
 __pycache__
