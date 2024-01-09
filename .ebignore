@@ -16,6 +16,7 @@ extensions/
 
 # nuxtjs
 web/
+!web/.output
 !web/.output/
 !web/Dockerfile
 
