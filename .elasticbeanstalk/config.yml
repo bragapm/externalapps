@@ -1,8 +1,8 @@
 branch-defaults:
   main:
-    environment: dev-geod-2-env
+    environment: dev-geod2-env
 environment-defaults:
-  dev-geod-2-env:
+  dev-geod2-env:
     branch: null
     repository: null
 global:
