@@ -48,7 +48,7 @@ const { map, geolocateRef } = storeToRefs(store);
       leave-from="left-0 opacity-1"
       leave-to="-left-10 opacity-0"
       :class="isShowLayerManagement ? 'left-[20.5rem]' : 'left-[1.5rem]'"
-      class="absolute top-[5.5rem] bg-grey-700 h-72 w-[15.5rem] rounded-xs p-3 transition-all ease-in-out duration-300"
+      class="absolute top-[5.5rem] bg-grey-900 h-72 w-[15.5rem] rounded-xs p-3 transition-all ease-in-out duration-300"
     >
       <h2 class="text-white">Legend</h2>
     </TransitionRoot>
@@ -90,7 +90,7 @@ const { map, geolocateRef } = storeToRefs(store);
       leave="transition-all duration-300"
       leave-from="right-0 opacity-1"
       leave-to="-right-10 opacity-0"
-      class="absolute top-[5.5rem] right-6 bg-grey-700 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapInformation />
     </TransitionRoot>
@@ -103,7 +103,7 @@ const { map, geolocateRef } = storeToRefs(store);
       leave="transition-all duration-300"
       leave-from="right-0 opacity-1"
       leave-to="-right-10 opacity-0"
-      class="absolute top-[5.5rem] right-6 bg-grey-700 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapInfospace />
     </TransitionRoot>
@@ -145,9 +145,7 @@ const { map, geolocateRef } = storeToRefs(store);
     <MapCoordinatesPanel />
 
     <!-- bottom toolbox -->
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-xs">
-      <MapToolbox />
-    </div>
+    <MapToolbox />
 
     <!-- bottom right map controller -->
     <div class="absolute bottom-8 right-6">

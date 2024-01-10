@@ -1,0 +1,39 @@
+<script setup lang="ts">
+import { TransitionRoot } from "@headlessui/vue";
+import IcCross from "~/assets/icons/ic-cross.svg";
+import IcDrawSquare from "~/assets/icons/ic-draw-square.svg";
+
+export interface Props {
+  active?: boolean;
+  label?: string;
+  onClose?: () => void;
+}
+const props = withDefaults(defineProps<Props>(), {
+  active: false,
+  label: "",
+  onClose: () => {},
+});
+</script>
+
+<template>
+  <TransitionRoot
+    as="div"
+    :show="active"
+    enter="transition-all duration-300"
+    enter-from="-bottom-8 opacity-0"
+    enter-to="bottom-0 opacity-1"
+    leave="transition-all duration-300"
+    leave-from="bottom-0 opacity-1"
+    leave-to="-bottom-8 opacity-0"
+    class="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-xs bg-grey-800 w-[20rem] divide-y divide-grey-200"
+  >
+    <div class="flex items-center gap-[6px] p-2">
+      <IcDrawSquare class="w-3 h-3 text-grey-400" :fontControlled="false" />
+      <p class="flex-1 text-grey-200 text-2xs">{{ label }}</p>
+      <UButton @click="onClose" size="sm" color="transparent" class="p-0">
+        <IcCross class="w-2 h-2 text-grey-400 m-2" :fontControlled="false" />
+      </UButton>
+    </div>
+    <slot />
+  </TransitionRoot>
+</template>
