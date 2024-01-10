@@ -141,6 +141,9 @@ const { map, geolocateRef } = storeToRefs(store);
       </MapButtonControl>
     </div>
 
+    <!-- bottom left map -->
+    <MapCoordinatesPanel />
+
     <!-- bottom toolbox -->
     <div class="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-xs">
       <MapToolbox />
