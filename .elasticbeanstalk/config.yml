@@ -1,8 +1,8 @@
 branch-defaults:
   latest:
-    environment: latest-geo2-env
+    environment: dev-geo2-env
 environment-defaults:
-  latest-geo2-env:
+  dev-geo2-env:
     branch: null
     repository: null
 global:
