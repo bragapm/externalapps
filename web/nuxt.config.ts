@@ -1,14 +1,15 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   colorMode: {
-    preference: 'light'
+    preference: "light",
   },
+  css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@pinia/nuxt', '@nuxt/image', 'nuxt-svgo'],
+  modules: ["@nuxt/ui", "@pinia/nuxt", "@nuxt/image", "nuxt-svgo"],
   pinia: {
-    storesDirs: ['./stores/**'],
+    storesDirs: ["./stores/**"],
   },
   image: {
-    dir: 'assets/images'
-  }
-})
+    dir: "assets/images",
+  },
+});

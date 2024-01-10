@@ -1,10 +1,20 @@
 import { defineStore } from "pinia";
+import type { Raw } from "vue";
+import { Map, GeolocateControl } from "maplibre-gl";
 
 export const useMapRef = defineStore("mapref", () => {
   const mapLoad = ref<boolean>(false);
+  const map = ref<null | Raw<Map>>(null);
+  const geolocateRef = ref<null | Raw<GeolocateControl>>(null);
   function setMapLoad(value: boolean) {
     mapLoad.value = value;
   }
-  
-  return { mapLoad, setMapLoad };
+  function setMapRef(value: null | Raw<Map>) {
+    map.value = value;
+  }
+  function setGeolocateRef(value: null | Raw<GeolocateControl>) {
+    geolocateRef.value = value;
+  }
+
+  return { mapLoad, setMapLoad, map, setMapRef, geolocateRef, setGeolocateRef };
 });

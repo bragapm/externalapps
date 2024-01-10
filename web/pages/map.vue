@@ -3,12 +3,21 @@ import { TransitionRoot } from "@headlessui/vue";
 import IcBasemap from "~/assets/icons/ic-basemap.svg";
 import IcBookmark from "~/assets/icons/ic-bookmark.svg";
 import IcChart from "~/assets/icons/ic-chart.svg";
+import IcLocation from "~/assets/icons/ic-location.svg";
+import IcMapExtent from "~/assets/icons/ic-map-instance.svg";
 import IcMapLayer from "~/assets/icons/ic-map-layer.svg";
+import IcZoomIn from "~/assets/icons/ic-plus.svg";
+import IcZoomOut from "~/assets/icons/ic-min.svg";
+import { useMapRef } from "~/stores/use-map-ref";
+import { storeToRefs } from "pinia";
 const isShowLayerManagement = ref(false);
 const isShowLegend = ref(false);
 const isShowInformation = ref(false);
 const isShowInfospace = ref(false);
 const isShowToolbox = ref(true);
+
+const store = useMapRef();
+const { map, geolocateRef } = storeToRefs(store);
 </script>
 
 <template>
@@ -133,10 +142,45 @@ const isShowToolbox = ref(true);
     </div>
 
     <!-- bottom toolbox -->
-    <div
-      class="absolute bottom-8 left-1/2 -translate-x-1/2 bg-grey-900 rounded-xs"
-    >
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-xs">
       <MapToolbox />
+    </div>
+
+    <!-- bottom right map controller -->
+    <div class="absolute bottom-8 right-6">
+      <div class="flex gap-2 bg-black/30 rounded-xs p-2">
+        <button
+          @click="
+            () =>
+              map &&
+              map.fitBounds([
+                [107.58429682785311, -6.932061881071363],
+                [107.63532317215248, -6.897425484108055],
+              ])
+          "
+          class="bg-transparent hover:bg-black p-2 rounded-xs"
+        >
+          <IcMapExtent class="w-5 h-5 text-white" :fontControlled="false" />
+        </button>
+        <button
+          @click="() => map && geolocateRef && geolocateRef.trigger()"
+          class="bg-transparent hover:bg-black p-2 rounded-xs"
+        >
+          <IcLocation class="w-5 h-5 text-white" :fontControlled="false" />
+        </button>
+        <button
+          @click="() => map && map.zoomOut()"
+          class="bg-transparent hover:bg-black p-2 rounded-xs"
+        >
+          <IcZoomOut class="w-5 h-5 text-white" :fontControlled="false" />
+        </button>
+        <button
+          @click="() => map && map.zoomIn()"
+          class="bg-transparent hover:bg-black p-2 rounded-xs"
+        >
+          <IcZoomIn class="w-5 h-5 text-white" :fontControlled="false" />
+        </button>
+      </div>
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Map, NavigationControl } from "maplibre-gl";
+import { Map, NavigationControl, GeolocateControl } from "maplibre-gl";
 import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
 import { useMapRef } from "~/stores/use-map-ref";
@@ -15,10 +15,12 @@ useHead({
 
 const mapContainer = shallowRef<null | HTMLElement>(null);
 const map = shallowRef<null | Raw<Map>>(null);
+const geolocate = shallowRef<null | Raw<GeolocateControl>>(null);
 const store = useMapRef();
+const { setMapLoad, setMapRef, setGeolocateRef } = store;
 
 onMounted(() => {
-  store.setMapLoad(false);
+  setMapLoad(false);
   const apiKey = "D7JUUxLv3oK21JM9jscD";
 
   const initialState = { lng: 107.60981, lat: -6.914744, zoom: 14 };
@@ -32,24 +34,44 @@ onMounted(() => {
     })
   );
 
+  geolocate.value = markRaw(
+    new GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true,
+      },
+      trackUserLocation: true,
+    })
+  );
+
+  map.value.addControl(
+    new NavigationControl({ showZoom: false }),
+    "bottom-left"
+  );
+
+  map.value.addControl(geolocate.value);
+
   // map.value.addControl(new NavigationControl(), "top-right");
+  setMapRef(map.value);
+  setGeolocateRef(geolocate.value);
   map.value.on("load", () => {
-    store.setMapLoad(true);
+    setMapLoad(true);
   });
 });
 onUnmounted(() => {
-  store.setMapLoad(false);
+  setMapLoad(false);
+  setMapRef(null);
+  setGeolocateRef(null);
   map.value?.remove();
 });
 </script>
 
 <template>
   <div class="map-wrap">
-    <a href="https://www.maptiler.com" class="watermark"
+    <!-- <a href="https://www.maptiler.com" class="watermark"
       ><img
         src="https://api.maptiler.com/resources/logo.svg"
         alt="MapTiler logo"
-    /></a>
+    /></a> -->
     <div class="map" ref="mapContainer"></div>
 
     <MapMvtLayer :mapRef="map" v-if="store.mapLoad" />
@@ -58,7 +80,6 @@ onUnmounted(() => {
 
 <style scoped>
 /* @import "~maplibre-gl/dist/maplibre-gl.css"; */
-
 .map-wrap {
   position: relative;
   width: 100%;

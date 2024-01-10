@@ -24,7 +24,7 @@ const props = defineProps<{
           open
             ? 'bg-brand-950 text-brand-500'
             : 'bg-transparent enabled:hover:bg-grey-800 text-grey-200 disabled:hover:bg-transparent',
-          'inline-flex w-full items-center h-9 gap-3 rounded-xxs px-4 py-2 text-sm font-normal focus:outline-none disabled:text-grey-200',
+          'inline-flex w-full items-center h-9 gap-3 rounded-xxs px-2 py-2 text-sm font-normal focus:outline-none disabled:text-grey-200',
         ]"
       >
         <component
