@@ -76,7 +76,7 @@ export async function up(knex) {
         EXECUTE format('DELETE FROM directus_collections WHERE collection = %L', OLD.layer_name);
         EXECUTE format('DELETE FROM directus_fields WHERE collection = %L', OLD.layer_name);
         EXECUTE format('DELETE FROM directus_presets WHERE collection = %L', OLD.layer_name);
-        EXECUTE format('UPDATE directus_revisions SET parent = NULL WHERE parent = %L', OLD.layer_name);
+        EXECUTE format('UPDATE directus_revisions SET parent = NULL WHERE parent IN (SELECT id FROM directus_revisions WHERE collection = %L)', OLD.layer_name);
         EXECUTE format('DELETE FROM directus_revisions WHERE collection = %L', OLD.layer_name);
         EXECUTE format('DELETE FROM directus_activity WHERE collection = %L', OLD.layer_name);
         EXECUTE format('DELETE FROM directus_permissions WHERE collection = %L', OLD.layer_name);
