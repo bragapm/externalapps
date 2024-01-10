@@ -6,6 +6,7 @@ from lib.get_input_data import (
     get_input_data_with_vsi_with_vrt,
     get_gdb_directory,
 )
+from lib.register_table import create_bbox_polygon
 
 logger = logging.getLogger(__name__)
 
@@ -34,18 +35,7 @@ def get_header_info_from_data_source(
 
         # Get the bounding box and convert it to GeoJSON format
         bbox = layer.GetExtent()
-        bbox_geojson = {
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [bbox[0], bbox[2]],  # Lower left
-                    [bbox[0], bbox[3]],  # Upper left
-                    [bbox[1], bbox[3]],  # Upper right
-                    [bbox[1], bbox[2]],  # Lower right
-                    [bbox[0], bbox[2]],  # Close the polygon (back to Lower left)
-                ]
-            ],
-        }
+        bbox_geojson = create_bbox_polygon(bbox[0], bbox[2], bbox[1], bbox[3])
 
         header_info = {
             "num_features": layer.GetFeatureCount(),

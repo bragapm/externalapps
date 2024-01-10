@@ -7,6 +7,22 @@ from psycopg2.extras import Json
 logger = logging.getLogger(__name__)
 
 
+def create_bbox_polygon(lon_min, lat_min, lon_max, lat_max):
+    # Define the polygon coordinates for the bounding box
+    coordinates = [
+        [
+            [lon_min, lat_min],  # Bottom left
+            [lon_min, lat_max],  # Top left
+            [lon_max, lat_max],  # Top right
+            [lon_max, lat_min],  # Bottom right
+            [lon_min, lat_min],  # Closing the loop
+        ]
+    ]
+
+    # Create a GeoJSON Polygon
+    return {"type": "Polygon", "coordinates": coordinates}
+
+
 def register_table_to_directus(
     conn, table_name, header_info, uploader, with_invalidate=True
 ):
@@ -33,7 +49,7 @@ def register_table_to_directus(
         logger.info("Clear directus table schema cache")
 
 
-def insert_into_spatial_data_raster_tile_uploaded_list(
+def register_raster_tile(
     conn,
     raster_id: str,
     raster_alias: str,
@@ -48,18 +64,15 @@ def insert_into_spatial_data_raster_tile_uploaded_list(
     with conn:
         with conn.cursor() as cur:
             cur.execute(
-                """INSERT INTO spatial_data_raster_tile_uploaded_list(raster_id, raster_alias, lon_min, lat_min, lon_max, lat_max, z_min, z_max, user_created)
-            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                """INSERT INTO raster_tiles(raster_id, layer_alias, bounds, minzoom, maxzoom, user_created)
+            VALUES(%s, %s, %s, %s, %s, %s)""",
                 [
                     raster_id,
                     raster_alias,
-                    lon_min,
-                    lat_min,
-                    lon_max,
-                    lat_max,
+                    Json(create_bbox_polygon(lon_min, lat_min, lon_max, lat_max)),
                     z_min,
                     z_max,
                     uploader,
                 ],
             )
-    logger.info("Register to spatial_data_raster_tile_uploaded_list")
+    logger.info("Register to raster tiles")

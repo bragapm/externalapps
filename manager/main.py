@@ -21,7 +21,7 @@ from lib.create_table import create_table_from_header_info
 from lib.fill_table import fill_table_with_layer_feature
 from lib.register_table import (
     register_table_to_directus,
-    insert_into_spatial_data_raster_tile_uploaded_list,
+    register_raster_tile,
 )
 from lib.raster_tiling import raster_tiling
 
@@ -88,14 +88,13 @@ def tiling(
     min_zoom,
     max_zoom,
     bucket=os.environ.get("STORAGE_S3_BUCKET"),
-    **kwargs,
 ):
     try:
         (raster_id, xmin, ymin, xmax, ymax) = raster_tiling(
             bucket, object_key, min_zoom, max_zoom
         )
         conn = pool.getconn()
-        insert_into_spatial_data_raster_tile_uploaded_list(
+        register_raster_tile(
             conn,
             raster_id,
             raster_alias,
@@ -124,12 +123,12 @@ def tiling(
 
 
 def main():
-    transform(
-        uploader="4a2311b7-b442-4464-8235-bfd7e39234e7",
-        is_zipped=True,
-        object_key="9d329b75-0e5c-416d-b571-63f1009d8bc3.zip",
-        table_name="sp_data_fasosum",
-        format_file="shapefile",
+    tiling(
+        object_key="b0e271ae-8d03-4810-b7ea-7f409cfff2f2.tif",
+        uploader="49015332-8717-411c-bb40-b589d4273a8a",
+        raster_alias="raster_bali6",
+        min_zoom=5,
+        max_zoom=15,
     )
 
 
