@@ -19,8 +19,8 @@ export async function up(knex) {
       FROM public.directus_folders
       WHERE id = NEW.folder;
 
-      -- Check if the folder_name is 'Layer Data' or 'Raster'
-      IF folder_name = 'Layer Data' OR folder_name = 'Raster' THEN
+      -- Check if the folder_name is 'Layer Data'
+      IF folder_name = 'Layer Data' THEN
           -- Generate a random UUID
           v_uuid := gen_random_uuid();
 
