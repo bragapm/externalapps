@@ -23,6 +23,9 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = os.environ.get("STORAGE_S3_SECRET")
 ogr.RegisterAll()
 gdal.UseExceptions()
 
+# Ensure GDAL uses COPY in when inserting data into PostgreSQL
+gdal.SetConfigOption("PG_USE_COPY", "YES")
+
 
 def generate_local_temp_dir_path(object_key: str):
     return f"/tmp/geodashboard_{object_key}"
