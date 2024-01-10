@@ -1,5 +1,5 @@
 branch-defaults:
-  main:
+  dev:
     environment: dev-geo2-env
 environment-defaults:
   dev-geo2-env:
