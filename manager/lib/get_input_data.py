@@ -31,7 +31,7 @@ gdal.SetConfigOption(
 )
 
 # Ensure GDAL uses Amazon S3 Virtual File System Handler
-ogr.RegisterAll()
+gdal.AllRegister()
 gdal.UseExceptions()
 
 # Ensure GDAL uses COPY in when inserting data into PostgreSQL
