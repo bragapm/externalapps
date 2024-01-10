@@ -1,6 +1,7 @@
 import shutil
 import logging
 import os
+from urllib.parse import urlparse
 from osgeo import ogr, gdal
 from minio import Minio
 from typing import List
@@ -8,16 +9,26 @@ from typing import List
 logger = logging.getLogger(__name__)
 
 # init minio client
+parsed_url = urlparse(os.environ.get("STORAGE_S3_ENDPOINT"))
+s3_endpoint = parsed_url.netloc if parsed_url.scheme else parsed_url.path
+
 minio_client = Minio(
-    endpoint=os.environ.get("STORAGE_S3_ENDPOINT"),
+    endpoint=s3_endpoint,
     access_key=os.environ.get("STORAGE_S3_KEY"),
     secret_key=os.environ.get("STORAGE_S3_SECRET"),
-    secure=False,
+    region=os.environ.get("STORAGE_S3_REGION"),
+    secure=False if parsed_url.scheme == "http" else True,
 )
 
-# Set AWS S3 credentials for GDAL
-os.environ["AWS_ACCESS_KEY_ID"] = os.environ.get("STORAGE_S3_KEY")
-os.environ["AWS_SECRET_ACCESS_KEY"] = os.environ.get("STORAGE_S3_SECRET")
+# Set S3 configuration for GDAL
+gdal.SetConfigOption("AWS_ACCESS_KEY_ID", os.environ.get("STORAGE_S3_KEY"))
+gdal.SetConfigOption("AWS_SECRET_ACCESS_KEY", os.environ.get("STORAGE_S3_SECRET"))
+gdal.SetConfigOption("AWS_S3_ENDPOINT", s3_endpoint)
+gdal.SetConfigOption("AWS_REGION", os.environ.get("STORAGE_S3_REGION"))
+gdal.SetConfigOption("AWS_HTTPS", "NO" if parsed_url.scheme == "http" else "YES")
+gdal.SetConfigOption(
+    "AWS_VIRTUAL_HOSTING", "TRUE" if s3_endpoint == "s3.amazonaws.com" else "FALSE"
+)
 
 # Ensure GDAL uses Amazon S3 Virtual File System Handler
 ogr.RegisterAll()
