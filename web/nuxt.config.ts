@@ -12,4 +12,15 @@ export default defineNuxtConfig({
   image: {
     dir: "assets/images",
   },
+  nitro: {
+    routeRules: {
+      "/panel/**": {
+        proxy:
+          process.env.NODE_ENV === "production"
+            ? "http://directus:8055/**"
+            // : "https://latest.geodashboard.io/panel/**",
+            : "http://localhost:8055/**",
+      },
+    },
+  },
 });
