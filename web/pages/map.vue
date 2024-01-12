@@ -10,6 +10,7 @@ import IcZoomIn from "~/assets/icons/ic-plus.svg";
 import IcZoomOut from "~/assets/icons/ic-min.svg";
 import { useMapRef } from "~/stores/use-map-ref";
 import { storeToRefs } from "pinia";
+import { useTableData } from "~/stores/use-table-data";
 const isShowLayerManagement = ref(false);
 const isShowLegend = ref(false);
 const isShowInformation = ref(false);
@@ -18,23 +19,31 @@ const isShowToolbox = ref(true);
 
 const store = useMapRef();
 const { map, geolocateRef } = storeToRefs(store);
+
+const storeTableData = useTableData();
+const { showTable, fullscreen } = storeToRefs(storeTableData);
 </script>
 
 <template>
-  <div class="fixed top-0 left-0 w-screen h-screen flex flex-col items-start">
+  <div
+    :class="[
+      showTable && fullscreen && 'z-50',
+      'fixed top-0 left-0 w-screen h-screen flex flex-col items-start',
+    ]"
+  >
     <Map></Map>
 
     <!-- left sidebar -->
     <TransitionRoot
       as="div"
       :show="isShowLayerManagement"
-      enter="transition-all duration-300"
-      enter-from="-left-10 opacity-0"
-      enter-to="left-0 opacity-1"
-      leave="transition-all duration-300"
-      leave-from="left-0 opacity-1"
-      leave-to="-left-10 opacity-0"
-      class="absolute top-[5.5rem] bg-grey-900 w-[18.5rem] rounded-xs p-3 max-h-screen left-6"
+      enter="transform transition-all duration-300"
+      enter-from="-ml-8 opacity-0"
+      enter-to="ml-0 opacity-1"
+      leave="transform transition-all duration-300"
+      leave-from="ml-0 opacity-1"
+      leave-to="-ml-8 opacity-0"
+      class="absolute top-[5.5rem] bg-grey-900 w-[18.5rem] rounded-xs p-3 max-h-screen left-6 z-10"
     >
       <MapLayerManagement />
     </TransitionRoot>
@@ -42,21 +51,40 @@ const { map, geolocateRef } = storeToRefs(store);
       as="div"
       :show="isShowLegend"
       enter="transition-all duration-300"
-      enter-from="-left-10 opacity-0"
-      enter-to="left-0 opacity-1"
+      enter-from="-ml-8 opacity-0"
+      enter-to="ml-0 opacity-1"
       leave="transition-all duration-300"
-      leave-from="left-0 opacity-1"
-      leave-to="-left-10 opacity-0"
+      leave-from="ml-0 opacity-1"
+      leave-to="-ml-8 opacity-0"
       :class="isShowLayerManagement ? 'left-[20.5rem]' : 'left-[1.5rem]'"
       class="absolute top-[5.5rem] bg-grey-900 h-72 w-[15.5rem] rounded-xs p-3 transition-all ease-in-out duration-300"
     >
       <h2 class="text-white">Legend</h2>
     </TransitionRoot>
+    <TransitionRoot
+      :show="showTable"
+      enter="transition-all duration-1000"
+      enter-from="-ml-8 opacity-0"
+      enter-to="ml-0 opacity-1"
+      leave="transition-all duration-1000"
+      leave-from="ml-0 opacity-1"
+      leave-to="-ml-8 opacity-0"
+      :class="[
+        !fullscreen
+          ? 'w-[calc(50vw-3rem)] h-[calc(100vh-7.5rem)] top-[5.5rem]'
+          : 'w-[calc(100vw-3rem)] h-[calc(100vh-3rem)] top-[1.5rem]',
+        'absolute z-20 left-[1.5rem] bg-grey-900 h-[calc(100vh-7.5rem)] rounded-xs transition-all ease-in-out duration-300',
+      ]"
+    >
+      <MapLayerManagementTable />
+    </TransitionRoot>
 
     <!-- top left button controller -->
     <div
       :class="
-        isShowLayerManagement && isShowLegend
+        showTable
+          ? 'left-[36.5rem]'
+          : isShowLayerManagement && isShowLegend
           ? 'left-[36.5rem]'
           : isShowLayerManagement
           ? 'left-[20.5rem]'
@@ -85,11 +113,11 @@ const { map, geolocateRef } = storeToRefs(store);
       as="div"
       :show="isShowInformation"
       enter="transition-all duration-300"
-      enter-from="-right-10 opacity-0"
-      enter-to="right-0 opacity-1"
+      enter-from="-mr-8 opacity-0"
+      enter-to="mr-0 opacity-1"
       leave="transition-all duration-300"
-      leave-from="right-0 opacity-1"
-      leave-to="-right-10 opacity-0"
+      leave-from="mr-0 opacity-1"
+      leave-to="-mr-8 opacity-0"
       class="absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapInformation />
@@ -98,11 +126,11 @@ const { map, geolocateRef } = storeToRefs(store);
       as="div"
       :show="isShowInfospace"
       enter="transition-all duration-300"
-      enter-from="-right-10 opacity-0"
-      enter-to="right-0 opacity-1"
+      enter-from="-mr-8 opacity-0"
+      enter-to="mr-0 opacity-1"
       leave="transition-all duration-300"
-      leave-from="right-0 opacity-1"
-      leave-to="-right-10 opacity-0"
+      leave-from="mr-0 opacity-1"
+      leave-to="-mr-8 opacity-0"
       class="absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapInfospace />

@@ -10,21 +10,25 @@ import IcRuler from "~/assets/icons/ic-ruler.svg";
 import IcRulerCorner from "~/assets/icons/ic-ruler-corner.svg";
 import IcSearch from "~/assets/icons/ic-search.svg";
 import IcTools from "~/assets/icons/ic-tools.svg";
+import { useTableData } from "~/stores/use-table-data";
+import { storeToRefs } from "pinia";
 
 const showToolbox = ref(true);
 const showIsochroneCard = ref(false);
+const store = useTableData();
+const { showTable } = storeToRefs(store);
 </script>
 
 <template>
   <TransitionRoot
     as="div"
-    :show="showToolbox"
+    :show="!showTable && showToolbox"
     enter="transition-all duration-300"
-    enter-from="-bottom-8 opacity-0"
-    enter-to="bottom-0 opacity-1"
+    enter-from="-mb-6 opacity-0"
+    enter-to="mb-0 opacity-1"
     leave="transition-all duration-300"
-    leave-from="bottom-0 opacity-1"
-    leave-to="-bottom-8 opacity-0"
+    leave-from="mb-0 opacity-1"
+    leave-to="-mb-6 opacity-0"
     class="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-xs"
   >
     <div class="flex gap-2 bg-grey-900 ring-1 ring-grey-700 rounded-xs p-2">
