@@ -25,13 +25,13 @@ export async function up(knex) {
       sort integer
     );
 
-    CREATE TABLE IF NOT EXISTS landing (
+    CREATE TABLE IF NOT EXISTS home (
       lang character varying(3) NOT NULL PRIMARY KEY
     );
 
-    CREATE TABLE IF NOT EXISTS landing_blocks (
+    CREATE TABLE IF NOT EXISTS home_blocks (
       id serial NOT NULL PRIMARY KEY,
-      landing_lang character varying(3) REFERENCES landing (lang)
+      home_lang character varying(3) REFERENCES home (lang)
         ON DELETE CASCADE,
       item character varying(255),
       collection character varying(255),
@@ -45,16 +45,16 @@ export async function up(knex) {
       ('block_hero',NULL,TRUE,'#3399FF','blocks'),
       ('block_hero_slides',NULL,TRUE,'#3399FF','blocks'),
       ('block_hero_block_hero_slides','import_export',TRUE,'#3399FF','blocks'),
-      ('landing','home',FALSE,'#3399FF','pages'),
-      ('landing_blocks','import_export',TRUE,'#3399FF','landing');
+      ('home','home',FALSE,'#3399FF','pages'),
+      ('home_blocks','import_export',TRUE,'#3399FF','home');
 
     INSERT INTO directus_fields(collection,field,special,interface,options,display,display_options,readonly,hidden,sort,width,translations,note,conditions,required,"group",validation,validation_message)
     VALUES
-      ('landing','lang',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,'ISO 639 Set 3 language code (https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes)',NULL,TRUE,NULL,NULL,NULL),
-      ('landing_blocks','id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('landing_blocks','landing_lang',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('landing_blocks','item',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('landing_blocks','collection',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('home','lang',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,'ISO 639 Set 3 language code (https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes)',NULL,TRUE,NULL,NULL,NULL),
+      ('home_blocks','id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('home_blocks','home_lang',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('home_blocks','item',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('home_blocks','collection',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero','slides','m2m','list-m2m','{"allowDuplicates":true,"template":"{{block_hero_slides_id.title}}"}','related-values','{"template":"{{block_hero_slides_id.title}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
       ('block_hero','id',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_slides','id',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
@@ -70,35 +70,35 @@ export async function up(knex) {
       ('block_hero_block_hero_slides','sort',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_block_hero_slides','block_hero_slides_id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_block_hero_slides','block_hero_id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('landing','blocks','m2a','list-m2a',NULL,'related-values','{"template":"{{collection}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
-      ('landing_blocks','sort',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL);
+      ('home','blocks','m2a','list-m2a',NULL,'related-values','{"template":"{{collection}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
+      ('home_blocks','sort',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL);
 
     INSERT INTO directus_relations(many_collection,many_field,one_collection,one_field,one_collection_field,one_allowed_collections,junction_field,sort_field,one_deselect_action)
     VALUES
       ('block_hero_slides','image','directus_files',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('block_hero_block_hero_slides','block_hero_id','block_hero','slides',NULL,NULL,'block_hero_slides_id','sort','delete'),
       ('block_hero_block_hero_slides','block_hero_slides_id','block_hero_slides',NULL,NULL,NULL,'block_hero_id',NULL,'nullify'),
-      ('landing_blocks','item',NULL,NULL,'collection','block_hero','landing_lang',NULL,'nullify'),
-      ('landing_blocks','landing_lang','landing','blocks',NULL,NULL,'item','sort','delete');
+      ('home_blocks','item',NULL,NULL,'collection','block_hero','home_lang',NULL,'nullify'),
+      ('home_blocks','home_lang','home','blocks',NULL,NULL,'item','sort','delete');
 
     INSERT INTO directus_permissions(collection,action,fields)
     VALUES
       ('block_hero','read','*'),
       ('block_hero_slides','read','*'),
       ('block_hero_block_hero_slides','read','*'),
-      ('landing','read','*'),
-      ('landing_blocks','read','*');
+      ('home','read','*'),
+      ('home_blocks','read','*');
   `);
 }
 
 export async function down(knex) {
   await knex.raw(`
-    DELETE FROM directus_permissions WHERE role IS NULL AND collection IN ('block_hero','block_hero_slides','block_hero_block_hero_slides','landing','landing_blocks');
-    DELETE FROM directus_relations WHERE many_collection IN ('block_hero_slides','block_hero_block_hero_slides','landing_blocks');
-    DELETE FROM directus_fields WHERE collection IN ('pages','blocks','block_hero','block_hero_slides','block_hero_block_hero_slides','landing','landing_blocks');
-    DELETE FROM directus_collections WHERE collection IN ('pages','blocks','block_hero','block_hero_slides','block_hero_block_hero_slides','landing','landing_blocks');
-    DROP TABLE IF EXISTS landing_blocks;
-    DROP TABLE IF EXISTS landing;
+    DELETE FROM directus_permissions WHERE role IS NULL AND collection IN ('block_hero','block_hero_slides','block_hero_block_hero_slides','home','home_blocks');
+    DELETE FROM directus_relations WHERE many_collection IN ('block_hero_slides','block_hero_block_hero_slides','home_blocks');
+    DELETE FROM directus_fields WHERE collection IN ('pages','blocks','block_hero','block_hero_slides','block_hero_block_hero_slides','home','home_blocks');
+    DELETE FROM directus_collections WHERE collection IN ('pages','blocks','block_hero','block_hero_slides','block_hero_block_hero_slides','home','home_blocks');
+    DROP TABLE IF EXISTS home_blocks;
+    DROP TABLE IF EXISTS home;
     DROP TABLE IF EXISTS block_hero_block_hero_slides;
     DROP TABLE IF EXISTS block_hero_slides;
     DROP TABLE IF EXISTS block_hero;
