@@ -44,7 +44,7 @@ export async function up(knex) {
       ('blocks','folder',TRUE,'#3399FF','pages'),
       ('block_hero',NULL,TRUE,'#3399FF','blocks'),
       ('block_hero_slides',NULL,TRUE,'#3399FF','blocks'),
-      ('block_hero_block_hero_slides_slides','import_export',TRUE,'#3399FF','blocks'),
+      ('block_hero_block_hero_slides','import_export',TRUE,'#3399FF','blocks'),
       ('landing','home',FALSE,'#3399FF','pages'),
       ('landing_blocks','import_export',TRUE,'#3399FF','landing');
 
