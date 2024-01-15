@@ -23,6 +23,9 @@ defineProps<{
 }>();
 
 const current = useState("heroCurrentSlide", () => 0);
+const timeout = useState<NodeJS.Timeout>("heroChangeSlideTimeout");
+const mouseOver = useState("heroMouseOver", () => false);
+
 const [container, slider] = useKeenSlider(
   {
     loop: true,
@@ -33,27 +36,7 @@ const [container, slider] = useKeenSlider(
   },
   [
     (slider) => {
-      let timeout: NodeJS.Timeout;
-      let mouseOver = false;
-      function clearNextTimeout() {
-        clearTimeout(timeout);
-      }
-      function nextTimeout() {
-        clearTimeout(timeout);
-        if (mouseOver) return;
-        timeout = setTimeout(() => {
-          slider.next();
-        }, 3000);
-      }
       slider.on("created", () => {
-        slider.container.addEventListener("mouseover", () => {
-          mouseOver = true;
-          clearNextTimeout();
-        });
-        slider.container.addEventListener("mouseout", () => {
-          mouseOver = false;
-          nextTimeout();
-        });
         nextTimeout();
       });
       slider.on("dragStarted", clearNextTimeout);
@@ -62,69 +45,97 @@ const [container, slider] = useKeenSlider(
     },
   ]
 );
+
+function clearNextTimeout() {
+  clearTimeout(timeout.value);
+}
+function nextTimeout() {
+  clearTimeout(timeout.value);
+  if (mouseOver.value) return;
+  timeout.value = setTimeout(() => {
+    slider.value?.next();
+  }, 3000);
+}
 </script>
 
 <template>
-  <div class="relative w-full h-[50rem]">
+  <div
+    class="relative w-full h-[50rem] rounded-lg overflow-hidden"
+    @mouseover="
+      () => {
+        mouseOver = true;
+        clearNextTimeout();
+      }
+    "
+    @mouseout="
+      () => {
+        mouseOver = false;
+        nextTimeout();
+      }
+    "
+  >
+    <div
+      class="flex flex-col justify-end h-full w-1/2 pt-12 pb-24 px-11 space-y-3 backdrop-blur-sm bg-grey-50/20 absolute left-0 z-10"
+    >
+      <p class="text-xl font-medium text-grey-600">
+        {{ item.slides[current].block_hero_slides_id.subtitle }}
+      </p>
+      <h1 class="text-6xl font-medium line-clamp-4 leading-tight">
+        {{ item.slides[current].block_hero_slides_id.title }}
+      </h1>
+      <div
+        v-if="
+          (item.slides[current].block_hero_slides_id.primary_button_text &&
+            item.slides[current].block_hero_slides_id.primary_button_url) ||
+          (item.slides[current].block_hero_slides_id.secondary_button_text &&
+            item.slides[current].block_hero_slides_id.secondary_button_url)
+        "
+        class="flex gap-3 pt-3 pb-7"
+      >
+        <UButton
+          v-if="
+            item.slides[current].block_hero_slides_id.primary_button_text &&
+            item.slides[current].block_hero_slides_id.primary_button_url
+          "
+          color="black"
+          :ui="{ rounded: 'rounded-[4px]' }"
+          class="p-3"
+          :to="item.slides[current].block_hero_slides_id.primary_button_url"
+          target="_blank"
+        >
+          {{ item.slides[current].block_hero_slides_id.primary_button_text }}
+        </UButton>
+        <UButton
+          v-if="
+            item.slides[current].block_hero_slides_id.secondary_button_text &&
+            item.slides[current].block_hero_slides_id.secondary_button_url
+          "
+          color="black"
+          variant="outline"
+          :ui="{ rounded: 'rounded-[4px]' }"
+          class="p-3"
+          :to="item.slides[current].block_hero_slides_id.secondary_button_url"
+          target="_blank"
+        >
+          {{ item.slides[current].block_hero_slides_id.secondary_button_text }}
+        </UButton>
+      </div>
+      <p>
+        {{ item.slides[current].block_hero_slides_id.body }}
+      </p>
+    </div>
+    <div
+      v-if="!slider"
+      class="h-full bg-center bg-no-repeat bg-cover"
+      :style="`background-image: url(/panel/assets/${item.slides[0].block_hero_slides_id.image});`"
+    />
     <div ref="container" class="keen-slider h-full">
       <div
-        v-if="Array.isArray(item.slides)"
         v-for="slide of item.slides"
         :key="slide.id"
-        class="keen-slider__slide flex items-end overflow-hidden bg-center bg-no-repeat bg-cover rounded-lg"
+        class="keen-slider__slide bg-center bg-no-repeat bg-cover"
         :style="`background-image: url(/panel/assets/${slide.block_hero_slides_id.image});`"
-      >
-        <div
-          class="flex flex-col justify-end h-full w-1/2 pt-12 pb-24 px-11 space-y-3 backdrop-blur-sm bg-grey-50/20 rounded-l-lg"
-        >
-          <p class="text-xl font-medium text-grey-600">
-            {{ slide.block_hero_slides_id.subtitle }}
-          </p>
-          <h1 class="text-6xl font-medium">
-            {{ slide.block_hero_slides_id.title }}
-          </h1>
-          <div
-            v-if="
-              (slide.block_hero_slides_id.primary_button_text &&
-                slide.block_hero_slides_id.primary_button_url) ||
-              (slide.block_hero_slides_id.secondary_button_text &&
-                slide.block_hero_slides_id.secondary_button_url)
-            "
-            class="flex gap-3 pt-3 pb-7"
-          >
-            <UButton
-              v-if="
-                slide.block_hero_slides_id.primary_button_text &&
-                slide.block_hero_slides_id.primary_button_url
-              "
-              color="black"
-              :ui="{ rounded: 'rounded-[4px]' }"
-              class="p-3"
-              :to="slide.block_hero_slides_id.primary_button_url"
-              target="_blank"
-            >
-              {{ slide.block_hero_slides_id.primary_button_text }}
-            </UButton>
-            <UButton
-              v-if="
-                slide.block_hero_slides_id.secondary_button_text &&
-                slide.block_hero_slides_id.secondary_button_url
-              "
-              color="black"
-              variant="outline"
-              :ui="{ rounded: 'rounded-[4px]' }"
-              class="p-3"
-              :to="slide.block_hero_slides_id.secondary_button_url"
-              target="_blank"
-            >
-              {{ slide.block_hero_slides_id.secondary_button_text }}
-            </UButton>
-          </div>
-          <p>
-            {{ slide.block_hero_slides_id.body }}
-          </p>
-        </div>
-      </div>
+      />
     </div>
     <div
       v-if="slider"
@@ -132,7 +143,7 @@ const [container, slider] = useKeenSlider(
     >
       <button
         v-for="(_slide, i) in item.slides"
-        class="h-2 w-full rounded-full"
+        class="h-2 w-full rounded-full z-20"
         :class="{
           'bg-black': current === i,
           'bg-grey-800/20': current !== i,
