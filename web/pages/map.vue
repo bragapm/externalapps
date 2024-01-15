@@ -175,6 +175,9 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     <!-- bottom toolbox -->
     <MapToolbox />
 
+    <!-- bottom left map controller -->
+    <MapCompass />
+
     <!-- bottom right map controller -->
     <div class="absolute bottom-8 right-6">
       <div class="flex gap-2 bg-black/30 rounded-xs p-2">

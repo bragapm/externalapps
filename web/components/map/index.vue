@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Map, NavigationControl, GeolocateControl } from "maplibre-gl";
+import { Map, GeolocateControl } from "maplibre-gl";
 import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
 import { useMapRef } from "~/stores/use-map-ref";
@@ -28,7 +28,7 @@ onMounted(() => {
   map.value = markRaw(
     new Map({
       container: mapContainer.value!,
-      style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${apiKey}`,
+      style: `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`,
       center: [initialState.lng, initialState.lat],
       zoom: initialState.zoom,
     })
@@ -43,14 +43,6 @@ onMounted(() => {
     })
   );
 
-  map.value.addControl(
-    new NavigationControl({ showZoom: false }),
-    "bottom-left"
-  );
-
-  map.value.addControl(geolocate.value);
-
-  // map.value.addControl(new NavigationControl(), "top-right");
   setMapRef(map.value);
   setGeolocateRef(geolocate.value);
   map.value.on("load", () => {
@@ -74,7 +66,7 @@ onUnmounted(() => {
     /></a> -->
     <div class="map" ref="mapContainer"></div>
 
-    <MapMvtLayer :mapRef="map" v-if="store.mapLoad" />
+    <!-- <MapMvtLayer :mapRef="map" v-if="store.mapLoad" /> -->
   </div>
 </template>
 
