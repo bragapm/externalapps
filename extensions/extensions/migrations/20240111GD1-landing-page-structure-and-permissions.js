@@ -13,8 +13,7 @@ export async function up(knex) {
       primary_button_text character varying(255),
       primary_button_url text,
       secondary_button_text character varying(255),
-      secondary_button_url text,
-      data json
+      secondary_button_url text
     );
 
     CREATE TABLE IF NOT EXISTS block_hero_block_hero_slides (
@@ -67,7 +66,6 @@ export async function up(knex) {
       ('block_hero_slides','primary_button_url',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_slides','secondary_button_text',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_slides','secondary_button_url',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('block_hero_slides','data','cast-json','list','{"fields":[{"field":"value","name":"value","type":"string","meta":{"field":"value","type":"string","required":true,"interface":"input"}},{"field":"label","name":"label","type":"string","meta":{"field":"label","type":"string","required":true,"interface":"input"}},{"field":"sort","name":"sort","type":"integer","meta":{"field":"sort","type":"integer","interface":"input"}}],"sort":"sort"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_block_hero_slides','id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_block_hero_slides','sort',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_block_hero_slides','block_hero_slides_id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
