@@ -78,9 +78,10 @@ def raster_tiling(
         target_srs = osr.SpatialReference()
         target_srs.ImportFromEPSG(4326)
 
+        # Transform the points
         transform = osr.CoordinateTransformation(src_srs, target_srs)
-        transform.TransformPoint(xmin, ymin)
-        transform.TransformPoint(xmax, ymax)
+        ymin_transformed, xmin_transformed, _ = transform.TransformPoint(xmin, ymin)
+        ymax_transformed, xmax_transformed, _ = transform.TransformPoint(xmax, ymax)
 
         del transform
         del target_srs
@@ -138,4 +139,10 @@ def raster_tiling(
     # finally:
     #     delete_temp_file(object_key)
 
-    return (raster_id, xmin, ymin, xmax, ymax)
+    return (
+        raster_id,
+        xmin_transformed,
+        ymin_transformed,
+        xmax_transformed,
+        ymax_transformed,
+    )

@@ -20,16 +20,6 @@ minio_client = Minio(
     secure=False if parsed_url.scheme == "http" else True,
 )
 
-# Set S3 configuration for GDAL
-gdal.SetConfigOption("AWS_ACCESS_KEY_ID", os.environ.get("STORAGE_S3_KEY"))
-gdal.SetConfigOption("AWS_SECRET_ACCESS_KEY", os.environ.get("STORAGE_S3_SECRET"))
-gdal.SetConfigOption("AWS_S3_ENDPOINT", s3_endpoint)
-gdal.SetConfigOption("AWS_REGION", os.environ.get("STORAGE_S3_REGION"))
-gdal.SetConfigOption("AWS_HTTPS", "NO" if parsed_url.scheme == "http" else "YES")
-gdal.SetConfigOption(
-    "AWS_VIRTUAL_HOSTING", "TRUE" if s3_endpoint == "s3.amazonaws.com" else "FALSE"
-)
-
 # Ensure GDAL uses Amazon S3 Virtual File System Handler
 gdal.AllRegister()
 gdal.UseExceptions()
