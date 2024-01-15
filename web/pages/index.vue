@@ -1,30 +1,30 @@
 <script setup lang="ts">
 import type { IBlockHeroItem } from "~/components/home/Hero.vue";
 
-interface ILandingBlocks {
+interface IHomeBlocks {
   id: number;
 }
-interface IBlockHero extends ILandingBlocks {
+interface IBlockHero extends IHomeBlocks {
   collection: "block_hero";
   item: IBlockHeroItem;
 }
 
-interface ILandingPage {
+interface IHomeData {
   data: {
     blocks: IBlockHero[];
   };
 }
 
-const { data: landingData, error: landingDataError } = await useFetch<ILandingPage>(
-  `/panel/items/landing/eng?fields=blocks.id,blocks.collection,blocks.item:block_hero.slides.id,blocks.item:block_hero.slides.block_hero_slides_id.*`
+const { data: homeData, error: homeDataError } = await useFetch<IHomeData>(
+  `/panel/items/home/eng?fields=blocks.id,blocks.collection,blocks.item:block_hero.slides.id,blocks.item:block_hero.slides.block_hero_slides_id.*`
 );
 </script>
 
 <template>
   <div class="space-y-3">
     <div
-      v-if="!landingDataError && landingData"
-      v-for="block in landingData.data.blocks"
+      v-if="!homeDataError && homeData"
+      v-for="block in homeData.data.blocks"
       :key="block.id"
     >
       <HomeHero v-if="block.collection === 'block_hero'" :item="block.item" />
