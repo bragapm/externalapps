@@ -14,7 +14,6 @@ export interface IBlockHeroItem {
       primary_button_url?: string;
       secondary_button_text?: string;
       secondary_button_url?: string;
-      data?: { value: string; label: string; sort: number }[];
     };
   }[];
 }
@@ -124,15 +123,6 @@ const [container, slider] = useKeenSlider(
           <p>
             {{ slide.block_hero_slides_id.body }}
           </p>
-          <div
-            v-if="Array.isArray(slide.block_hero_slides_id.data)"
-            class="grid grid-cols-3 gap-6"
-          >
-            <div v-for="data of slide.block_hero_slides_id.data">
-              <p class="text-[2.75rem]">{{ data.value }}</p>
-              <p>{{ data.label }}</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
