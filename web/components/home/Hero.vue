@@ -60,6 +60,7 @@ function nextTimeout() {
 
 <template>
   <div
+    v-if="Array.isArray(item.slides) && item.slides.length"
     class="relative w-full h-[50rem] rounded-lg overflow-hidden"
     @mouseover="
       () => {
