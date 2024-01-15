@@ -43,7 +43,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
       leave="transform transition-all duration-300"
       leave-from="ml-0 opacity-1"
       leave-to="-ml-8 opacity-0"
-      class="absolute top-[5.5rem] bg-grey-900 w-[18.5rem] rounded-xs p-3 max-h-screen left-6 z-10"
+      class="absolute top-[5.5rem] bg-grey-900 w-[18.5rem] rounded-xs left-6 z-10 max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapLayerManagement />
     </TransitionRoot>
