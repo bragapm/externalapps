@@ -125,17 +125,17 @@ function nextTimeout() {
         {{ item.slides[current].block_hero_slides_id.body }}
       </p>
     </div>
-    <div
+    <NuxtImg
       v-if="!slider"
-      class="h-full bg-center bg-no-repeat bg-cover"
-      :style="`background-image: url(/panel/assets/${item.slides[0].block_hero_slides_id.image});`"
+      class="h-full object-cover"
+      :src="item.slides[0].block_hero_slides_id.image"
     />
     <div ref="container" class="keen-slider h-full">
-      <div
+      <NuxtImg
         v-for="slide of item.slides"
         :key="slide.id"
-        class="keen-slider__slide bg-center bg-no-repeat bg-cover"
-        :style="`background-image: url(/panel/assets/${slide.block_hero_slides_id.image});`"
+        class="keen-slider__slide object-cover"
+        :src="slide.block_hero_slides_id.image"
       />
     </div>
     <div
