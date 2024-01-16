@@ -11,6 +11,16 @@ export default defineNuxtConfig({
   },
   image: {
     dir: "assets/images",
+    provider: "directus",
+    directus: {
+      baseURL:
+        process.env.NODE_ENV === "production"
+          ? "http://directus:8055/assets/"
+          : "https://latest.geodashboard.io/panel/assets/",
+      modifier: {
+        withoutEnlargement: true,
+      },
+    },
   },
   nitro: {
     routeRules: {
