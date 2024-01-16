@@ -2,6 +2,17 @@ import { PUBLIC_FOLDER_ID } from "./const/FOLDER_IDS.mjs";
 
 export async function up(knex) {
   await knex.raw(`
+    CREATE TABLE IF NOT EXISTS block_info_single (
+      id serial NOT NULL PRIMARY KEY,
+      variant character varying(255) NOT NULL,
+      title character varying(255) NOT NULL,
+      subtitle character varying(255) NOT NULL,
+      body text NOT NULL,
+      button_text character varying(255),
+      button_url text,
+      image uuid REFERENCES directus_files (id)
+    );
+
     CREATE TABLE IF NOT EXISTS block_hero_single (
       id serial NOT NULL PRIMARY KEY,
       title character varying(255) NOT NULL,
@@ -60,6 +71,7 @@ export async function up(knex) {
       ('block_hero_slides',NULL,TRUE,'#3399FF','blocks'),
       ('block_hero_block_hero_slides','import_export',TRUE,'#3399FF','blocks'),
       ('block_hero_single',NULL,TRUE,'#3399FF','blocks'),
+      ('block_info_single',NULL,TRUE,'#3399FF','blocks'),
       ('home','home',FALSE,'#3399FF','pages'),
       ('home_blocks','import_export',TRUE,'#3399FF','home');
 
@@ -95,16 +107,25 @@ export async function up(knex) {
       ('block_hero_single','primary_button_text',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_single','primary_button_url',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_single','secondary_button_text',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('block_hero_single','secondary_button_url',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL);
+      ('block_hero_single','secondary_button_url',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('block_info_single','id',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('block_info_single','variant',NULL,'select-dropdown','{"choices":[{"text":"Image at Bottom","value":"bottom"},{"text":"Image Side-by-Side","value":"side"}]}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
+      ('block_info_single','title',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
+      ('block_info_single','subtitle',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
+      ('block_info_single','body',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
+      ('block_info_single','button_text',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('block_info_single','button_url',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('block_info_single','image','file','file-image','{"folder":"${PUBLIC_FOLDER_ID}"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL);
 
     INSERT INTO directus_relations(many_collection,many_field,one_collection,one_field,one_collection_field,one_allowed_collections,junction_field,sort_field,one_deselect_action)
     VALUES
       ('block_hero_slides','image','directus_files',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('block_hero_block_hero_slides','block_hero_id','block_hero','slides',NULL,NULL,'block_hero_slides_id','sort','delete'),
       ('block_hero_block_hero_slides','block_hero_slides_id','block_hero_slides',NULL,NULL,NULL,'block_hero_id',NULL,'nullify'),
-      ('home_blocks','item',NULL,NULL,'collection','block_hero,block_hero_single','home_lang',NULL,'nullify'),
+      ('home_blocks','item',NULL,NULL,'collection','block_hero,block_hero_single,block_info_single','home_lang',NULL,'nullify'),
       ('home_blocks','home_lang','home','blocks',NULL,NULL,'item','sort','delete'),
-      ('block_hero_single','image','directus_files',NULL,NULL,NULL,NULL,NULL,'nullify');
+      ('block_hero_single','image','directus_files',NULL,NULL,NULL,NULL,NULL,'nullify'),
+      ('block_info_single','image','directus_files',NULL,NULL,NULL,NULL,NULL,'nullify');
 
     INSERT INTO directus_permissions(collection,action,fields)
     VALUES
@@ -113,21 +134,23 @@ export async function up(knex) {
       ('block_hero_block_hero_slides','read','*'),
       ('home','read','*'),
       ('home_blocks','read','*'),
-      ('block_hero_single','read','*');
+      ('block_hero_single','read','*'),
+      ('block_info_single','read','*');
   `);
 }
 
 export async function down(knex) {
   await knex.raw(`
-    DELETE FROM directus_permissions WHERE role IS NULL AND collection IN ('block_hero','block_hero_slides','block_hero_block_hero_slides','home','home_blocks','block_hero_single');
-    DELETE FROM directus_relations WHERE many_collection IN ('block_hero_slides','block_hero_block_hero_slides','home_blocks','block_hero_single');
-    DELETE FROM directus_fields WHERE collection IN ('pages','blocks','block_hero','block_hero_slides','block_hero_block_hero_slides','home','home_blocks','block_hero_single');
-    DELETE FROM directus_collections WHERE collection IN ('pages','blocks','block_hero','block_hero_slides','block_hero_block_hero_slides','home','home_blocks','block_hero_single');
+    DELETE FROM directus_permissions WHERE role IS NULL AND collection IN ('block_hero','block_hero_slides','block_hero_block_hero_slides','home','home_blocks','block_hero_single','block_info_single');
+    DELETE FROM directus_relations WHERE many_collection IN ('block_hero_slides','block_hero_block_hero_slides','home_blocks','block_hero_single','block_info_single');
+    DELETE FROM directus_fields WHERE collection IN ('pages','blocks','block_hero','block_hero_slides','block_hero_block_hero_slides','home','home_blocks','block_hero_single','block_info_single');
+    DELETE FROM directus_collections WHERE collection IN ('pages','blocks','block_hero','block_hero_slides','block_hero_block_hero_slides','home','home_blocks','block_hero_single','block_info_single');
     DROP TABLE IF EXISTS home_blocks;
     DROP TABLE IF EXISTS home;
     DROP TABLE IF EXISTS block_hero_block_hero_slides;
     DROP TABLE IF EXISTS block_hero_slides;
     DROP TABLE IF EXISTS block_hero;
     DROP TABLE IF EXISTS block_hero_single;
+    DROP TABLE IF EXISTS block_info_single;
   `);
 }
