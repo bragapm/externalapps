@@ -1,3 +1,5 @@
+import { PUBLIC_FOLDER_ID } from "./const/FOLDER_IDS.mjs";
+
 export async function up(knex) {
   await knex.raw(`
     INSERT INTO directus_permissions(collection,action,permissions,validation,fields)
@@ -20,7 +22,7 @@ export async function up(knex) {
         INSERT INTO directus_permissions(role,collection,action,permissions,validation,fields)
         VALUES
           (NEW.id,'directus_settings','read','{}','{}','project_name,project_descriptor,public_favicon,project_logo_horizontal,basemaps,initial_map_view,help_center_url'),
-          (NEW.id,'directus_files','read','{"_or":[{"folder":{"_eq":"ffffffff-ffff-4fff-bfff-ffffffffffff"}},{"folder":{"parent":{"_eq":"ffffffff-ffff-4fff-bfff-ffffffffffff"}}}]}','{}','*'),
+          (NEW.id,'directus_files','read','{"_or":[{"folder":{"_eq":"${PUBLIC_FOLDER_ID}"}},{"folder":{"parent":{"_eq":"${PUBLIC_FOLDER_ID}"}}}]}','{}','*'),
           (NEW.id,'vector_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,category,popup_columns,image_column,class_columns,default,fill_style,line_style,circle_style,symbol_style'),
           (NEW.id,'symbol','read','{}','{}','*'),
           (NEW.id,'raster_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','raster_id,bounds,minzoom,maxzoom,layer_alias,category,default'),
