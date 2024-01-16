@@ -8,7 +8,7 @@ export async function up(knex) {
       id serial NOT NULL PRIMARY KEY,
       title character varying(255) NOT NULL,
       subtitle character varying(255) NOT NULL,
-      body character varying(255) NOT NULL,
+      body text NOT NULL,
       image uuid NOT NULL REFERENCES directus_files (id),
       primary_button_text character varying(255),
       primary_button_url text,
