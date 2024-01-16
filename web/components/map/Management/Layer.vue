@@ -51,13 +51,7 @@ const isShowStyling = ref(false);
       leaveTo="transform max-h-0 opacity-0"
       class="transition-all duration-500 ease-in-out"
     >
-      <div class="bg-grey-800 rounded-xxs mt-1 divide-y-[1px] divide-grey-700">
-        <div class="p-2 flex items-center gap-[6px]">
-          <IcPaint class="w-3 h-3 text-grey-400" :fontControlled="false" />
-          <p class="text-grey-50 text-2xs font-medium">Styling</p>
-        </div>
-        <div class="p-2"><p>Styling here</p></div>
-      </div>
+      <MapManagementStyling />
     </TransitionRoot>
   </div>
 </template>
