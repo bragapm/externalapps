@@ -78,7 +78,7 @@ function nextTimeout() {
     <div
       class="flex flex-col justify-end h-full w-1/2 pt-12 pb-24 px-11 space-y-3 backdrop-blur-sm bg-grey-50/20 absolute left-0 z-10"
     >
-      <p class="text-xl font-medium text-grey-600">
+      <p class="text-lg font-semibold text-grey-600">
         {{ item.slides[current].block_hero_slides_id.subtitle }}
       </p>
       <h1 class="text-6xl font-medium line-clamp-4 leading-tight">
