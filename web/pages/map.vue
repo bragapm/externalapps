@@ -45,7 +45,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
       leave-to="-ml-8 opacity-0"
       class="absolute top-[5.5rem] bg-grey-900 w-[18.5rem] rounded-xs left-6 z-10 max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
-      <MapLayerManagement />
+      <MapManagement />
     </TransitionRoot>
     <TransitionRoot
       as="div"
@@ -76,7 +76,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
         'absolute z-20 left-[1.5rem] bg-grey-900 h-[calc(100vh-7.5rem)] rounded-xs transition-all ease-in-out duration-300',
       ]"
     >
-      <MapLayerManagementTable />
+      <MapManagementTable />
     </TransitionRoot>
 
     <!-- top left button controller -->

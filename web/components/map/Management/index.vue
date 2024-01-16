@@ -57,7 +57,7 @@ const layerGroupItems = [
     }"
   >
     <template #item="{ item }">
-      <MapLayerManagementGroup :layerItem="item.layerItems" />
+      <MapManagementGroup :layerItem="item.layerItems" />
     </template>
   </UAccordion>
 </template>
