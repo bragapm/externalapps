@@ -66,14 +66,14 @@ export async function up(knex) {
     INSERT INTO directus_collections(collection,icon,hidden,color,"group")
     VALUES
       ('pages','web',FALSE,'#3399FF',NULL),
-      ('blocks','folder',TRUE,'#3399FF','pages'),
-      ('block_hero',NULL,TRUE,'#3399FF','blocks'),
-      ('block_hero_slides',NULL,TRUE,'#3399FF','blocks'),
-      ('block_hero_block_hero_slides','import_export',TRUE,'#3399FF','blocks'),
-      ('block_hero_single',NULL,TRUE,'#3399FF','blocks'),
-      ('block_info_single',NULL,TRUE,'#3399FF','blocks'),
       ('home','home',FALSE,'#3399FF','pages'),
-      ('home_blocks','import_export',TRUE,'#3399FF','home');
+      ('blocks','folder',TRUE,'#3399FF','home'),
+      ('home_blocks','import_export',TRUE,'#3399FF','home'),
+      ('block_hero',NULL,FALSE,'#3399FF','blocks'),
+      ('block_hero_slides',NULL,FALSE,'#3399FF','block_hero'),
+      ('block_hero_block_hero_slides','import_export',TRUE,'#3399FF','block_hero'),
+      ('block_hero_single',NULL,FALSE,'#3399FF','blocks'),
+      ('block_info_single',NULL,FALSE,'#3399FF','blocks');
 
     INSERT INTO directus_fields(collection,field,special,interface,options,display,display_options,readonly,hidden,sort,width,translations,note,conditions,required,"group",validation,validation_message)
     VALUES
