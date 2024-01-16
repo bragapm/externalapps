@@ -58,6 +58,7 @@ defineProps<{
     </div>
     <NuxtImg
       class="w-full h-[40rem] mt-3 rounded-lg object-cover"
+      provider="directus"
       :src="item.image"
     />
   </div>

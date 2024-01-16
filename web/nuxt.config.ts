@@ -11,7 +11,6 @@ export default defineNuxtConfig({
   },
   image: {
     dir: "assets/images",
-    provider: "directus",
     directus: {
       baseURL:
         process.env.NODE_ENV === "production"

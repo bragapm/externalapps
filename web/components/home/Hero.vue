@@ -128,6 +128,7 @@ function nextTimeout() {
     <NuxtImg
       v-if="!slider"
       class="h-full object-cover"
+      provider="directus"
       :src="item.slides[0].block_hero_slides_id.image"
     />
     <div ref="container" class="keen-slider h-full">
@@ -135,6 +136,7 @@ function nextTimeout() {
         v-for="slide of item.slides"
         :key="slide.id"
         class="keen-slider__slide object-cover"
+        provider="directus"
         :src="slide.block_hero_slides_id.image"
       />
     </div>
