@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { IBlockHeroItem } from "~/components/home/Hero.vue";
+import type { IBlockHeroSlidesItem } from "~/components/home/HeroSlides.vue";
 import type { IBlockHeroSingleItem } from "~/components/home/HeroSingle.vue";
 import type { IBlockInfoSingleItem } from "~/components/home/InfoSingleBottom.vue";
 
 interface IHomeBlocks {
   id: number;
 }
-interface IBlockHero extends IHomeBlocks {
-  collection: "block_hero";
-  item: IBlockHeroItem;
+interface IBlockHeroSlides extends IHomeBlocks {
+  collection: "block_hero_slides";
+  item: IBlockHeroSlidesItem;
 }
 interface IBlockHeroSingle extends IHomeBlocks {
   collection: "block_hero_single";
@@ -21,12 +21,12 @@ interface IBlockInfoSingle extends IHomeBlocks {
 
 interface IHomeData {
   data: {
-    blocks: (IBlockHero | IBlockHeroSingle | IBlockInfoSingle)[];
+    blocks: (IBlockHeroSlides | IBlockHeroSingle | IBlockInfoSingle)[];
   };
 }
 
 const { data: homeData, error: homeDataError } = await useFetch<IHomeData>(
-  `/panel/items/home/eng?fields=blocks.id,blocks.collection,blocks.item:block_hero.slides.id,blocks.item:block_hero.slides.block_hero_slides_id.*,blocks.item:block_hero_single.*,blocks.item:block_info_single.*`
+  `/panel/items/home/eng?fields=blocks.id,blocks.collection,blocks.item:block_hero_slides.contents.id,blocks.item:block_hero_slides.contents.block_hero_slides_contents_id.*,blocks.item:block_hero_single.*,blocks.item:block_info_single.*`
 );
 </script>
 
@@ -37,7 +37,7 @@ const { data: homeData, error: homeDataError } = await useFetch<IHomeData>(
       v-for="block in homeData.data.blocks"
       :key="block.id"
     >
-      <HomeHero v-if="block.collection === 'block_hero'" :item="block.item" />
+      <HomeHeroSlides v-if="block.collection === 'block_hero_slides'" :item="block.item" />
       <HomeHeroSingle
         v-else-if="block.collection === 'block_hero_single'"
         :item="block.item"
