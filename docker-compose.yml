@@ -60,9 +60,9 @@ services:
       - SECUREWATCH_MAXAR_PASSWORD
     restart: unless-stopped
 
-  worker:
+  geoprocessing:
     build:
-      context: manager
+      context: manager/python/geoprocessing
     environment:
       - DB_CONNECTION_STRING
       - STORAGE_S3_KEY

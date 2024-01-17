@@ -138,14 +138,49 @@ def tiling(
         return {"error": error_message, "traceback": error_traceback}
 
 
-def main():
-    tiling(
-        object_key="b0e271ae-8d03-4810-b7ea-7f409cfff2f2.tif",
-        uploader="49015332-8717-411c-bb40-b589d4273a8a",
-        raster_alias="raster_bali13",
-        min_zoom=5,
-        max_zoom=15,
+@dramatiq.actor(store_results=True)
+def convert_to_cog(input_file, output_file):
+    # Set S3 configuration for GDAL
+    gdal.SetConfigOption("AWS_ACCESS_KEY_ID", os.environ.get("STORAGE_S3_KEY"))
+    gdal.SetConfigOption("AWS_SECRET_ACCESS_KEY", os.environ.get("STORAGE_S3_SECRET"))
+    gdal.SetConfigOption("AWS_S3_ENDPOINT", s3_endpoint)
+    gdal.SetConfigOption("AWS_REGION", os.environ.get("STORAGE_S3_REGION"))
+    gdal.SetConfigOption("AWS_HTTPS", "NO" if parsed_url.scheme == "http" else "YES")
+    gdal.SetConfigOption(
+        "AWS_VIRTUAL_HOSTING", "TRUE" if s3_endpoint == "s3.amazonaws.com" else "FALSE"
     )
+
+    # Open the source dataset
+    src_ds = gdal.OpenEx(
+        f"/vsis3/{os.environ.get('STORAGE_S3_BUCKET')}/{input_file}", gdal.GA_ReadOnly
+    )
+
+    # COG creation options
+    creation_options = [
+        "TILED=YES",
+        "COMPRESS=DEFLATE",
+        "BIGTIFF=IF_SAFER",
+        "COPY_SRC_OVERVIEWS=YES",
+        "BLOCKXSIZE=512",
+        "BLOCKYSIZE=512",
+    ]
+
+    # Convert to COG
+    gdal.Translate(
+        f"/vsis3/{os.environ.get('STORAGE_S3_BUCKET')}/{output_file}",
+        src_ds,
+        format="GTiff",
+        creationOptions=creation_options,
+    )
+
+    # Close the dataset
+    src_ds = None
+
+
+def main():
+    input_geotiff = "b0e271ae-8d03-4810-b7ea-7f409cfff2f2.tif"
+    output_cog = "bali_cog1.tif"
+    convert_to_cog(input_geotiff, output_cog)
 
 
 if "__main__" == __name__:
