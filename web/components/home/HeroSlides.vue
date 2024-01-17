@@ -22,9 +22,9 @@ defineProps<{
   item: IBlockHeroSlidesItem;
 }>();
 
-const current = useState("heroCurrentSlide", () => 0);
-const timeout = useState<NodeJS.Timeout>("heroChangeSlideTimeout");
-const mouseOver = useState("heroMouseOver", () => false);
+const current = ref(0);
+const timeout = ref<NodeJS.Timeout>();
+const mouseOver = ref(false);
 
 const [container, slider] = useKeenSlider(
   {
