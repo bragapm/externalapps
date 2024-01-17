@@ -58,9 +58,8 @@ function nextTimeout() {
 }
 </script>
 
-<template>
+<template v-if="Array.isArray(item.contents) && item.contents.length">
   <div
-    v-if="Array.isArray(item.contents) && item.contents.length"
     class="relative w-full h-[50rem] rounded-lg overflow-hidden"
     @mouseover="
       () => {
@@ -86,39 +85,59 @@ function nextTimeout() {
       </h1>
       <div
         v-if="
-          (item.contents[current].block_hero_slides_contents_id.primary_button_text &&
-            item.contents[current].block_hero_slides_contents_id.primary_button_url) ||
-          (item.contents[current].block_hero_slides_contents_id.secondary_button_text &&
-            item.contents[current].block_hero_slides_contents_id.secondary_button_url)
+          (item.contents[current].block_hero_slides_contents_id
+            .primary_button_text &&
+            item.contents[current].block_hero_slides_contents_id
+              .primary_button_url) ||
+          (item.contents[current].block_hero_slides_contents_id
+            .secondary_button_text &&
+            item.contents[current].block_hero_slides_contents_id
+              .secondary_button_url)
         "
         class="flex gap-3 pt-3 pb-7"
       >
         <UButton
           v-if="
-            item.contents[current].block_hero_slides_contents_id.primary_button_text &&
-            item.contents[current].block_hero_slides_contents_id.primary_button_url
+            item.contents[current].block_hero_slides_contents_id
+              .primary_button_text &&
+            item.contents[current].block_hero_slides_contents_id
+              .primary_button_url
           "
           color="black"
           :ui="{ rounded: 'rounded-[4px]' }"
           class="p-3"
-          :to="item.contents[current].block_hero_slides_contents_id.primary_button_url"
+          :to="
+            item.contents[current].block_hero_slides_contents_id
+              .primary_button_url
+          "
           target="_blank"
         >
-          {{ item.contents[current].block_hero_slides_contents_id.primary_button_text }}
+          {{
+            item.contents[current].block_hero_slides_contents_id
+              .primary_button_text
+          }}
         </UButton>
         <UButton
           v-if="
-            item.contents[current].block_hero_slides_contents_id.secondary_button_text &&
-            item.contents[current].block_hero_slides_contents_id.secondary_button_url
+            item.contents[current].block_hero_slides_contents_id
+              .secondary_button_text &&
+            item.contents[current].block_hero_slides_contents_id
+              .secondary_button_url
           "
           color="black"
           variant="outline"
           :ui="{ rounded: 'rounded-[4px]' }"
           class="p-3"
-          :to="item.contents[current].block_hero_slides_contents_id.secondary_button_url"
+          :to="
+            item.contents[current].block_hero_slides_contents_id
+              .secondary_button_url
+          "
           target="_blank"
         >
-          {{ item.contents[current].block_hero_slides_contents_id.secondary_button_text }}
+          {{
+            item.contents[current].block_hero_slides_contents_id
+              .secondary_button_text
+          }}
         </UButton>
       </div>
       <p>

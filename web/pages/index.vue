@@ -32,7 +32,7 @@ const { data: homeData, error: homeDataError } = await useFetch<IHomeData>(
 
 <template>
   <div class="space-y-3">
-    <div
+    <template
       v-if="!homeDataError && homeData"
       v-for="block in homeData.data.blocks"
       :key="block.id"
@@ -50,6 +50,6 @@ const { data: homeData, error: homeDataError } = await useFetch<IHomeData>(
         v-else-if="block.collection === 'block_info_single' && block.item.variant === 'side'"
         :item="block.item"
       />
-    </div>
+    </template>
   </div>
 </template>
