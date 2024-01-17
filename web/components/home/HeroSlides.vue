@@ -146,7 +146,7 @@ function nextTimeout() {
     </div>
     <NuxtImg
       v-if="!slider"
-      class="h-full object-cover"
+      class="h-full w-full object-cover"
       provider="directus"
       :src="item.contents[0].block_hero_slides_contents_id.image"
     />
