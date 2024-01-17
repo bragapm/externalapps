@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
-import { useFloating, offset } from "@floating-ui/vue";
+import { useFloating, offset, flip } from "@floating-ui/vue";
 import IcMenuDots from "~/assets/icons/ic-menu-dots.svg";
 import { useTableData } from "~/stores/use-table-data";
 
@@ -11,7 +11,7 @@ const reference = ref(null);
 const floating = ref(null);
 const { floatingStyles } = useFloating(reference, floating, {
   placement: "right-start",
-  middleware: [offset(10)],
+  middleware: [offset(10), flip()],
 });
 </script>
 

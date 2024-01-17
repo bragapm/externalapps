@@ -16,22 +16,20 @@ watchEffect(async () => {
 </script>
 
 <template>
-  <div class="absolute bottom-8 left-6">
-    <div class="flex gap-2 bg-black/30 rounded-xs p-2">
-      <button
-        @click="() => map && map.easeTo({ bearing: 0 })"
-        class="bg-transparent hover:bg-black p-2 rounded-xs"
-      >
-        <IcCompass
-          class="w-5 h-5 text-white"
-          :fontControlled="false"
-          :style="{
-            transform: 'rotate(' + bearing + 'deg)',
-            'transition-property': 'all',
-            'transition-duration': '1000ms',
-          }"
-        />
-      </button>
-    </div>
+  <div class="flex gap-2 bg-black/30 rounded-xs p-2">
+    <button
+      @click="() => map && map.easeTo({ bearing: 0 })"
+      class="bg-transparent hover:bg-black p-2 rounded-xs"
+    >
+      <IcCompass
+        class="w-5 h-5 text-white"
+        :fontControlled="false"
+        :style="{
+          transform: 'rotate(' + bearing + 'deg)',
+          'transition-property': 'all',
+          'transition-duration': '1000ms',
+        }"
+      />
+    </button>
   </div>
 </template>

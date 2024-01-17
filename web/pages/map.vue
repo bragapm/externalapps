@@ -62,6 +62,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
       <h2 class="text-white">Legend</h2>
     </TransitionRoot>
     <TransitionRoot
+      as="div"
       :show="showTable"
       enter="transition-all duration-1000"
       enter-from="-ml-8 opacity-0"
@@ -83,7 +84,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     <div
       :class="
         showTable
-          ? 'left-[36.5rem]'
+          ? 'left-[calc(50vw-0.75rem)]'
           : isShowLayerManagement && isShowLegend
           ? 'left-[36.5rem]'
           : isShowLayerManagement
@@ -176,7 +177,12 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     <MapToolbox />
 
     <!-- bottom left map controller -->
-    <MapCompass />
+    <div
+      :class="showTable ? 'left-[calc(50vw-0.75rem)]' : 'left-6'"
+      class="absolute bottom-8 left-6 transition-all ease-in-out duration-300"
+    >
+      <MapCompass />
+    </div>
 
     <!-- bottom right map controller -->
     <div class="absolute bottom-8 right-6">
