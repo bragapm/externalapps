@@ -74,7 +74,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
         !fullscreen
           ? 'w-[calc(50vw-3rem)] h-[calc(100vh-7.5rem)] top-[5.5rem]'
           : 'w-[calc(100vw-3rem)] h-[calc(100vh-3rem)] top-[1.5rem]',
-        'absolute z-20 left-[1.5rem] bg-grey-900 h-[calc(100vh-7.5rem)] rounded-xs transition-all ease-in-out duration-300',
+        'absolute z-20 left-[1.5rem] bg-grey-900 rounded-xs transition-all ease-in-out duration-300',
       ]"
     >
       <MapManagementTable />

@@ -2,7 +2,20 @@ export default defineAppConfig({
   ui: {
     primary: "brand",
     gray: "grey",
+    pagination: {
+      inactiveButton: {
+        color: {
+          custom: "bg-red-500 dark:bg-red-500 text-blue-500 dark:text-blue-500",
+        },
+      },
+    },
     button: {
+      variant: {
+        paginationActive:
+          "bg-brand-950 border border-brand-950 text-brand-500 text-2xs rounded-xxs w-6 h-6 justify-center",
+        paginationInactive:
+          "bg-grey-700 border-grey-600 text-grey-200 text-2xs rounded-xxs w-6 h-6 justify-center",
+      },
       color: {
         navMenu: {
           solid:

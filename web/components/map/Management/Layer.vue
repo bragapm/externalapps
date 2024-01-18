@@ -12,7 +12,7 @@ const isShowStyling = ref(false);
 </script>
 
 <template>
-  <div class="transition-all ease-in-out duration-300">
+  <div>
     <div
       :class="[
         isShowStyling
