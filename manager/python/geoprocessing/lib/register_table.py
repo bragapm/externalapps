@@ -1,26 +1,7 @@
-import logging
 import os
 from urllib import request
 from psycopg2.extras import Json
-
-
-logger = logging.getLogger(__name__)
-
-
-def create_bbox_polygon(lon_min, lat_min, lon_max, lat_max):
-    # Define the polygon coordinates for the bounding box
-    coordinates = [
-        [
-            [lon_min, lat_min],  # Bottom left
-            [lon_min, lat_max],  # Top left
-            [lon_max, lat_max],  # Top right
-            [lon_max, lat_min],  # Bottom right
-            [lon_min, lat_min],  # Closing the loop
-        ]
-    ]
-
-    # Create a GeoJSON Polygon
-    return {"type": "Polygon", "coordinates": coordinates}
+from utils import logger, create_bbox_polygon
 
 
 def register_table_to_directus(

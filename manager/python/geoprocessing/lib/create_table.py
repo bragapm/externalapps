@@ -1,6 +1,4 @@
-import logging
-
-logger = logging.getLogger(__name__)
+from utils import logger
 
 
 def create_table_from_header_info(conn, header_info: dict, table_name: str):

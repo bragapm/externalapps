@@ -1,12 +1,10 @@
 import shutil
-import logging
 import os
 from osgeo import ogr, gdal, osr
 from osgeo_utils import gdal2tiles
 from uuid import uuid4
 from .get_input_data import minio_client
-
-logger = logging.getLogger(__name__)
+from utils import logger
 
 ogr.RegisterAll()
 gdal.UseExceptions()

@@ -1,8 +1,5 @@
-import logging
-from osgeo import ogr
 from osgeo import osr
-
-logger = logging.getLogger(__name__)
+from utils import logger
 
 
 def fill_table_with_layer_feature(data_source, header_info, conn, table_name):

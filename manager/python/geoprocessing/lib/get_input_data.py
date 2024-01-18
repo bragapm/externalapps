@@ -1,12 +1,10 @@
 import shutil
-import logging
 import os
 from urllib.parse import urlparse
 from osgeo import ogr, gdal
 from minio import Minio
 from typing import List
-
-logger = logging.getLogger(__name__)
+from utils import logger
 
 # init minio client
 parsed_url = urlparse(os.environ.get("STORAGE_S3_ENDPOINT"))

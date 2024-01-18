@@ -38,3 +38,19 @@ def is_dev_mode():
         "DEV_MODE", "false"
     )  # Default to 'false' if the environment variable is not set
     return dev_mode.lower() == "true"
+
+
+def create_bbox_polygon(lon_min, lat_min, lon_max, lat_max):
+    # Define the polygon coordinates for the bounding box
+    coordinates = [
+        [
+            [lon_min, lat_min],  # Bottom left
+            [lon_min, lat_max],  # Top left
+            [lon_max, lat_max],  # Top right
+            [lon_max, lat_min],  # Bottom right
+            [lon_min, lat_min],  # Closing the loop
+        ]
+    ]
+
+    # Create a GeoJSON Polygon
+    return {"type": "Polygon", "coordinates": coordinates}

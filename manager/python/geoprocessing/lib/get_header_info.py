@@ -1,4 +1,3 @@
-import logging
 from osgeo import ogr, gdal, osr
 from lib.get_input_data import (
     get_input_data_with_vsi,
@@ -6,9 +5,7 @@ from lib.get_input_data import (
     get_input_data_with_vsi_with_vrt,
     get_gdb_directory,
 )
-from lib.register_table import create_bbox_polygon
-
-logger = logging.getLogger(__name__)
+from utils import logger, create_bbox_polygon
 
 
 def get_header_info_from_data_source(
