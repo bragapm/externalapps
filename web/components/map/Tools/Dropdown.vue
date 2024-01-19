@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
+import { storeToRefs } from "pinia";
 import IcArrow from "~/assets/icons/ic-arrow-reg.svg";
+import { useMapTools } from "~/stores/use-map-tools";
 
 const props = defineProps<{
   triggerLabel?: string;
@@ -14,17 +16,24 @@ const props = defineProps<{
     action?: () => void;
   }[];
 }>();
+
+const toolsStore = useMapTools();
+const { expandTools } = storeToRefs(toolsStore);
 </script>
 
 <template>
-  <Menu as="div" v-slot="{ open }" class="relative inline-block text-left">
+  <Menu
+    as="div"
+    v-slot="{ open }"
+    class="relative inline-block text-left transition-all duration-500 ease-in-out"
+  >
     <div>
       <MenuButton
         :class="[
           open
             ? 'bg-brand-950 text-brand-500'
             : 'bg-transparent enabled:hover:bg-grey-800 text-grey-200 disabled:hover:bg-transparent',
-          'inline-flex w-full items-center h-9 gap-3 rounded-xxs px-2 py-2 text-sm font-normal focus:outline-none disabled:text-grey-200',
+          'inline-flex w-full items-center h-9 gap-3 rounded-xxs px-2 py-2 text-sm font-normal focus:outline-none disabled:text-grey-200 transition-all duration-500 ease-in-out',
         ]"
       >
         <component
@@ -32,7 +41,14 @@ const props = defineProps<{
           class="w-4 h-4"
           :fontControlled="false"
         ></component>
-        {{ triggerLabel }}
+        <div
+          :class="[
+            expandTools ? 'w-72' : 'w-0',
+            'max-w-max transition-all duration-500 ease-in-out whitespace-nowrap overflow-hidden',
+          ]"
+        >
+          {{ triggerLabel }}
+        </div>
         <IcArrow class="w-4 h-4" :fontControlled="false" />
       </MenuButton>
     </div>

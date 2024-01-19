@@ -1,5 +1,5 @@
 export interface LayerItem {
   id: string;
-  label?: string;
-  type?: string;
+  label: string;
+  type: string;
 }

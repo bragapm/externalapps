@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { TransitionRoot } from "@headlessui/vue";
 import { MenuItem } from "@headlessui/vue";
+import IcArrowFat from "~/assets/icons/ic-arrow-fat.svg";
 import IcChart from "~/assets/icons/ic-chart.svg";
 import IcDrawFree from "~/assets/icons/ic-draw-free.svg";
 import IcDrawSquare from "~/assets/icons/ic-draw-square.svg";
@@ -11,28 +12,35 @@ import IcRulerCorner from "~/assets/icons/ic-ruler-corner.svg";
 import IcSearch from "~/assets/icons/ic-search.svg";
 import IcTools from "~/assets/icons/ic-tools.svg";
 import { useTableData } from "~/stores/use-table-data";
+import { useMapTools } from "~/stores/use-map-tools";
 import { storeToRefs } from "pinia";
 
-const showToolbox = ref(true);
+const showTools = ref(true);
 const showIsochroneCard = ref(false);
 const store = useTableData();
 const { showTable } = storeToRefs(store);
+
+const toolsStore = useMapTools();
+const { toggleExpandTools } = toolsStore;
+const { expandTools } = storeToRefs(toolsStore);
 </script>
 
 <template>
   <TransitionRoot
     as="div"
-    :show="!showTable && showToolbox"
+    :show="!showTable && showTools"
     enter="transition-all duration-300"
     enter-from="-mb-6 opacity-0"
     enter-to="mb-0 opacity-1"
     leave="transition-all duration-300"
     leave-from="mb-0 opacity-1"
     leave-to="-mb-6 opacity-0"
-    class="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-xs"
+    class="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-xs transition-all duration-1000 ease-in-out"
   >
-    <div class="flex gap-2 bg-grey-900 ring-1 ring-grey-700 rounded-xs p-2">
-      <MapToolboxDropdown
+    <div
+      class="flex gap-2 bg-grey-900 ring-1 ring-grey-700 rounded-xs p-2 transition-all duration-1000 ease-in-out"
+    >
+      <MapToolsDropdown
         :triggerLabel="'Analytic Tools'"
         :triggerIcon="IcChart"
         :itemLabel="'Analytic Tools'"
@@ -50,7 +58,7 @@ const { showTable } = storeToRefs(store);
             icon: IcDrawFree,
             action: () => {
               showIsochroneCard = true;
-              showToolbox = false;
+              showTools = false;
             },
           },
           {
@@ -66,8 +74,8 @@ const { showTable } = storeToRefs(store);
             action: () => console.log('route_finder'),
           },
         ]"
-      ></MapToolboxDropdown>
-      <MapToolboxDropdown
+      ></MapToolsDropdown>
+      <MapToolsDropdown
         :triggerLabel="'Advanced Search'"
         :triggerIcon="IcSearch"
         :items="[
@@ -87,9 +95,9 @@ const { showTable } = storeToRefs(store);
             icon: IcRoute,
           },
         ]"
-      ></MapToolboxDropdown>
+      ></MapToolsDropdown>
       <div class="border-l border-grey-700 h-8"></div>
-      <MapToolboxDropdown
+      <MapToolsDropdown
         :triggerIcon="IcRuler"
         :itemLabel="'Measurement'"
         :itemDescription="'Draw on Map and add to layer'"
@@ -105,8 +113,8 @@ const { showTable } = storeToRefs(store);
             icon: IcRulerCorner,
           },
         ]"
-      ></MapToolboxDropdown>
-      <MapToolboxDropdown
+      ></MapToolsDropdown>
+      <MapToolsDropdown
         :triggerIcon="IcMapFlat"
         :itemLabel="'Basemap'"
         :itemDescription="'Draw on Map and add to layer'"
@@ -145,19 +153,27 @@ const { showTable } = storeToRefs(store);
             </MenuItem>
           </div>
         </template>
-      </MapToolboxDropdown>
+      </MapToolsDropdown>
+      <div class="border-l border-grey-700 h-8"></div>
+      <button
+        @click="toggleExpandTools"
+        :class="expandTools ? '' : 'rotate-180'"
+        class="transition-all duration-500 ease-in-out"
+      >
+        <IcArrowFat class="w-4 h-4 text-grey-400" :fontControlled="false" />
+      </button>
     </div>
   </TransitionRoot>
-  <MapToolboxCard
+  <MapToolsCard
     :active="showIsochroneCard"
     :onClose="
       () => {
         showIsochroneCard = false;
-        showToolbox = true;
+        showTools = true;
       }
     "
     :label="'Isochrone Tool'"
   >
-    <MapToolboxIsochrone />
-  </MapToolboxCard>
+    <MapToolsIsochrone />
+  </MapToolsCard>
 </template>
