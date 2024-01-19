@@ -144,3 +144,9 @@ You can remove "poetry run" if you are already in poetry shell or local env
    6. Run `dramatiq --verbose -p 2 -t 1 main`
    7. Edit file variable from `directus file -> spatial`
    8. After a queue inserted to the queue table, it will trigger the worker
+
+
+
+====
+
+To add geoprocessing task you just need to write your task actor on tasks folder and then import it on tasks init file.

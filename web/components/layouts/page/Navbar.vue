@@ -11,7 +11,7 @@ const route = useRoute();
 const colorMode = useColorMode();
 
 // const isExpand = useState('isExpand', () => true)
-const isExpand = ref(route.path === "/map" ? false : true);
+const isExpand = ref(route.path === "/" ? false : true);
 
 const isDark = computed({
   get() {
@@ -45,7 +45,7 @@ const isDark = computed({
       <div class="flex items-center gap-2">
         <div class="relative flex items-center p-3 gap-3 h-12">
           <UButton
-            :disabled="route.path === '/' ? true : false"
+            :disabled="route.path === '/map' ? true : false"
             @click="isExpand = !isExpand"
             size="sm"
             color="transparent"
@@ -67,9 +67,9 @@ const isDark = computed({
             leave-to="opacity-0"
             class="absolute right-0 translate-x-full flex gap-4 whitespace-nowrap overflow-hidden opacity-1"
           >
-            <NuxtLink to="/map" @click="isExpand = !isExpand">
+            <NuxtLink to="/" @click="isExpand = !isExpand">
               <UButton
-                :color="route.path === '/map' ? 'navActive' : 'navMenu'"
+                :color="route.path === '/' ? 'navActive' : 'navMenu'"
                 label="Map"
                 :ui="{ rounded: 'rounded-full' }"
                 class="text-2xs py-2 px-3 ring-0"
@@ -79,9 +79,9 @@ const isDark = computed({
                 </template>
               </UButton>
             </NuxtLink>
-            <NuxtLink to="/">
+            <NuxtLink to="/landing">
               <UButton
-                :color="route.path === '/' ? 'navActive' : 'navMenu'"
+                :color="route.path === '/landing' ? 'navActive' : 'navMenu'"
                 label="Landing Page"
                 :ui="{ rounded: 'rounded-full' }"
                 class="text-2xs py-2 px-3 ring-0"
