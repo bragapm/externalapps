@@ -15,7 +15,6 @@ const isShowLayerManagement = ref(false);
 const isShowLegend = ref(false);
 const isShowInformation = ref(false);
 const isShowInfospace = ref(false);
-const isShowToolbox = ref(true);
 
 const store = useMapRef();
 const { map, geolocateRef } = storeToRefs(store);
@@ -174,7 +173,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     <MapCoordinatesPanel />
 
     <!-- bottom toolbox -->
-    <MapToolbox />
+    <MapTools />
 
     <!-- bottom left map controller -->
     <div
