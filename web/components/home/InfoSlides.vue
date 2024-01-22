@@ -31,7 +31,7 @@ const [container, slider] = useKeenSlider({
 });
 </script>
 
-<template v-if="Array.isArray(item.contents) && item.contents.length">
+<template v-if="item.contents.length">
   <div class="grid grid-cols-2 gap-x-7 bg-black/5 rounded-lg p-11">
     <div class="flex flex-col justify-between">
       <div class="space-y-3">

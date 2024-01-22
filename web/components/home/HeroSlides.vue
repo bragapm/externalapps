@@ -58,7 +58,7 @@ function nextTimeout() {
 }
 </script>
 
-<template v-if="Array.isArray(item.contents) && item.contents.length">
+<template v-if="item.contents.length">
   <div
     class="relative w-full h-[50rem] rounded-lg overflow-hidden"
     @mouseover="
