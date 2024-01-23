@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <h2 class="text-white p-3">Infospace</h2>
+  <h2 class="text-white p-3">Feature Detail</h2>
   <hr class="mx-3" />
   <div class="flex-1 overflow-scroll px-3 my-3">
     <h1 class="text-white text-lg">

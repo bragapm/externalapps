@@ -133,7 +133,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
       leave-to="-mr-8 opacity-0"
       class="absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
-      <MapInfospace />
+      <MapFeatureDetail />
     </TransitionRoot>
 
     <!-- top right button controller -->

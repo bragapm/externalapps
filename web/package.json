@@ -12,6 +12,8 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/markdown-it": "^13.0.7",
     "nuxt": "^3.8.2",
     "nuxt-svgo": "^3.7.0",
     "typescript": "^5.3.3",
@@ -26,6 +28,7 @@
     "@pinia/nuxt": "^0.5.1",
     "keen-slider": "^6.8.6",
     "maplibre-gl": "^3.6.2",
+    "markdown-it": "^14.0.0",
     "pinia": "^2.1.7"
   }
 }
