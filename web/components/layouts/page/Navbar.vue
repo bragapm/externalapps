@@ -45,7 +45,7 @@ const isDark = computed({
       <div class="flex items-center gap-2">
         <div class="relative flex items-center p-3 gap-3 h-12">
           <UButton
-            :disabled="route.path === '/map' ? true : false"
+            :disabled="route.path === '/landing' ? true : false"
             @click="isExpand = !isExpand"
             size="sm"
             color="transparent"

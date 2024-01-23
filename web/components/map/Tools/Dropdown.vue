@@ -6,7 +6,7 @@ import { useMapTools } from "~/stores/use-map-tools";
 
 const props = defineProps<{
   triggerLabel?: string;
-  triggerIcon?: string;
+  triggerIcon?: Component;
   itemLabel?: string;
   itemDescription?: string;
   items?: {
