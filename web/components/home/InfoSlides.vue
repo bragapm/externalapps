@@ -35,7 +35,7 @@ const [container, slider] = useKeenSlider({
   <div class="grid grid-cols-2 gap-x-7 bg-black/5 rounded-lg p-11">
     <div class="flex flex-col justify-between">
       <div class="space-y-3">
-        <p>
+        <p class="font-semibold text-lg">
           {{ item.contents[current].block_info_slides_contents_id.subtitle }}
         </p>
         <h1 class="text-4xl">

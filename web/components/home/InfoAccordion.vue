@@ -37,7 +37,7 @@ const accordionHandler = (index: number) => {
 
 <template>
   <div class="flex flex-col gap-3 bg-black/5 rounded-lg p-11 min-h-[42rem]">
-    <p>{{ item.subtitle }}</p>
+    <p class="font-semibold text-lg">{{ item.subtitle }}</p>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-7">
       <div class="space-y-3">
         <h1 class="text-4xl">{{ item.title }}</h1>
