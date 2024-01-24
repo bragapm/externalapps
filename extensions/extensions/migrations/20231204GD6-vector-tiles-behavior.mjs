@@ -17,8 +17,8 @@ export async function up(knex) {
           WHERE collection = OLD.layer_name
           AND role IS NULL;
         ELSIF NEW.permission_type = 'roles+public' THEN
-          INSERT INTO directus_permissions(collection, role, action)
-          VALUES(OLD.layer_name, NULL, 'read');
+          INSERT INTO directus_permissions(collection, role, action, fields)
+          VALUES(OLD.layer_name, NULL, 'read', '*');
         END IF;
         RETURN NULL;
       END;
@@ -35,8 +35,8 @@ export async function up(knex) {
       LANGUAGE 'plpgsql'
     AS $BODY$
       BEGIN
-        INSERT INTO directus_permissions(collection, role, action)
-        VALUES(NEW.vector_tiles_layer_name, NEW.directus_roles_id, 'read');
+        INSERT INTO directus_permissions(collection, role, action, fields)
+        VALUES(NEW.vector_tiles_layer_name, NEW.directus_roles_id, 'read', '*');
         RETURN NULL;
       END;
     $BODY$;
