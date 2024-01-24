@@ -1,14 +1,19 @@
 <script lang="ts" setup>
 import IcEye from "~/assets/icons/ic-eye.svg";
+import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
 import IcPaint from "~/assets/icons/ic-paint.svg";
 import { TransitionRoot } from "@headlessui/vue";
+import type { VectorTiles } from "~/utils/types";
 
 const props = defineProps<{
-  layerLabel: string;
-  layerType: string;
+  layerItem: VectorTiles;
 }>();
 
+const store = useMapRef();
+const { map } = storeToRefs(store);
+
 const isShowStyling = ref(false);
+const visibility = ref(props.layerItem.default ? "visible" : "none");
 </script>
 
 <template>
@@ -23,9 +28,9 @@ const isShowStyling = ref(false);
     >
       <div class="text-white w-8/12">
         <p class="truncate">
-          {{ layerLabel }}
+          {{ layerItem.layer_name }}
         </p>
-        <p class="truncate">{{ layerType }}</p>
+        <p class="truncate">{{ layerItem.geometry_type }}</p>
       </div>
       <div class="flex gap-2 items-center justify-end w-4/12">
         <button @click="isShowStyling = !isShowStyling">
@@ -37,8 +42,40 @@ const isShowStyling = ref(false);
             :fontControlled="false"
           />
         </button>
-        <IcEye class="text-white w-3 h-3" :fontControlled="false" />
-        <MapManagementMenu />
+        <button
+          @click="
+            () => {
+              if (map) {
+                if (
+                  map.getLayoutProperty(layerItem.layer_name, 'visibility') ===
+                  'none'
+                ) {
+                  visibility = 'visible';
+                  map.setLayoutProperty(
+                    layerItem.layer_name,
+                    'visibility',
+                    'visible'
+                  );
+                } else {
+                  visibility = 'none';
+                  map.setLayoutProperty(
+                    layerItem.layer_name,
+                    'visibility',
+                    'none'
+                  );
+                }
+              }
+            }
+          "
+        >
+          <IcEyeCrossed
+            v-if="visibility === 'none'"
+            class="text-white w-3 h-3"
+            :fontControlled="false"
+          />
+          <IcEye v-else class="text-white w-3 h-3" :fontControlled="false" />
+        </button>
+        <MapManagementMenu :bounds="layerItem.bounds" />
       </div>
     </div>
     <TransitionRoot

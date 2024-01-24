@@ -1,13 +1,19 @@
 <script setup lang="ts">
+import type { VectorTiles } from "~/utils/types";
+
 const props = defineProps<{
-  layerItem: LayerItem[];
+  layerLists: VectorTiles[];
 }>();
 </script>
 
 <template>
   <div class="flex flex-col gap-2">
-    <template v-for="item in props.layerItem" :key="item.id" class="space-y-2">
-      <MapManagementLayer :layerLabel="item.label" :layerType="item.type"/>
+    <template
+      v-for="item in props.layerLists"
+      :key="item.layer_name"
+      class="space-y-2"
+    >
+      <MapManagementLayer :layerItem="item" />
     </template>
   </div>
 </template>

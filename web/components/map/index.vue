@@ -65,7 +65,7 @@ onUnmounted(() => {
         alt="MapTiler logo"
     /></a> -->
     <div class="map" ref="mapContainer"></div>
-
+    <MapLayer v-if="store.mapLoad" />
     <!-- <MapMvtLayer :mapRef="map" v-if="store.mapLoad" /> -->
   </div>
 </template>

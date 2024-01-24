@@ -3,9 +3,17 @@ import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { useFloating, offset, flip } from "@floating-ui/vue";
 import IcMenuDots from "~/assets/icons/ic-menu-dots.svg";
 import { useTableData } from "~/stores/use-table-data";
+import type { LngLatLike } from "maplibre-gl";
+
+defineProps<{
+  bounds: GeoJSON.Polygon;
+}>();
 
 const store = useTableData();
 const { toggleTable } = store;
+
+const mapStore = useMapRef();
+const { map } = storeToRefs(mapStore);
 
 const reference = ref(null);
 const floating = ref(null);
@@ -37,7 +45,11 @@ const { floatingStyles } = useFloating(reference, floating, {
         >
           <MenuItem v-slot="{ active }">
             <button
-              @click="() => {}"
+              @click="
+                () => {
+                  map?.flyTo({ center: bounds.coordinates[0][0] as LngLatLike });
+                }
+              "
               :class="[
                 active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
