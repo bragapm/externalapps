@@ -48,7 +48,7 @@ const accordionHandler = (index: number) => {
           <button
             :class="[
               'flex justify-between p-4 w-full text-xl font-medium rounded-t-lg',
-              accordionStates[index] && 'bg-black text-white',
+              accordionStates[index] && 'bg-grey-800 text-white',
             ]"
             @click="accordionHandler(index)"
           >
@@ -57,7 +57,7 @@ const accordionHandler = (index: number) => {
           </button>
           <div
             v-if="accordionStates[index]"
-            class="bg-black text-white rounded-b-lg overflow-hidden"
+            class="bg-grey-800 text-white rounded-b-lg overflow-hidden"
           >
             <div class="space-y-3 p-4">
               <NuxtImg
