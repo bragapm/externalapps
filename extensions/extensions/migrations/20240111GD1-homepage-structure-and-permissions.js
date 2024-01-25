@@ -137,7 +137,7 @@ export async function up(knex) {
       ('home_blocks','collection',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('home_blocks','sort',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_slides','id',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('block_hero_slides','contents','m2m','list-m2m','{"allowDuplicates":true,"template":"{{block_hero_slides_contents_id.title}}"}','related-values','{"template":"{{block_hero_slides_contents_id.title}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
+      ('block_hero_slides','contents','m2m','list-m2m','{"template":"{{block_hero_slides_contents_id.title}}"}','related-values','{"template":"{{block_hero_slides_contents_id.title}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
       ('block_hero_slides_contents','id',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('block_hero_slides_contents','title',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
       ('block_hero_slides_contents','subtitle',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
