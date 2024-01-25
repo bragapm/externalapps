@@ -6,6 +6,7 @@ import type { IBlockInfoSlidesItem } from "~/components/home/InfoSlides.vue";
 import type { IBlockInfoAccordionItem } from "~/components/home/InfoAccordion.vue";
 import type { IBlockMediaVideoItem } from "~/components/home/MediaVideo.vue";
 import type { IBlockMediaIconsItem } from "~/components/home/MediaIcons.vue";
+import type { IBlockCTAItem } from "~/components/home/CTA.vue";
 
 interface IHomeBlocks {
   id: number;
@@ -38,6 +39,10 @@ interface IBlockMediaIcons extends IHomeBlocks {
   collection: "block_media_icons";
   item: IBlockMediaIconsItem;
 }
+interface IBlockCTA extends IHomeBlocks {
+  collection: "block_cta";
+  item: IBlockCTAItem;
+}
 
 interface IHomeData {
   data: {
@@ -49,12 +54,13 @@ interface IHomeData {
       | IBlockInfoAccordion
       | IBlockMediaVideo
       | IBlockMediaIcons
+      | IBlockCTA
     )[];
   };
 }
 
 const { data: homeData, error: homeDataError } = await useFetch<IHomeData>(
-  `/panel/items/home/eng?fields=blocks.id,blocks.collection,blocks.item:block_hero_slides.contents.id,blocks.item:block_hero_slides.contents.block_hero_slides_contents_id.*,blocks.item:block_hero_single.*,blocks.item:block_info_single.*,blocks.item:block_info_slides.contents.id,blocks.item:block_info_slides.contents.block_info_slides_contents_id.*,blocks.item:block_info_accordion.*,blocks.item:block_info_accordion.contents.id,blocks.item:block_info_accordion.contents.block_info_accordion_contents_id.*,blocks.item:block_media_video.*,blocks.item:block_media_icons.*,blocks.item:block_media_icons.contents.id,blocks.item:block_media_icons.contents.block_media_icons_contents_id.*`
+  `/panel/items/home/eng?fields=blocks.id,blocks.collection,blocks.item:block_hero_slides.contents.id,blocks.item:block_hero_slides.contents.block_hero_slides_contents_id.*,blocks.item:block_hero_single.*,blocks.item:block_info_single.*,blocks.item:block_info_slides.contents.id,blocks.item:block_info_slides.contents.block_info_slides_contents_id.*,blocks.item:block_info_accordion.*,blocks.item:block_info_accordion.contents.id,blocks.item:block_info_accordion.contents.block_info_accordion_contents_id.*,blocks.item:block_media_video.*,blocks.item:block_media_icons.*,blocks.item:block_media_icons.contents.id,blocks.item:block_media_icons.contents.block_media_icons_contents_id.*,blocks.item:block_cta.*`
 );
 </script>
 
@@ -101,6 +107,10 @@ const { data: homeData, error: homeDataError } = await useFetch<IHomeData>(
       />
       <HomeMediaIcons
         v-else-if="block.collection === 'block_media_icons'"
+        :item="block.item"
+      />
+      <HomeCTA
+        v-else-if="block.collection === 'block_cta'"
         :item="block.item"
       />
     </template>
