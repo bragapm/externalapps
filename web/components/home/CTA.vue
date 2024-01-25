@@ -1,7 +1,7 @@
 <script setup lang="ts">
 export interface IBlockCTAItem {
   id: number;
-  variant: "bg-image" | "bg-image-card" | "card-image";
+  variant: "image_bg" | "image_bg_text_card" | "image_card";
   title: string;
   subtitle: string;
   body: string;
@@ -29,14 +29,15 @@ const bgImg = computed(
   <div
     :class="[
       'grid grid-cols-1 md:grid-cols-2 gap-7 rounded-lg',
-      item.variant === 'bg-image-card' ? 'p-6' : 'p-11',
-      item.variant === 'card-image' ? 'bg-black/5' : bgImg,
+      item.variant === 'image_bg_text_card' ? 'p-6' : 'p-11',
+      item.variant === 'image_card' ? 'bg-black/5' : bgImg,
     ]"
   >
     <div
       :class="[
         'flex flex-col gap-3 p-6',
-        item.variant === 'bg-image-card' && 'bg-black text-white rounded-lg',
+        item.variant === 'image_bg_text_card' &&
+          'bg-black text-white rounded-lg',
       ]"
     >
       <p class="font-semibold text-lg">{{ item.subtitle }}</p>
@@ -51,7 +52,7 @@ const bgImg = computed(
       >
         <UButton
           v-if="item.primary_button_text && item.primary_button_url"
-          :color="item.variant === 'bg-image-card' ? 'white' : 'black'"
+          :color="item.variant === 'image_bg_text_card' ? 'white' : 'black'"
           :ui="{ rounded: 'rounded-[4px]' }"
           class="p-3"
           :to="item.primary_button_url"
@@ -61,7 +62,7 @@ const bgImg = computed(
         </UButton>
         <UButton
           v-if="item.secondary_button_text && item.secondary_button_url"
-          :color="item.variant === 'bg-image-card' ? 'white' : 'black'"
+          :color="item.variant === 'image_bg_text_card' ? 'white' : 'black'"
           variant="outline"
           :ui="{ rounded: 'rounded-[4px]' }"
           class="p-3"
@@ -73,7 +74,7 @@ const bgImg = computed(
       </div>
     </div>
     <div
-      v-if="item.variant === 'card-image'"
+      v-if="item.variant === 'image_card'"
       :class="['w-full h-full rounded-lg', bgImg]"
     />
   </div>
