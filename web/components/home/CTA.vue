@@ -40,8 +40,8 @@ const bgImg = computed(
           'bg-black text-white rounded-lg',
       ]"
     >
-      <p class="font-semibold text-lg">{{ item.subtitle }}</p>
-      <h1 class="text-4xl">{{ item.title }}</h1>
+      <p class="font-medium text-lg">{{ item.subtitle }}</p>
+      <h1 class="font-medium text-4xl">{{ item.title }}</h1>
       <p>{{ item.body }}</p>
       <div
         v-if="

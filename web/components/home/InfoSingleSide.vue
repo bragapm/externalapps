@@ -12,8 +12,8 @@ defineProps<{
   >
     <div class="flex flex-col justify-between space-y-3">
       <div class="space-y-3">
-        <p class="font-semibold text-lg">{{ item.subtitle }}</p>
-        <h1 class="text-4xl">{{ item.title }}</h1>
+        <p class="font-medium text-lg">{{ item.subtitle }}</p>
+        <h1 class="font-medium text-4xl">{{ item.title }}</h1>
       </div>
       <div class="space-y-3">
         <p>{{ item.body }}</p>

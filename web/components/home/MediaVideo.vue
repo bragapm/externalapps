@@ -41,10 +41,10 @@ const iframeSrc = computed(() => {
 
 <template>
   <div class="flex flex-col gap-3 bg-black/5 rounded-lg p-11">
-    <p v-if="item.subtitle" class="font-semibold text-lg">
+    <p v-if="item.subtitle" class="font-medium text-lg">
       {{ item.subtitle }}
     </p>
-    <h1 v-if="item.title" class="text-4xl">{{ item.title }}</h1>
+    <h1 v-if="item.title" class="font-medium text-4xl">{{ item.title }}</h1>
     <p>{{ item.body }}</p>
     <div
       v-if="iframeSrc"
