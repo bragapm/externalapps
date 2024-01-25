@@ -57,7 +57,7 @@ const [container, slider] = useKeenSlider({
         >
           {{ item.contents[current].block_info_slides_contents_id.button_text }}
         </UButton>
-        <div class="flex space-x-2 h-5 items-end">
+        <div class="flex gap-x-2 h-5 items-end">
           <button
             v-if="slider"
             v-for="(_slide, i) in item.contents"

@@ -10,7 +10,7 @@ defineProps<{
   <div
     class="grid grid-cols-1 md:grid-cols-2 gap-x-7 bg-black/5 rounded-lg p-11"
   >
-    <div class="flex flex-col justify-between space-y-3">
+    <div class="flex flex-col justify-between gap-y-3">
       <div class="space-y-3">
         <p class="font-medium text-lg">{{ item.subtitle }}</p>
         <h1 class="font-medium text-4xl">{{ item.title }}</h1>

@@ -75,7 +75,7 @@ function nextTimeout() {
     "
   >
     <div
-      class="flex flex-col justify-end h-full w-1/2 pt-12 pb-24 px-11 space-y-3 backdrop-blur-sm bg-grey-50/20 absolute left-0 z-10"
+      class="flex flex-col justify-end h-full w-1/2 pt-12 pb-24 px-11 gap-y-3 backdrop-blur-sm bg-grey-50/20 absolute left-0 z-10"
     >
       <p class="text-lg font-semibold text-grey-600">
         {{ item.contents[current].block_hero_slides_contents_id.subtitle }}
@@ -161,7 +161,7 @@ function nextTimeout() {
     </div>
     <div
       v-if="slider"
-      class="flex absolute bottom-0 left-0 px-11 pb-12 w-1/2 space-x-2"
+      class="flex absolute bottom-0 left-0 px-11 pb-12 w-1/2 gap-x-2"
     >
       <button
         v-for="(_slide, i) in item.contents"
