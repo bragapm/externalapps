@@ -45,7 +45,7 @@ const isDark = computed({
       <div class="flex items-center gap-2">
         <div class="relative flex items-center p-3 gap-3 h-12">
           <UButton
-            :disabled="route.path === '/landing' ? true : false"
+            :disabled="route.path === '/home' ? true : false"
             @click="isExpand = !isExpand"
             size="sm"
             color="transparent"
@@ -79,10 +79,10 @@ const isDark = computed({
                 </template>
               </UButton>
             </NuxtLink>
-            <NuxtLink to="/landing">
+            <NuxtLink to="/home">
               <UButton
-                :color="route.path === '/landing' ? 'navActive' : 'navMenu'"
-                label="Landing Page"
+                :color="route.path === '/home' ? 'navActive' : 'navMenu'"
+                label="Home"
                 :ui="{ rounded: 'rounded-full' }"
                 class="text-2xs py-2 px-3 ring-0"
               >
