@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const store = useMapLayer();
-const groupList = computed(() => store.getGroupLayerList);
+
 // console.log(groupList);
 
 // const layerGroupByCategory = [
@@ -30,9 +30,9 @@ const groupList = computed(() => store.getGroupLayerList);
   <!-- to do change temporary loading state -->
   <!-- <div v-if="!getGroupLayerList" class="px-3 my-3 text-white">Loading ...</div> -->
   <UAccordion
-    v-if="groupList"
+    v-if="store.groupLayerList"
     multiple
-    :items="groupList"
+    :items="store.groupLayerList"
     :ui="{
       default: {
         class:

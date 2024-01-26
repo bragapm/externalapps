@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 const store = useMapLayer();
-const groupList = computed(() => store.getGroupLayerList);
-// console.log(groupList.value);
 </script>
 
 <template>
   <template
-    v-if="groupList"
-    v-for="groupItem in groupList"
+    v-if="store.groupLayerList"
+    v-for="groupItem in store.groupLayerList"
     :key="groupItem.label"
   >
     <template v-for="layerItem in groupItem.layerLists">

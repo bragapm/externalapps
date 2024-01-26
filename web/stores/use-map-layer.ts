@@ -1,17 +1,50 @@
-import type { VectorTiles } from "~/utils/types";
+import type { VectorTiles, RasterTiles } from "~/utils/types";
 
 type LayerGroupByCategory = {
   label: string;
+  // layerLists: (VectorTiles | RasterTiles)[];
   layerLists: VectorTiles[];
   defaultOpen: boolean;
 };
 
 export const useMapLayer = defineStore("maplayer", () => {
-  const vectorTilesData = ref<VectorTiles[] | null>(null);
+  const groupLayerList = ref<LayerGroupByCategory[] | null>(null);
 
-  const getGroupLayerList = computed(() => {
-    if (vectorTilesData.value) {
-      const layerGroupByCategory = vectorTilesData.value.reduce(
+  const handleVisibility = (
+    groupIndex: number,
+    layerIndex: number,
+    visibility: boolean
+  ) => {
+    if (groupLayerList.value) {
+      const prev = groupLayerList.value;
+      prev[groupIndex].layerLists[layerIndex].default = visibility;
+      groupLayerList.value = prev;
+    }
+  };
+
+  const fetchVectorTiles = async () => {
+    const { data: layers, pending } = await useAsyncData(
+      "vector-tiles",
+      async () => {
+        const [vectorTiles, rasterTiles] = await Promise.all<{
+          data: VectorTiles[];
+        }>([
+          $fetch("/panel/items/vector_tiles?fields=*.*"),
+          $fetch("/panel/items/raster_tiles?fields=*.*"),
+        ]);
+
+        return { vectorTiles, rasterTiles };
+      }
+    );
+
+    const allLayerData = [
+      ...layers.value.vectorTiles.data,
+      // ...layers.value.rasterTiles.data,
+    ];
+    console.log(allLayerData);
+
+    if (allLayerData) {
+      const layerGroupByCategory = allLayerData.reduce(
         (group: LayerGroupByCategory[], item) => {
           const existingCategory = group.find((group: LayerGroupByCategory) => {
             let categoryName = "";
@@ -45,51 +78,13 @@ export const useMapLayer = defineStore("maplayer", () => {
         []
       );
 
-      return layerGroupByCategory;
+      groupLayerList.value = layerGroupByCategory;
     }
-  });
-
-  const handleVisibility = (layerIndex: number, visibility: boolean) => {
-    if (vectorTilesData.value) {
-      const prev = vectorTilesData.value;
-      prev[layerIndex]["default"] = visibility;
-      vectorTilesData.value = prev;
-    }
-  };
-
-  const fetchVectorTiles = async () => {
-    const { data: layers, pending } = await useAsyncData(
-      "vector-tiles",
-      async () => {
-        const [vectorTiles, rasterTiles] = await Promise.all<{
-          data: VectorTiles[];
-        }>([
-          $fetch("/panel/items/vector_tiles?fields=*.*"),
-          $fetch("/panel/items/raster_tiles?fields=*.*"),
-        ]);
-
-        return { vectorTiles, rasterTiles };
-      }
-    );
-    if (layers?.value?.vectorTiles) {
-      vectorTilesData.value = layers.value.vectorTiles.data;
-    }
-    // const { pending, data } = await useFetch<VectorTilesData>(
-    //   "/panel/items/vector_tiles?fields=*.*",
-    //   {
-    //     lazy: true,
-    //     server: false,
-    //   }
-    // );
-    // if (data?.value) {
-    //   vectorTilesData.value = data.value;
-    // }
   };
 
   return {
-    vectorTilesData,
-    getGroupLayerList,
     fetchVectorTiles,
     handleVisibility,
+    groupLayerList,
   };
 });

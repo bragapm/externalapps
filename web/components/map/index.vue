@@ -66,9 +66,7 @@ onUnmounted(() => {
 // get layer list
 const layerStore = useMapLayer();
 const { fetchVectorTiles } = layerStore;
-watchEffect(() => {
-  fetchVectorTiles();
-});
+fetchVectorTiles();
 </script>
 
 <template>

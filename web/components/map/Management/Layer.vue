@@ -4,6 +4,7 @@ import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
 import IcPaint from "~/assets/icons/ic-paint.svg";
 import { TransitionRoot } from "@headlessui/vue";
 import type { VectorTiles } from "~/utils/types";
+import { storeToRefs } from "pinia";
 
 const props = defineProps<{
   layerItem: VectorTiles;
@@ -15,19 +16,32 @@ const { map } = storeToRefs(store);
 const storeLayer = useMapLayer();
 const { handleVisibility } = storeLayer;
 
+const groupIndex = computed(() => {
+  if (storeLayer.groupLayerList)
+    if (props.layerItem.category) {
+      return storeLayer.groupLayerList.findIndex(
+        (el) => el.label === props.layerItem.category.category_name
+      );
+    } else {
+      return storeLayer.groupLayerList.findIndex((el) => el.label === "Others");
+    }
+});
+
 const layerIndex = computed(() => {
-  if (storeLayer.vectorTilesData)
-    return storeLayer.vectorTilesData?.findIndex(
-      (el) => el.layer_name === props.layerItem.layer_name
-    );
+  if (groupIndex.value !== undefined) {
+    if (storeLayer?.groupLayerList?.[groupIndex.value]?.layerLists)
+      return storeLayer.groupLayerList[groupIndex.value].layerLists.findIndex(
+        (el) => el.layer_name === props.layerItem.layer_name
+      );
+  }
 });
 
 const isShowStyling = ref(false);
 const visibility = ref(props.layerItem.default);
 
 const toggleVisibility = () => {
-  if (layerIndex.value !== undefined) {
-    handleVisibility(layerIndex.value, !visibility.value);
+  if (groupIndex.value !== undefined && layerIndex.value !== undefined) {
+    handleVisibility(groupIndex.value, layerIndex.value, !visibility.value);
     visibility.value = !visibility.value;
   }
   if (map.value) {
@@ -79,7 +93,7 @@ const toggleVisibility = () => {
         </button>
         <button @click="toggleVisibility">
           <IcEyeCrossed
-            v-if="!layerItem.default"
+            v-if="!visibility"
             class="text-white w-3 h-3"
             :fontControlled="false"
           />

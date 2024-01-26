@@ -6,6 +6,13 @@ export type VectorTiles = {
   default: boolean;
 };
 
+export type RasterTiles = {
+  raster_id: string;
+  category: { category_name: string | null };
+  bounds: GeoJSON.Polygon;
+  default: boolean;
+};
+
 export type MapData = {
   data: {
     title: string;
