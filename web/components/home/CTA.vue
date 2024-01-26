@@ -17,21 +17,22 @@ const props = defineProps<{
 }>();
 
 const img = useImage();
-const bgImg = computed(
+const bgImgUrl = computed(
   () =>
-    `bg-[url('${img(props.item.image, undefined, {
+    `url('${img(props.item.image, undefined, {
       provider: "directus",
-    })}')] bg-cover bg-no-repeat`
+    })}')`
 );
 </script>
 
 <template>
   <div
     :class="[
-      'grid grid-cols-1 md:grid-cols-2 gap-7 rounded-lg',
+      'grid grid-cols-1 md:grid-cols-2 gap-7 rounded-lg bg-cover bg-no-repeat',
       item.variant === 'image_bg_text_card' ? 'p-6' : 'p-11',
-      item.variant === 'image_card' ? 'bg-black/5' : bgImg,
+      item.variant === 'image_card' && 'bg-black/5',
     ]"
+    :style="item.variant !== 'image_card' && `background-image: ${bgImgUrl}`"
   >
     <div
       :class="[
@@ -75,7 +76,8 @@ const bgImg = computed(
     </div>
     <div
       v-if="item.variant === 'image_card'"
-      :class="['w-full h-full rounded-lg', bgImg]"
+      class="w-full h-full rounded-lg bg-cover bg-no-repeat"
+      :style="`background-image: ${bgImgUrl}`"
     />
   </div>
 </template>

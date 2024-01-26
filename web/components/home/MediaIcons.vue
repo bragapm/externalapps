@@ -40,10 +40,15 @@ const iconArr = computed(() => {
 });
 
 const genWidthClass = (totalCol: number) => {
-  if (totalCol === 1) {
-    return "w-full";
-  } else {
-    return `w-1/${totalCol}`;
+  switch (totalCol) {
+    case 2:
+      return "w-1/2";
+    case 3:
+      return "w-1/3";
+    case 4:
+      return "w-1/4";
+    default:
+      return "w-full";
   }
 };
 </script>
