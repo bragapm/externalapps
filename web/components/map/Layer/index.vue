@@ -1,14 +1,17 @@
 <script lang="ts" setup>
 const store = useMapLayer();
-const { activeMapLayer } = storeToRefs(store);
+const groupList = computed(() => store.getGroupLayerList);
+// console.log(groupList.value);
 </script>
 
 <template>
   <template
-    v-if="activeMapLayer"
-    v-for="item in activeMapLayer"
-    :key="item.layer_name"
+    v-if="groupList"
+    v-for="groupItem in groupList"
+    :key="groupItem.label"
   >
-    <MapLayerVector :item="item" />
+    <template v-for="layerItem in groupItem.layerLists">
+      <MapLayerVector :item="layerItem" />
+    </template>
   </template>
 </template>

@@ -12,8 +12,43 @@ const props = defineProps<{
 const store = useMapRef();
 const { map } = storeToRefs(store);
 
+const storeLayer = useMapLayer();
+const { handleVisibility } = storeLayer;
+
+const layerIndex = computed(() => {
+  if (storeLayer.vectorTilesData)
+    return storeLayer.vectorTilesData?.findIndex(
+      (el) => el.layer_name === props.layerItem.layer_name
+    );
+});
+
 const isShowStyling = ref(false);
-const visibility = ref(props.layerItem.default ? "visible" : "none");
+const visibility = ref(props.layerItem.default);
+
+const toggleVisibility = () => {
+  if (layerIndex.value !== undefined) {
+    handleVisibility(layerIndex.value, !visibility.value);
+    visibility.value = !visibility.value;
+  }
+  if (map.value) {
+    if (
+      map.value.getLayoutProperty(props.layerItem.layer_name, "visibility") ===
+      "none"
+    ) {
+      map.value.setLayoutProperty(
+        props.layerItem.layer_name,
+        "visibility",
+        "visible"
+      );
+    } else {
+      map.value.setLayoutProperty(
+        props.layerItem.layer_name,
+        "visibility",
+        "none"
+      );
+    }
+  }
+};
 </script>
 
 <template>
@@ -42,34 +77,9 @@ const visibility = ref(props.layerItem.default ? "visible" : "none");
             :fontControlled="false"
           />
         </button>
-        <button
-          @click="
-            () => {
-              if (map) {
-                if (
-                  map.getLayoutProperty(layerItem.layer_name, 'visibility') ===
-                  'none'
-                ) {
-                  visibility = 'visible';
-                  map.setLayoutProperty(
-                    layerItem.layer_name,
-                    'visibility',
-                    'visible'
-                  );
-                } else {
-                  visibility = 'none';
-                  map.setLayoutProperty(
-                    layerItem.layer_name,
-                    'visibility',
-                    'none'
-                  );
-                }
-              }
-            }
-          "
-        >
+        <button @click="toggleVisibility">
           <IcEyeCrossed
-            v-if="visibility === 'none'"
+            v-if="!layerItem.default"
             class="text-white w-3 h-3"
             :fontControlled="false"
           />

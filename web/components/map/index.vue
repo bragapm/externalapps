@@ -19,6 +19,7 @@ const geolocate = shallowRef<null | Raw<GeolocateControl>>(null);
 const store = useMapRef();
 const { setMapLoad, setMapRef, setGeolocateRef } = store;
 
+//map init
 onMounted(() => {
   setMapLoad(false);
   const apiKey = "D7JUUxLv3oK21JM9jscD";
@@ -54,6 +55,13 @@ onUnmounted(() => {
   setMapRef(null);
   setGeolocateRef(null);
   map.value?.remove();
+});
+
+// get layer list
+const layerStore = useMapLayer();
+const { fetchVectorTiles } = layerStore;
+watchEffect(() => {
+  fetchVectorTiles();
 });
 </script>
 
