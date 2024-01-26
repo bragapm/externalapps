@@ -6,6 +6,8 @@ import IcLink from "~/assets/icons/ic-link.svg";
 import IcMapFlat from "~/assets/icons/ic-map-flat.svg";
 import IcTopnav from "~/assets/icons/ic-topnav.svg";
 
+import type { MapData } from "~/utils/types";
+
 const route = useRoute();
 
 const colorMode = useColorMode();
@@ -21,6 +23,13 @@ const isDark = computed({
     colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
   },
 });
+
+const { pending: isLoad, data: mapData } = await useFetch<MapData>(
+  "/panel/items/map/eng",
+  {
+    key: "map",
+  }
+);
 </script>
 
 <template>
@@ -128,12 +137,8 @@ const isDark = computed({
         class="absolute top-0 -right-5 translate-x-full bg-grey-700/30 rounded-xs h-12 p-3 max-w-2xl text-white transition-opacity ease-in-out duration-100"
       >
         <div class="whitespace-nowrap truncate">
-          Map Title Here With Max Character
-          <span class="ml-3 text-sm"
-            >Map Subtitle Here can contain minimum and maximum character and
-            with three dots if space not sufficient Lorem Ipsum Dolor sit
-            ame</span
-          >
+          {{ mapData?.data.title ?? "" }}
+          <span class="ml-3 text-sm"> {{ mapData?.data.subtitle ?? "" }} </span>
         </div>
       </TransitionRoot>
     </div>

@@ -1,17 +1,12 @@
 <script setup lang="ts">
-const { pending: isLoad, data: informationData } = await useFetch<any>(
+import type { MapData } from "~/utils/types";
+
+const { pending: isLoad, data: mapData } = await useFetch<MapData>(
   "/panel/items/map/eng",
   {
-    lazy: true,
-    server: false,
+    key: "map",
   }
 );
-
-const text = computed(() => {
-  const text = informationData?.value?.data.information;
-  console.log(text);
-  return text;
-});
 </script>
 
 <template>
@@ -19,6 +14,6 @@ const text = computed(() => {
   <hr class="mx-3" />
   <div class="flex-1 overflow-scroll px-3 my-3">
     <div v-if="isLoad" class="px-3 my-3 text-white">Loading ...</div>
-    <MapMarkdownRenderer v-else :source="text" />
+    <MapMarkdownRenderer v-else :source="mapData?.data.information" />
   </div>
 </template>
