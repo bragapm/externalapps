@@ -39,6 +39,7 @@ services:
       # cache
       - CACHE_ENABLED=true
       - CACHE_STORE=redis
+      - CACHE_AUTO_PURGE=true
       # file storage
       - STORAGE_LOCATIONS=s3
       - STORAGE_S3_DRIVER=s3
