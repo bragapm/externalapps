@@ -26,6 +26,7 @@
     "@nuxt/image": "^1.1.0",
     "@nuxt/ui": "^2.11.1",
     "@pinia/nuxt": "^0.5.1",
+    "@turf/bbox": "^6.5.0",
     "keen-slider": "^6.8.6",
     "maplibre-gl": "^3.6.2",
     "markdown-it": "^14.0.0",

@@ -6,8 +6,6 @@ import IcLink from "~/assets/icons/ic-link.svg";
 import IcMapFlat from "~/assets/icons/ic-map-flat.svg";
 import IcTopnav from "~/assets/icons/ic-topnav.svg";
 
-import type { MapData } from "~/utils/types";
-
 const route = useRoute();
 
 const colorMode = useColorMode();
@@ -24,12 +22,8 @@ const isDark = computed({
   },
 });
 
-const { pending: isLoad, data: mapData } = await useFetch<MapData>(
-  "/panel/items/map/eng",
-  {
-    key: "map",
-  }
-);
+import { useMapData } from "~/utils";
+const { isLoading, data: mapData } = await useMapData();
 </script>
 
 <template>

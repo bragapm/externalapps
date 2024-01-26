@@ -11,5 +11,6 @@ export type MapData = {
     title: string;
     subtitle: string;
     information: string;
+    initial_map_view: GeoJSON.Feature;
   };
 };

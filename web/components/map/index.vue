@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { Map, GeolocateControl } from "maplibre-gl";
+import type { LngLatBoundsLike } from "maplibre-gl";
 import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
 import { useMapRef } from "~/stores/use-map-ref";
+import { useMapData } from "~/utils";
+import bbox from "@turf/bbox";
 
+const { isLoading, data: mapData } = await useMapData();
 useHead({
   link: [
     {
@@ -24,14 +28,16 @@ onMounted(() => {
   setMapLoad(false);
   const apiKey = "D7JUUxLv3oK21JM9jscD";
 
-  const initialState = { lng: 107.60981, lat: -6.914744, zoom: 14 };
-
   map.value = markRaw(
     new Map({
       container: mapContainer.value!,
       style: `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`,
-      center: [initialState.lng, initialState.lat],
-      zoom: initialState.zoom,
+      bounds: bbox(
+        mapData?.value?.data.initial_map_view || [
+          [95.01, -11.01], // Southwest coordinates (longitude, latitude)
+          [141.02, 6.08], // Northeast coordinates (longitude, latitude)
+        ] // Indonesia Bounds
+      ) as LngLatBoundsLike,
     })
   );
 
