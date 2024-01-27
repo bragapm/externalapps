@@ -10,7 +10,8 @@ export async function up(knex) {
 
     CREATE TABLE IF NOT EXISTS vector_tiles
     (
-      layer_name character varying(255) NOT NULL PRIMARY KEY,
+      layer_id uuid NOT NULL PRIMARY KEY,
+      layer_name character varying(255) NOT NULL,
       user_created uuid REFERENCES directus_users (id),
       date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
       user_updated uuid REFERENCES directus_users (id),
@@ -50,7 +51,7 @@ export async function up(knex) {
     CREATE TABLE IF NOT EXISTS vector_tiles_directus_roles
     (
       id serial NOT NULL PRIMARY KEY,
-      vector_tiles_layer_name character varying(255) REFERENCES vector_tiles (layer_name)
+      vector_tiles_layer_id uuid REFERENCES vector_tiles (layer_id)
         ON DELETE CASCADE,
       directus_roles_id uuid REFERENCES directus_roles (id)
         ON DELETE CASCADE
@@ -61,6 +62,7 @@ export async function up(knex) {
 
     INSERT INTO directus_fields(collection,field,special,interface,options,display,display_options,readonly,hidden,sort,width,translations,note,conditions,required,"group",validation,validation_message)
     VALUES
+      ('vector_tiles','layer_id','uuid','input',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','layer_name',NULL,'input',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','user_created','user-created','select-dropdown-m2o','{"template":"{{avatar.$thumbnail}} {{first_name}} {{last_name}}"}','user',NULL,TRUE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','date_created','date-created','datetime',NULL,'datetime','{"relative":true}',TRUE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
@@ -89,7 +91,7 @@ export async function up(knex) {
       ('vector_tiles','circle_class_columns',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','symbol_class_columns',NULL,'input',NULL,NULL,NULL,TRUE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles_directus_roles','id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('vector_tiles_directus_roles','vector_tiles_layer_name',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('vector_tiles_directus_roles','vector_tiles_layer_id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles_directus_roles','directus_roles_id',NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL);
 
     INSERT INTO directus_relations(many_collection,many_field,one_collection,one_field,one_collection_field,one_allowed_collections,junction_field,sort_field,one_deselect_action)
@@ -102,8 +104,8 @@ export async function up(knex) {
       ('vector_tiles','line_style','line',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('vector_tiles','circle_style','circle',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('vector_tiles','symbol_style','symbol',NULL,NULL,NULL,NULL,NULL,'nullify'),
-      ('vector_tiles_directus_roles','directus_roles_id','directus_roles',NULL,NULL,NULL,'vector_tiles_layer_name',NULL,'nullify'),
-      ('vector_tiles_directus_roles','vector_tiles_layer_name','vector_tiles','allowed_roles',NULL,NULL,'directus_roles_id',NULL,'delete');
+      ('vector_tiles_directus_roles','directus_roles_id','directus_roles',NULL,NULL,NULL,'vector_tiles_layer_id',NULL,'nullify'),
+      ('vector_tiles_directus_roles','vector_tiles_layer_id','vector_tiles','allowed_roles',NULL,NULL,'directus_roles_id',NULL,'delete');
   `);
 }
 

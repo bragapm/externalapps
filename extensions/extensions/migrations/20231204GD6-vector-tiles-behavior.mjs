@@ -11,7 +11,7 @@ export async function up(knex) {
           DELETE FROM directus_permissions
           WHERE collection = OLD.layer_name;
           DELETE FROM vector_tiles_directus_roles
-          WHERE vector_tiles_layer_name = OLD.layer_name;
+          WHERE vector_tiles_layer_id = OLD.layer_id;
         ELSIF NEW.permission_type = 'roles' THEN
           DELETE FROM directus_permissions
           WHERE collection = OLD.layer_name
@@ -36,7 +36,9 @@ export async function up(knex) {
     AS $BODY$
       BEGIN
         INSERT INTO directus_permissions(collection, role, action, fields)
-        VALUES(NEW.vector_tiles_layer_name, NEW.directus_roles_id, 'read', '*');
+        SELECT layer_name, NEW.directus_roles_id, 'read', '*'
+        FROM vector_tiles
+        WHERE layer_id = NEW.vector_tiles_layer_id;
         RETURN NULL;
       END;
     $BODY$;
@@ -53,7 +55,11 @@ export async function up(knex) {
     AS $BODY$
       BEGIN
         DELETE FROM directus_permissions
-        WHERE collection = OLD.vector_tiles_layer_name
+        WHERE collection IN (
+          SELECT layer_name
+          FROM vector_tiles
+          WHERE layer_id = OLD.vector_tiles_layer_id
+        )
         AND role = OLD.directus_roles_id;
         RETURN NULL;
       END;
