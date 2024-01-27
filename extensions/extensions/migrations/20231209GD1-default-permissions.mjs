@@ -4,7 +4,7 @@ export async function up(knex) {
   await knex.raw(`
     INSERT INTO directus_permissions(collection,action,permissions,validation,fields)
     VALUES
-      ('vector_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,category,popup_columns,image_column,class_columns,default,cache_duration,fill_style,line_style,circle_style,symbol_style'),
+      ('vector_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,category,popup_columns,image_column,class_columns,default,fill_style,line_style,circle_style,symbol_style'),
       ('symbol','read','{}','{}','*'),
       ('raster_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,bounds,minzoom,maxzoom,layer_alias,category,default'),
       ('raster_overlays','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,bounds,image,legend_image,layer_alias,category,default'),
