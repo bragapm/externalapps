@@ -10,7 +10,7 @@ export async function up(knex) {
       ('raster_overlays','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,bounds,image,legend_image,layer_alias,category,default'),
       ('line','read','{}','{}','*'),
       ('fill','read','{}','{}','*'),
-      ('external_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','external_tile_id,tile_type,is_tilejson,tilejson_url,tile_url,layer_style_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category,default'),
+      ('external_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,tile_type,is_tilejson,tilejson_url,tile_url,layer_style_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category,default'),
       ('circle','read','{}','{}','*'),
       ('categories','read','{}','{}','*');
 
@@ -29,7 +29,7 @@ export async function up(knex) {
           (NEW.id,'raster_overlays','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,bounds,image,legend_image,layer_alias,category,default'),
           (NEW.id,'line','read','{}','{}','*'),
           (NEW.id,'fill','read','{}','{}','*'),
-          (NEW.id,'external_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','external_tile_id,tile_type,is_tilejson,tilejson_url,tile_url,layer_style_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category,default'),
+          (NEW.id,'external_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,tile_type,is_tilejson,tilejson_url,tile_url,layer_style_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category,default'),
           (NEW.id,'circle','read','{}','{}','*'),
           (NEW.id,'categories','read','{}','{}','*');
         RETURN NULL;
