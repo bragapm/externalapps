@@ -17,7 +17,7 @@ const validateUuid = (input) => {
 const TileNotFoundError = createError(
   "TILE_NOT_FOUND",
   (ext) =>
-    `Tile ${ext.z},${ext.x},${ext.y} for raster_id ${ext.raster_id} not found`,
+    `Tile ${ext.z},${ext.x},${ext.y} for layer_id ${ext.layer_id} not found`,
   404
 );
 
@@ -31,13 +31,13 @@ export default (router, { database, env, logger }) => {
     forcePathStyle: env.STORAGE_S3_FORCE_PATH_STYLE,
   });
 
-  router.get("/:rasterId", async (req, res, next) => {
+  router.get("/:layerId", async (req, res, next) => {
     const { accountability } = req;
     let { z, x, y } = req.query;
-    const { rasterId } = req.params;
+    const { layerId } = req.params;
 
     // validate uuid
-    if (!validateUuid(rasterId)) {
+    if (!validateUuid(layerId)) {
       return next(new RouteNotFoundError({ path: "/raster-tiles" + req.path }));
     }
 
@@ -49,13 +49,13 @@ export default (router, { database, env, logger }) => {
         WITH allowed_roles_query AS (
           SELECT ARRAY_AGG(directus_roles_id) allowed_roles
           FROM raster_tiles_directus_roles
-          WHERE raster_tiles_raster_id = :rasterId
+          WHERE raster_tiles_layer_id = :layerId
         )
         SELECT permission_type, allowed_roles
         FROM raster_tiles, allowed_roles_query
-        WHERE raster_id = :rasterId
+        WHERE layer_id = :layerId
       `,
-        { rasterId }
+        { layerId }
       ));
     } catch (error) {
       logger.error(error);
@@ -110,7 +110,7 @@ export default (router, { database, env, logger }) => {
         return next(
           new ServiceUnavailableError({
             service: "raster-tiles",
-            reason: `Unexpected uploaded raster tile permission type for ${rasterId}: ${rasterTileRows[0].permission_type}`,
+            reason: `Unexpected uploaded raster tile permission type for ${layerId}: ${rasterTileRows[0].permission_type}`,
           })
         );
     }
@@ -123,7 +123,7 @@ export default (router, { database, env, logger }) => {
       return next(new InvalidQueryError({ reason: "Invalid z, x, y" }));
     }
 
-    const objectKey = `raster-tiles/${rasterId}/${z}/${x}/${y}.png`;
+    const objectKey = `raster-tiles/${layerId}/${z}/${x}/${y}.png`;
 
     let tileExists;
     try {
@@ -159,7 +159,7 @@ export default (router, { database, env, logger }) => {
         logger.error(error);
       }
     } else {
-      return next(new TileNotFoundError({ z, x, y, raster_id: rasterId }));
+      return next(new TileNotFoundError({ z, x, y, layer_id: layerId }));
     }
   });
 };
