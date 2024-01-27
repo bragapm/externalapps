@@ -1,5 +1,6 @@
 import os
 from urllib import request
+from uuid import uuid4
 from psycopg2.extras import Json
 from utils import logger, create_bbox_polygon
 
@@ -10,8 +11,9 @@ def register_table_to_directus(
     with conn:
         with conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO vector_tiles(layer_name, geometry_type, user_created, bounds) VALUES(%s, %s, %s, %s)",
+                "INSERT INTO vector_tiles(layer_id, layer_name, geometry_type, user_created, bounds) VALUES(%s, %s, %s, %s, %s)",
                 [
+                    str(uuid4()),
                     table_name,
                     "MULTIPOLYGON"
                     if header_info["geom_name"] == "POLYGON"
