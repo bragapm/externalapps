@@ -34,7 +34,7 @@ def register_table_to_directus(
 
 def register_raster_tile(
     conn,
-    raster_id: str,
+    layer_id: str,
     raster_alias: str,
     lon_min: float,
     lat_min: float,
@@ -47,10 +47,10 @@ def register_raster_tile(
     with conn:
         with conn.cursor() as cur:
             cur.execute(
-                """INSERT INTO raster_tiles(raster_id, layer_alias, bounds, minzoom, maxzoom, user_created)
+                """INSERT INTO raster_tiles(layer_id, layer_alias, bounds, minzoom, maxzoom, user_created)
             VALUES(%s, %s, %s, %s, %s, %s)""",
                 [
-                    raster_id,
+                    layer_id,
                     raster_alias,
                     Json(create_bbox_polygon(lon_min, lat_min, lon_max, lat_max)),
                     z_min,

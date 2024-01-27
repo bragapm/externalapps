@@ -19,13 +19,13 @@ def tiling(
     bucket=os.environ.get("STORAGE_S3_BUCKET"),
 ):
     try:
-        (raster_id, xmin, ymin, xmax, ymax) = raster_tiling(
+        (layer_id, xmin, ymin, xmax, ymax) = raster_tiling(
             bucket, object_key, min_zoom, max_zoom
         )
         conn = pool.getconn()
         register_raster_tile(
             conn,
-            raster_id,
+            layer_id,
             raster_alias,
             xmin,
             ymin,
@@ -37,7 +37,7 @@ def tiling(
         )
         pool.putconn(conn)
         return {
-            "raster_id": raster_id,
+            "layer_id": layer_id,
             "lon_min": xmin,
             "lat_min": ymin,
             "lon_max": xmax,

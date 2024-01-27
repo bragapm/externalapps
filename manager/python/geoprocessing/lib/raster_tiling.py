@@ -31,11 +31,11 @@ class GDAL2TilesOptions:
         self.zoom = (min_zoom, max_zoom)
 
 
-def delete_generated_tiles(bucket, raster_id: str):
+def delete_generated_tiles(bucket, layer_id: str):
     object_keys: list[str] = []
     objects = minio_client.list_objects(
         bucket,
-        f"raster-tiles/{raster_id}/",
+        f"raster-tiles/{layer_id}/",
         True,
     )
     for obj in objects:
@@ -62,9 +62,9 @@ def raster_tiling(
             return "error: Min zoom must be lower than or equal to max_zoom"
 
     gdal2tiles_opts = GDAL2TilesOptions(min_zoom, max_zoom)
-    raster_id = str(uuid4())
+    layer_id = str(uuid4())
     input_file = f"/vsis3/{bucket}/{object_key}"
-    output_dir = f"/vsis3/{bucket}/raster-tiles/{raster_id}"
+    output_dir = f"/vsis3/{bucket}/raster-tiles/{layer_id}"
 
     try:
         dataset: gdal.Dataset = gdal.Open(input_file)
@@ -89,7 +89,6 @@ def raster_tiling(
         print(err)
         # delete_temp_file(object_key)
         return f"error: Failed to get raster bounds"
-    # print(raster_id)
 
     try:
         conf, tile_details = gdal2tiles.worker_tile_details(
@@ -122,7 +121,7 @@ def raster_tiling(
     except gdal2tiles.Gdal2TilesError as err:
         del_err_msg = ""
         try:
-            delete_generated_tiles(bucket, raster_id)
+            delete_generated_tiles(bucket, layer_id)
         except Exception:
             del_err_msg = " + Failed to delete half generated tiles. Please delete it manually via S3 console"
         return f"error: {err}{del_err_msg}"
@@ -130,7 +129,7 @@ def raster_tiling(
         print(err)
         del_err_msg = ""
         try:
-            delete_generated_tiles(bucket, raster_id)
+            delete_generated_tiles(bucket, layer_id)
         except Exception:
             del_err_msg = " + Failed to delete half generated tiles. Please delete it manually via S3 console"
         return f"error: Unexpected error {del_err_msg}"
@@ -138,7 +137,7 @@ def raster_tiling(
     #     delete_temp_file(object_key)
 
     return (
-        raster_id,
+        layer_id,
         xmin_transformed,
         ymin_transformed,
         xmax_transformed,
