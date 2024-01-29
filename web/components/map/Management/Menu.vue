@@ -3,7 +3,8 @@ import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { useFloating, offset, flip } from "@floating-ui/vue";
 import IcMenuDots from "~/assets/icons/ic-menu-dots.svg";
 import { useTableData } from "~/stores/use-table-data";
-import type { LngLatLike } from "maplibre-gl";
+import type { LngLatBoundsLike } from "maplibre-gl";
+import bbox from "@turf/bbox";
 
 defineProps<{
   bounds: GeoJSON.Polygon;
@@ -47,7 +48,7 @@ const { floatingStyles } = useFloating(reference, floating, {
             <button
               @click="
                 () => {
-                  map?.flyTo({ center: bounds.coordinates[0][0] as LngLatLike });
+                  map?.fitBounds(bbox(bounds) as LngLatBoundsLike, { padding: 20 });
                 }
               "
               :class="[

@@ -3,11 +3,11 @@ import IcEye from "~/assets/icons/ic-eye.svg";
 import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
 import IcPaint from "~/assets/icons/ic-paint.svg";
 import { TransitionRoot } from "@headlessui/vue";
-import type { VectorTiles } from "~/utils/types";
+import type { RasterTiles, VectorTiles } from "~/utils/types";
 import { storeToRefs } from "pinia";
 
 const props = defineProps<{
-  layerItem: VectorTiles;
+  layerItem: VectorTiles | RasterTiles;
 }>();
 
 const store = useMapRef();
@@ -17,21 +17,23 @@ const storeLayer = useMapLayer();
 const { handleVisibility } = storeLayer;
 
 const groupIndex = computed(() => {
-  if (storeLayer.groupLayerList)
+  if (storeLayer.groupedLayerList)
     if (props.layerItem.category) {
-      return storeLayer.groupLayerList.findIndex(
+      return storeLayer.groupedLayerList.findIndex(
         (el) => el.label === props.layerItem.category.category_name
       );
     } else {
-      return storeLayer.groupLayerList.findIndex((el) => el.label === "Others");
+      return storeLayer.groupedLayerList.findIndex(
+        (el) => el.label === "Others"
+      );
     }
 });
 
 const layerIndex = computed(() => {
   if (groupIndex.value !== undefined) {
-    if (storeLayer?.groupLayerList?.[groupIndex.value]?.layerLists)
-      return storeLayer.groupLayerList[groupIndex.value].layerLists.findIndex(
-        (el) => el.layer_name === props.layerItem.layer_name
+    if (storeLayer?.groupedLayerList?.[groupIndex.value]?.layerLists)
+      return storeLayer.groupedLayerList[groupIndex.value].layerLists.findIndex(
+        (el) => el.layer_id === props.layerItem.layer_id
       );
   }
 });
@@ -79,7 +81,13 @@ const toggleVisibility = () => {
         <p class="truncate">
           {{ layerItem.layer_name }}
         </p>
-        <p class="truncate">{{ layerItem.geometry_type }}</p>
+        <p class="truncate">
+          {{
+            layerItem.source === "raster_tiles"
+              ? "RASTER"
+              : (layerItem as VectorTiles).geometry_type
+          }}
+        </p>
       </div>
       <div class="flex gap-2 items-center justify-end w-4/12">
         <button @click="isShowStyling = !isShowStyling">

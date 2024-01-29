@@ -4,12 +4,15 @@ const store = useMapLayer();
 
 <template>
   <template
-    v-if="store.groupLayerList"
-    v-for="groupItem in store.groupLayerList"
+    v-if="store.groupedLayerList"
+    v-for="groupItem in store.groupedLayerList"
     :key="groupItem.label"
   >
     <template v-for="layerItem in groupItem.layerLists">
-      <MapLayerVector :item="layerItem" />
+      <MapLayerVector
+        v-if="layerItem.source === 'vector_tiles'"
+        :item="(layerItem as VectorTiles)"
+      />
     </template>
   </template>
 </template>

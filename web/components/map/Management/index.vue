@@ -28,11 +28,11 @@ const store = useMapLayer();
   <hr class="mx-3" />
 
   <!-- to do change temporary loading state -->
-  <!-- <div v-if="!getGroupLayerList" class="px-3 my-3 text-white">Loading ...</div> -->
+  <!-- <div v-if="!getgroupedLayerList" class="px-3 my-3 text-white">Loading ...</div> -->
   <UAccordion
-    v-if="store.groupLayerList"
+    v-if="store.groupedLayerList"
     multiple
-    :items="store.groupLayerList"
+    :items="store.groupedLayerList"
     :ui="{
       default: {
         class:

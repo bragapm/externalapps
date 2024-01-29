@@ -1,33 +1,32 @@
 import type { VectorTiles, RasterTiles } from "~/utils/types";
 
-type LayerGroupByCategory = {
+type LayerGroupedByCategory = {
   label: string;
-  // layerLists: (VectorTiles | RasterTiles)[];
-  layerLists: VectorTiles[];
+  layerLists: (VectorTiles | RasterTiles)[];
   defaultOpen: boolean;
 };
 
 export const useMapLayer = defineStore("maplayer", () => {
-  const groupLayerList = ref<LayerGroupByCategory[] | null>(null);
+  const groupedLayerList = ref<LayerGroupedByCategory[] | null>(null);
 
   const handleVisibility = (
     groupIndex: number,
     layerIndex: number,
     visibility: boolean
   ) => {
-    if (groupLayerList.value) {
-      const prev = groupLayerList.value;
+    if (groupedLayerList.value) {
+      const prev = groupedLayerList.value;
       prev[groupIndex].layerLists[layerIndex].default = visibility;
-      groupLayerList.value = prev;
+      groupedLayerList.value = prev;
     }
   };
 
   const fetchVectorTiles = async () => {
     const { data: layers, pending } = await useAsyncData(
-      "vector-tiles",
+      "map-layer-tiles",
       async () => {
         const [vectorTiles, rasterTiles] = await Promise.all<{
-          data: VectorTiles[];
+          data: (VectorTiles | RasterTiles)[];
         }>([
           $fetch("/panel/items/vector_tiles?fields=*.*"),
           $fetch("/panel/items/raster_tiles?fields=*.*"),
@@ -36,25 +35,39 @@ export const useMapLayer = defineStore("maplayer", () => {
         return { vectorTiles, rasterTiles };
       }
     );
-
-    const allLayerData = [
-      ...layers.value.vectorTiles.data,
-      // ...layers.value.rasterTiles.data,
-    ];
-    console.log(allLayerData);
+    const allLayerData: (VectorTiles | RasterTiles)[] = [];
+    if (layers.value) {
+      for (const [key, value] of Object.entries(layers.value)) {
+        value.data.forEach((el) => {
+          if (key === "vectorTiles") {
+            const item = el as VectorTiles;
+            allLayerData.push({ ...item, source: "vector_tiles" });
+          } else if (key === "rasterTiles") {
+            const item = el as RasterTiles;
+            allLayerData.push({
+              ...item,
+              layer_name: item.layer_alias,
+              source: "raster_tiles",
+            });
+          }
+        });
+      }
+    }
 
     if (allLayerData) {
-      const layerGroupByCategory = allLayerData.reduce(
-        (group: LayerGroupByCategory[], item) => {
-          const existingCategory = group.find((group: LayerGroupByCategory) => {
-            let categoryName = "";
-            if (item.category === null) {
-              categoryName = "Others";
-            } else if (item.category.category_name) {
-              categoryName = item.category.category_name;
+      const layerGroupedByCategory = allLayerData.reduce(
+        (group: LayerGroupedByCategory[], item) => {
+          const existingCategory = group.find(
+            (group: LayerGroupedByCategory) => {
+              let categoryName = "";
+              if (item.category === null) {
+                categoryName = "Others";
+              } else if (item.category.category_name) {
+                categoryName = item.category.category_name;
+              }
+              return group.label === categoryName;
             }
-            return group.label === categoryName;
-          });
+          );
 
           if (existingCategory) {
             existingCategory.layerLists.push(item);
@@ -78,13 +91,13 @@ export const useMapLayer = defineStore("maplayer", () => {
         []
       );
 
-      groupLayerList.value = layerGroupByCategory;
+      groupedLayerList.value = layerGroupedByCategory;
     }
   };
 
   return {
     fetchVectorTiles,
     handleVisibility,
-    groupLayerList,
+    groupedLayerList,
   };
 });

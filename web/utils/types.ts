@@ -1,16 +1,23 @@
 export type VectorTiles = {
-  layer_name: string;
-  category: { category_name: string | null };
-  geometry_type: string;
+  source: "vector_tiles";
+
   bounds: GeoJSON.Polygon;
+  category: { category_name: string | null };
   default: boolean;
+  geometry_type: string;
+  layer_id: string;
+  layer_name: string;
 };
 
 export type RasterTiles = {
-  raster_id: string;
-  category: { category_name: string | null };
+  source: "raster_tiles";
+  layer_name: string;
+
   bounds: GeoJSON.Polygon;
+  category: { category_name: string | null };
   default: boolean;
+  layer_alias: string;
+  layer_id: string;
 };
 
 export type MapData = {
