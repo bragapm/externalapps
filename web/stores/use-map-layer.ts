@@ -41,7 +41,7 @@ export const useMapLayer = defineStore("maplayer", () => {
         value.data.forEach((el) => {
           if (key === "vectorTiles") {
             const item = el as VectorTiles;
-            if (item.circle_style) {
+            if (item.circle_style || item.line_style || item.fill_style) {
               allLayerData.push({ ...item, source: "vector_tiles" });
             }
           } else if (key === "rasterTiles") {
