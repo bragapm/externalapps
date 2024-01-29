@@ -13,6 +13,10 @@ const store = useMapLayer();
         v-if="layerItem.source === 'vector_tiles'"
         :item="(layerItem as VectorTiles)"
       />
+      <MapLayerRaster
+        v-else-if="layerItem.source === 'raster_tiles'"
+        :item="(layerItem as RasterTiles)"
+      />
     </template>
   </template>
 </template>
