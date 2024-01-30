@@ -22,12 +22,11 @@ def transform(
     uploader,
     format_file,
     is_zipped,
+    table_name,
     bucket=os.environ.get("STORAGE_S3_BUCKET"),
     **kwargs,
 ):
-    table_name = kwargs.get(
-        "table_name", os.path.splitext(os.path.basename(object_key))[0]
-    )
+    table_name = table_name or os.path.splitext(os.path.basename(object_key))[0]
     try:
         header_info, data_source = get_header_info(
             format_file, bucket, object_key, is_zipped, table_name
