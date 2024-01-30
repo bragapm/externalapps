@@ -108,9 +108,9 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_name,
+            id: props.item.layer_id,
             type: "fill",
-            source: props.item.layer_name,
+            source: props.item.layer_id,
             "source-layer": props.item.layer_name,
             layout,
             paint,
@@ -143,9 +143,48 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_name,
+            id: props.item.layer_id,
             type: "line",
-            source: props.item.layer_name,
+            source: props.item.layer_id,
+            "source-layer": props.item.layer_name,
+            layout,
+            paint,
+          });
+        }
+      } else if (
+        props.item.geometry_type === "LINESTRING" ||
+        props.item.geometry_type === "MULTILINESTRING"
+      ) {
+        if (props.item.line_style) {
+          let paint: any = {},
+            layout: any = {};
+
+          Object.keys(props.item.line_style).forEach((key) => {
+            const [category, ...nameStrings] = key.split("_");
+            if (
+              category === "paint" &&
+              props.item.line_style?.[key as keyof typeof props.item.line_style]
+            ) {
+              paint[nameStrings.join("-")] = nameStrings.includes("opacity")
+                ? parseFloat(props.item.line_style.paint_line_opacity)
+                : isString(props.item.line_style[key as keyof LineStyles])
+                ? parseString(
+                    props.item.line_style[key as keyof LineStyles] as string
+                  )
+                : props.item.line_style[key as keyof LineStyles];
+            } else if (
+              category === "layout" &&
+              props.item.line_style?.[key as keyof LineStyles]
+            ) {
+              layout[nameStrings.join("-")] =
+                props.item.line_style[key as keyof LineStyles];
+            }
+          });
+
+          map.value.addLayer({
+            id: props.item.layer_id,
+            type: "line",
+            source: props.item.layer_id,
             "source-layer": props.item.layer_name,
             layout,
             paint,

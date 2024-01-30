@@ -4,7 +4,11 @@ import { useFloating, offset, flip, size } from "@floating-ui/vue";
 import IcArrow from "~/assets/icons/ic-arrow-reg.svg";
 import IcPaint from "~/assets/icons/ic-paint.svg";
 
-const rangeValue = ref(50);
+const props = defineProps<{
+  opacity: number;
+}>();
+
+const rangeValue = ref(props.opacity * 100);
 const colorValue = ref("");
 
 const reference = ref(null);

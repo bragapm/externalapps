@@ -40,7 +40,28 @@ const layerIndex = computed(() => {
 
 const isShowStyling = ref(false);
 const visibility = ref(
-  props.layerItem.circle_style?.layout_visibility === "visible" ? true : false
+  props.layerItem.circle_style
+    ? props.layerItem.circle_style.layout_visibility === "visible"
+      ? true
+      : false
+    : props.layerItem.fill_style
+    ? props.layerItem.fill_style.layout_visibility === "visible"
+      ? true
+      : false
+    : props.layerItem.line_style
+    ? props.layerItem.line_style.layout_visibility === "visible"
+      ? true
+      : false
+    : false
+);
+const opacity = ref<string>(
+  props.layerItem.circle_style
+    ? props.layerItem.circle_style.paint_circle_opacity
+    : props.layerItem.fill_style
+    ? props.layerItem.fill_style.paint_fill_opacity
+    : props.layerItem.line_style
+    ? props.layerItem.line_style.paint_line_opacity
+    : "0"
 );
 
 const toggleVisibility = () => {
@@ -121,7 +142,7 @@ const toggleVisibility = () => {
       leaveTo="transform max-h-0 opacity-0"
       class="transition-all duration-500 ease-in-out"
     >
-      <MapManagementStyling />
+      <MapManagementStyling :opacity="opacity ? parseFloat(opacity) : 0" />
     </TransitionRoot>
   </div>
 </template>
