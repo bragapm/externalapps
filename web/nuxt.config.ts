@@ -5,7 +5,18 @@ export default defineNuxtConfig({
   },
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
-  modules: ["@nuxt/ui", "@pinia/nuxt", "@nuxt/image", "nuxt-svgo"],
+  modules: [
+    "@nuxt/ui",
+    "@pinia/nuxt",
+    "@nuxt/image",
+    "nuxt-svgo",
+    "@nuxtjs/google-fonts",
+  ],
+  googleFonts: {
+    families: {
+      Inter: true,
+    },
+  },
   pinia: {
     storesDirs: ["./stores/**"],
   },
