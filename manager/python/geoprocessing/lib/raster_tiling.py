@@ -115,7 +115,6 @@ def raster_tiling(
                 gdal2tiles.create_overview_tile(
                     base_tz, base_tiles, output_dir, conf, gdal2tiles_opts
                 )
-        print(conf)
         shutil.rmtree(os.path.dirname(conf.src_file))
 
     except gdal2tiles.Gdal2TilesError as err:
@@ -142,4 +141,6 @@ def raster_tiling(
         ymin_transformed,
         xmax_transformed,
         ymax_transformed,
+        min_zoom,
+        max_zoom,
     )

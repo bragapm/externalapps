@@ -20,7 +20,7 @@ def tiling(
     **kwargs,
 ):
     try:
-        (layer_id, xmin, ymin, xmax, ymax) = raster_tiling(
+        (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = raster_tiling(
             bucket, object_key, minzoom, maxzoom
         )
         conn = pool.getconn()
@@ -43,6 +43,8 @@ def tiling(
             "lat_min": ymin,
             "lon_max": xmax,
             "lat_max": ymax,
+            "z_min": minzoom,
+            "z_max": maxzoom,
         }
 
     except Exception as err:
