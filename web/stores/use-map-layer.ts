@@ -48,7 +48,6 @@ export const useMapLayer = defineStore("maplayer", () => {
             const item = el as RasterTiles;
             allLayerData.push({
               ...item,
-              layer_name: item.layer_alias,
               source: "raster_tiles",
             });
           }

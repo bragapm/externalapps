@@ -26,8 +26,8 @@ function parseString(input: string) {
 
 watchEffect(async () => {
   if (map?.value) {
-    if (!map.value.getSource(props.item.layer_name)) {
-      map.value.addSource(props.item.layer_name, {
+    if (!map.value.getSource(props.item.layer_id)) {
+      map.value.addSource(props.item.layer_id, {
         type: "vector",
         tiles: [
           window.location.origin +
@@ -69,9 +69,9 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_name,
+            id: props.item.layer_id,
             type: "circle",
-            source: props.item.layer_name,
+            source: props.item.layer_id,
             "source-layer": props.item.layer_name,
             layout: {
               visibility: props.item.default ? "visible" : "none",

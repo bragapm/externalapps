@@ -52,7 +52,6 @@ export type LineStyles = {
 
 export type VectorTiles = {
   source: "vector_tiles";
-
   bounds: GeoJSON.Polygon;
   category: { category_name: string | null };
   circle_style: null | CircleStyles;
@@ -60,6 +59,7 @@ export type VectorTiles = {
   line_style: null | LineStyles;
   default: boolean;
   geometry_type: string;
+  layer_alias: string;
   layer_id: string;
   layer_name: string;
   minzoom: number;
@@ -68,8 +68,6 @@ export type VectorTiles = {
 
 export type RasterTiles = {
   source: "raster_tiles";
-  layer_name: string;
-
   bounds: GeoJSON.Polygon;
   category: { category_name: string | null };
   default: boolean;

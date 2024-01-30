@@ -48,17 +48,17 @@ const toggleVisibility = () => {
   }
   if (map.value) {
     if (
-      map.value.getLayoutProperty(props.layerItem.layer_name, "visibility") ===
+      map.value.getLayoutProperty(props.layerItem.layer_id, "visibility") ===
       "none"
     ) {
       map.value.setLayoutProperty(
-        props.layerItem.layer_name,
+        props.layerItem.layer_id,
         "visibility",
         "visible"
       );
     } else {
       map.value.setLayoutProperty(
-        props.layerItem.layer_name,
+        props.layerItem.layer_id,
         "visibility",
         "none"
       );
@@ -79,7 +79,10 @@ const toggleVisibility = () => {
     >
       <div class="text-white w-8/12">
         <p class="truncate">
-          {{ layerItem.layer_name }}
+          {{
+            layerItem.layer_alias ||
+            (layerItem.source === "vector_tiles" && layerItem.layer_name)
+          }}
         </p>
         <p class="truncate">
           {{
