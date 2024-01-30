@@ -30,7 +30,6 @@ export async function up(knex) {
       feature_detail_columns text,
       image_column character varying(255),
       active boolean DEFAULT false,
-      "default" boolean DEFAULT false,
       cache_duration integer DEFAULT 0,
       permission_type character varying(255) DEFAULT 'admin',
       fill_style integer REFERENCES fill (id)
@@ -82,7 +81,6 @@ export async function up(knex) {
       ('vector_tiles','feature_detail_columns','cast-csv','select-multiple-checkbox','{"allowOther":true,"choices":[{"text":"ogc_fid","value":"ogc_fid"}]}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','image_column',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','active','cast-boolean','boolean','{"label":"Active"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('vector_tiles','default','cast-boolean','boolean',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','cache_duration',NULL,'slider','{"stepInterval":1,"alwaysShowValue":true}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','permission_type',NULL,'select-dropdown','{"choices":[{"text":"Admin Only","value":"admin"},{"text":"Selected Roles","value":"roles"},{"text":"Selected Roles + Public","value":"roles+public"}]}',NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('vector_tiles','allowed_roles','m2m','list-m2m','{"enableCreate":false,"filter":{"_and":[{"admin_access":{"_eq":false}}]},"template":"{{directus_roles_id.name}}"}',NULL,NULL,FALSE,TRUE,NULL,'half',NULL,NULL,'[{"name":"Show if permission type roles or roles+public","rule":{"_and":[{"_or":[{"permission_type":{"_eq":"roles"}},{"permission_type":{"_eq":"roles+public"}}]}]},"hidden":false,"options":{"layout":"list","enableCreate":false,"enableSelect":true,"limit":15,"junctionFieldLocation":"bottom","allowDuplicates":false,"enableSearchFilter":false,"enableLink":false}}]',FALSE,NULL,NULL,NULL),
