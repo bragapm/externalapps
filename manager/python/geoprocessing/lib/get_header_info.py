@@ -32,6 +32,13 @@ def get_header_info_from_data_source(
 
         # Get the bounding box and convert it to GeoJSON format
         bbox = layer.GetExtent()
+        if srs:
+            target_srs = osr.SpatialReference()
+            target_srs.ImportFromEPSG(4326)
+            if not target_srs.IsSame(srs, ["IGNORE_DATA_AXIS_TO_SRS_AXIS_MAPPING=YES"]):
+                transform = osr.CoordinateTransformation(srs, target_srs)
+                new_bbox = transform.TransformBounds(bbox[0], bbox[2], bbox[1], bbox[3], 21)
+                bbox = (new_bbox[1], new_bbox[3], new_bbox[0], new_bbox[2])
         bbox_geojson = create_bbox_polygon(bbox[0], bbox[2], bbox[1], bbox[3])
 
         header_info = {
