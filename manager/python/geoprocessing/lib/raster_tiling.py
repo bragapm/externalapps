@@ -49,11 +49,11 @@ def delete_generated_tiles(bucket, layer_id: str):
 def raster_tiling(
     bucket: str,
     object_key: str,
-    min_zoom: int,
-    max_zoom: int,
+    min_zoom: int | None,
+    max_zoom: int | None,
 ):
-    min_zoom = int(min_zoom)
-    max_zoom = int(max_zoom)
+    min_zoom = int(min_zoom) if min_zoom is not None else min_zoom
+    max_zoom = int(max_zoom) if max_zoom is not None else max_zoom
 
     if max_zoom is not None:
         if min_zoom is None:
