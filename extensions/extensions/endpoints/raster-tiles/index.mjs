@@ -1,12 +1,13 @@
 import { pipeline } from "node:stream/promises";
 
-import { DriverS3 } from "@directus/storage-driver-s3";
 import {
   createError,
   InvalidQueryError,
   ServiceUnavailableError,
   RouteNotFoundError,
 } from "@directus/errors";
+
+import minioClient from "../../utils/minioClient.mjs";
 
 const validateUuid = (input) => {
   const uuidRegex =
@@ -22,15 +23,6 @@ const TileNotFoundError = createError(
 );
 
 export default (router, { database, env, logger }) => {
-  const driverS3 = new DriverS3({
-    key: env.STORAGE_S3_KEY,
-    secret: env.STORAGE_S3_SECRET,
-    bucket: env.STORAGE_S3_BUCKET,
-    endpoint: env.STORAGE_S3_ENDPOINT,
-    region: env.STORAGE_S3_REGION,
-    forcePathStyle: env.STORAGE_S3_FORCE_PATH_STYLE,
-  });
-
   router.get("/:layerId", async (req, res, next) => {
     const { accountability } = req;
     let { z, x, y } = req.query;
@@ -125,24 +117,16 @@ export default (router, { database, env, logger }) => {
 
     const objectKey = `raster-tiles/${layerId}/${z}/${x}/${y}.png`;
 
-    let tileExists;
+    let fileStream;
     try {
-      tileExists = await driverS3.exists(objectKey);
-    } catch (error) {
-      logger.error(error);
-      return next(
-        new ServiceUnavailableError({
-          service: "raster-tiles",
-          reason: "Failed to fetch tile availability",
-        })
+      fileStream = await minioClient.getObject(
+        env.STORAGE_S3_BUCKET,
+        objectKey
       );
-    }
-
-    if (tileExists) {
-      let fileStream;
-      try {
-        fileStream = await driverS3.read(objectKey);
-      } catch (error) {
+    } catch (error) {
+      if (error.code === "NoSuchKey") {
+        return next(new TileNotFoundError({ z, x, y, layer_id: layerId }));
+      } else {
         logger.error(error);
         return next(
           new ServiceUnavailableError({
@@ -151,15 +135,13 @@ export default (router, { database, env, logger }) => {
           })
         );
       }
+    }
 
-      try {
-        res.setHeader("Content-Type", "image/png");
-        await pipeline(fileStream, res);
-      } catch (error) {
-        logger.error(error);
-      }
-    } else {
-      return next(new TileNotFoundError({ z, x, y, layer_id: layerId }));
+    try {
+      res.setHeader("Content-Type", "image/png");
+      await pipeline(fileStream, res);
+    } catch (error) {
+      logger.error(error);
     }
   });
 };
