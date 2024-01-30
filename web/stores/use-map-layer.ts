@@ -12,30 +12,54 @@ export const useMapLayer = defineStore("maplayer", () => {
   const handleVisibility = (
     groupIndex: number,
     layerIndex: number,
-    visibility: boolean
+    visibility: string
   ) => {
     if (groupedLayerList.value) {
       const prev = groupedLayerList.value;
 
       if (prev[groupIndex].layerLists[layerIndex].source === "vector_tiles") {
         const selector = prev[groupIndex].layerLists[layerIndex] as VectorTiles;
+        if (
+          selector.geometry_type === "POINT" ||
+          selector.geometry_type === "MULTIPOINT"
+        ) {
+          if (selector.circle_style) {
+            selector.circle_style.layout_visibility = visibility;
+          }
+        } else if (
+          selector.geometry_type === "POLYGON" ||
+          selector.geometry_type === "MULTIPOLYGON"
+        ) {
+          if (selector.fill_style) {
+            selector.fill_style.layout_visibility = visibility;
+          }
+          if (selector.line_style) {
+            selector.line_style.layout_visibility = visibility;
+          }
+          if (selector.circle_style) {
+            selector.circle_style.layout_visibility = visibility;
+          }
+        } else if (
+          selector.geometry_type === "LINESTRING" ||
+          selector.geometry_type === "MULTILINESTRING"
+        ) {
+          if (selector.line_style) {
+            selector.line_style.layout_visibility = visibility;
+          }
+          if (selector.circle_style) {
+            selector.circle_style.layout_visibility = visibility;
+          }
+        }
         if (selector.circle_style) {
-          selector.circle_style.layout_visibility = visibility
-            ? "visible"
-            : "none";
         } else if (selector.fill_style && selector.line_style) {
-          selector.line_style.layout_visibility = visibility
-            ? "visible"
-            : "none";
-          selector.fill_style.layout_visibility = visibility
-            ? "visible"
-            : "none";
+          selector.line_style.layout_visibility = visibility;
+          selector.fill_style.layout_visibility = visibility;
         }
       } else if (
         prev[groupIndex].layerLists[layerIndex].source === "raster_tiles"
       ) {
         (prev[groupIndex].layerLists[layerIndex] as RasterTiles).default =
-          visibility;
+          visibility === "visible" ? true : false;
       }
 
       groupedLayerList.value = prev;
@@ -70,6 +94,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             allLayerData.push({
               ...item,
               source: "raster_tiles",
+              opacity: 1,
             });
           }
         });

@@ -67,6 +67,7 @@ export type VectorTiles = {
 
 export type RasterTiles = {
   source: "raster_tiles";
+  opacity: number;
   bounds: GeoJSON.Polygon;
   category: { category_name: string | null };
   default: boolean;

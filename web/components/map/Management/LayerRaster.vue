@@ -3,7 +3,7 @@ import IcEye from "~/assets/icons/ic-eye.svg";
 import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
 import IcPaint from "~/assets/icons/ic-paint.svg";
 import { TransitionRoot } from "@headlessui/vue";
-import type { RasterTiles, VectorTiles } from "~/utils/types";
+import type { RasterTiles } from "~/utils/types";
 import { storeToRefs } from "pinia";
 
 const props = defineProps<{
@@ -43,7 +43,8 @@ const visibility = ref(props.layerItem.default);
 
 const toggleVisibility = () => {
   if (groupIndex.value !== undefined && layerIndex.value !== undefined) {
-    handleVisibility(groupIndex.value, layerIndex.value, !visibility.value);
+    const currentVisibility = visibility.value === true ? "visible" : "none";
+    handleVisibility(groupIndex.value, layerIndex.value, currentVisibility);
     visibility.value = !visibility.value;
   }
   if (map.value) {
@@ -114,7 +115,7 @@ const toggleVisibility = () => {
       leaveTo="transform max-h-0 opacity-0"
       class="transition-all duration-500 ease-in-out"
     >
-      <MapManagementStyling />
+      <MapManagementStyling :opacity="layerItem.opacity" />
     </TransitionRoot>
   </div>
 </template>

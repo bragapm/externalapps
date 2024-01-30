@@ -39,7 +39,10 @@ watchEffect(async () => {
         maxzoom: props.item.maxzoom || 15,
       });
 
-      if (props.item.geometry_type === "POINT") {
+      if (
+        props.item.geometry_type === "POINT" ||
+        props.item.geometry_type === "MULTIPOINT"
+      ) {
         if (props.item.circle_style) {
           let paint: any = {},
             layout: any = {};
@@ -180,7 +183,7 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_id + "_point",
+            id: props.item.layer_id + "_vertex",
             type: "circle",
             source: props.item.layer_id,
             "source-layer": props.item.layer_name,
@@ -256,7 +259,7 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_id + "_point",
+            id: props.item.layer_id + "_vertex",
             type: "circle",
             source: props.item.layer_id,
             "source-layer": props.item.layer_name,

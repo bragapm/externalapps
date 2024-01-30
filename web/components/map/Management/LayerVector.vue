@@ -3,7 +3,7 @@ import IcEye from "~/assets/icons/ic-eye.svg";
 import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
 import IcPaint from "~/assets/icons/ic-paint.svg";
 import { TransitionRoot } from "@headlessui/vue";
-import type { RasterTiles, VectorTiles } from "~/utils/types";
+import type { VectorTiles } from "~/utils/types";
 import { storeToRefs } from "pinia";
 
 const props = defineProps<{
@@ -39,20 +39,26 @@ const layerIndex = computed(() => {
 });
 
 const isShowStyling = ref(false);
-const visibility = ref(
-  props.layerItem.circle_style
-    ? props.layerItem.circle_style.layout_visibility === "visible"
-      ? true
-      : false
-    : props.layerItem.fill_style
-    ? props.layerItem.fill_style.layout_visibility === "visible"
-      ? true
-      : false
-    : props.layerItem.line_style
-    ? props.layerItem.line_style.layout_visibility === "visible"
-      ? true
-      : false
-    : false
+const visibility = ref<string>(
+  props.layerItem.geometry_type === "POINT" ||
+    props.layerItem.geometry_type === "MULTIPOINT"
+    ? props.layerItem.circle_style
+      ? props.layerItem.circle_style.layout_visibility
+      : "none"
+    : props.layerItem.geometry_type === "POLYGON" ||
+      props.layerItem.geometry_type === "MULTIPOLYGON"
+    ? props.layerItem?.fill_style?.layout_visibility === "visible" ||
+      props.layerItem?.line_style?.layout_visibility === "visible" ||
+      props.layerItem?.circle_style?.layout_visibility === "visible"
+      ? "visible"
+      : "none"
+    : props.layerItem.geometry_type === "LINESTRING" ||
+      props.layerItem.geometry_type === "MULTILINESTRING"
+    ? props.layerItem?.line_style?.layout_visibility === "visible" ||
+      props.layerItem?.circle_style?.layout_visibility === "visible"
+      ? "visible"
+      : "none"
+    : "none"
 );
 const opacity = ref<string>(
   props.layerItem.circle_style
@@ -66,24 +72,53 @@ const opacity = ref<string>(
 
 const toggleVisibility = () => {
   if (groupIndex.value !== undefined && layerIndex.value !== undefined) {
-    handleVisibility(groupIndex.value, layerIndex.value, !visibility.value);
-    visibility.value = !visibility.value;
+    const currentVisibility =
+      visibility.value === "visible" ? "none" : "visible";
+    handleVisibility(groupIndex.value, layerIndex.value, currentVisibility);
+    visibility.value = currentVisibility;
   }
   if (map.value) {
-    if (
-      map.value.getLayoutProperty(props.layerItem.layer_id, "visibility") ===
-      "none"
-    ) {
-      map.value.setLayoutProperty(
+    if (map.value.getLayoutProperty(props.layerItem.layer_id, "visibility")) {
+      const currentLayoutVisibility = map.value.getLayoutProperty(
         props.layerItem.layer_id,
-        "visibility",
-        "visible"
+        "visibility"
       );
-    } else {
       map.value.setLayoutProperty(
         props.layerItem.layer_id,
         "visibility",
-        "none"
+        currentLayoutVisibility === "visible" ? "none" : "visible"
+      );
+    }
+    if (
+      map.value.getLayoutProperty(
+        props.layerItem.layer_id + "_outline",
+        "visibility"
+      )
+    ) {
+      const currentLayoutVisibility = map.value.getLayoutProperty(
+        props.layerItem.layer_id + "_outline",
+        "visibility"
+      );
+      map.value.setLayoutProperty(
+        props.layerItem.layer_id + "_outline",
+        "visibility",
+        currentLayoutVisibility === "visible" ? "none" : "visible"
+      );
+    }
+    if (
+      map.value.getLayoutProperty(
+        props.layerItem.layer_id + "_vertex",
+        "visibility"
+      )
+    ) {
+      const currentLayoutVisibility = map.value.getLayoutProperty(
+        props.layerItem.layer_id + "_vertex",
+        "visibility"
+      );
+      map.value.setLayoutProperty(
+        props.layerItem.layer_id + "_vertex",
+        "visibility",
+        currentLayoutVisibility === "visible" ? "none" : "visible"
       );
     }
   }
@@ -123,7 +158,7 @@ const toggleVisibility = () => {
         </button>
         <button @click="toggleVisibility">
           <IcEyeCrossed
-            v-if="!visibility"
+            v-if="visibility === 'none'"
             class="text-white w-3 h-3"
             :fontControlled="false"
           />

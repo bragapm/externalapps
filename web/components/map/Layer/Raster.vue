@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import bbox from "@turf/bbox";
-import type { LngLatBoundsLike } from "maplibre-gl";
 import type { RasterTiles } from "~/utils/types";
 
 const store = useMapRef();
@@ -27,6 +26,7 @@ watchEffect(async () => {
         id: props.item.layer_id,
         type: "raster",
         source: props.item.layer_id,
+        layout: { visibility: props.item.default ? "visible" : "none" },
       });
     }
   }
