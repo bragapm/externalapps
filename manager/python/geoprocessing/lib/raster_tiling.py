@@ -1,13 +1,9 @@
 import shutil
 import os
-from osgeo import ogr, gdal, osr
+from osgeo import gdal, osr
 from osgeo_utils import gdal2tiles
 from uuid import uuid4
 from .get_input_data import minio_client
-from utils import logger
-
-ogr.RegisterAll()
-gdal.UseExceptions()
 
 
 class GDAL2TilesOptions:

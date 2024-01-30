@@ -2,7 +2,7 @@ import dramatiq
 import os
 import traceback
 
-from utils import pool, is_dev_mode, logger
+from utils import pool, is_dev_mode, logger, init_gdal_config
 from lib.get_input_data import (
     delete_local_temp_dir,
 )
@@ -26,6 +26,8 @@ def transform(
     bucket=os.environ.get("STORAGE_S3_BUCKET"),
     **kwargs,
 ):
+    init_gdal_config()
+
     table_name = table_name or os.path.splitext(os.path.basename(object_key))[0]
     try:
         header_info, data_source = get_header_info(

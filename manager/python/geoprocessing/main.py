@@ -2,12 +2,14 @@ import logging
 import os
 import pdb
 import sys
-from utils import logger
+from utils import logger, init_gdal_config
 import tasks
+
 
 
 # If run as simple python script (python main.py)
 def main():
+    init_gdal_config()
     # input_geotiff = "b0e271ae-8d03-4810-b7ea-7f409cfff2f2.tif"
     # output_cog = "bali_cog1.tif"
     tasks.transform(

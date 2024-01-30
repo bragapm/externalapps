@@ -1,10 +1,13 @@
 import os
 import dramatiq.results
 from osgeo import gdal
+from utils import init_gdal_config
 
 
 @dramatiq.actor(store_results=True)
 def convert(input_file, output_file):
+    init_gdal_config()
+
     # Open the source dataset
     src_ds = gdal.OpenEx(
         f"/vsis3/{os.environ.get('STORAGE_S3_BUCKET')}/{input_file}", gdal.GA_ReadOnly

@@ -2,7 +2,7 @@ import os
 import dramatiq.results
 import traceback
 
-from utils import pool, logger
+from utils import pool, logger, init_gdal_config
 from lib.register_table import (
     register_raster_tile,
 )
@@ -19,6 +19,7 @@ def tiling(
     bucket=os.environ.get("STORAGE_S3_BUCKET"),
     **kwargs,
 ):
+    init_gdal_config()
     try:
         (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = raster_tiling(
             bucket, object_key, minzoom, maxzoom

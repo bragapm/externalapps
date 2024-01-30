@@ -18,13 +18,6 @@ minio_client = Minio(
     secure=False if parsed_url.scheme == "http" else True,
 )
 
-# Ensure GDAL uses Amazon S3 Virtual File System Handler
-gdal.AllRegister()
-gdal.UseExceptions()
-
-# Ensure GDAL uses COPY in when inserting data into PostgreSQL
-gdal.SetConfigOption("PG_USE_COPY", "YES")
-
 
 def generate_local_temp_dir_path(object_key: str):
     return f"/tmp/geodashboard_{object_key}"
