@@ -7,7 +7,7 @@ import type { RasterTiles, VectorTiles } from "~/utils/types";
 import { storeToRefs } from "pinia";
 
 const props = defineProps<{
-  layerItem: VectorTiles | RasterTiles;
+  layerItem: RasterTiles;
 }>();
 
 const store = useMapRef();
@@ -79,18 +79,9 @@ const toggleVisibility = () => {
     >
       <div class="text-white w-8/12">
         <p class="truncate">
-          {{
-            layerItem.layer_alias ||
-            (layerItem.source === "vector_tiles" && layerItem.layer_name)
-          }}
+          {{ layerItem.layer_alias }}
         </p>
-        <p class="truncate">
-          {{
-            layerItem.source === "raster_tiles"
-              ? "RASTER"
-              : (layerItem as VectorTiles).geometry_type
-          }}
-        </p>
+        <p class="truncate">RASTER</p>
       </div>
       <div class="flex gap-2 items-center justify-end w-4/12">
         <button @click="isShowStyling = !isShowStyling">

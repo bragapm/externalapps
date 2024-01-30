@@ -73,9 +73,7 @@ watchEffect(async () => {
             type: "circle",
             source: props.item.layer_id,
             "source-layer": props.item.layer_name,
-            layout: {
-              visibility: props.item.default ? "visible" : "none",
-            },
+            layout,
             paint,
           });
         }
@@ -114,9 +112,7 @@ watchEffect(async () => {
             type: "fill",
             source: props.item.layer_name,
             "source-layer": props.item.layer_name,
-            layout: {
-              visibility: props.item.default ? "visible" : "none",
-            },
+            layout,
             paint,
           });
         }
@@ -151,9 +147,7 @@ watchEffect(async () => {
             type: "line",
             source: props.item.layer_name,
             "source-layer": props.item.layer_name,
-            layout: {
-              visibility: props.item.default ? "visible" : "none",
-            },
+            layout,
             paint,
           });
         }

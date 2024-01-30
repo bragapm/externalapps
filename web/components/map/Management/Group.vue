@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { VectorTiles } from "~/utils/types";
+import type { RasterTiles, VectorTiles } from "~/utils/types";
 
 const props = defineProps<{
-  layerLists: VectorTiles[];
+  layerLists: (VectorTiles | RasterTiles)[];
 }>();
 </script>
 
@@ -13,7 +13,14 @@ const props = defineProps<{
       :key="item.layer_name"
       class="space-y-2"
     >
-      <MapManagementLayer :layerItem="item" />
+      <MapManagementLayerVector
+        v-if="item.source === 'vector_tiles'"
+        :layerItem="(item as VectorTiles)"
+      />
+      <MapManagementLayerRaster
+        v-else-if="item.source === 'raster_tiles'"
+        :layerItem="(item as RasterTiles)"
+      />
     </template>
   </div>
 </template>

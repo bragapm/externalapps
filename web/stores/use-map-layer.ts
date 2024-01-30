@@ -16,7 +16,28 @@ export const useMapLayer = defineStore("maplayer", () => {
   ) => {
     if (groupedLayerList.value) {
       const prev = groupedLayerList.value;
-      prev[groupIndex].layerLists[layerIndex].default = visibility;
+
+      if (prev[groupIndex].layerLists[layerIndex].source === "vector_tiles") {
+        const selector = prev[groupIndex].layerLists[layerIndex] as VectorTiles;
+        if (selector.circle_style) {
+          selector.circle_style.layout_visibility = visibility
+            ? "visible"
+            : "none";
+        } else if (selector.fill_style && selector.line_style) {
+          selector.line_style.layout_visibility = visibility
+            ? "visible"
+            : "none";
+          selector.fill_style.layout_visibility = visibility
+            ? "visible"
+            : "none";
+        }
+      } else if (
+        prev[groupIndex].layerLists[layerIndex].source === "raster_tiles"
+      ) {
+        (prev[groupIndex].layerLists[layerIndex] as RasterTiles).default =
+          visibility;
+      }
+
       groupedLayerList.value = prev;
     }
   };
