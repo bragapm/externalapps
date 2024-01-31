@@ -4,7 +4,7 @@ import dramatiq.results
 import psycopg2.pool
 import dramatiq_pg
 
-from osgeo import gdal, osr
+from osgeo import gdal
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 
@@ -27,7 +27,6 @@ def init_gdal_config():
 
     gdal.AllRegister()
     gdal.UseExceptions()
-    osr.UseExceptions()
     gdal.SetConfigOption("AWS_ACCESS_KEY_ID", os.environ.get("STORAGE_S3_KEY"))
     gdal.SetConfigOption("AWS_SECRET_ACCESS_KEY", os.environ.get("STORAGE_S3_SECRET"))
     gdal.SetConfigOption("AWS_S3_ENDPOINT", s3_endpoint)
