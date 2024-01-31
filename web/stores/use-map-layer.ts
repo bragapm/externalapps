@@ -19,41 +19,18 @@ export const useMapLayer = defineStore("maplayer", () => {
 
       if (prev[groupIndex].layerLists[layerIndex].source === "vector_tiles") {
         const selector = prev[groupIndex].layerLists[layerIndex] as VectorTiles;
-        if (
-          selector.geometry_type === "POINT" ||
-          selector.geometry_type === "MULTIPOINT"
-        ) {
+        if (selector.geometry_type === "CIRCLE") {
           if (selector.circle_style) {
             selector.circle_style.layout_visibility = visibility;
           }
-        } else if (
-          selector.geometry_type === "POLYGON" ||
-          selector.geometry_type === "MULTIPOLYGON"
-        ) {
+        } else if (selector.geometry_type === "POLYGON") {
           if (selector.fill_style) {
             selector.fill_style.layout_visibility = visibility;
           }
+        } else if (selector.geometry_type === "LINE") {
           if (selector.line_style) {
             selector.line_style.layout_visibility = visibility;
           }
-          if (selector.circle_style) {
-            selector.circle_style.layout_visibility = visibility;
-          }
-        } else if (
-          selector.geometry_type === "LINESTRING" ||
-          selector.geometry_type === "MULTILINESTRING"
-        ) {
-          if (selector.line_style) {
-            selector.line_style.layout_visibility = visibility;
-          }
-          if (selector.circle_style) {
-            selector.circle_style.layout_visibility = visibility;
-          }
-        }
-        if (selector.circle_style) {
-        } else if (selector.fill_style && selector.line_style) {
-          selector.line_style.layout_visibility = visibility;
-          selector.fill_style.layout_visibility = visibility;
         }
       } else if (
         prev[groupIndex].layerLists[layerIndex].source === "raster_tiles"
@@ -86,8 +63,29 @@ export const useMapLayer = defineStore("maplayer", () => {
         value.data.forEach((el) => {
           if (key === "vectorTiles") {
             const item = el as VectorTiles;
-            if (item.circle_style || item.line_style || item.fill_style) {
-              allLayerData.push({ ...item, source: "vector_tiles" });
+            if (item.circle_style) {
+              allLayerData.push({
+                ...item,
+                layer_id: item.layer_id + "_circle",
+                source: "vector_tiles",
+                geometry_type: "CIRCLE",
+              });
+            }
+            if (item.line_style) {
+              allLayerData.push({
+                ...item,
+                layer_id: item.layer_id + "_line",
+                source: "vector_tiles",
+                geometry_type: "LINE",
+              });
+            }
+            if (item.fill_style) {
+              allLayerData.push({
+                ...item,
+                layer_id: item.layer_id + "_fill",
+                source: "vector_tiles",
+                geometry_type: "POLYGON",
+              });
             }
           } else if (key === "rasterTiles") {
             const item = el as RasterTiles;
@@ -137,7 +135,6 @@ export const useMapLayer = defineStore("maplayer", () => {
         },
         []
       );
-
       groupedLayerList.value = layerGroupedByCategory;
     }
   };

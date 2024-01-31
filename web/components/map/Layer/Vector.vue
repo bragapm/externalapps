@@ -38,11 +38,12 @@ watchEffect(async () => {
         minzoom: props.item.minzoom || 5,
         maxzoom: props.item.maxzoom || 15,
       });
+    }
 
-      if (
-        props.item.geometry_type === "POINT" ||
-        props.item.geometry_type === "MULTIPOINT"
-      ) {
+    if (
+      props.item.geometry_type === "CIRCLE"
+    ) {
+      if (!map.value.getLayer(props.item.layer_id + "_circle"))
         if (props.item.circle_style) {
           let paint: any = {},
             layout: any = {};
@@ -72,7 +73,7 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_id,
+            id: props.item.layer_id + "_circle",
             type: "circle",
             source: props.item.layer_id,
             "source-layer": props.item.layer_name,
@@ -80,10 +81,10 @@ watchEffect(async () => {
             paint,
           });
         }
-      } else if (
-        props.item.geometry_type === "POLYGON" ||
-        props.item.geometry_type === "MULTIPOLYGON"
-      ) {
+    } else if (
+      props.item.geometry_type === "POLYGON"
+    ) {
+      if (!map.value.getLayer(props.item.layer_id + "_fill"))
         if (props.item.fill_style) {
           let paint: any = {},
             layout: any = {};
@@ -111,7 +112,7 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_id,
+            id: props.item.layer_id + "_fill",
             type: "fill",
             source: props.item.layer_id,
             "source-layer": props.item.layer_name,
@@ -119,6 +120,10 @@ watchEffect(async () => {
             paint,
           });
         }
+    } else if (
+      props.item.geometry_type === "LINE"
+    ) {
+      if (!map.value.getLayer(props.item.layer_id + "_line"))
         if (props.item.line_style) {
           let paint: any = {},
             layout: any = {};
@@ -146,7 +151,7 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_id + "_outline",
+            id: props.item.layer_id + "_line",
             type: "line",
             source: props.item.layer_id,
             "source-layer": props.item.layer_name,
@@ -154,120 +159,6 @@ watchEffect(async () => {
             paint,
           });
         }
-        if (props.item.circle_style) {
-          let paint: any = {},
-            layout: any = {};
-
-          Object.keys(props.item.circle_style).forEach((key) => {
-            const [category, ...nameStrings] = key.split("_");
-            if (
-              category === "paint" &&
-              props.item.circle_style?.[
-                key as keyof typeof props.item.circle_style
-              ]
-            ) {
-              paint[nameStrings.join("-")] = nameStrings.includes("opacity")
-                ? parseFloat(props.item.circle_style.paint_circle_opacity)
-                : isString(props.item.circle_style[key as keyof CircleStyles])
-                ? parseString(
-                    props.item.circle_style[key as keyof CircleStyles] as string
-                  )
-                : props.item.circle_style[key as keyof CircleStyles];
-            } else if (
-              category === "layout" &&
-              props.item.circle_style?.[key as keyof CircleStyles]
-            ) {
-              layout[nameStrings.join("-")] =
-                props.item.circle_style[key as keyof CircleStyles];
-            }
-          });
-
-          map.value.addLayer({
-            id: props.item.layer_id + "_vertex",
-            type: "circle",
-            source: props.item.layer_id,
-            "source-layer": props.item.layer_name,
-            layout,
-            paint,
-          });
-        }
-      } else if (
-        props.item.geometry_type === "LINESTRING" ||
-        props.item.geometry_type === "MULTILINESTRING"
-      ) {
-        if (props.item.line_style) {
-          let paint: any = {},
-            layout: any = {};
-
-          Object.keys(props.item.line_style).forEach((key) => {
-            const [category, ...nameStrings] = key.split("_");
-            if (
-              category === "paint" &&
-              props.item.line_style?.[key as keyof typeof props.item.line_style]
-            ) {
-              paint[nameStrings.join("-")] = nameStrings.includes("opacity")
-                ? parseFloat(props.item.line_style.paint_line_opacity)
-                : isString(props.item.line_style[key as keyof LineStyles])
-                ? parseString(
-                    props.item.line_style[key as keyof LineStyles] as string
-                  )
-                : props.item.line_style[key as keyof LineStyles];
-            } else if (
-              category === "layout" &&
-              props.item.line_style?.[key as keyof LineStyles]
-            ) {
-              layout[nameStrings.join("-")] =
-                props.item.line_style[key as keyof LineStyles];
-            }
-          });
-
-          map.value.addLayer({
-            id: props.item.layer_id,
-            type: "line",
-            source: props.item.layer_id,
-            "source-layer": props.item.layer_name,
-            layout,
-            paint,
-          });
-        }
-        if (props.item.circle_style) {
-          let paint: any = {},
-            layout: any = {};
-
-          Object.keys(props.item.circle_style).forEach((key) => {
-            const [category, ...nameStrings] = key.split("_");
-            if (
-              category === "paint" &&
-              props.item.circle_style?.[
-                key as keyof typeof props.item.circle_style
-              ]
-            ) {
-              paint[nameStrings.join("-")] = nameStrings.includes("opacity")
-                ? parseFloat(props.item.circle_style.paint_circle_opacity)
-                : isString(props.item.circle_style[key as keyof CircleStyles])
-                ? parseString(
-                    props.item.circle_style[key as keyof CircleStyles] as string
-                  )
-                : props.item.circle_style[key as keyof CircleStyles];
-            } else if (
-              category === "layout" &&
-              props.item.circle_style?.[key as keyof CircleStyles]
-            ) {
-              layout[nameStrings.join("-")] =
-                props.item.circle_style[key as keyof CircleStyles];
-            }
-          });
-
-          map.value.addLayer({
-            id: props.item.layer_id + "_vertex",
-            type: "circle",
-            source: props.item.layer_id,
-            "source-layer": props.item.layer_name,
-            layout,
-            paint,
-          });
-        }
-      }
     }
   }
 });

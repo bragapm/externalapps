@@ -43,7 +43,7 @@ const visibility = ref(props.layerItem.default);
 
 const toggleVisibility = () => {
   if (groupIndex.value !== undefined && layerIndex.value !== undefined) {
-    const currentVisibility = visibility.value === true ? "visible" : "none";
+    const currentVisibility = visibility.value === true ? "none" : "visible";
     handleVisibility(groupIndex.value, layerIndex.value, currentVisibility);
     visibility.value = !visibility.value;
   }
