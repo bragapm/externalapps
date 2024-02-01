@@ -11,13 +11,14 @@ type PopupItem = {
   featureDetailColumns: string[] | null;
 };
 
-const contentRef = ref<HTMLDivElement>();
-const popupItems = ref<PopupItem[]>([]);
-const popupRef = ref<maplibregl.Popup>();
-
 const mapRefStore = useMapRef();
 const { map } = storeToRefs(mapRefStore);
 const mapLayerStore = useMapLayer();
+
+const contentRef = ref<HTMLDivElement>();
+const popupItems = ref<PopupItem[]>([]);
+const popupRef = ref<maplibregl.Popup>();
+const feature = ref<any>();
 
 watchEffect(() => {
   if (!map.value) return;
@@ -49,7 +50,7 @@ watchEffect(() => {
       };
     });
 
-    console.log(featureList);
+    // console.log(featureList);
     popupItems.value = featureList as PopupItem[];
     if (popupRef.value) {
       popupRef.value.remove();
@@ -57,6 +58,7 @@ watchEffect(() => {
     if (featureList.length && contentRef.value)
       popupRef.value = new maplibregl.Popup({
         closeButton: false,
+        className: "geod-popup",
       })
         .setLngLat(e.lngLat)
         .setMaxWidth("400px")
@@ -70,10 +72,58 @@ onUnmounted(() => {
     popupRef.value.remove();
   }
 });
+
+const handleClose = () => {
+  popupRef.value!.remove();
+};
+
+watch(popupItems, async (oldItems, newItems) => {
+  if (newItems?.length)
+    try {
+      const querystring = new URLSearchParams({
+        fields: newItems[0].clickPopupColumns!.join(","),
+      } as Record<string, string>);
+      const response: { data: any } = await $fetch(
+        `/panel/items/${newItems[0].tableName}/${newItems[0].rowId}?${querystring}`
+      );
+      feature.value = response.data;
+    } catch (error) {}
+});
 </script>
 
 <template>
   <div class="hidden">
-    <div ref="contentRef" class="font-map">Popup Test</div>
+    <div ref="contentRef">
+      <section
+        class="flex min-w-[240px] max-w-[400px] flex-col items-center justify-center gap-2 px-6 py-3 overflow-hidden bg-grey-700 rounded-sm text-grey-100 divide-y divide-grey-100"
+      >
+        <header class="flex justify-between w-full">
+          <h4 class="text-base">Detail Popup</h4>
+          <button @click="handleClose">X</button>
+        </header>
+
+        <article class="w-full py-3" v-if="popupItems?.length">
+          <h5 class="text-sm">Layer</h5>
+          <div class="flex text-xs">
+            <p class="w-1/3">Name</p>
+            <p>: {{ popupItems[0].tableName }}</p>
+          </div>
+          <div class="flex text-xs">
+            <p class="w-1/3">Type</p>
+            <p>: {{ popupItems[0].layerType }}</p>
+          </div>
+
+          <h5 class="text-sm mt-3">Feature</h5>
+          <div v-for="(value, key) in feature" :key="key" class="flex">
+            <p class="w-1/3 text-xs">{{ key }}</p>
+            <p>: {{ value }}</p>
+          </div>
+        </article>
+
+        <footer class="w-full flex justify-center pt-2">
+          <button class="border rounded-md px-3 py-2">More Detail</button>
+        </footer>
+      </section>
+    </div>
   </div>
 </template>
