@@ -24,7 +24,14 @@ function parseString(input: string) {
   return input;
 }
 
-watchEffect(async () => {
+watchEffect(async (onInvalidate) => {
+  const onMouseEnter = () => {
+    map.value!.getCanvas().style.cursor = "pointer";
+  };
+  const onMouseLeave = () => {
+    map.value!.getCanvas().style.cursor = "";
+  };
+
   if (map?.value) {
     if (!map.value.getSource(props.item.layer_id)) {
       map.value.addSource(props.item.layer_id, {
@@ -40,9 +47,7 @@ watchEffect(async () => {
       });
     }
 
-    if (
-      props.item.geometry_type === "CIRCLE"
-    ) {
+    if (props.item.geometry_type === "CIRCLE") {
       if (!map.value.getLayer(props.item.layer_id))
         if (props.item.circle_style) {
           let paint: any = {},
@@ -81,9 +86,7 @@ watchEffect(async () => {
             paint,
           });
         }
-    } else if (
-      props.item.geometry_type === "POLYGON"
-    ) {
+    } else if (props.item.geometry_type === "POLYGON") {
       if (!map.value.getLayer(props.item.layer_id))
         if (props.item.fill_style) {
           let paint: any = {},
@@ -120,9 +123,7 @@ watchEffect(async () => {
             paint,
           });
         }
-    } else if (
-      props.item.geometry_type === "LINE"
-    ) {
+    } else if (props.item.geometry_type === "LINE") {
       if (!map.value.getLayer(props.item.layer_id))
         if (props.item.line_style) {
           let paint: any = {},
@@ -160,7 +161,19 @@ watchEffect(async () => {
           });
         }
     }
+
+    if (props.item.click_popup_columns?.length) {
+      map.value.on("mouseenter", props.item.layer_id, onMouseEnter);
+      map.value.on("mouseleave", props.item.layer_id, onMouseLeave);
+    }
   }
+
+  onInvalidate(() => {
+    if (map?.value) {
+      map.value.off("mouseenter", props.item.layer_id, onMouseEnter);
+      map.value.off("mouseleave", props.item.layer_id, onMouseLeave);
+    }
+  });
 });
 </script>
 
