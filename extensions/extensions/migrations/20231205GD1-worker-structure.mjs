@@ -1,66 +1,57 @@
+import { LAYER_DATA_FOLDER_ID } from "./const/FOLDER_IDS.mjs";
+
 export async function up(knex) {
-  // Create Layer Data Folder
   await knex.raw(`
   INSERT INTO directus_folders (id, name)
-  VALUES (gen_random_uuid(), 'Layer Data');
-  
+  VALUES ('${LAYER_DATA_FOLDER_ID}', 'Layer Data');
+
   INSERT INTO directus_collections(collection, icon, color)
   VALUES ('layer_data', 'layers', '#6644FF');
-  
+
   ALTER TABLE directus_files
-  ADD COLUMN format_file character varying(255) DEFAULT 'shapefile'::character varying,
-  ADD COLUMN table_name character varying(255),
-  ADD COLUMN is_zipped boolean DEFAULT true,
+  ADD COLUMN format_file character varying(255),
+  ADD COLUMN table_name character varying(64),
+  ADD COLUMN is_zipped boolean,
   ADD COLUMN raster_alias character varying(255),
   ADD COLUMN minzoom integer,
   ADD COLUMN maxzoom integer,
   ADD COLUMN is_ready boolean;
-  
-  INSERT INTO directus_fields(collection, field, special, interface, options, sort, width, required)
-  VALUES
-      ('directus_files', 'format_file', null, 'select-dropdown', '{"choices":[{"text":"shapefile","value":"shapefile"},{"text":"kml","value":"kml"},{"text":"xls","value":"xls"},{"text":"xlsx","value":"xlsx"},{"text":"csv","value":"csv"},{"text":"geojson","value":"geojson"},{"text":"gdb","value":"gdb"},{"text":"tif","value":"tif"}]}', 1, 'full', false),
-      ('directus_files', 'divider-sjndgf', 'alias,no-data', 'presentation-divider', '{"title":"Vector Transform Configuration","inlineTitle":true}', 2, 'full', false),
-      ('directus_files', 'table_name', null, 'input', null, 3, 'full', true),  -- Set required to true only for table_name
-      ('directus_files', 'is_zipped', 'cast-boolean', 'boolean', '{"label":"Yes"}', 4, 'full', false),
-      ('directus_files', 'divider-xhf5pw', 'alias,no-data', 'presentation-divider', '{"inlineTitle":true,"title":"Raster Tiling Configuration"}', 5, 'full', false),
-      ('directus_files', 'raster_alias', null, 'input', null, 6, 'full', false),
-      ('directus_files', 'minzoom', null, 'input', '{"min":1,"max":20}', 7, 'half', false),
-      ('directus_files', 'maxzoom', null, 'input', '{"min":1,"max":20}', 8, 'half', false),
-      ('directus_files', 'divider-3gqc1y', 'alias,no-data', 'presentation-divider', '{"title":"Trigger After Configuration","inlineTitle":true}', 9, 'full', false),
-      ('directus_files', 'is_ready', 'cast-boolean', 'boolean', '{"label":"Yes"}', 10, 'full', false);
-      `);
 
-  // Create Geoprocessing Queue Table
-  await knex.raw(`
+  INSERT INTO directus_fields(collection,field,special,interface,options,display,display_options,readonly,hidden,sort,width,translations,note,conditions,required,"group",validation,validation_message)
+  VALUES
+    ('directus_files','task_configurations','alias,no-data,group','group-detail',NULL,NULL,NULL,FALSE,TRUE,NULL,'full',NULL,NULL,'[{"name":"Show if folder is Layer Data","rule":{"_and":[{"folder":{"_eq":"${LAYER_DATA_FOLDER_ID}"}}]},"hidden":false,"options":{"start":"open"}}]',FALSE,NULL,NULL,NULL),
+    ('directus_files','format_file',NULL,'select-dropdown','{"choices":[{"text":"shapefile","value":"shapefile"},{"text":"kml","value":"kml"},{"text":"xls","value":"xls"},{"text":"xlsx","value":"xlsx"},{"text":"csv","value":"csv"},{"text":"geojson","value":"geojson"},{"text":"gdb","value":"gdb"},{"text":"tif","value":"tif"}]}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Require if folder is Layer Data","rule":{"_and":[{"folder":{"_eq":"${LAYER_DATA_FOLDER_ID}"}}]},"required":true,"options":{"allowOther":false,"allowNone":false}}]',FALSE,'task_configurations',NULL,NULL),
+    ('directus_files','vector_transform_configuration','alias,no-data,group','group-detail',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Hide when file is not vector","rule":{"_and":[{"format_file":{"_nin":["shapefile","kml","xls","xlsx","csv","geojson","gdb"]}}]},"options":{"start":"open"},"hidden":true}]',FALSE,'task_configurations',NULL,NULL),
+    ('directus_files','table_name',NULL,'input','{"placeholder":"table_name"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,'Lowercase alphabet, numeric, and underscore only','[{"name":"Require when file is vector","rule":{"_and":[{"format_file":{"_in":["shapefile","kml","xls","xlsx","csv","geojson","gdb"]}}]},"required":true,"options":{"font":"sans-serif","trim":false,"masked":false,"clear":false,"slug":false}}]',FALSE,'vector_transform_configuration','{"_and":[{"table_name":{"_regex":"^[a-z0-9_]+$"}}]}',NULL),
+    ('directus_files','is_zipped','cast-boolean','boolean','{"label":"Yes"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Require when file is vector","rule":{"_and":[{"format_file":{"_in":["shapefile","kml","xls","xlsx","csv","geojson","gdb"]}}]},"required":true,"options":{"iconOn":"check_box","iconOff":"check_box_outline_blank","label":"Enabled"}}]',FALSE,'vector_transform_configuration',NULL,NULL),
+    ('directus_files','raster_tiling_configuration','alias,no-data,group','group-detail',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Hide when file is not raster","rule":{"_and":[{"format_file":{"_nin":["tif"]}}]},"hidden":true,"options":{"start":"open"}}]',FALSE,'task_configurations',NULL,NULL),
+    ('directus_files','raster_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Require when file is raster","rule":{"_and":[{"format_file":{"_eq":"tif"}}]},"required":true,"options":{"font":"sans-serif","trim":false,"masked":false,"clear":false,"slug":false}}]',FALSE,'raster_tiling_configuration',NULL,NULL),
+    ('directus_files','minzoom',NULL,'input','{"min":0,"max":20,"placeholder":"Autodetect"}',NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,'[{"name":"Require when max_zoom is defined","rule":{"_and":[{"maxzoom":{"_nnull":true}}]},"required":true,"options":{"font":"sans-serif","trim":false,"masked":false,"clear":false,"slug":false}}]',FALSE,'raster_tiling_configuration',NULL,NULL),
+    ('directus_files','maxzoom',NULL,'input','{"min":0,"max":20,"placeholder":"Autodetect"}',NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,'raster_tiling_configuration',NULL,NULL),
+    ('directus_files','trigger_after_configuration','alias,no-data,group','group-detail',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,'task_configurations',NULL,NULL),
+    ('directus_files','is_ready','cast-boolean','boolean','{"label":"Yes"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,'trigger_after_configuration',NULL,NULL);
+
   INSERT INTO directus_collections(collection, icon, color)
   VALUES ('internal', 'privacy_tip', '#E35169');
 
-  DO $$ 
-  DECLARE
-  	schema_name TEXT := 'public';
-  	state_name TEXT := 'geoprocessing_state';
-  	queue_name TEXT := 'geoprocessing_queue';
-  
-  BEGIN
-      EXECUTE 'CREATE SCHEMA IF NOT EXISTS ' || schema_name;
-      EXECUTE 'CREATE TYPE ' || schema_name || '.' || state_name || ' AS ENUM (
-        ''queued'',
-        ''consumed'',
-        ''rejected'',
-        ''done''
-      )';
-      EXECUTE 'CREATE TABLE ' || schema_name || '.' || queue_name || ' (
-        message_id uuid PRIMARY KEY,
-        queue_name TEXT NOT NULL DEFAULT ''default'',
-        "state" ' || schema_name || '.' || state_name || ',
-        mtime TIMESTAMP WITH TIME ZONE DEFAULT (NOW() AT TIME ZONE ''UTC''),
-        message JSONB,
-        "result" JSONB,
-        result_ttl  TIMESTAMP WITH TIME ZONE
-      ) WITHOUT OIDS';
+  CREATE TYPE geoprocessing_state AS ENUM (
+    'queued',
+    'consumed',
+    'rejected',
+    'done'
+  );
 
-      EXECUTE 'CREATE INDEX ON ' || schema_name || '.' || queue_name || '("state", mtime)';
-  END $$;
+  CREATE TABLE geoprocessing_queue (
+    message_id uuid PRIMARY KEY,
+    queue_name text NOT NULL DEFAULT 'default',
+    state geoprocessing_state,
+    mtime timestamp with time zone DEFAULT (CURRENT_TIMESTAMP),
+    message jsonb,
+    result jsonb,
+    result_ttl timestamp with time zone
+  );
+
+  CREATE INDEX ON geoprocessing_queue (state, mtime);
 
   INSERT INTO directus_collections(collection, "group", icon, color)
   VALUES ('geoprocessing_queue', 'internal', 'browse_gallery', '#E35169');
@@ -82,22 +73,12 @@ export async function down(knex) {
     DELETE FROM directus_fields WHERE collection = 'geoprocessing_queue';
     DELETE FROM directus_collections WHERE collection = 'geoprocessing_queue';
 
-    DO $$
-    DECLARE
-      schema_name TEXT := 'public';
-      state_name TEXT := 'geoprocessing_state';
-      queue_name TEXT := 'geoprocessing_queue';
-
-    BEGIN
-      EXECUTE 'DROP TABLE IF EXISTS ' || schema_name || '.' || queue_name;
-      EXECUTE 'DROP TYPE IF EXISTS ' || schema_name || '.' || state_name;
-    END $$;
+    DROP TABLE IF EXISTS geoprocessing_queue;
+    DROP TYPE IF EXISTS geoprocessing_state;
 
     DELETE FROM directus_collections WHERE collection = 'internal';
-  `);
 
-  await knex.raw(`
-    DELETE FROM directus_fields WHERE collection = 'directus_files' AND field IN ('format_file', 'divider-sjndgf', 'table_name', 'is_zipped', 'divider-xhf5pw', 'raster_alias', 'minzoom', 'maxzoom', 'divider-3gqc1y', 'is_ready');
+    DELETE FROM directus_fields WHERE collection = 'directus_files' AND field IN ('task_configurations','format_file','vector_transform_configuration','table_name','is_zipped','raster_tiling_configuration','raster_alias','minzoom','maxzoom','trigger_after_configuration','is_ready');
 
     ALTER TABLE directus_files
     DROP COLUMN IF EXISTS format_file,
@@ -109,6 +90,6 @@ export async function down(knex) {
     DROP COLUMN IF EXISTS is_ready;
 
     DELETE FROM directus_collections WHERE collection = 'layer_data';
-    DELETE FROM directus_folders WHERE name = 'Layer Data';
+    DELETE FROM directus_folders WHERE id = '${LAYER_DATA_FOLDER_ID}';
   `);
 }

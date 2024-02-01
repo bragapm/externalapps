@@ -1,3 +1,5 @@
+import { LAYER_DATA_FOLDER_ID } from "./const/FOLDER_IDS.mjs";
+
 export async function up(knex) {
   await knex.raw(`
   CREATE OR REPLACE FUNCTION handle_directus_files_update()
@@ -14,13 +16,8 @@ export async function up(knex) {
           RETURN NEW;
       END IF;
 
-      -- Get the folder name from directus_folders table for the given folder ID from directus_files
-      SELECT name INTO folder_name
-      FROM public.directus_folders
-      WHERE id = NEW.folder;
-
-      -- Check if the folder_name is 'Layer Data'
-      IF folder_name = 'Layer Data' THEN
+      -- Check if the folder is 'Layer Data'
+      IF NEW.folder = '${LAYER_DATA_FOLDER_ID}' THEN
           -- Generate a random UUID
           v_uuid := gen_random_uuid();
 
@@ -38,7 +35,7 @@ export async function up(knex) {
           END IF;
 
           -- Perform the insertion
-          INSERT INTO public.geoprocessing_queue(
+          INSERT INTO geoprocessing_queue(
               message_id,
               queue_name,
               state,
@@ -76,13 +73,11 @@ export async function up(knex) {
   $$ LANGUAGE plpgsql;
 
   CREATE TRIGGER on_directus_files_update
-  AFTER UPDATE ON public.directus_files
+  AFTER UPDATE ON directus_files
   FOR EACH ROW
   WHEN (OLD.* IS DISTINCT FROM NEW.*) -- Only if the row actually changed
   EXECUTE FUNCTION handle_directus_files_update();
-`);
 
-  await knex.raw(`
   CREATE OR REPLACE FUNCTION handle_geoprocessing_queue_insert()
   RETURNS TRIGGER AS $$
   DECLARE
@@ -108,10 +103,10 @@ export async function up(knex) {
 
 export async function down(knex) {
   await knex.raw(`
-    DROP TRIGGER IF EXISTS on_geoprocessing_queue_insert ON public.geoprocessing_queue;
+    DROP TRIGGER IF EXISTS on_geoprocessing_queue_insert ON geoprocessing_queue;
     DROP FUNCTION IF EXISTS handle_geoprocessing_queue_insert();
 
-    DROP TRIGGER IF EXISTS on_directus_files_update ON public.directus_files;
+    DROP TRIGGER IF EXISTS on_directus_files_update ON directus_files;
     DROP FUNCTION IF EXISTS handle_directus_files_update();
   `);
 }
