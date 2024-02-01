@@ -79,6 +79,7 @@ fetchVectorTiles();
     <div class="map" ref="mapContainer"></div>
     <MapLayer v-if="store.mapLoad" />
     <!-- <MapMvtLayer :mapRef="map" v-if="store.mapLoad" /> -->
+    <MapPopup />
   </div>
 </template>
 

@@ -63,6 +63,8 @@ export type VectorTiles = {
   layer_name: string;
   minzoom: number;
   maxzoom: number;
+  click_popup_columns?: string[];
+  feature_detail_columns?: string[];
 };
 
 export type RasterTiles = {
@@ -75,6 +77,8 @@ export type RasterTiles = {
   layer_id: string;
   minzoom: number;
   maxzoom: number;
+  click_popup_columns?: string[];
+  feature_detail_columns?: string[];
 };
 
 export type MapData = {
