@@ -72,37 +72,15 @@ const toggleVisibility = () => {
     visibility.value = currentVisibility;
   }
   if (map.value) {
-    if (props.layerItem.geometry_type === "CIRCLE") {
-      const currentLayoutVisibility = map.value.getLayoutProperty(
-        props.layerItem.layer_id + "_circle",
-        "visibility"
-      );
-      map.value.setLayoutProperty(
-        props.layerItem.layer_id + "_circle",
-        "visibility",
-        currentLayoutVisibility === "visible" ? "none" : "visible"
-      );
-    } else if (props.layerItem.geometry_type === "POLYGON") {
-      const currentLayoutVisibility = map.value.getLayoutProperty(
-        props.layerItem.layer_id + "_fill",
-        "visibility"
-      );
-      map.value.setLayoutProperty(
-        props.layerItem.layer_id + "_fill",
-        "visibility",
-        currentLayoutVisibility === "visible" ? "none" : "visible"
-      );
-    } else if (props.layerItem.geometry_type === "LINE") {
-      const currentLayoutVisibility = map.value.getLayoutProperty(
-        props.layerItem.layer_id + "_line",
-        "visibility"
-      );
-      map.value.setLayoutProperty(
-        props.layerItem.layer_id + "_line",
-        "visibility",
-        currentLayoutVisibility === "visible" ? "none" : "visible"
-      );
-    }
+    const currentLayoutVisibility = map.value.getLayoutProperty(
+      props.layerItem.layer_id,
+      "visibility"
+    );
+    map.value.setLayoutProperty(
+      props.layerItem.layer_id,
+      "visibility",
+      currentLayoutVisibility === "visible" ? "none" : "visible"
+    );
   }
 };
 </script>

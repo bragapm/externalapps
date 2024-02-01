@@ -43,7 +43,7 @@ watchEffect(async () => {
     if (
       props.item.geometry_type === "CIRCLE"
     ) {
-      if (!map.value.getLayer(props.item.layer_id + "_circle"))
+      if (!map.value.getLayer(props.item.layer_id))
         if (props.item.circle_style) {
           let paint: any = {},
             layout: any = {};
@@ -73,7 +73,7 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_id + "_circle",
+            id: props.item.layer_id,
             type: "circle",
             source: props.item.layer_id,
             "source-layer": props.item.layer_name,
@@ -84,7 +84,7 @@ watchEffect(async () => {
     } else if (
       props.item.geometry_type === "POLYGON"
     ) {
-      if (!map.value.getLayer(props.item.layer_id + "_fill"))
+      if (!map.value.getLayer(props.item.layer_id))
         if (props.item.fill_style) {
           let paint: any = {},
             layout: any = {};
@@ -112,7 +112,7 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_id + "_fill",
+            id: props.item.layer_id,
             type: "fill",
             source: props.item.layer_id,
             "source-layer": props.item.layer_name,
@@ -123,7 +123,7 @@ watchEffect(async () => {
     } else if (
       props.item.geometry_type === "LINE"
     ) {
-      if (!map.value.getLayer(props.item.layer_id + "_line"))
+      if (!map.value.getLayer(props.item.layer_id))
         if (props.item.line_style) {
           let paint: any = {},
             layout: any = {};
@@ -151,7 +151,7 @@ watchEffect(async () => {
           });
 
           map.value.addLayer({
-            id: props.item.layer_id + "_line",
+            id: props.item.layer_id,
             type: "line",
             source: props.item.layer_id,
             "source-layer": props.item.layer_name,
