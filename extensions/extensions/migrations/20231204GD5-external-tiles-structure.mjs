@@ -16,7 +16,7 @@ export async function up(knex) {
     minzoom integer,
     maxzoom integer,
     tile_size integer,
-    layer_alias character varying(255),
+    layer_alias character varying(255) NOT NULL,
     category uuid REFERENCES categories (category_id)
       ON DELETE SET NULL,
     active boolean DEFAULT false,
@@ -55,7 +55,7 @@ export async function up(knex) {
       ('external_tiles','minzoom',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Hide if is_tilejson is true","rule":{"is_tilejson":{"_eq":true}},"hidden":true}]',FALSE,NULL,NULL,NULL),
       ('external_tiles','maxzoom',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Hide if is_tilejson is true","rule":{"is_tilejson":{"_eq":true}},"hidden":true}]',FALSE,NULL,NULL,NULL),
       ('external_tiles','tile_size',NULL,'input','{"placeholder":"512"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Hide if is_tilejson is true or tile_type is not raster","rule":{"_or":[{"is_tilejson":{"_eq":true}},{"tile_type":{"_neq":"raster"}}]},"hidden":true}]',FALSE,NULL,NULL,NULL),
-      ('external_tiles','layer_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('external_tiles','layer_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
       ('external_tiles','category','m2o','select-dropdown-m2o','{"template":"{{category_name}}"}','related-values','{"template":"{{category_name}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('external_tiles','active','cast-boolean','boolean','{"label":"Active"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('external_tiles','default','cast-boolean','boolean',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),

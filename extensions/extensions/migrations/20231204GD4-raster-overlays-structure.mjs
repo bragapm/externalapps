@@ -20,7 +20,7 @@ export async function up(knex) {
       ON DELETE CASCADE,
     legend_image uuid REFERENCES directus_files (id)
       ON DELETE SET NULL,
-    layer_alias character varying(255),
+    layer_alias character varying(255) NOT NULL,
     category uuid REFERENCES categories (category_id)
       ON DELETE SET NULL,
     active boolean DEFAULT false,
@@ -53,7 +53,7 @@ export async function up(knex) {
       ('raster_overlays','bounds',NULL,'map',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_overlays','image','file','file-image','{"folder":"${RASTER_OVERLAYS_FOLDER_ID}"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_overlays','legend_image','file','file-image','{"folder":"${RASTER_OVERLAYS_FOLDER_ID}"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-      ('raster_overlays','layer_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('raster_overlays','layer_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
       ('raster_overlays','category','m2o','select-dropdown-m2o','{"template":"{{category_name}}"}','related-values','{"template":"{{category_name}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_overlays','active','cast-boolean','boolean','{"label":"Active"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_overlays','default','cast-boolean','boolean',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
