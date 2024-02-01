@@ -27,6 +27,7 @@ watchEffect(async () => {
         type: "raster",
         source: props.item.layer_id,
         layout: { visibility: props.item.default ? "visible" : "none" },
+        paint: { "raster-opacity": 1 },
       });
     }
   }

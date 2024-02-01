@@ -57,6 +57,7 @@ export type VectorTiles = {
   circle_style: null | CircleStyles;
   fill_style: null | FillStyles;
   line_style: null | LineStyles;
+  layer_style: CircleStyles | FillStyles | LineStyles;
   geometry_type: string;
   layer_alias: string;
   layer_id: string;

@@ -1,4 +1,10 @@
-import type { VectorTiles, RasterTiles } from "~/utils/types";
+import type {
+  VectorTiles,
+  RasterTiles,
+  CircleStyles,
+  FillStyles,
+  LineStyles,
+} from "~/utils/types";
 
 type LayerGroupedByCategory = {
   label: string;
@@ -16,27 +22,41 @@ export const useMapLayer = defineStore("maplayer", () => {
   ) => {
     if (groupedLayerList.value) {
       const prev = groupedLayerList.value;
+      const selected = prev[groupIndex].layerLists[layerIndex];
 
-      if (prev[groupIndex].layerLists[layerIndex].source === "vector_tiles") {
-        const selector = prev[groupIndex].layerLists[layerIndex] as VectorTiles;
-        if (selector.geometry_type === "CIRCLE") {
-          if (selector.circle_style) {
-            selector.circle_style.layout_visibility = visibility;
-          }
-        } else if (selector.geometry_type === "POLYGON") {
-          if (selector.fill_style) {
-            selector.fill_style.layout_visibility = visibility;
-          }
-        } else if (selector.geometry_type === "LINE") {
-          if (selector.line_style) {
-            selector.line_style.layout_visibility = visibility;
-          }
-        }
-      } else if (
-        prev[groupIndex].layerLists[layerIndex].source === "raster_tiles"
-      ) {
-        (prev[groupIndex].layerLists[layerIndex] as RasterTiles).default =
+      if (selected.source === "vector_tiles") {
+        (selected as VectorTiles).layer_style.layout_visibility = visibility;
+      } else if (selected.source === "raster_tiles") {
+        (selected as RasterTiles).default =
           visibility === "visible" ? true : false;
+      }
+
+      groupedLayerList.value = prev;
+    }
+  };
+
+  const updateLayerOpacity = (
+    groupIndex: number,
+    layerIndex: number,
+    opacity: number
+  ) => {
+    if (groupedLayerList.value) {
+      const prev = groupedLayerList.value;
+      const selected = prev[groupIndex].layerLists[layerIndex];
+      if (selected.source === "vector_tiles") {
+        let updatedOpacity = opacity;
+        if (selected.geometry_type === "CIRCLE") {
+          (selected.layer_style as CircleStyles).paint_circle_opacity =
+            updatedOpacity.toString();
+        } else if (selected.geometry_type === "LINE") {
+          (selected.layer_style as LineStyles).paint_line_opacity =
+            updatedOpacity.toString();
+        } else if (selected.geometry_type === "POLYGON") {
+          (selected.layer_style as FillStyles).paint_fill_opacity =
+            updatedOpacity.toString();
+        }
+      } else if (selected.source === "raster_tiles") {
+        (selected as RasterTiles).opacity = opacity;
       }
 
       groupedLayerList.value = prev;
@@ -57,6 +77,7 @@ export const useMapLayer = defineStore("maplayer", () => {
         return { vectorTiles, rasterTiles };
       }
     );
+
     const allLayerData: (VectorTiles | RasterTiles)[] = [];
     if (layers.value) {
       for (const [key, value] of Object.entries(layers.value)) {
@@ -67,6 +88,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               allLayerData.push({
                 ...item,
                 layer_id: item.layer_id + "_circle",
+                layer_style: item.circle_style,
                 source: "vector_tiles",
                 geometry_type: "CIRCLE",
               });
@@ -75,6 +97,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               allLayerData.push({
                 ...item,
                 layer_id: item.layer_id + "_line",
+                layer_style: item.line_style,
                 source: "vector_tiles",
                 geometry_type: "LINE",
               });
@@ -83,6 +106,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               allLayerData.push({
                 ...item,
                 layer_id: item.layer_id + "_fill",
+                layer_style: item.fill_style,
                 source: "vector_tiles",
                 geometry_type: "POLYGON",
               });
@@ -143,5 +167,6 @@ export const useMapLayer = defineStore("maplayer", () => {
     fetchVectorTiles,
     handleVisibility,
     groupedLayerList,
+    updateLayerOpacity,
   };
 });

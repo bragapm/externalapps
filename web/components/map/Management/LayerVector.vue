@@ -3,8 +3,14 @@ import IcEye from "~/assets/icons/ic-eye.svg";
 import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
 import IcPaint from "~/assets/icons/ic-paint.svg";
 import { TransitionRoot } from "@headlessui/vue";
-import type { VectorTiles } from "~/utils/types";
+import type {
+  LineStyles,
+  FillStyles,
+  CircleStyles,
+  VectorTiles,
+} from "~/utils/types";
 import { storeToRefs } from "pinia";
+import { provide } from "vue";
 
 const props = defineProps<{
   layerItem: VectorTiles;
@@ -29,6 +35,8 @@ const groupIndex = computed(() => {
     }
 });
 
+provide("groupIndexProvider", groupIndex.value);
+
 const layerIndex = computed(() => {
   if (groupIndex.value !== undefined) {
     if (storeLayer?.groupedLayerList?.[groupIndex.value]?.layerLists)
@@ -37,6 +45,8 @@ const layerIndex = computed(() => {
       );
   }
 });
+
+provide("layerIndexProvider", layerIndex.value);
 
 const isShowStyling = ref(false);
 const visibility = ref<string>(
@@ -55,14 +65,17 @@ const visibility = ref<string>(
     : "none"
 );
 const opacity = ref<string>(
-  props.layerItem.circle_style
-    ? props.layerItem.circle_style.paint_circle_opacity
-    : props.layerItem.fill_style
-    ? props.layerItem.fill_style.paint_fill_opacity
-    : props.layerItem.line_style
-    ? props.layerItem.line_style.paint_line_opacity
+  props.layerItem.geometry_type === "CIRCLE"
+    ? (props.layerItem.layer_style as CircleStyles).paint_circle_opacity
+    : props.layerItem.geometry_type === "POLYGON"
+    ? (props.layerItem.layer_style as FillStyles).paint_fill_opacity
+    : props.layerItem.geometry_type === "LINE"
+    ? (props.layerItem.layer_style as LineStyles).paint_line_opacity
     : "0"
 );
+const updateOpacity = (value: number) => {
+  opacity.value = (value / 100).toString();
+};
 
 const toggleVisibility = () => {
   if (groupIndex.value !== undefined && layerIndex.value !== undefined) {
@@ -137,7 +150,13 @@ const toggleVisibility = () => {
       leaveTo="transform max-h-0 opacity-0"
       class="transition-all duration-500 ease-in-out"
     >
-      <MapManagementStyling :opacity="opacity ? parseFloat(opacity) : 0" />
+      <MapManagementStyling
+        :source="layerItem.source"
+        :opacity="opacity ? parseFloat(opacity) : 0"
+        :layerId="layerItem.layer_id"
+        :geometryType="layerItem.geometry_type"
+        @update-opacity="updateOpacity"
+      />
     </TransitionRoot>
   </div>
 </template>

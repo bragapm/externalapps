@@ -3,13 +3,23 @@ import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { useFloating, offset, flip, size } from "@floating-ui/vue";
 import IcArrow from "~/assets/icons/ic-arrow-reg.svg";
 import IcPaint from "~/assets/icons/ic-paint.svg";
+import { inject } from "vue";
 
 const props = defineProps<{
+  source: string;
   opacity: number;
+  layerId: string;
+  geometryType?: string;
+}>();
+
+const emit = defineEmits<{
+  updateOpacity: [opacity: number];
 }>();
 
 const rangeValue = ref(props.opacity * 100);
 const colorValue = ref("");
+const groupIndex = inject("groupIndexProvider");
+const layerIndex = inject("layerIndexProvider");
 
 const reference = ref(null);
 const floating = ref(null);
@@ -27,6 +37,44 @@ const { floatingStyles } = useFloating(reference, floating, {
     }),
   ],
 });
+
+const store = useMapLayer();
+const { updateLayerOpacity } = store;
+const mapStore = useMapRef();
+const { map } = storeToRefs(mapStore);
+
+const paintPropertyName = () => {
+  switch (true) {
+    case props.source === "raster_tiles":
+      return "raster-opacity";
+    case props.source === "vector_tiles" && props.geometryType === "CIRCLE":
+      return "circle-opacity";
+    case props.source === "vector_tiles" && props.geometryType === "LINE":
+      return "line-opacity";
+    case props.source === "vector_tiles" && props.geometryType === "POLYGON":
+      return "fill-opacity";
+    default:
+      return "";
+  }
+};
+
+const handleChangeOpacity = (e: Event) => {
+  emit("updateOpacity", parseInt((e.target as HTMLInputElement).value));
+
+  const decimalOpacity = parseInt((e.target as HTMLInputElement).value) / 100;
+  updateLayerOpacity(
+    groupIndex as number,
+    layerIndex as number,
+    decimalOpacity
+  );
+  if (map.value) {
+    map.value.setPaintProperty(
+      props.layerId,
+      paintPropertyName(),
+      decimalOpacity
+    );
+  }
+};
 </script>
 
 <template>
@@ -44,6 +92,7 @@ const { floatingStyles } = useFloating(reference, floating, {
         <div class="flex items-center justify-between gap-2">
           <URange
             v-model="rangeValue"
+            @change="handleChangeOpacity"
             name="range"
             size="sm"
             color="primary"

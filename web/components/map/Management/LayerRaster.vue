@@ -5,6 +5,7 @@ import IcPaint from "~/assets/icons/ic-paint.svg";
 import { TransitionRoot } from "@headlessui/vue";
 import type { RasterTiles } from "~/utils/types";
 import { storeToRefs } from "pinia";
+import { provide } from "vue";
 
 const props = defineProps<{
   layerItem: RasterTiles;
@@ -29,6 +30,8 @@ const groupIndex = computed(() => {
     }
 });
 
+provide("groupIndexProvider", groupIndex.value);
+
 const layerIndex = computed(() => {
   if (groupIndex.value !== undefined) {
     if (storeLayer?.groupedLayerList?.[groupIndex.value]?.layerLists)
@@ -37,6 +40,8 @@ const layerIndex = computed(() => {
       );
   }
 });
+
+provide("layerIndexProvider", layerIndex.value);
 
 const isShowStyling = ref(false);
 const visibility = ref(props.layerItem.default);
@@ -65,6 +70,11 @@ const toggleVisibility = () => {
       );
     }
   }
+};
+
+const opacity = ref<number>(props.layerItem.opacity || 0);
+const updateOpacity = (value: number) => {
+  opacity.value = value / 100;
 };
 </script>
 
@@ -115,7 +125,12 @@ const toggleVisibility = () => {
       leaveTo="transform max-h-0 opacity-0"
       class="transition-all duration-500 ease-in-out"
     >
-      <MapManagementStyling :opacity="layerItem.opacity" />
+      <MapManagementStyling
+      :source="layerItem.source"
+        :opacity="layerItem.opacity"
+        :layerId="layerItem.layer_id"
+        @update-opacity="updateOpacity"
+      />
     </TransitionRoot>
   </div>
 </template>
