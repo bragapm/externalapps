@@ -1,19 +1,18 @@
-import dramatiq
 import os
+import shutil
 import traceback
 
-from utils import pool, is_dev_mode, logger, init_gdal_config
-from lib.get_input_data import (
-    delete_local_temp_dir,
-)
-from lib.get_header_info import (
-    get_header_info,
-)
+import dramatiq
+from osgeo import gdal
+
 from lib.create_table import create_table_from_header_info
 from lib.fill_table import fill_table_with_layer_feature
+from lib.get_header_info import get_header_info
+from lib.get_input_data import generate_local_temp_dir_path, generate_vrt_path
 from lib.register_table import (
     register_table_to_directus,
 )
+from utils import pool, is_dev_mode, logger, init_gdal_config
 
 
 @dramatiq.actor(store_results=True)
@@ -40,15 +39,17 @@ def transform(
             conn, table_name, header_info, uploader, not is_dev_mode()
         )
         pool.putconn(conn)
-
-        # Remove local file for xls file format
-        if format_file == "xls":
-            delete_local_temp_dir(object_key)
-
         return header_info
-
     except Exception as err:
         error_message = str(err)
         error_traceback = traceback.format_exc()  # This captures the full traceback
         logger.error(error_traceback)  # Log the full traceback
         return {"error": error_message, "traceback": error_traceback}
+    finally:
+        # cleanup
+        temp_dir_path = generate_local_temp_dir_path(object_key)
+        vrt_path = generate_vrt_path(object_key)
+        if os.path.isdir(temp_dir_path):
+            shutil.rmtree(temp_dir_path)
+        if gdal.VSIStatL(vrt_path, gdal.VSI_STAT_EXISTS_FLAG):
+            gdal.Unlink(vrt_path)

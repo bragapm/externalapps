@@ -1,7 +1,9 @@
 import os
 from urllib import request
 from uuid import uuid4
+
 from psycopg2.extras import Json
+
 from utils import logger, create_bbox_polygon
 
 
@@ -26,7 +28,7 @@ def register_table_to_directus(
 
     if with_invalidate:
         url = "http://directus:8055/utils/cache/clear?access_token=" + os.environ.get(
-            "ADMIN_TOKEN"
+            "ADMIN_TOKEN", ""
         )
         request.urlopen(request.Request(url, method="POST"))
         logger.info("Clear directus table schema cache")

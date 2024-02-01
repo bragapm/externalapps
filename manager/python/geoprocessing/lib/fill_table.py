@@ -1,4 +1,5 @@
 from osgeo import osr
+
 from utils import logger
 
 
@@ -9,18 +10,17 @@ def fill_table_with_layer_feature(data_source, header_info, conn, table_name):
     # Define the source and target spatial reference systems
     source_srs = osr.SpatialReference()
     source_srs.ImportFromEPSG(int(header_info["srs_code"]))  # Source SRS
-
     target_srs = osr.SpatialReference()
     target_srs.ImportFromEPSG(4326)  # Target SRS (WGS 84)
     target_srs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+
+    # Create a coordinate transformation object
+    coord_transform = osr.CoordinateTransformation(source_srs, target_srs)
 
     need_transform = (
         int(header_info["srs_code"]) is not None
         and int(header_info["srs_code"]) != 4326
     )
-    # Create a coordinate transformation object
-    if need_transform:
-        coord_transform = osr.CoordinateTransformation(source_srs, target_srs)
 
     with conn:
         with conn.cursor() as cur:

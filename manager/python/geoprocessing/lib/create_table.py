@@ -1,25 +1,33 @@
+from lib.get_header_info import HeaderInfo
 from utils import logger
 
 
-def create_table_from_header_info(conn, header_info: dict, table_name: str):
+def create_table_from_header_info(conn, header_info: HeaderInfo, table_name: str):
     # Mapping shapefile field types to PostgreSQL column types
     type_mapping = {
-        "String": "TEXT",
-        "Real": "DOUBLE PRECISION",
-        "Integer64": "BIGINT",
-        "Integer": "INTEGER",
-        "DateTime": "TIMESTAMPTZ",
+        "Integer": "integer",
+        "IntegerList": "integer[]",
+        "Real": "double precision",
+        "RealList": "double precision[]",
+        "String": "text",
+        "StringList": "text[]",
+        "Binary": "bytea",
+        "Date": "date",
+        "Time": "time with time zone",
+        "DateTime": "timestamp with time zone",
+        "Integer64": "bigint",
+        "Integer64List": "bigint[]",
     }
 
     fields = header_info["fields"]
     # Adding an auto-incrementing primary key column and geom column for geometry; assuming 2D geometries in WGS 84 for now
     columns_sql = ", ".join(
-        ["ogc_fid SERIAL PRIMARY KEY"]
+        ["ogc_fid serial PRIMARY KEY"]
         + [
-            f'"{field["name"].lower()}" {type_mapping[field["type"]]}'
+            f'"{field["name"].lower()}" {type_mapping.get(field["type"], "String")}'
             for field in fields
         ]
-        + ["geom GEOMETRY(Geometry, 4326)"]
+        + ["geom geometry(Geometry, 4326)"]
     )
 
     create_table_sql = f"""CREATE TABLE {table_name} ({columns_sql}); 

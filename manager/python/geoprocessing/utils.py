@@ -1,12 +1,13 @@
+import dramatiq_pg
+import dramatiq.results
 import logging
 import os
-import dramatiq.results
 import psycopg2.pool
-import dramatiq_pg
 
+from dotenv import load_dotenv
+from minio import Minio
 from osgeo import gdal
 from urllib.parse import urlparse
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -19,11 +20,24 @@ dramatiq.set_broker(
     dramatiq_pg.PostgresBroker(pool=pool, schema="public", table="geoprocessing_queue")
 )
 
+urlparsed_s3_endpoint = urlparse(os.environ.get("STORAGE_S3_ENDPOINT", ""))
+s3_endpoint = (
+    urlparsed_s3_endpoint.netloc
+    if urlparsed_s3_endpoint.scheme
+    else urlparsed_s3_endpoint.path
+)
+
+minio_client = Minio(
+    endpoint=s3_endpoint,
+    access_key=os.environ.get("STORAGE_S3_KEY"),
+    secret_key=os.environ.get("STORAGE_S3_SECRET"),
+    region=os.environ.get("STORAGE_S3_REGION"),
+    secure=False if urlparsed_s3_endpoint.scheme == "http" else True,
+)
+
 
 def init_gdal_config():
     logger.info("Initializing GDAL config")
-    parsed_url = urlparse(os.environ.get("STORAGE_S3_ENDPOINT"))
-    s3_endpoint = parsed_url.netloc if parsed_url.scheme else parsed_url.path
 
     gdal.AllRegister()
     gdal.UseExceptions()
@@ -31,7 +45,9 @@ def init_gdal_config():
     gdal.SetConfigOption("AWS_SECRET_ACCESS_KEY", os.environ.get("STORAGE_S3_SECRET"))
     gdal.SetConfigOption("AWS_S3_ENDPOINT", s3_endpoint)
     gdal.SetConfigOption("AWS_REGION", os.environ.get("STORAGE_S3_REGION"))
-    gdal.SetConfigOption("AWS_HTTPS", "NO" if parsed_url.scheme == "http" else "YES")
+    gdal.SetConfigOption(
+        "AWS_HTTPS", "NO" if urlparsed_s3_endpoint.scheme == "http" else "YES"
+    )
     gdal.SetConfigOption(
         "AWS_VIRTUAL_HOSTING", "TRUE" if s3_endpoint == "s3.amazonaws.com" else "FALSE"
     )
