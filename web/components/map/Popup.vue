@@ -18,7 +18,7 @@ const mapLayerStore = useMapLayer();
 const contentRef = ref<HTMLDivElement>();
 const popupItems = ref<PopupItem[]>([]);
 const popupRef = ref<maplibregl.Popup>();
-const feature = ref<any>();
+const features = ref<any[]>([]);
 
 watchEffect(() => {
   if (!map.value) return;
@@ -78,18 +78,37 @@ const handleClose = () => {
   popupRef.value!.remove();
 };
 
-watch(popupItems, async (oldItems, newItems) => {
-  if (newItems?.length)
-    try {
-      const querystring = new URLSearchParams({
-        fields: newItems[0].clickPopupColumns!.join(","),
-      } as Record<string, string>);
-      const response: { data: any } = await $fetch(
-        `/panel/items/${newItems[0].tableName}/${newItems[0].rowId}?${querystring}`
-      );
-      feature.value = response.data;
-    } catch (error) {}
+watch(popupItems, async (_, newItems) => {
+  if (newItems?.length) {
+    const fetchFeature = async (popupItem: PopupItem) => {
+      try {
+        const querystring = new URLSearchParams({
+          fields: popupItem.clickPopupColumns!.join(","),
+        } as Record<string, string>);
+        const response: { data: any } = await $fetch(
+          `/panel/items/${popupItem.tableName}/${popupItem.rowId}?${querystring}`
+        );
+        return response.data;
+      } catch (error) {
+        return null;
+      }
+    };
+    const data = await Promise.all(newItems.map((item) => fetchFeature(item)));
+    features.value = data;
+  }
 });
+
+const itemIndex = ref(0);
+const nextIndex = () => {
+  if (itemIndex.value === popupItems.value.length - 1) return;
+  const i = itemIndex.value + 1;
+  itemIndex.value = i % popupItems.value.length;
+};
+const prevIndex = () => {
+  if (itemIndex.value === 0) return;
+  const i = itemIndex.value - 1;
+  itemIndex.value = i % popupItems.value.length;
+};
 </script>
 
 <template>
@@ -107,22 +126,40 @@ watch(popupItems, async (oldItems, newItems) => {
           <h5 class="text-sm">Layer</h5>
           <div class="flex text-xs">
             <p class="w-1/3">Name</p>
-            <p>: {{ popupItems[0].tableName }}</p>
+            <p>: {{ popupItems[itemIndex].tableName }}</p>
           </div>
           <div class="flex text-xs">
             <p class="w-1/3">Type</p>
-            <p>: {{ popupItems[0].layerType }}</p>
+            <p>: {{ popupItems[itemIndex].layerType }}</p>
           </div>
 
           <h5 class="text-sm mt-3">Feature</h5>
-          <div v-for="(value, key) in feature" :key="key" class="flex">
+          <div
+            v-for="(value, key) in features[itemIndex]"
+            :key="key"
+            class="flex"
+          >
             <p class="w-1/3 text-xs">{{ key }}</p>
             <p>: {{ value }}</p>
           </div>
         </article>
 
-        <footer class="w-full flex justify-center pt-2">
+        <footer class="w-full flex justify-between items-center pt-2 space-x-3">
+          <button
+            :disabled="popupItems?.length < 2"
+            @click="prevIndex"
+            class="rounded-full border w-7 h-7 flex justify-center items-center"
+          >
+            &lt;
+          </button>
           <button class="border rounded-md px-3 py-2">More Detail</button>
+          <button
+            :disabled="popupItems?.length < 2"
+            @click="nextIndex"
+            class="rounded-full border w-7 h-7 flex justify-center items-center"
+          >
+            >
+          </button>
         </footer>
       </section>
     </div>
