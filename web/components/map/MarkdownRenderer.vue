@@ -32,6 +32,6 @@ defineProps({
 <template>
   <article
     v-html="markdown.render(source)"
-    class="prose prose-sm prose-headings:text-white prose-p:text-grey-400 prose-a:text-grey-300 prose-strong:text-grey-200"
+    class="prose prose-sm prose-headings:text-white prose-p:text-grey-400 prose-a:text-grey-300 prose-strong:text-grey-200 prose-td:text-grey-400"
   ></article>
 </template>

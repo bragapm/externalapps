@@ -55,7 +55,7 @@ watchEffect(() => {
     if (popupRef.value) {
       popupRef.value.remove();
     }
-    if (featureList.length && contentRef.value)
+    if (featureList.length && contentRef.value) {
       popupRef.value = new maplibregl.Popup({
         closeButton: false,
         className: "geod-popup",
@@ -64,6 +64,7 @@ watchEffect(() => {
         .setMaxWidth("400px")
         .setDOMContent(contentRef.value)
         .addTo(map.value!);
+    }
   });
 });
 
