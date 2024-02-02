@@ -1,5 +1,14 @@
 <script lang="ts" setup>
+import { provide } from "vue";
 const store = useMapLayer();
+const beforeId = ref("");
+provide(
+  "beforeIdProvider",
+  computed(() => beforeId.value)
+);
+const updateBeforeId = (id: string) => {
+  beforeId.value = id;
+};
 </script>
 
 <template>
@@ -12,6 +21,7 @@ const store = useMapLayer();
       <MapLayerVector
         v-if="layerItem.source === 'vector_tiles'"
         :item="(layerItem as VectorTiles)"
+        @update-before-id="updateBeforeId"
       />
       <MapLayerRaster
         v-else-if="layerItem.source === 'raster_tiles'"

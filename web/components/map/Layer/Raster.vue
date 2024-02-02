@@ -9,6 +9,12 @@ const props = defineProps<{
   item: RasterTiles;
 }>();
 
+const emit = defineEmits<{
+  updateBeforeId: [beforeId: string];
+}>();
+
+const beforeId = inject<globalThis.ComputedRef<string>>("beforeIdProvider");
+
 watchEffect(async () => {
   if (map?.value) {
     if (!map.value.getSource(props.item.layer_id)) {
@@ -22,13 +28,16 @@ watchEffect(async () => {
         minzoom: props.item.minzoom || 5,
         maxzoom: props.item.maxzoom || 15,
       });
-      map.value.addLayer({
-        id: props.item.layer_id,
-        type: "raster",
-        source: props.item.layer_id,
-        layout: { visibility: props.item.default ? "visible" : "none" },
-        paint: { "raster-opacity": 1 },
-      });
+      map.value.addLayer(
+        {
+          id: props.item.layer_id,
+          type: "raster",
+          source: props.item.layer_id,
+          layout: { visibility: props.item.default ? "visible" : "none" },
+          paint: { "raster-opacity": 1 },
+        },
+        beforeId?.value
+      );
     }
   }
 });

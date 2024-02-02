@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { inject } from "vue";
 import type { VectorTiles, CircleStyles, FillStyles } from "~/utils/types";
 
 const store = useMapRef();
@@ -8,6 +9,11 @@ const props = defineProps<{
   item: VectorTiles;
 }>();
 
+const emit = defineEmits<{
+  updateBeforeId: [beforeId: string];
+}>();
+
+const beforeId = inject<globalThis.ComputedRef<string>>("beforeIdProvider");
 function isString(value: string | number | boolean): value is string {
   return typeof value === "string";
 }
@@ -46,9 +52,8 @@ watchEffect(async (onInvalidate) => {
         maxzoom: props.item.maxzoom || 15,
       });
     }
-
-    if (props.item.geometry_type === "CIRCLE") {
-      if (!map.value.getLayer(props.item.layer_id))
+    if (!map.value.getLayer(props.item.layer_id)) {
+      if (props.item.geometry_type === "CIRCLE") {
         if (props.item.circle_style) {
           let paint: any = {},
             layout: any = {};
@@ -77,17 +82,19 @@ watchEffect(async (onInvalidate) => {
             }
           });
 
-          map.value.addLayer({
-            id: props.item.layer_id,
-            type: "circle",
-            source: props.item.layer_id,
-            "source-layer": props.item.layer_name,
-            layout,
-            paint,
-          });
+          map.value.addLayer(
+            {
+              id: props.item.layer_id,
+              type: "circle",
+              source: props.item.layer_id,
+              "source-layer": props.item.layer_name,
+              layout,
+              paint,
+            },
+            beforeId?.value
+          );
         }
-    } else if (props.item.geometry_type === "POLYGON") {
-      if (!map.value.getLayer(props.item.layer_id))
+      } else if (props.item.geometry_type === "POLYGON") {
         if (props.item.fill_style) {
           let paint: any = {},
             layout: any = {};
@@ -114,17 +121,19 @@ watchEffect(async (onInvalidate) => {
             }
           });
 
-          map.value.addLayer({
-            id: props.item.layer_id,
-            type: "fill",
-            source: props.item.layer_id,
-            "source-layer": props.item.layer_name,
-            layout,
-            paint,
-          });
+          map.value.addLayer(
+            {
+              id: props.item.layer_id,
+              type: "fill",
+              source: props.item.layer_id,
+              "source-layer": props.item.layer_name,
+              layout,
+              paint,
+            },
+            beforeId?.value
+          );
         }
-    } else if (props.item.geometry_type === "LINE") {
-      if (!map.value.getLayer(props.item.layer_id))
+      } else if (props.item.geometry_type === "LINE") {
         if (props.item.line_style) {
           let paint: any = {},
             layout: any = {};
@@ -151,15 +160,21 @@ watchEffect(async (onInvalidate) => {
             }
           });
 
-          map.value.addLayer({
-            id: props.item.layer_id,
-            type: "line",
-            source: props.item.layer_id,
-            "source-layer": props.item.layer_name,
-            layout,
-            paint,
-          });
+          map.value.addLayer(
+            {
+              id: props.item.layer_id,
+              type: "line",
+              source: props.item.layer_id,
+              "source-layer": props.item.layer_name,
+              layout,
+              paint,
+            },
+            beforeId?.value
+          );
         }
+      }
+
+      emit("updateBeforeId", props.item.layer_id);
     }
 
     if (props.item.click_popup_columns?.length) {
