@@ -3,7 +3,7 @@ import type { MapGeoJSONFeature, MapMouseEvent, PointLike } from "maplibre-gl";
 import { ref } from "vue";
 import maplibregl from "maplibre-gl";
 
-type PopupItem = {
+export type PopupItem = {
   layerType: string;
   tableName: string;
   rowId: string | number;
@@ -12,6 +12,7 @@ type PopupItem = {
 };
 
 const mapRefStore = useMapRef();
+const featureStore = useFeature();
 const { map } = storeToRefs(mapRefStore);
 const mapLayerStore = useMapLayer();
 
@@ -152,7 +153,16 @@ const prevIndex = () => {
           >
             &lt;
           </button>
-          <button class="border rounded-md px-3 py-2">More Detail</button>
+          <button
+            @click="
+              () => {
+                featureStore.setFeature(popupItems[itemIndex]);
+              }
+            "
+            class="border rounded-md px-3 py-2"
+          >
+            More Detail
+          </button>
           <button
             :disabled="popupItems?.length < 2"
             @click="nextIndex"
