@@ -78,6 +78,7 @@ export type RasterTiles = {
   layer_id: string;
   minzoom: number;
   maxzoom: number;
+  terrain_rgb: boolean;
   click_popup_columns?: string[];
   feature_detail_columns?: string[];
 };

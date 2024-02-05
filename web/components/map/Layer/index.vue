@@ -23,6 +23,10 @@ const updateBeforeId = (id: string) => {
         :item="(layerItem as VectorTiles)"
         @update-before-id="updateBeforeId"
       />
+      <MapLayerRasterTerrain
+        v-else-if="layerItem.source === 'raster_tiles' && layerItem.terrain_rgb"
+        :item="(layerItem as RasterTiles)"
+      />
       <MapLayerRaster
         v-else-if="layerItem.source === 'raster_tiles'"
         :item="(layerItem as RasterTiles)"

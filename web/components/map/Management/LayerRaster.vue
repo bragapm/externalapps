@@ -50,6 +50,16 @@ const toggleVisibility = () => {
   if (visibility.value === true) {
     isShowStyling.value = false;
   }
+  if (props.layerItem.terrain_rgb) {
+    if (visibility.value === true) {
+      map.value?.setTerrain(null);
+    } else {
+      map.value?.setTerrain({
+        source: props.layerItem.layer_id + "_terrain",
+        exaggeration: 2,
+      });
+    }
+  }
   if (groupIndex.value !== undefined && layerIndex.value !== undefined) {
     const currentVisibility = visibility.value === true ? "none" : "visible";
     handleVisibility(groupIndex.value, layerIndex.value, currentVisibility);
