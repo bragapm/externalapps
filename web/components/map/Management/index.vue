@@ -23,7 +23,7 @@ const store = useMapLayer();
 </script>
 
 <template>
-  <h2 class="p-3 text-white">Layer Management</h2>
+  <h2 class="p-3 text-grey-50">Layer Management</h2>
 
   <hr class="mx-3" />
 
@@ -36,7 +36,7 @@ const store = useMapLayer();
     :ui="{
       default: {
         class:
-          'bg-transparent hover:bg-transparent px-0 py-3 text-white rounded-xxs',
+          'bg-transparent hover:bg-transparent px-0 py-3 text-grey-200 rounded-xxs',
       },
       wrapper: 'px-3 my-3 flex-1 overflow-y-scroll',
     }"

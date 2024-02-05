@@ -47,6 +47,9 @@ const isShowStyling = ref(false);
 const visibility = ref(props.layerItem.default);
 
 const toggleVisibility = () => {
+  if (visibility.value === true) {
+    isShowStyling.value = false;
+  }
   if (groupIndex.value !== undefined && layerIndex.value !== undefined) {
     const currentVisibility = visibility.value === true ? "none" : "visible";
     handleVisibility(groupIndex.value, layerIndex.value, currentVisibility);
@@ -88,17 +91,28 @@ const updateOpacity = (value: number) => {
         'rounded-xxs p-2 flex justify-between items-center gap-2 w-full ',
       ]"
     >
-      <div class="text-white w-8/12">
-        <p class="truncate">
+      <div class="w-8/12">
+        <p
+          :class="[visibility ? 'text-grey-200' : 'text-grey-500', 'truncate']"
+        >
           {{ layerItem.layer_alias }}
         </p>
-        <p class="truncate">RASTER</p>
+        <p
+          :class="[visibility ? 'text-grey-400' : 'text-grey-500', 'truncate']"
+        >
+          RASTER
+        </p>
       </div>
       <div class="flex gap-2 items-center justify-end w-4/12">
-        <button @click="isShowStyling = !isShowStyling">
+        <button :disabled="!visibility" @click="isShowStyling = !isShowStyling">
           <IcPaint
             :class="[
-              isShowStyling ? 'text-brand-500' : 'text-white',
+              visibility
+                ? isShowStyling
+                  ? 'text-brand-500'
+                  : 'text-grey-400'
+                : 'text-grey-500',
+              ,
               'w-3 h-3',
             ]"
             :fontControlled="false"
@@ -107,10 +121,10 @@ const updateOpacity = (value: number) => {
         <button @click="toggleVisibility">
           <IcEyeCrossed
             v-if="!visibility"
-            class="text-white w-3 h-3"
+            class="text-grey-400 w-3 h-3"
             :fontControlled="false"
           />
-          <IcEye v-else class="text-white w-3 h-3" :fontControlled="false" />
+          <IcEye v-else class="text-grey-400 w-3 h-3" :fontControlled="false" />
         </button>
         <MapManagementMenu :bounds="layerItem.bounds" />
       </div>
@@ -126,7 +140,7 @@ const updateOpacity = (value: number) => {
       class="transition-all duration-500 ease-in-out"
     >
       <MapManagementStyling
-      :source="layerItem.source"
+        :source="layerItem.source"
         :opacity="layerItem.opacity"
         :layerId="layerItem.layer_id"
         @update-opacity="updateOpacity"

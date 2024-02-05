@@ -78,6 +78,9 @@ const updateOpacity = (value: number) => {
 };
 
 const toggleVisibility = () => {
+  if (visibility.value === "visible") {
+    isShowStyling.value = false;
+  }
   if (groupIndex.value !== undefined && layerIndex.value !== undefined) {
     const currentVisibility =
       visibility.value === "visible" ? "none" : "visible";
@@ -108,22 +111,40 @@ const toggleVisibility = () => {
         'rounded-xxs p-2 flex justify-between items-center gap-2 w-full ',
       ]"
     >
-      <div class="text-white w-8/12">
-        <p class="truncate">
+      <div class="w-8/12">
+        <p
+          :class="[
+            visibility === 'visible' ? 'text-grey-200' : 'text-grey-500',
+            'truncate',
+          ]"
+        >
           {{
             layerItem.layer_alias ||
             (layerItem.source === "vector_tiles" && layerItem.layer_name)
           }}
         </p>
-        <p class="truncate">
+        <p
+          :class="[
+            visibility === 'visible' ? 'text-grey-400' : 'text-grey-500',
+            'truncate',
+          ]"
+        >
           {{ layerItem.geometry_type }}
         </p>
       </div>
       <div class="flex gap-2 items-center justify-end w-4/12">
-        <button @click="isShowStyling = !isShowStyling">
+        <button
+          :disabled="visibility === 'none'"
+          @click="isShowStyling = !isShowStyling"
+        >
           <IcPaint
             :class="[
-              isShowStyling ? 'text-brand-500' : 'text-white',
+              visibility === 'visible'
+                ? isShowStyling
+                  ? 'text-brand-500'
+                  : 'text-grey-400'
+                : 'text-grey-500',
+              ,
               'w-3 h-3',
             ]"
             :fontControlled="false"
@@ -132,10 +153,10 @@ const toggleVisibility = () => {
         <button @click="toggleVisibility">
           <IcEyeCrossed
             v-if="visibility === 'none'"
-            class="text-white w-3 h-3"
+            class="text-grey-400 w-3 h-3"
             :fontControlled="false"
           />
-          <IcEye v-else class="text-white w-3 h-3" :fontControlled="false" />
+          <IcEye v-else class="text-grey-400 w-3 h-3" :fontControlled="false" />
         </button>
         <MapManagementMenu :bounds="layerItem.bounds" />
       </div>
