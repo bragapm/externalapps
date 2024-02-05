@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import IcCompass from "~/assets/icons/ic-compass.svg";
-import { useMapRef } from "~/stores/use-map-ref";
 const store = useMapRef();
 const { map } = storeToRefs(store);
 const bearing = ref(0);

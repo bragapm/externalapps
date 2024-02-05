@@ -5,7 +5,6 @@ import IcExpand from "~/assets/icons/ic-expand.svg";
 import IcFilter from "~/assets/icons/ic-filter.svg";
 import IcShrink from "~/assets/icons/ic-shrink.svg";
 import IcSort from "~/assets/icons/ic-sort.svg";
-import { useTableData } from "~/stores/use-table-data";
 const store = useTableData();
 const { toggleTable, toggleFullscreen } = store;
 

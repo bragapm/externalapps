@@ -2,7 +2,6 @@
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { useFloating, offset, flip } from "@floating-ui/vue";
 import IcMenuDots from "~/assets/icons/ic-menu-dots.svg";
-import { useTableData } from "~/stores/use-table-data";
 import type { LngLatBoundsLike } from "maplibre-gl";
 import bbox from "@turf/bbox";
 

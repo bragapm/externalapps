@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMapRef } from "~/stores/use-map-ref";
 const store = useMapRef();
 const { map } = storeToRefs(store);
 const coordinates = ref<{ lng: string; lat: string }>({

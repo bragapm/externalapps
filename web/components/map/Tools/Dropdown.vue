@@ -2,7 +2,6 @@
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { storeToRefs } from "pinia";
 import IcArrow from "~/assets/icons/ic-arrow-reg.svg";
-import { useMapTools } from "~/stores/use-map-tools";
 
 const props = defineProps<{
   triggerLabel?: string;

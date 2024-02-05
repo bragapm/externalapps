@@ -11,8 +11,6 @@ import IcRuler from "~/assets/icons/ic-ruler.svg";
 import IcRulerCorner from "~/assets/icons/ic-ruler-corner.svg";
 import IcSearch from "~/assets/icons/ic-search.svg";
 import IcTools from "~/assets/icons/ic-tools.svg";
-import { useTableData } from "~/stores/use-table-data";
-import { useMapTools } from "~/stores/use-map-tools";
 import { storeToRefs } from "pinia";
 
 const showTools = ref(true);

@@ -3,7 +3,6 @@ import { Map, GeolocateControl } from "maplibre-gl";
 import type { LngLatBoundsLike } from "maplibre-gl";
 import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
-import { useMapRef } from "~/stores/use-map-ref";
 import { useMapData } from "~/utils";
 import bbox from "@turf/bbox";
 
