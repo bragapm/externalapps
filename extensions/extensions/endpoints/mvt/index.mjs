@@ -42,6 +42,12 @@ export default (router, { database, logger }) => {
       }
     } catch (cacheError) {
       logger.error("Cache lookup failed:", cacheError);
+      return next(
+        new ServiceUnavailableError({
+          service: "mvt",
+          reason: "Failed to fetch MVT cache",
+        })
+      );
     }
 
     // Fetch additional configuration for the layer
