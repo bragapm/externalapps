@@ -11,8 +11,9 @@ import IcZoomOut from "~/assets/icons/ic-min.svg";
 import { storeToRefs } from "pinia";
 const isShowLayerManagement = ref(false);
 const isShowLegend = ref(false);
-const isShowInformation = ref(false);
-const isShowInfospace = ref(false);
+const isShowMapInformation = ref(false);
+const featureStore = useFeature();
+const { isShow: isShowFeatureDetail } = storeToRefs(featureStore);
 
 const store = useMapRef();
 const { map, geolocateRef } = storeToRefs(store);
@@ -109,7 +110,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     <!-- right sidebar -->
     <TransitionRoot
       as="div"
-      :show="isShowInformation"
+      :show="isShowMapInformation"
       enter="transition-all duration-300"
       enter-from="-mr-8 opacity-0"
       enter-to="mr-0 opacity-1"
@@ -122,7 +123,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     </TransitionRoot>
     <TransitionRoot
       as="div"
-      :show="isShowInfospace"
+      :show="isShowFeatureDetail"
       enter="transition-all duration-300"
       enter-from="-mr-8 opacity-0"
       enter-to="mr-0 opacity-1"
@@ -137,7 +138,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     <!-- top right button controller -->
     <div
       :class="
-        isShowInformation || isShowInfospace
+        isShowMapInformation || isShowFeatureDetail
           ? 'right-[20.5rem]'
           : 'right-[1.5rem]'
       "
@@ -146,22 +147,22 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
       <MapButtonControl
         :onClick="
           () => {
-            isShowInformation = !isShowInformation;
-            isShowInfospace = false;
+            isShowMapInformation = !isShowMapInformation;
+            isShowFeatureDetail = false;
           }
         "
-        :active="isShowInformation"
+        :active="isShowMapInformation"
       >
         <IcBookmark class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>
       <MapButtonControl
         :onClick="
           () => {
-            isShowInfospace = !isShowInfospace;
-            isShowInformation = false;
+            isShowFeatureDetail = !isShowFeatureDetail;
+            isShowMapInformation = false;
           }
         "
-        :active="isShowInfospace"
+        :active="isShowFeatureDetail"
       >
         <IcChart class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>

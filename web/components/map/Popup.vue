@@ -20,6 +20,7 @@ const contentRef = ref<HTMLDivElement>();
 const popupItems = ref<PopupItem[]>([]);
 const popupRef = ref<maplibregl.Popup>();
 const features = ref<any[]>([]);
+const isFetching = ref(false);
 
 watchEffect(() => {
   if (!map.value) return;
@@ -79,8 +80,8 @@ const handleClose = () => {
   popupRef.value!.remove();
 };
 
-watch(popupItems, async (_, newItems) => {
-  if (newItems?.length) {
+watchEffect(async () => {
+  if (popupItems.value?.length) {
     const fetchFeature = async (popupItem: PopupItem) => {
       try {
         const querystring = new URLSearchParams({
@@ -91,10 +92,14 @@ watch(popupItems, async (_, newItems) => {
         );
         return response.data;
       } catch (error) {
-        return null;
+        return {};
       }
     };
-    const data = await Promise.all(newItems.map((item) => fetchFeature(item)));
+    isFetching.value = true;
+    const data = await Promise.all(
+      popupItems.value.map((item) => fetchFeature(item))
+    );
+    isFetching.value = false;
     features.value = data;
   }
 });
@@ -157,6 +162,7 @@ const prevIndex = () => {
             @click="
               () => {
                 featureStore.setFeature(popupItems[itemIndex]);
+                featureStore.setIsShow(true);
               }
             "
             class="border rounded-md px-3 py-2"

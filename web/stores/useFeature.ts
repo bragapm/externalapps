@@ -6,5 +6,9 @@ export const useFeature = defineStore("feature", () => {
   function setFeature(newFeature: PopupItem) {
     feature.value = newFeature;
   }
-  return { feature, setFeature };
+  const isShow = ref(false);
+  function setIsShow(newIsShow: boolean) {
+    isShow.value = newIsShow;
+  }
+  return { feature, setFeature, isShow, setIsShow };
 });
