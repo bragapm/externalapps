@@ -83,11 +83,19 @@ export type RasterTiles = {
   feature_detail_columns?: string[];
 };
 
+export type Attachment = {
+  title: string;
+  description: string;
+  url: string;
+  icon: "link" | "form";
+};
+
 export type MapData = {
   data: {
     title: string;
     subtitle: string;
     information: string;
     initial_map_view: GeoJSON.Feature;
+    information_attachment: Attachment[];
   };
 };
