@@ -4,7 +4,7 @@ export async function up(knex) {
   await knex.raw(`
     INSERT INTO directus_permissions(collection,action,permissions,validation,fields)
     VALUES
-      ('vector_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,category,hover_popup_columns,click_popup_columns,feature_detail_columns,image_column,fill_style,line_style,circle_style,symbol_style'),
+      ('vector_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,category,hover_popup_columns,click_popup_columns,image_column,fill_style,line_style,circle_style,symbol_style'),
       ('symbol','read','{}','{}','*'),
       ('raster_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,bounds,minzoom,maxzoom,layer_alias,category,default'),
       ('raster_overlays','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,bounds,image,legend_image,layer_alias,category,default'),
@@ -23,7 +23,7 @@ export async function up(knex) {
         VALUES
           (NEW.id,'directus_settings','read','{}','{}','project_name,project_descriptor,public_favicon,project_logo_horizontal,basemaps,initial_map_view,help_center_url'),
           (NEW.id,'directus_files','read','{"_or":[{"folder":{"_eq":"${PUBLIC_FOLDER_ID}"}},{"folder":{"parent":{"_eq":"${PUBLIC_FOLDER_ID}"}}}]}','{}','*'),
-          (NEW.id,'vector_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,category,hover_popup_columns,click_popup_columns,feature_detail_columns,image_column,fill_style,line_style,circle_style,symbol_style'),
+          (NEW.id,'vector_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,category,hover_popup_columns,click_popup_columns,image_column,fill_style,line_style,circle_style,symbol_style'),
           (NEW.id,'symbol','read','{}','{}','*'),
           (NEW.id,'raster_tiles','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,bounds,minzoom,maxzoom,layer_alias,category,default'),
           (NEW.id,'raster_overlays','read','{"_and":[{"active":{"_eq":true}},{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,bounds,image,legend_image,layer_alias,category,default'),
