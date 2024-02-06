@@ -16,19 +16,13 @@ from utils import pool, is_dev_mode, logger, init_gdal_config
 
 
 @dramatiq.actor(store_results=True)
-def transform(
-    object_key,
-    uploader,
-    format_file,
-    is_zipped,
-    table_name,
-    bucket=os.environ.get("STORAGE_S3_BUCKET"),
-    **kwargs,
-):
+def transform(object_key, uploader, format_file, is_zipped, table_name, **kwargs):
     init_gdal_config()
-
+    bucket = os.environ.get("STORAGE_S3_BUCKET")
     table_name = table_name or os.path.splitext(os.path.basename(object_key))[0]
     try:
+        if not bucket:
+            raise Exception("S3 bucket not configured")
         header_info, data_source = get_header_info(
             format_file, bucket, object_key, is_zipped, table_name
         )

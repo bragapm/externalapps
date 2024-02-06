@@ -11,18 +11,13 @@ from utils import pool, logger, init_gdal_config
 
 
 @dramatiq.actor(store_results=True)
-def tiling(
-    object_key,
-    uploader,
-    raster_alias,
-    minzoom,
-    maxzoom,
-    bucket=os.environ.get("STORAGE_S3_BUCKET", ""),
-    **kwargs,
-):
+def tiling(object_key, uploader, raster_alias, minzoom, maxzoom, **kwargs):
     init_gdal_config()
+    bucket = os.environ.get("STORAGE_S3_BUCKET")
     layer_id = ""
     try:
+        if not bucket:
+            raise Exception("S3 bucket not configured")
         (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = raster_tiling(
             bucket, object_key, minzoom, maxzoom
         )
