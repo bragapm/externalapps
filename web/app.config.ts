@@ -11,6 +11,8 @@ export default defineAppConfig({
     },
     button: {
       variant: {
+        outline:
+          "bg-transparent ring-1 ring-{color}-500 ring-inset text-{color}-500 hover:ring-{color}-700  disabled:text-grey-600 disabled:ring-grey-600 disabled:hover:bg-transparent hover:bg-{color}-950 focus-visible:ring-1 focus-visible:ring-brand-200",
         paginationActive:
           "bg-brand-950 border border-brand-950 text-brand-500 text-2xs rounded-xxs w-6 h-6 justify-center",
         paginationInactive:
@@ -24,6 +26,14 @@ export default defineAppConfig({
         navActive: {
           solid:
             "shadow-sm ring-1 ring-inset ring-grey-300 dark:ring-grey-700 text-[#DD5E28] dark:text-white bg-white hover:bg-white/90 disabled:bg-white dark:bg-grey-900 dark:hover:bg-grey-800/50 dark:disabled:bg-grey-900 focus-visible:ring-2 focus-visible:ring-primary-500 dark:focus-visible:ring-primary-400",
+        },
+      },
+    },
+    input: {
+      color: {
+        gray: {
+          outline:
+            "shadow-sm bg-grey-700 dark:bg-grey-700 text-grey-200 dark:text-white ring-1 ring-inset ring-grey-600 dark:ring-grey-700 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400",
         },
       },
     },

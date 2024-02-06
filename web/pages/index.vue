@@ -18,6 +18,9 @@ const { map, geolocateRef } = storeToRefs(store);
 
 const storeTableData = useTableData();
 const { showTable, fullscreen } = storeToRefs(storeTableData);
+
+const storeCatalogue = useCatalogue();
+const { showCatalogue } = storeToRefs(storeCatalogue);
 </script>
 
 <template>
@@ -39,7 +42,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
       leave="transform transition-all duration-300"
       leave-from="ml-0 opacity-1"
       leave-to="-ml-8 opacity-0"
-      class="absolute top-[5.5rem] bg-grey-900 w-[18.5rem] rounded-xs left-6 z-10 max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="absolute top-[5.5rem] bg-grey-900 w-[18.5rem] rounded-xs left-6 z-10 h-full max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapManagement />
     </TransitionRoot>
@@ -74,6 +77,19 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
       ]"
     >
       <MapManagementTable />
+    </TransitionRoot>
+    <TransitionRoot
+      as="div"
+      :show="showCatalogue"
+      enter="transition-all duration-1000"
+      enter-from="-ml-8 opacity-0"
+      enter-to="ml-0 opacity-1"
+      leave="transition-all duration-1000"
+      leave-from="ml-0 opacity-1"
+      leave-to="-ml-8 opacity-0"
+      class="w-[calc(100vw-3rem)] h-[calc(100vh-7.5rem)] top-[5.5rem] absolute z-20 left-[1.5rem] bg-grey-900 rounded-xs transition-all ease-in-out duration-300"
+    >
+      <MapManagementCatalogue />
     </TransitionRoot>
 
     <!-- top left button controller -->

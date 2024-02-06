@@ -139,7 +139,11 @@ const { isLoading, data: mapData } = await useMapData();
     <div
       class="absolute top-6 right-6 z-40 flex items-center gap-2 bg-grey-700 p-[6px] h-12 rounded-xs"
     >
-      <UInput placeholder="Search Location">
+      <UInput
+        color="gray"
+        :ui="{ rounded: 'rounded-xxs' }"
+        placeholder="Search Location"
+      >
         <template #trailing>
           <UButton
             color="grey"
@@ -149,7 +153,7 @@ const { isLoading, data: mapData } = await useMapData();
           />
         </template>
       </UInput>
-      <UButton label="Share Map">
+      <UButton :ui="{ rounded: 'rounded-xxs' }" label="Share Map">
         <template #trailing>
           <IcLink class="text-base" />
         </template>
