@@ -8,35 +8,35 @@ body {
 
 .maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
   --tw-bg-opacity: 1;
-  border-top-color: rgb(53 51 50 / var(--tw-bg-opacity)) !important;
+  border-top-color: rgb(35 34 33 / var(--tw-bg-opacity)) !important;
 }
 .maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip {
   --tw-bg-opacity: 1;
-  border-top-color: rgb(53 51 50 / var(--tw-bg-opacity)) !important;
+  border-top-color: rgb(35 34 33 / var(--tw-bg-opacity)) !important;
 }
 .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip {
   --tw-bg-opacity: 1;
-  border-top-color: rgb(53 51 50 / var(--tw-bg-opacity)) !important;
+  border-top-color: rgb(35 34 33 / var(--tw-bg-opacity)) !important;
 }
 .maplibregl-popup-anchor-top .maplibregl-popup-tip {
   --tw-bg-opacity: 1;
-  border-bottom-color: rgb(53 51 50 / var(--tw-bg-opacity)) !important;
+  border-bottom-color: rgb(35 34 33 / var(--tw-bg-opacity)) !important;
 }
 .maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
   --tw-bg-opacity: 1;
-  border-bottom-color: rgb(53 51 50 / var(--tw-bg-opacity)) !important;
+  border-bottom-color: rgb(35 34 33 / var(--tw-bg-opacity)) !important;
 }
 .maplibregl-popup-anchor-top-left .maplibregl-popup-tip {
   --tw-bg-opacity: 1;
-  border-bottom-color: rgb(53 51 50 / var(--tw-bg-opacity)) !important;
+  border-bottom-color: rgb(35 34 33 / var(--tw-bg-opacity)) !important;
 }
 .maplibregl-popup-anchor-right .maplibregl-popup-tip {
   --tw-bg-opacity: 1;
-  border-left-color: rgb(53 51 50 / var(--tw-bg-opacity)) !important;
+  border-left-color: rgb(35 34 33 / var(--tw-bg-opacity)) !important;
 }
 .maplibregl-popup-anchor-left .maplibregl-popup-tip {
   --tw-bg-opacity: 1;
-  border-right-color: rgb(53 51 50 / var(--tw-bg-opacity)) !important;
+  border-right-color: rgb(35 34 33 / var(--tw-bg-opacity)) !important;
 }
 
 /* Popup entrance animation */

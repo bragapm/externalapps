@@ -2,6 +2,9 @@
 import type { MapGeoJSONFeature, MapMouseEvent, PointLike } from "maplibre-gl";
 import { ref } from "vue";
 import maplibregl from "maplibre-gl";
+import placeholderImg from "~/assets/images/landing/ecopark.jpg";
+import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
+import IcCross from "~/assets/icons/ic-cross.svg";
 
 export type PopupItem = {
   layerType: string;
@@ -121,43 +124,69 @@ const prevIndex = () => {
   <div class="hidden">
     <div ref="contentRef">
       <section
-        class="flex min-w-[240px] max-w-[400px] flex-col items-center justify-center gap-2 px-6 py-3 overflow-hidden bg-grey-700 rounded-sm text-grey-100 divide-y divide-grey-100"
+        class="flex w-72 flex-col items-center justify-center gap-3 p-3 overflow-hidden bg-grey-800 rounded-xs text-grey-100"
       >
-        <header class="flex justify-between w-full">
-          <h4 class="text-base">Detail Popup</h4>
-          <button @click="handleClose">X</button>
+        <header
+          class="flex justify-between w-full border-b pb-1 border-grey-700"
+        >
+          <h4 class="text-xs font-medium">Detail Popup</h4>
+          <IcCross
+            role="button"
+            :fontControlled="false"
+            @click="handleClose"
+            class="w-3 h-3 text-grey-400"
+          ></IcCross>
         </header>
 
-        <article class="w-full py-3" v-if="popupItems?.length">
-          <h5 class="text-sm">Layer</h5>
-          <div class="flex text-xs">
-            <p class="w-1/3">Name</p>
-            <p>: {{ popupItems[itemIndex].tableName }}</p>
+        <img :src="placeholderImg" alt="feature image" class="rounded-xs" />
+
+        <article
+          class="w-full space-y-2 max-h-40 overflow-y-scroll"
+          v-if="popupItems?.length"
+        >
+          <h5 class="text-xs font-medium">Layer</h5>
+          <div class="flex text-grey-400 space-x-2">
+            <p class="text-2xs w-1/4">Name</p>
+            <p class="text-xs">: {{ popupItems[itemIndex].tableName }}</p>
           </div>
-          <div class="flex text-xs">
-            <p class="w-1/3">Type</p>
-            <p>: {{ popupItems[itemIndex].layerType }}</p>
+          <div class="flex text-grey-400 space-x-2">
+            <p class="text-2xs w-1/4">Type</p>
+            <p class="text-xs">: {{ popupItems[itemIndex].layerType }}</p>
           </div>
 
-          <h5 class="text-sm mt-3">Feature</h5>
-          <div
-            v-for="(value, key) in features[itemIndex]"
-            :key="key"
-            class="flex"
-          >
-            <p class="w-1/3 text-xs">{{ key }}</p>
-            <p>: {{ value }}</p>
-          </div>
+          <h5 class="text-xs font-medium">Feature</h5>
+          <template v-if="isFetching">
+            <div
+              v-for="(_, idx) in Array.from({ length: 3 })"
+              :key="idx"
+              class="flex space-x-2 animate-pulse"
+            >
+              <div class="w-1/4 h-4 bg-grey-700 rounded-xs"></div>
+              <div class="grow h-4 bg-grey-700 rounded-xs"></div>
+            </div>
+          </template>
+          <template v-else>
+            <div
+              v-for="(value, key) in features[itemIndex]"
+              :key="key"
+              class="flex text-grey-400 space-x-2"
+            >
+              <p class="text-2xs w-1/4">{{ key }}</p>
+              <p class="text-xs">: {{ value }}</p>
+            </div>
+          </template>
         </article>
 
-        <footer class="w-full flex justify-between items-center pt-2 space-x-3">
-          <button
+        <footer class="w-full flex items-center pt-2 space-x-2">
+          <IcArrowReg
+            role="button"
+            :fontControlled="false"
             :disabled="popupItems?.length < 2"
             @click="prevIndex"
-            class="rounded-full border w-7 h-7 flex justify-center items-center"
+            class="rounded-xs border w-9 h-9 flex justify-center items-center -rotate-90 text-grey-400 border-grey-400"
           >
             &lt;
-          </button>
+          </IcArrowReg>
           <button
             @click="
               () => {
@@ -165,17 +194,19 @@ const prevIndex = () => {
                 featureStore.setRightSidebar('feature');
               }
             "
-            class="border rounded-md px-3 py-2"
+            class="rounded-xs grow h-9 bg-brand-600 text-sm font-medium"
           >
             More Detail
           </button>
-          <button
+          <IcArrowReg
+            role="button"
+            :fontControlled="false"
             :disabled="popupItems?.length < 2"
             @click="nextIndex"
-            class="rounded-full border w-7 h-7 flex justify-center items-center"
+            class="rounded-xs border w-9 h-9 flex justify-center items-center rotate-90 text-grey-400 border-grey-400"
           >
             >
-          </button>
+          </IcArrowReg>
         </footer>
       </section>
     </div>
