@@ -6,7 +6,6 @@ from lib.get_input_data import (
     get_input_data_with_vsi,
     get_input_data_without_vsi_with_vrt,
     get_input_data_with_vsi_with_vrt,
-    get_gdb_directory,
 )
 from utils import logger, create_bbox_polygon
 
@@ -85,6 +84,13 @@ def get_driver_short_name(format_file: str):
             return "KML"
         case _:
             raise Exception(f"Unexpected file format: {str}")
+
+
+def get_gdb_directory(bucket: str, object_key: str):
+    src_path = f"/vsizip//vsis3/{bucket}/{object_key}"
+    gdb_directory = gdal.ReadDir(src_path)
+
+    return f"{object_key}/{gdb_directory[0]}"
 
 
 def get_header_info(

@@ -5,13 +5,6 @@ from osgeo import ogr, gdal
 from utils import minio_client, generate_local_temp_dir_path, generate_vrt_path
 
 
-def get_gdb_directory(bucket: str, object_key: str):
-    src_path = f"/vsizip//vsis3/{bucket}/{object_key}"
-    gdb_directory = gdal.ReadDir(src_path)
-
-    return f"{object_key}/{gdb_directory[0]}"
-
-
 def get_input_data_with_vsi(
     bucket: str,
     object_key: str,
