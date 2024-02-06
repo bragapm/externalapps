@@ -22,7 +22,14 @@ from utils import (
 
 
 @dramatiq.actor(store_results=True)
-def transform(object_key, uploader, format_file, is_zipped, table_name, **kwargs):
+def transform(
+    object_key: str,
+    uploader: str,
+    format_file: str,
+    is_zipped: bool,
+    table_name: str,
+    **kwargs
+):
     init_gdal_config()
     bucket = os.environ.get("STORAGE_S3_BUCKET")
     table_name = table_name or os.path.splitext(os.path.basename(object_key))[0]
