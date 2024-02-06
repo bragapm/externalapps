@@ -75,3 +75,11 @@ def create_bbox_polygon(lon_min, lat_min, lon_max, lat_max):
 
     # Create a GeoJSON Polygon
     return {"type": "Polygon", "coordinates": coordinates}
+
+
+def generate_local_temp_dir_path(object_key: str):
+    return os.path.join("/tmp", f"geodashboard_{object_key}")
+
+
+def generate_vrt_path(object_key: str):
+    return f"/vsimem/{object_key}.vrt"

@@ -8,11 +8,17 @@ from osgeo import gdal
 from lib.create_table import create_table_from_header_info
 from lib.fill_table import fill_table_with_layer_feature
 from lib.get_header_info import get_header_info
-from lib.get_input_data import generate_local_temp_dir_path, generate_vrt_path
 from lib.register_table import (
     register_table_to_directus,
 )
-from utils import pool, is_dev_mode, logger, init_gdal_config
+from utils import (
+    logger,
+    pool,
+    is_dev_mode,
+    init_gdal_config,
+    generate_local_temp_dir_path,
+    generate_vrt_path,
+)
 
 
 @dramatiq.actor(store_results=True)

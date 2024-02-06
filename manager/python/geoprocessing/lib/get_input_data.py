@@ -2,15 +2,7 @@ import os
 
 from osgeo import ogr, gdal
 
-from utils import minio_client
-
-
-def generate_local_temp_dir_path(object_key: str):
-    return os.path.join("/tmp", f"geodashboard_{object_key}")
-
-
-def generate_vrt_path(object_key: str):
-    return f"/vsimem/{object_key}.vrt"
+from utils import minio_client, generate_local_temp_dir_path, generate_vrt_path
 
 
 def get_gdb_directory(bucket: str, object_key: str):
