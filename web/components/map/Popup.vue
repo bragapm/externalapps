@@ -5,6 +5,29 @@ import maplibregl from "maplibre-gl";
 import placeholderImg from "~/assets/images/landing/ecopark.jpg";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
+import {
+  useKeenSlider,
+  type KeenSliderInstance,
+  type KeenSliderHooks,
+} from "keen-slider/vue";
+
+const current = ref(1);
+const [container, slider] = useKeenSlider({
+  loop: true,
+  initial: current.value,
+  slideChanged: (s: KeenSliderInstance<{}, {}, KeenSliderHooks>) => {
+    current.value = s.track.details.rel;
+  },
+});
+onMounted(() => {
+  slider.value?.update({
+    loop: true,
+    initial: current.value,
+    slideChanged: (s: KeenSliderInstance<{}, {}, KeenSliderHooks>) => {
+      current.value = s.track.details.rel;
+    },
+  });
+});
 
 export type PopupItem = {
   layerType: string;
@@ -138,7 +161,36 @@ const prevIndex = () => {
           ></IcCross>
         </header>
 
-        <img :src="placeholderImg" alt="feature image" class="rounded-xs" />
+        <div class="relative w-full h-36">
+          <div ref="container" class="keen-slider h-full w-full rounded-xs">
+            <img
+              class="keen-slider__slide object-cover min-w-full max-w-full"
+              v-for="(_, idx) of Array.from({ length: 3 })"
+              :key="idx"
+              :src="placeholderImg"
+            />
+          </div>
+
+          <button
+            @click="slider?.prev()"
+            class="absolute left-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
+          >
+            <IcArrowReg
+              :fontControlled="false"
+              class="w-5 h-5 m-1 -rotate-90 text-grey-50"
+            />
+          </button>
+
+          <button
+            @click="slider?.next()"
+            class="absolute right-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
+          >
+            <IcArrowReg
+              :fontControlled="false"
+              class="w-5 h-5 m-1 rotate-90 text-grey-50"
+            />
+          </button>
+        </div>
 
         <article
           class="w-full space-y-2 max-h-40 overflow-y-scroll"
@@ -184,9 +236,7 @@ const prevIndex = () => {
             :disabled="popupItems?.length < 2"
             @click="prevIndex"
             class="rounded-xs border w-9 h-9 flex justify-center items-center -rotate-90 text-grey-400 border-grey-400"
-          >
-            &lt;
-          </IcArrowReg>
+          />
           <button
             @click="
               () => {
@@ -204,11 +254,13 @@ const prevIndex = () => {
             :disabled="popupItems?.length < 2"
             @click="nextIndex"
             class="rounded-xs border w-9 h-9 flex justify-center items-center rotate-90 text-grey-400 border-grey-400"
-          >
-            >
-          </IcArrowReg>
+          />
         </footer>
       </section>
     </div>
   </div>
 </template>
+
+<style>
+@import url("keen-slider/keen-slider.css");
+</style>
