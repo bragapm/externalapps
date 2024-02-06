@@ -87,7 +87,9 @@ def get_driver_short_name(format_file: str):
             raise Exception(f"Unexpected file format: {str}")
 
 
-def get_header_info(format_file, bucket, object_key, is_zipped, table_name):
+def get_header_info(
+    format_file: str, bucket: str, object_key: str, is_zipped: bool, table_name: str
+):
     match format_file:
         case "xls":
             data_source = get_input_data_without_vsi_with_vrt(
