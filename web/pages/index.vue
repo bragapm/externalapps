@@ -11,9 +11,7 @@ import IcZoomOut from "~/assets/icons/ic-min.svg";
 import { storeToRefs } from "pinia";
 const isShowLayerManagement = ref(false);
 const isShowLegend = ref(false);
-const isShowMapInformation = ref(false);
 const featureStore = useFeature();
-const { isShow: isShowFeatureDetail } = storeToRefs(featureStore);
 
 const store = useMapRef();
 const { map, geolocateRef } = storeToRefs(store);
@@ -110,7 +108,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     <!-- right sidebar -->
     <TransitionRoot
       as="div"
-      :show="isShowMapInformation"
+      :show="featureStore.rightSidebar === 'mapinfo'"
       enter="transition-all duration-300"
       enter-from="-mr-8 opacity-0"
       enter-to="mr-0 opacity-1"
@@ -123,7 +121,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     </TransitionRoot>
     <TransitionRoot
       as="div"
-      :show="isShowFeatureDetail"
+      :show="featureStore.rightSidebar === 'feature'"
       enter="transition-all duration-300"
       enter-from="-mr-8 opacity-0"
       enter-to="mr-0 opacity-1"
@@ -138,7 +136,7 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     <!-- top right button controller -->
     <div
       :class="
-        isShowMapInformation || isShowFeatureDetail
+        Boolean(featureStore.rightSidebar)
           ? 'right-[20.5rem]'
           : 'right-[1.5rem]'
       "
@@ -146,23 +144,23 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
     >
       <MapButtonControl
         :onClick="
-          () => {
-            isShowMapInformation = !isShowMapInformation;
-            isShowFeatureDetail = false;
-          }
+          () =>
+            featureStore.setRightSidebar(
+              featureStore.rightSidebar === 'mapinfo' ? '' : 'mapinfo'
+            )
         "
-        :active="isShowMapInformation"
+        :active="featureStore.rightSidebar === 'mapinfo'"
       >
         <IcBookmark class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>
       <MapButtonControl
         :onClick="
-          () => {
-            isShowFeatureDetail = !isShowFeatureDetail;
-            isShowMapInformation = false;
-          }
+          () =>
+            featureStore.setRightSidebar(
+              featureStore.rightSidebar === 'feature' ? '' : 'feature'
+            )
         "
-        :active="isShowFeatureDetail"
+        :active="featureStore.rightSidebar === 'feature'"
       >
         <IcChart class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>

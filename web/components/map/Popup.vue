@@ -162,7 +162,7 @@ const prevIndex = () => {
             @click="
               () => {
                 featureStore.setFeature(popupItems[itemIndex]);
-                featureStore.setIsShow(true);
+                featureStore.setRightSidebar('feature');
               }
             "
             class="border rounded-md px-3 py-2"

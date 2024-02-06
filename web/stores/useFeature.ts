@@ -1,14 +1,21 @@
 import { defineStore } from "pinia";
 import type { PopupItem } from "@/components/map/Popup.vue";
 
+export type rightSidebarEnum = "mapinfo" | "feature" | "";
+
 export const useFeature = defineStore("feature", () => {
   const feature = ref<PopupItem>();
   function setFeature(newFeature: PopupItem) {
     feature.value = newFeature;
   }
-  const isShow = ref(false);
-  function setIsShow(newIsShow: boolean) {
-    isShow.value = newIsShow;
+  const rightSidebar = ref<rightSidebarEnum>("");
+  function setRightSidebar(newValue: rightSidebarEnum) {
+    rightSidebar.value = newValue;
   }
-  return { feature, setFeature, isShow, setIsShow };
+  return {
+    feature,
+    setFeature,
+    rightSidebar,
+    setRightSidebar,
+  };
 });

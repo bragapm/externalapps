@@ -2,7 +2,6 @@
 import type { Attachment } from "~/utils/types";
 
 const featureStore = useFeature();
-const { feature } = storeToRefs(featureStore);
 
 const isLoading = ref(false);
 const detail = ref<{ markdown: string; attachments: Attachment[] }>({
@@ -11,11 +10,11 @@ const detail = ref<{ markdown: string; attachments: Attachment[] }>({
 });
 
 watchEffect(async () => {
-  if (feature.value)
+  if (featureStore.feature)
     try {
       isLoading.value = true;
       const res = await $fetch(
-        `/panel/feature-detail/${feature.value.tableName}/${feature.value.rowId}`
+        `/panel/feature-detail/${featureStore.feature.tableName}/${featureStore.feature.rowId}`
       );
       detail.value = res as any;
     } catch (error) {
