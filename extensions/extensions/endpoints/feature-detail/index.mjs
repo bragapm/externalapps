@@ -16,15 +16,17 @@ export default (router, { database, logger, services }) => {
       knex: database,
     });
 
-    let template = "";
+    let markdown = "";
+    let attachments = [];
     try {
       const layerConfig = await vectorTilesService.readByQuery({
         filter: { layer_name: { _eq: layerName } },
-        fields: ["feature_detail"],
+        fields: ["feature_detail", "feature_detail_attachment"],
         limit: 1,
       });
       if (layerConfig.length) {
-        template = layerConfig[0].feature_detail;
+        markdown = layerConfig[0].feature_detail;
+        attachments = layerConfig[0].feature_detail_attachment;
       } else {
         return next(
           new RouteNotFoundError({ path: "/feature-detail" + req.path })
@@ -35,15 +37,15 @@ export default (router, { database, logger, services }) => {
       return next(
         new ServiceUnavailableError({
           service: "feature-detail",
-          reason: "Failed to fetch feature detail template",
+          reason: "Failed to fetch feature detail markdown",
         })
       );
     }
 
-    if (template) {
+    if (markdown) {
       try {
         const featureData = await layerItemService.readOne(layerId);
-        template = template.replace(
+        markdown = markdown.replace(
           /{{\s{1}(\w+)\s{1}}}/g,
           (match, propName) => {
             if (featureData.hasOwnProperty(propName)) {
@@ -53,7 +55,14 @@ export default (router, { database, logger, services }) => {
             }
           }
         );
-        return res.json({ data: template });
+        attachments = attachments.map((attachment) => ({
+          ...attachment,
+          url: featureData[attachment.url_column] ?? "#",
+        }));
+        return res.json({
+          markdown,
+          attachments,
+        });
       } catch (error) {
         if (error.code === "FORBIDDEN") {
           return next(error);
@@ -68,7 +77,7 @@ export default (router, { database, logger, services }) => {
         }
       }
     } else {
-      return res.json({ data: template });
+      return res.json({ markdown, attachments });
     }
   });
 };
