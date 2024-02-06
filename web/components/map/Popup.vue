@@ -5,30 +5,51 @@ import maplibregl from "maplibre-gl";
 import placeholderImg from "~/assets/images/landing/ecopark.jpg";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
-import {
-  useKeenSlider,
+import KeenSlider, {
   type KeenSliderInstance,
   type KeenSliderHooks,
-} from "keen-slider/vue";
+  type KeenSliderPlugin,
+} from "keen-slider";
+
+// Gallery Logic
+const ResizePlugin: KeenSliderPlugin = (slider) => {
+  const observer = new ResizeObserver(function () {
+    slider.update();
+  });
+
+  slider.on("created", () => {
+    observer.observe(slider.container);
+  });
+  slider.on("destroyed", () => {
+    observer.unobserve(slider.container);
+  });
+};
 
 const current = ref(1);
-const [container, slider] = useKeenSlider({
-  loop: true,
-  initial: current.value,
-  slideChanged: (s: KeenSliderInstance<{}, {}, KeenSliderHooks>) => {
-    current.value = s.track.details.rel;
-  },
-});
+const sliderContainer = ref<HTMLElement | null>(null);
+let slider: KeenSliderInstance | null = null;
+
 onMounted(() => {
-  slider.value?.update({
-    loop: true,
-    initial: current.value,
-    slideChanged: (s: KeenSliderInstance<{}, {}, KeenSliderHooks>) => {
-      current.value = s.track.details.rel;
-    },
-  });
+  if (sliderContainer.value) {
+    slider = new KeenSlider(
+      sliderContainer.value,
+      {
+        loop: true,
+        initial: current.value,
+        slideChanged: (s: KeenSliderInstance<{}, {}, KeenSliderHooks>) => {
+          current.value = s.track.details.rel;
+        },
+      },
+      [ResizePlugin]
+    );
+  }
 });
 
+onUnmounted(() => {
+  slider?.destroy();
+});
+
+// Popup Logic
 export type PopupItem = {
   layerType: string;
   tableName: string;
@@ -162,7 +183,10 @@ const prevIndex = () => {
         </header>
 
         <div class="relative w-full h-36">
-          <div ref="container" class="keen-slider h-full w-full rounded-xs">
+          <div
+            ref="sliderContainer"
+            class="keen-slider h-full w-full rounded-xs"
+          >
             <img
               class="keen-slider__slide object-cover min-w-full max-w-full"
               v-for="(_, idx) of Array.from({ length: 3 })"
