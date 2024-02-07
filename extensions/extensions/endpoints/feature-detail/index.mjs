@@ -18,15 +18,21 @@ export default (router, { database, logger, services }) => {
 
     let markdown = "";
     let attachments = [];
+    let gallery = [];
     try {
       const layerConfig = await vectorTilesService.readByQuery({
         filter: { layer_name: { _eq: layerName } },
-        fields: ["feature_detail", "feature_detail_attachment"],
+        fields: [
+          "feature_detail",
+          "feature_detail_attachment",
+          "hover_popup_columns",
+        ],
         limit: 1,
       });
       if (layerConfig.length) {
         markdown = layerConfig[0].feature_detail;
         attachments = layerConfig[0].feature_detail_attachment;
+        gallery = layerConfig[0].hover_popup_columns;
       } else {
         return next(
           new RouteNotFoundError({ path: "/feature-detail" + req.path })
@@ -59,9 +65,11 @@ export default (router, { database, logger, services }) => {
           ...attachment,
           url: featureData[attachment.url_column] ?? "#",
         }));
+        gallery = gallery.map((column) => featureData[column] ?? "");
         return res.json({
           markdown,
           attachments,
+          gallery,
         });
       } catch (error) {
         if (error.code === "FORBIDDEN") {
@@ -77,7 +85,7 @@ export default (router, { database, logger, services }) => {
         }
       }
     } else {
-      return res.json({ markdown, attachments });
+      return res.json({ markdown, attachments, gallery });
     }
   });
 };

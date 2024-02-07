@@ -4,24 +4,7 @@ import { ref } from "vue";
 import maplibregl from "maplibre-gl";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
-import KeenSlider, {
-  type KeenSliderInstance,
-  // type KeenSliderPlugin,
-} from "keen-slider";
-
-// Gallery Logic
-// const ResizePlugin: KeenSliderPlugin = (slider) => {
-//   const observer = new ResizeObserver(function () {
-//     slider.update();
-//   });
-
-//   slider.on("created", () => {
-//     observer.observe(slider.container);
-//   });
-//   slider.on("destroyed", () => {
-//     observer.unobserve(slider.container);
-//   });
-// };
+import KeenSlider, { type KeenSliderInstance } from "keen-slider";
 
 const sliderContainer = ref<HTMLElement | null>(null);
 let slider: KeenSliderInstance | null = null;
@@ -187,7 +170,7 @@ const prevIndex = () => {
           ></IcCross>
         </header>
 
-        <div class="relative w-full h-36">
+        <div class="relative w-full h-40">
           <div
             ref="sliderContainer"
             class="keen-slider h-full w-full rounded-xs"
