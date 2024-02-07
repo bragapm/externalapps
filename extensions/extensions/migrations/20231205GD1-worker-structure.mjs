@@ -15,6 +15,7 @@ export async function up(knex) {
   ADD COLUMN raster_alias character varying(255),
   ADD COLUMN minzoom integer,
   ADD COLUMN maxzoom integer,
+  ADD COLUMN is_terrain boolean,
   ADD COLUMN is_ready boolean;
 
   INSERT INTO directus_fields(collection,field,special,interface,options,display,display_options,readonly,hidden,sort,width,translations,note,conditions,required,"group",validation,validation_message)
@@ -25,9 +26,10 @@ export async function up(knex) {
     ('directus_files','table_name',NULL,'input','{"placeholder":"table_name"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,'Lowercase alphabet, numeric, and underscore only','[{"name":"Require when file is vector","rule":{"_and":[{"format_file":{"_in":["shapefile","kml","xls","xlsx","csv","geojson","gdb"]}}]},"required":true,"options":{"font":"sans-serif","trim":false,"masked":false,"clear":false,"slug":false}}]',FALSE,'vector_transform_configuration','{"_and":[{"table_name":{"_regex":"^[a-z0-9_]+$"}}]}',NULL),
     ('directus_files','is_zipped','cast-boolean','boolean','{"label":"Yes"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Require when file is vector","rule":{"_and":[{"format_file":{"_in":["shapefile","kml","xls","xlsx","csv","geojson","gdb"]}}]},"required":true,"options":{"iconOn":"check_box","iconOff":"check_box_outline_blank","label":"Enabled"}}]',FALSE,'vector_transform_configuration',NULL,NULL),
     ('directus_files','raster_tiling_configuration','alias,no-data,group','group-detail',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Hide when file is not raster","rule":{"_and":[{"format_file":{"_nin":["tif"]}}]},"hidden":true,"options":{"start":"open"}}]',FALSE,'task_configurations',NULL,NULL),
-    ('directus_files','raster_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Require when file is raster","rule":{"_and":[{"format_file":{"_eq":"tif"}}]},"required":true,"options":{"font":"sans-serif","trim":false,"masked":false,"clear":false,"slug":false}}]',FALSE,'raster_tiling_configuration',NULL,NULL),
+    ('directus_files','raster_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Require when file is raster","rule":{"_and":[{"format_file":{"_in":["tif"]}}]},"required":true,"options":{"font":"sans-serif","trim":false,"masked":false,"clear":false,"slug":false}}]',FALSE,'raster_tiling_configuration',NULL,NULL),
     ('directus_files','minzoom',NULL,'input','{"min":0,"max":20,"placeholder":"Autodetect"}',NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,'[{"name":"Require when max_zoom is defined","rule":{"_and":[{"maxzoom":{"_nnull":true}}]},"required":true,"options":{"font":"sans-serif","trim":false,"masked":false,"clear":false,"slug":false}}]',FALSE,'raster_tiling_configuration',NULL,NULL),
     ('directus_files','maxzoom',NULL,'input','{"min":0,"max":20,"placeholder":"Autodetect"}',NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,'raster_tiling_configuration',NULL,NULL),
+    ('directus_files','is_terrain','cast-boolean','boolean','{"label":"Yes"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,'[{"name":"Require when file is raster","rule":{"_and":[{"format_file":{"_in":["tif"]}}]},"required":true,"options":{"iconOn":"check_box","iconOff":"check_box_outline_blank","label":"Enabled"}}]',FALSE,'raster_tiling_configuration',NULL,NULL),
     ('directus_files','trigger_after_configuration','alias,no-data,group','group-detail',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,'task_configurations',NULL,NULL),
     ('directus_files','is_ready','cast-boolean','boolean','{"label":"Yes"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,'trigger_after_configuration',NULL,NULL);
 

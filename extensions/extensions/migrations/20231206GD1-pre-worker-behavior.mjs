@@ -57,7 +57,8 @@ export async function up(knex) {
                       'is_zipped', NEW.is_zipped,
                       'raster_alias', NEW.raster_alias,
                       'minzoom', NEW.minzoom,
-                      'maxzoom', NEW.maxzoom
+                      'maxzoom', NEW.maxzoom,
+                      'is_terrain', NEW.is_terrain
                   ),
                   'options', jsonb_build_object(),
                   'actor_name', actor_name,
