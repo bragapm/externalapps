@@ -1,5 +1,6 @@
 import os
 import shutil
+import stat
 from uuid import uuid4
 
 from minio.deleteobjects import DeleteObject
@@ -7,6 +8,29 @@ from osgeo import gdal, osr
 from osgeo_utils import gdal2tiles
 
 from utils import minio_client
+
+
+# override exit with error function, so when error it will raise exception instead of exit
+def raise_gdal2tiles_error(message: str, _) -> None:
+    raise gdal2tiles.Gdal2TilesError(message)
+
+
+gdal2tiles.exit_with_error = raise_gdal2tiles_error
+
+
+# override isfile function because gdal.VSIStatL returns None when file doesn't exist
+def isfile_stat_res_is_none(path: str):
+    """Wrapper for os.path.isfile() that can work with /vsi files too"""
+    if path.startswith("/vsi"):
+        stat_res = gdal.VSIStatL(path)
+        if stat_res is None:
+            return False
+        return stat.S_ISREG(stat_res.mode)
+    else:
+        return os.path.isfile(path)
+
+
+gdal2tiles.isfile = isfile_stat_res_is_none
 
 
 class GDAL2TilesOptions:
@@ -41,9 +65,10 @@ def delete_generated_tiles(bucket, layer_id: str):
 
 def raster_tiling(
     bucket: str,
-    object_key: str,
     min_zoom: int | None,
     max_zoom: int | None,
+    object_key: str | None = None,
+    file_path: str | None = None,
 ):
     min_zoom = int(min_zoom) if min_zoom is not None else min_zoom
     max_zoom = int(max_zoom) if max_zoom is not None else max_zoom
@@ -56,7 +81,13 @@ def raster_tiling(
 
     gdal2tiles_opts = GDAL2TilesOptions(min_zoom, max_zoom)
     layer_id = str(uuid4())
-    input_file = f"/vsis3/{bucket}/{object_key}"
+
+    if bucket and object_key:
+        input_file = f"/vsis3/{bucket}/{object_key}"
+    elif file_path:
+        input_file = file_path
+    else:
+        raise Exception("Neither object_key nor file_path defined")
     output_dir = f"/vsis3/{bucket}/raster-tiles/{layer_id}"
 
     dataset: gdal.Dataset = gdal.Open(input_file)

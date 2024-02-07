@@ -1,4 +1,5 @@
 import os
+import shutil
 import traceback
 
 import dramatiq.results
@@ -7,20 +8,35 @@ from lib.raster_tiling import delete_generated_tiles, raster_tiling
 from lib.register_table import (
     register_raster_tile,
 )
-from utils import pool, logger, init_gdal_config
+from lib.dem_to_terrain_rgb import dem_to_terrain_rgb
+from utils import generate_local_temp_dir_path, pool, logger, init_gdal_config
 
 
 @dramatiq.actor(store_results=True)
-def tiling(object_key, uploader, raster_alias, minzoom, maxzoom, **kwargs):
+def tiling(
+    object_key: str,
+    uploader: str,
+    raster_alias: str,
+    minzoom: int | None,
+    maxzoom: int | None,
+    is_terrain: bool,
+    **kwargs,
+):
     init_gdal_config()
     bucket = os.environ.get("STORAGE_S3_BUCKET")
     layer_id = ""
     try:
         if not bucket:
             raise Exception("S3 bucket not configured")
-        (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = raster_tiling(
-            bucket, object_key, minzoom, maxzoom
-        )
+        if is_terrain:
+            terrain_rgb_path = dem_to_terrain_rgb(bucket, object_key)
+            (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = raster_tiling(
+                bucket, minzoom, maxzoom, file_path=terrain_rgb_path
+            )
+        else:
+            (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = raster_tiling(
+                bucket, minzoom, maxzoom, object_key
+            )
         conn = pool.getconn()
         register_raster_tile(
             conn,
@@ -33,6 +49,7 @@ def tiling(object_key, uploader, raster_alias, minzoom, maxzoom, **kwargs):
             minzoom,
             maxzoom,
             uploader,
+            is_terrain,
         )
         pool.putconn(conn)
         return {
@@ -56,3 +73,8 @@ def tiling(object_key, uploader, raster_alias, minzoom, maxzoom, **kwargs):
         error_traceback = traceback.format_exc()
         logger.error(error_traceback)
         return {"error": error_message, "traceback": error_traceback}
+    finally:
+        # cleanup
+        temp_dir_path = generate_local_temp_dir_path(object_key)
+        if os.path.isdir(temp_dir_path):
+            shutil.rmtree(temp_dir_path)

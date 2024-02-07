@@ -17,9 +17,11 @@ def register_table_to_directus(
                 [
                     str(uuid4()),
                     table_name,
-                    "MULTIPOLYGON"
-                    if header_info["geom_name"] == "POLYGON"
-                    else header_info["geom_name"],
+                    (
+                        "MULTIPOLYGON"
+                        if header_info["geom_name"] == "POLYGON"
+                        else header_info["geom_name"]
+                    ),
                     uploader,
                     Json(header_info["bbox"]),
                 ],
@@ -45,18 +47,20 @@ def register_raster_tile(
     z_min: int,
     z_max: int,
     uploader: str,
+    is_terrain: bool,
 ):
     with conn:
         with conn.cursor() as cur:
             cur.execute(
-                """INSERT INTO raster_tiles(layer_id, layer_alias, bounds, minzoom, maxzoom, user_created)
-            VALUES(%s, %s, %s, %s, %s, %s)""",
+                """INSERT INTO raster_tiles(layer_id, layer_alias, bounds, minzoom, maxzoom, terrain_rgb, user_created)
+            VALUES(%s, %s, %s, %s, %s, %s, %s)""",
                 [
                     layer_id,
                     raster_alias,
                     Json(create_bbox_polygon(lon_min, lat_min, lon_max, lat_max)),
                     z_min,
                     z_max,
+                    is_terrain,
                     uploader,
                 ],
             )
