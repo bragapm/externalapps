@@ -7,14 +7,6 @@ import { useMapData } from "~/utils";
 import bbox from "@turf/bbox";
 
 const { isLoading, data: mapData } = await useMapData();
-useHead({
-  link: [
-    {
-      rel: "stylesheet",
-      href: "https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css",
-    },
-  ],
-});
 
 const mapContainer = shallowRef<null | HTMLElement>(null);
 const map = shallowRef<null | Raw<Map>>(null);
@@ -78,12 +70,13 @@ fetchVectorTiles();
     <div class="map" ref="mapContainer"></div>
     <MapLayer v-if="store.mapLoad" />
     <!-- <MapMvtLayer :mapRef="map" v-if="store.mapLoad" /> -->
-    <ClientOnly fallback-tag="p" fallback=""> <MapPopup /></ClientOnly>
+    <MapPopup />
   </div>
 </template>
 
 <style scoped>
-/* @import "~maplibre-gl/dist/maplibre-gl.css"; */
+@import "https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css";
+
 .map-wrap {
   position: relative;
   width: 100%;

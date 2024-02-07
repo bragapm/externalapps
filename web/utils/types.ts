@@ -65,6 +65,7 @@ export type VectorTiles = {
   minzoom: number;
   maxzoom: number;
   click_popup_columns?: string[];
+  hover_popup_columns?: string[];
   feature_detail_columns?: string[];
 };
 
@@ -80,6 +81,7 @@ export type RasterTiles = {
   maxzoom: number;
   terrain_rgb: boolean;
   click_popup_columns?: string[];
+  hover_popup_columns?: string[];
   feature_detail_columns?: string[];
 };
 

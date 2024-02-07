@@ -2,46 +2,46 @@
 import type { MapGeoJSONFeature, MapMouseEvent, PointLike } from "maplibre-gl";
 import { ref } from "vue";
 import maplibregl from "maplibre-gl";
-import placeholderImg from "~/assets/images/landing/ecopark.jpg";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
 import KeenSlider, {
   type KeenSliderInstance,
-  type KeenSliderHooks,
-  type KeenSliderPlugin,
+  // type KeenSliderPlugin,
 } from "keen-slider";
 
 // Gallery Logic
-const ResizePlugin: KeenSliderPlugin = (slider) => {
-  const observer = new ResizeObserver(function () {
-    slider.update();
-  });
+// const ResizePlugin: KeenSliderPlugin = (slider) => {
+//   const observer = new ResizeObserver(function () {
+//     slider.update();
+//   });
 
-  slider.on("created", () => {
-    observer.observe(slider.container);
-  });
-  slider.on("destroyed", () => {
-    observer.unobserve(slider.container);
-  });
-};
+//   slider.on("created", () => {
+//     observer.observe(slider.container);
+//   });
+//   slider.on("destroyed", () => {
+//     observer.unobserve(slider.container);
+//   });
+// };
 
-const current = ref(1);
 const sliderContainer = ref<HTMLElement | null>(null);
 let slider: KeenSliderInstance | null = null;
+let nextImage: (e: MouseEvent) => void;
+let prevImage: (e: MouseEvent) => void;
 
 onMounted(() => {
   if (sliderContainer.value) {
-    slider = new KeenSlider(
-      sliderContainer.value,
-      {
-        loop: true,
-        initial: current.value,
-        slideChanged: (s: KeenSliderInstance<{}, {}, KeenSliderHooks>) => {
-          current.value = s.track.details.rel;
-        },
-      },
-      [ResizePlugin]
-    );
+    slider = new KeenSlider(sliderContainer.value!, {
+      loop: true,
+    });
+    nextImage = (e: MouseEvent) => {
+      slider?.update();
+      slider?.next();
+    };
+
+    prevImage = (e: MouseEvent) => {
+      slider?.update();
+      slider?.prev();
+    };
   }
 });
 
@@ -55,6 +55,7 @@ export type PopupItem = {
   tableName: string;
   rowId: string | number;
   clickPopupColumns: string[] | null;
+  hoverPopupColumns: string[] | null;
   featureDetailColumns: string[] | null;
 };
 
@@ -85,7 +86,6 @@ watchEffect(() => {
       layers: filterLayers?.map(({ layer_id }) => layer_id),
     });
 
-    // Extracting the layer IDs from the features
     const featureList = features.map((feature: MapGeoJSONFeature) => {
       const foundLayer = filterLayers?.find(
         (layer) => layer.layer_id === feature.layer.id
@@ -96,10 +96,10 @@ watchEffect(() => {
         rowId: feature.id,
         clickPopupColumns: foundLayer.click_popup_columns,
         featureDetailColumns: foundLayer.feature_detail_columns,
+        hoverPopupColumns: foundLayer.hover_popup_columns,
       };
     });
 
-    // console.log(featureList);
     popupItems.value = featureList as PopupItem[];
     if (popupRef.value) {
       popupRef.value.remove();
@@ -113,6 +113,8 @@ watchEffect(() => {
         .setMaxWidth("400px")
         .setDOMContent(contentRef.value)
         .addTo(map.value!);
+      window.dispatchEvent(new Event("resize"));
+      slider?.moveToIdx(0);
     }
   });
 });
@@ -132,7 +134,10 @@ watchEffect(async () => {
     const fetchFeature = async (popupItem: PopupItem) => {
       try {
         const querystring = new URLSearchParams({
-          fields: popupItem.clickPopupColumns!.join(","),
+          fields: [
+            ...popupItem.clickPopupColumns!,
+            ...popupItem.hoverPopupColumns!,
+          ]!.join(","),
         } as Record<string, string>);
         const response: { data: any } = await $fetch(
           `/panel/items/${popupItem.tableName}/${popupItem.rowId}?${querystring}`
@@ -189,14 +194,23 @@ const prevIndex = () => {
           >
             <img
               class="keen-slider__slide object-cover min-w-full max-w-full"
-              v-for="(_, idx) of Array.from({ length: 3 })"
+              v-for="(val, idx) of Object.keys(features[itemIndex] ?? {})
+                .filter((k) =>
+                  popupItems[itemIndex].hoverPopupColumns?.includes(k)
+                )
+                .map((k) =>
+                  features[itemIndex][k].includes(',')
+                    ? features[itemIndex][k].split(',')
+                    : features[itemIndex][k]
+                )
+                .flat()"
               :key="idx"
-              :src="placeholderImg"
+              :src="val"
             />
           </div>
 
           <button
-            @click="slider?.prev()"
+            @click="prevImage"
             class="absolute left-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
           >
             <IcArrowReg
@@ -206,7 +220,7 @@ const prevIndex = () => {
           </button>
 
           <button
-            @click="slider?.next()"
+            @click="nextImage"
             class="absolute right-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
           >
             <IcArrowReg
@@ -243,12 +257,14 @@ const prevIndex = () => {
           </template>
           <template v-else>
             <div
-              v-for="(value, key) in features[itemIndex]"
+              v-for="key of Object.keys(features[itemIndex] ?? {}).filter((k) =>
+                popupItems[itemIndex].clickPopupColumns?.includes(k)
+              )"
               :key="key"
               class="flex text-grey-400 space-x-2"
             >
               <p class="text-2xs w-1/4">{{ key }}</p>
-              <p class="text-xs">: {{ value }}</p>
+              <p class="text-xs">: {{ features[itemIndex][key] }}</p>
             </div>
           </template>
         </article>
