@@ -108,8 +108,8 @@ def raster_tiling(
     return (
         layer_id,
         transformed_bounds[1],
-        transformed_bounds[3],
         transformed_bounds[0],
+        transformed_bounds[3],
         transformed_bounds[2],
         min_zoom,
         max_zoom,
