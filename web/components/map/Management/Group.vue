@@ -9,7 +9,7 @@ import {
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 
 const props = defineProps<{
-  order?: number;
+  order: number;
   filtered: boolean;
   defaultOpen: boolean;
   label: string;
@@ -26,43 +26,40 @@ const emit = defineEmits<{
 
 const isPanelOpen = ref(props.defaultOpen);
 
-// const store = useMapLayer();
-// const { groupedActiveLayers } = storeToRefs(store);
+const store = useMapLayer();
 
-const dragItem = ref<null | any>(null);
-const updateDragItem = (dragItemValue: any) => {
-  dragItem.value = dragItemValue;
+const dragItem = ref<null | { groupOrder: number; itemOrder: number }>(null);
+const updateDragItem = (order: { groupOrder: number; itemOrder: number }) => {
+  dragItem.value = order;
 };
-const dragOverItem = ref<null | any>(null);
-const updateDragOverItem = (dragOverItemValue: any) => {
-  dragOverItem.value = dragOverItemValue;
+const dragOverItem = ref<null | { groupOrder: number; itemOrder: number }>(
+  null
+);
+const updateDragOverItem = (order: {
+  groupOrder: number;
+  itemOrder: number;
+}) => {
+  dragOverItem.value = order;
 };
 const handleChangeOrder = () => {
-  // if (store.groupedActiveLayers && dragItem.value && dragOverItem.value) {
-  //   const copiedGroupedActiveLayers: any[] = JSON.parse(
-  //     JSON.stringify(store.groupedActiveLayers)
-  //   );
-  //   const movedLayer =
-  //     copiedGroupedActiveLayers[dragItem.value.groupIndex].layerLists[
-  //       dragItem.value.layerIndex
-  //     ];
-  //   copiedGroupedActiveLayers[dragItem.value.groupIndex].layerLists.splice(
-  //     dragItem.value.layerIndex,
-  //     1
-  //   );
-  //   copiedGroupedActiveLayers[dragItem.value.groupIndex].layerLists.splice(
-  //     dragOverItem.value.layerIndex,
-  //     0,
-  //     movedLayer
-  //   );
-  //   console.log(copiedGroupedActiveLayers);
-  //   // console.log(dragOverItem.value.layerIndex);
-  //   // console.log(movedLayer);
-  //   // current[dragItem.value.groupIndex].layerLists.splice(0, 0, movedLayer);
-  //   // console.log(movedLayer);
-  //   // console.log(current);
-  //   // store.groupedActiveLayers = copiedGroupedActiveLayers;
-  // }
+  const copiedGroupedActiveLayers: any[] = JSON.parse(
+    JSON.stringify(store.groupedActiveLayers)
+  );
+  const movedItem =
+    copiedGroupedActiveLayers[dragItem.value!.groupOrder].layerLists[
+      dragItem.value!.itemOrder
+    ];
+  copiedGroupedActiveLayers[dragItem.value!.groupOrder].layerLists.splice(
+    dragItem.value!.itemOrder,
+    1
+  );
+  copiedGroupedActiveLayers[dragItem.value!.groupOrder].layerLists.splice(
+    dragOverItem.value!.itemOrder,
+    0,
+    movedItem
+  );
+
+  store.groupedActiveLayers = copiedGroupedActiveLayers;
 };
 </script>
 
@@ -115,9 +112,15 @@ const handleChangeOrder = () => {
       leaveTo="max-h-0"
     >
       <DisclosurePanel class="space-y-2 p-[1px] text-xs">
-        <template v-for="item in props.layerLists" :key="item.layer_name">
+        <template
+          v-for="(item, index) in props.layerLists"
+          :key="item.layer_id"
+        >
           <MapManagementLayerVector
             v-if="item.source === 'vector_tiles'"
+            :filtered="filtered"
+            :order="index"
+            :groupOrder="order"
             :layerItem="(item as VectorTiles)"
             :dragItem="dragItem"
             @update-drag-item="updateDragItem"
@@ -127,7 +130,15 @@ const handleChangeOrder = () => {
           />
           <MapManagementLayerRaster
             v-else-if="item.source === 'raster_tiles'"
+            :filtered="filtered"
+            :order="index"
+            :groupOrder="order"
             :layerItem="(item as RasterTiles)"
+            :dragItem="dragItem"
+            @update-drag-item="updateDragItem"
+            :dragOverItem="dragOverItem"
+            @update-drag-over-item="updateDragOverItem"
+            @handle-change-order="handleChangeOrder"
           />
         </template>
       </DisclosurePanel>

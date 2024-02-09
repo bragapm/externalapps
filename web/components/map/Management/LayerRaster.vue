@@ -8,7 +8,18 @@ import { storeToRefs } from "pinia";
 import { provide } from "vue";
 
 const props = defineProps<{
+  order: number;
+  groupOrder: number;
+  filtered: boolean;
   layerItem: RasterTiles;
+  dragItem: any;
+  dragOverItem: any;
+}>();
+
+const emit = defineEmits<{
+  updateDragItem: [order: { groupOrder: number; itemOrder: number }];
+  updateDragOverItem: [order: { groupOrder: number; itemOrder: number }];
+  handleChangeOrder: [];
 }>();
 
 const store = useMapRef();
@@ -35,9 +46,9 @@ provide("groupIndexProvider", groupIndex.value);
 const layerIndex = computed(() => {
   if (groupIndex.value !== undefined) {
     if (storeLayer?.groupedActiveLayers?.[groupIndex.value]?.layerLists)
-      return storeLayer.groupedActiveLayers[groupIndex.value].layerLists.findIndex(
-        (el) => el.layer_id === props.layerItem.layer_id
-      );
+      return storeLayer.groupedActiveLayers[
+        groupIndex.value
+      ].layerLists.findIndex((el) => el.layer_id === props.layerItem.layer_id);
   }
 });
 
@@ -92,12 +103,37 @@ const updateOpacity = (value: number) => {
 </script>
 
 <template>
-  <div>
+  <div
+    :draggable="filtered ? false : true"
+    @dragstart="
+      (ev) => {
+        emit('updateDragItem', {
+          groupOrder,
+          itemOrder: order,
+        });
+      }
+    "
+    @dragenter="
+      () => {
+        emit('updateDragOverItem', {
+          groupOrder,
+          itemOrder: order,
+        });
+      }
+    "
+    @drop="
+      () => {
+        emit('handleChangeOrder');
+      }
+    "
+    @dragover="(e) => e.preventDefault()"
+  >
     <div
       :class="[
         isShowStyling
           ? 'bg-grey-700'
           : 'bg-transparent hover:ring-1 hover:ring-grey-500',
+        filtered ? 'cursor-pointer' : 'cursor-grab',
         'rounded-xxs p-2 flex justify-between items-center gap-2 w-full ',
       ]"
     >

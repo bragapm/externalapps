@@ -13,14 +13,17 @@ import { storeToRefs } from "pinia";
 import { provide } from "vue";
 
 const props = defineProps<{
+  order: number;
+  groupOrder: number;
+  filtered: boolean;
   layerItem: VectorTiles;
   dragItem: any;
   dragOverItem: any;
 }>();
 
 const emit = defineEmits<{
-  updateDragItem: [dragItemValue: any];
-  updateDragOverItem: [dragOverItemValue: any];
+  updateDragItem: [order: { groupOrder: number; itemOrder: number }];
+  updateDragOverItem: [order: { groupOrder: number; itemOrder: number }];
   handleChangeOrder: [];
 }>();
 
@@ -113,40 +116,34 @@ const toggleVisibility = () => {
   <div
     @dragenter="
       () => {
-        // console.log('dragenter');
-        // emit('updateDragOverItem', {
-        //   layerId: props.layerItem.layer_id,
-        //   groupIndex: groupIndex,
-        //   layerIndex: layerIndex,
-        // });
+        emit('updateDragOverItem', {
+          groupOrder,
+          itemOrder: order,
+        });
       }
     "
     @drop="
       () => {
-        // console.log('dragItem', dragItem);
-        // console.log('dragOverItem', dragOverItem);
-        // emit('handleChangeOrder');
+        emit('handleChangeOrder');
       }
     "
     @dragover="(e) => e.preventDefault()"
   >
     <div
-      draggable="false"
+      :draggable="filtered ? false : true"
       @dragstart="
         (ev) => {
-          // console.log('dragstart', props.layerItem.layer_id);
-          // emit('updateDragItem', {
-          //   layerId: props.layerItem.layer_id,
-          //   groupIndex: groupIndex,
-          //   layerIndex: layerIndex,
-          // });
-          // props.dragItem.current = props.order;
+          emit('updateDragItem', {
+            groupOrder,
+            itemOrder: order,
+          });
         }
       "
       :class="[
         isShowStyling
           ? 'bg-grey-700'
           : 'bg-transparent hover:ring-1 hover:ring-grey-500',
+        filtered ? 'cursor-pointer' : 'cursor-grab',
         'rounded-xxs p-2 flex justify-between items-center gap-2 w-full',
       ]"
     >

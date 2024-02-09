@@ -91,8 +91,14 @@ const handleChangeGroupOrder = () => {
       v-if="filteredLayers && filteredLayers.length > 0"
       class="flex flex-col gap-2"
     >
-      <template v-for="item in filteredLayers" :key="item.label">
+      <template
+        v-for="(item, index) in filteredLayers
+          ? filteredLayers
+          : store.groupedActiveLayers"
+        :key="item.label"
+      >
         <MapManagementGroup
+          :order="index"
           :filtered="true"
           :defaultOpen="item.defaultOpen"
           :layerLists="item.layerLists"
@@ -106,7 +112,7 @@ const handleChangeGroupOrder = () => {
     >
       <template
         v-for="(item, index) in store.groupedActiveLayers"
-        :key="item.label"
+        :key="item.label + index"
       >
         <MapManagementGroup
           :order="index"
