@@ -89,7 +89,81 @@ const { showCatalogue } = storeToRefs(storeCatalogue);
       leave-to="-ml-8 opacity-0"
       class="w-[calc(100vw-3rem)] h-[calc(100vh-7.5rem)] top-[5.5rem] absolute z-20 left-[1.5rem] bg-grey-900 rounded-xs transition-all ease-in-out duration-300"
     >
-      <MapManagementCatalogue />
+      <MapManagementCatalogue
+        :folders="[
+          {
+            name: 'Test',
+            created_at: new Date().toDateString(),
+            created_by: 'Tabah',
+            description: 'Lorem Ipsum',
+            layers: [
+              {
+                layer_alias: 'Tes ALALALALA',
+                layer_id: 123,
+                layer_name: 'teadsdas',
+                geometry_type: 'a',
+                is_active: true,
+                description: `Dataset Layer Description 2
+      Line Max. Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do
+      eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+      minim veniam, quis nostrud exercitation ullamco laboris nisi ut`,
+              },
+              {
+                layer_alias: 'Tes ALALALALA',
+                layer_id: 123,
+                layer_name: 'teadsdas',
+                geometry_type: 'a',
+                is_active: false,
+                description: `Dataset Layer Description 2
+      Line Max. Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do
+      eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+      minim veniam, quis nostrud exercitation ullamco laboris nisi ut`,
+              },
+            ],
+          },
+          {
+            name: 'Test',
+            created_at: new Date().toDateString(),
+            created_by: 'Tabah',
+            description: 'Lorem Ipsum',
+            layers: [
+              {
+                layer_alias: 'Tes ALALALALA',
+                layer_id: 123,
+                layer_name: 'teadsdas',
+                geometry_type: 'a',
+                is_active: true,
+                description: `Dataset Layer Description 2
+      Line Max. Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do
+      eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+      minim veniam, quis nostrud exercitation ullamco laboris nisi ut`,
+              },
+              {
+                layer_alias: 'Tes ALALALALA',
+                layer_id: 123,
+                layer_name: 'teadsdas',
+                geometry_type: 'a',
+                is_active: false,
+                description: `Dataset Layer Description 2
+      Line Max. Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do
+      eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+      minim veniam, quis nostrud exercitation ullamco laboris nisi ut`,
+              },
+              {
+                layer_alias: 'Tes ALALALALA',
+                layer_id: 123,
+                layer_name: 'teadsdas',
+                geometry_type: 'a',
+                is_active: true,
+                description: `Dataset Layer Description 2
+      Line Max. Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do
+      eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+      minim veniam, quis nostrud exercitation ullamco laboris nisi ut`,
+              },
+            ],
+          },
+        ]"
+      />
     </TransitionRoot>
 
     <!-- top left button controller -->
