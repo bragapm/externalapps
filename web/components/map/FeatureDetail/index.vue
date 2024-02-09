@@ -7,6 +7,7 @@ import KeenSlider, {
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcArrowLeft from "~/assets/icons/ic-arrow-left.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
+import IcChartPie from "~/assets/icons/ic-chart-pie.svg";
 import {
   TransitionRoot,
   TransitionChild,
@@ -118,52 +119,72 @@ watchEffect(async () => {
     />
   </div>
   <hr class="mx-3" />
-  <div class="flex-1 overflow-scroll px-3 my-3">
-    <div v-if="isLoading" class="px-3 my-3 text-white">Loading ...</div>
-    <MapMarkdownRenderer
-      v-else-if="Boolean(detail.markdown)"
-      :source="detail.markdown"
-    />
-
-    <div v-if="detail.gallery.length">
-      <p class="text-white text-sm my-3">Image Gallery</p>
-      <ul class="flex space-x-1 relative">
-        <img
-          role="button"
-          @click="openModal(idx)"
-          class="rounded-[4px] w-16 h-16 object-cover"
-          v-for="(source, idx) of detail.gallery
-            .map((src, idx) =>
-              idx > 3 ? [] : src.includes(',') ? src.split(',') : src
-            )
-            .flat()"
-          :key="idx"
-          :src="source"
-        />
-        <button
-          v-if="
-            detail.gallery
-              .map((src) => (src.includes(',') ? src.split(',') : src))
-              .flat().length > 4
-          "
-          @click="openModal(4)"
-          class="absolute top-0 right-1 w-16 h-16 bg-grey-900 bg-opacity-30 flex justify-center items-center text-white text-2xs"
-        >
-          More
-        </button>
-      </ul>
+  <div class="grow overflow-scroll px-3 my-3">
+    <div
+      v-if="!featureStore.feature"
+      class="h-full flex flex-col justify-center items-center text-white text-center gap-3"
+    >
+      <IcChartPie :fontControlled="false" class="w-12 h-12 text-brand-500" />
+      <h4 class="text-sm text-grey-50">Feature Detail will be shown here.</h4>
+      <p class="text-xs text-grey-400">
+        Please select layer feature first to show the feature properties here.
+      </p>
     </div>
 
-    <ul class="mt-3 space-y-3" v-if="detail.attachments.length">
-      <p class="text-white text-sm">Attachment</p>
-      <MapAttachmentLink
-        v-for="attachment in detail.attachments"
-        :title="attachment.title"
-        :description="attachment.description"
-        :url="attachment.url"
-        :icon="attachment.icon"
-      />
-    </ul>
+    <div v-else-if="isLoading" class="h-full animate-pulse space-y-3">
+      <div class="w-full h-8 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-8 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-44 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+    </div>
+
+    <template v-else-if="detail">
+      <MapMarkdownRenderer v-if="detail.markdown" :source="detail.markdown" />
+
+      <div v-if="detail.gallery.length">
+        <p class="text-white text-sm my-3">Image Gallery</p>
+        <ul class="flex space-x-1 relative">
+          <img
+            role="button"
+            @click="openModal(idx)"
+            class="rounded-[4px] w-16 h-16 object-cover"
+            v-for="(source, idx) of detail.gallery
+              .map((src, idx) =>
+                idx > 3 ? [] : src.includes(',') ? src.split(',') : src
+              )
+              .flat()"
+            :key="idx"
+            :src="source"
+          />
+          <button
+            v-if="
+              detail.gallery
+                .map((src) => (src.includes(',') ? src.split(',') : src))
+                .flat().length > 4
+            "
+            @click="openModal(4)"
+            class="absolute top-0 right-1 w-16 h-16 bg-grey-900 bg-opacity-30 flex justify-center items-center text-white text-2xs"
+          >
+            More
+          </button>
+        </ul>
+      </div>
+
+      <ul class="mt-3 space-y-3" v-if="detail.attachments.length">
+        <p class="text-white text-sm">Attachment</p>
+        <MapAttachmentLink
+          v-for="attachment in detail.attachments"
+          :title="attachment.title"
+          :description="attachment.description"
+          :url="attachment.url"
+          :icon="attachment.icon"
+        /></ul
+    ></template>
   </div>
 
   <TransitionRoot appear :show="isOpen" as="template">
@@ -222,8 +243,9 @@ watchEffect(async () => {
                 </div>
 
                 <button
+                  v-if="detail.gallery.length"
                   @click="prevImage"
-                  class="absolute left-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
+                  class="absolute left-8 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
                 >
                   <IcArrowReg
                     :fontControlled="false"
@@ -232,8 +254,9 @@ watchEffect(async () => {
                 </button>
 
                 <button
+                  v-if="detail.gallery.length"
                   @click="nextImage"
-                  class="absolute right-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
+                  class="absolute right-8 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
                 >
                   <IcArrowReg
                     :fontControlled="false"

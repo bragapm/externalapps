@@ -218,7 +218,7 @@ const { showCatalogue } = storeToRefs(storeCatalogue);
       leave="transition-all duration-300"
       leave-from="mr-0 opacity-1"
       leave-to="-mr-8 opacity-0"
-      class="absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapFeatureDetail />
     </TransitionRoot>

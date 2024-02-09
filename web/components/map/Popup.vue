@@ -193,6 +193,11 @@ const prevIndex = () => {
           </div>
 
           <button
+            v-if="
+              Object.keys(features[itemIndex] ?? {}).filter((k) =>
+                popupItems[itemIndex].hoverPopupColumns?.includes(k)
+              ).length
+            "
             @click="prevImage"
             class="absolute left-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
           >
@@ -203,6 +208,11 @@ const prevIndex = () => {
           </button>
 
           <button
+            v-if="
+              Object.keys(features[itemIndex] ?? {}).filter((k) =>
+                popupItems[itemIndex].hoverPopupColumns?.includes(k)
+              ).length
+            "
             @click="nextImage"
             class="absolute right-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
           >
