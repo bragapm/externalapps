@@ -48,6 +48,26 @@ const handleFilter = (input: string) => {
 watch(filterRef, (newVal) => {
   debounce(handleFilter, 500)(newVal);
 });
+
+//drag&drop
+const dragGroup = ref<null | number>(null);
+const updateDragGroup = (order: any) => {
+  dragGroup.value = order;
+};
+const dragOverGroup = ref<null | number>(null);
+const updateDragOverGroup = (order: any) => {
+  dragOverGroup.value = order;
+};
+
+const handleChangeGroupOrder = () => {
+  const copiedGroupedActiveLayers: any[] = JSON.parse(
+    JSON.stringify(store.groupedActiveLayers)
+  );
+  const movedGroup = copiedGroupedActiveLayers[dragGroup.value!];
+  copiedGroupedActiveLayers.splice(dragGroup.value!, 1);
+  copiedGroupedActiveLayers.splice(dragOverGroup.value!, 0, movedGroup);
+  store.groupedActiveLayers = copiedGroupedActiveLayers;
+};
 </script>
 
 <template>
@@ -73,6 +93,7 @@ watch(filterRef, (newVal) => {
     >
       <template v-for="item in filteredLayers" :key="item.label">
         <MapManagementGroup
+          :filtered="true"
           :defaultOpen="item.defaultOpen"
           :layerLists="item.layerLists"
           :label="item.label"
@@ -83,11 +104,21 @@ watch(filterRef, (newVal) => {
       v-else-if="!filteredLayers && store.groupedActiveLayers"
       class="flex flex-col gap-2"
     >
-      <template v-for="item in store.groupedActiveLayers" :key="item.label">
+      <template
+        v-for="(item, index) in store.groupedActiveLayers"
+        :key="item.label"
+      >
         <MapManagementGroup
+          :order="index"
+          :filtered="false"
           :defaultOpen="item.defaultOpen"
           :layerLists="item.layerLists"
           :label="item.label"
+          :dragGroup="dragGroup"
+          @update-drag-group="updateDragGroup"
+          :dragOverGroup="dragOverGroup"
+          @update-drag-over-group="updateDragOverGroup"
+          @handle-change-group-order="handleChangeGroupOrder"
         />
       </template>
     </div>

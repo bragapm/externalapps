@@ -9,9 +9,19 @@ import {
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 
 const props = defineProps<{
+  order?: number;
+  filtered: boolean;
   defaultOpen: boolean;
   label: string;
   layerLists: (VectorTiles | RasterTiles)[];
+  dragGroup?: any;
+  dragOverGroup?: any;
+}>();
+
+const emit = defineEmits<{
+  updateDragGroup: [order: any];
+  updateDragOverGroup: [order: any];
+  handleChangeGroupOrder: [];
 }>();
 
 const isPanelOpen = ref(props.defaultOpen);
@@ -60,8 +70,27 @@ const handleChangeOrder = () => {
   <Disclosure v-slot="{ open }">
     <DisclosureButton
       @click="() => (isPanelOpen = !isPanelOpen)"
-      draggable="true"
-      class="text-sm text-grey-200 flex items-center justify-between w-full py-2"
+      :draggable="filtered ? false : true"
+      @dragstart="
+        (e) => {
+          emit('updateDragGroup', order);
+        }
+      "
+      @dragenter="
+        () => {
+          emit('updateDragOverGroup', order);
+        }
+      "
+      @drop="
+        () => {
+          emit('handleChangeGroupOrder');
+        }
+      "
+      @dragover="(e) => e.preventDefault()"
+      :class="[
+        filtered ? 'cursor-pointer' : 'cursor-grab',
+        'text-sm text-grey-200 flex items-center justify-between w-full py-2',
+      ]"
     >
       <span>{{ label }}</span>
       <div
@@ -86,10 +115,7 @@ const handleChangeOrder = () => {
       leaveTo="max-h-0"
     >
       <DisclosurePanel class="space-y-2 p-[1px] text-xs">
-        <template
-          v-for="item in props.layerLists"
-          :key="item.layer_name"
-        >
+        <template v-for="item in props.layerLists" :key="item.layer_name">
           <MapManagementLayerVector
             v-if="item.source === 'vector_tiles'"
             :layerItem="(item as VectorTiles)"
