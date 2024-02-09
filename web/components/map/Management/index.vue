@@ -1,12 +1,60 @@
 <script setup lang="ts">
 import IcFileSort from "~/assets/icons/ic-file-sort.svg";
+import type { LayerGroupedByCategory } from "~/utils/types";
 const store = useMapLayer();
 const storeCatalogue = useCatalogue();
-const value = ref("");
+const { toggleCatalogue } = storeCatalogue;
 
-const handleFilter = (e: Event) => {
-  console.log((e.target as HTMLInputElement).value);
+const filteredLayers = ref<null | LayerGroupedByCategory[]>(null);
+const managementData = computed(() => {
+  if (filteredLayers.value) {
+    return filteredLayers.value;
+  } else if (store.groupedActiveLayers) {
+    return store.groupedActiveLayers;
+  }
+});
+
+const filterRef = ref("");
+
+let timeoutId: NodeJS.Timeout;
+function debounce(func: Function, delay: number) {
+  return function (...args: any[]) {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+}
+
+const handleFilter = (input: string) => {
+  if (input) {
+    if (store.groupedActiveLayers) {
+      filteredLayers.value = store.groupedActiveLayers
+        ?.map((item: LayerGroupedByCategory) => {
+          return {
+            ...item,
+            defaultOpen: true,
+            layerLists: item.layerLists.filter((el: any) => {
+              if (el.layer_name) {
+                return el.layer_name
+                  ?.toLowerCase()
+                  .includes(input.toLowerCase());
+              }
+            }),
+          };
+        })
+        .filter((item) => item.layerLists.length > 0);
+    }
+  } else {
+    filteredLayers.value = null;
+  }
 };
+
+watch(filterRef, (newVal) => {
+  debounce(handleFilter, 750)(newVal);
+});
 </script>
 
 <template>
@@ -15,8 +63,7 @@ const handleFilter = (e: Event) => {
   <hr class="mx-3" />
   <div class="p-3">
     <UInput
-      v-model="value"
-      @change="handleFilter"
+      v-model="filterRef"
       color="gray"
       :ui="{ rounded: 'rounded-xxs' }"
       placeholder="Filter"
@@ -27,9 +74,9 @@ const handleFilter = (e: Event) => {
   <!-- to do change temporary loading state -->
   <!-- <div v-if="!getgroupedLayerList" class="px-3 my-3 text-white">Loading ...</div> -->
   <UAccordion
-    v-if="store.groupedLayerList"
+    v-if="managementData"
     multiple
-    :items="store.groupedLayerList"
+    :items="managementData"
     :ui="{
       default: {
         class:
@@ -54,7 +101,7 @@ const handleFilter = (e: Event) => {
       class="w-full justify-between"
       @click="
         () => {
-          storeCatalogue.toggleCatalogue();
+          toggleCatalogue();
         }
       "
     >

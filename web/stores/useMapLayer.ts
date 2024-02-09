@@ -4,15 +4,11 @@ import type {
   CircleStyles,
   FillStyles,
   LineStyles,
+  LayerGroupedByCategory,
 } from "~/utils/types";
 
-type LayerGroupedByCategory = {
-  label: string;
-  layerLists: (VectorTiles | RasterTiles)[];
-  defaultOpen: boolean;
-};
-
 export const useMapLayer = defineStore("maplayer", () => {
+  const groupedActiveLayers = ref<LayerGroupedByCategory[] | null>(null);
   const groupedLayerList = ref<LayerGroupedByCategory[] | null>(null);
 
   const handleVisibility = (
@@ -20,8 +16,8 @@ export const useMapLayer = defineStore("maplayer", () => {
     layerIndex: number,
     visibility: string
   ) => {
-    if (groupedLayerList.value) {
-      const prev = groupedLayerList.value;
+    if (groupedActiveLayers.value) {
+      const prev = groupedActiveLayers.value;
       const selected = prev[groupIndex].layerLists[layerIndex];
 
       if (selected.source === "vector_tiles") {
@@ -31,7 +27,7 @@ export const useMapLayer = defineStore("maplayer", () => {
           visibility === "visible" ? true : false;
       }
 
-      groupedLayerList.value = prev;
+      groupedActiveLayers.value = prev;
     }
   };
 
@@ -63,7 +59,7 @@ export const useMapLayer = defineStore("maplayer", () => {
     }
   };
 
-  const fetchVectorTiles = async () => {
+  const fetchLayer = async () => {
     const { data: layers, pending } = await useAsyncData(
       "map-layer-tiles",
       async () => {
@@ -159,14 +155,55 @@ export const useMapLayer = defineStore("maplayer", () => {
         },
         []
       );
+      groupedActiveLayers.value = layerGroupedByCategory;
       groupedLayerList.value = layerGroupedByCategory;
     }
   };
 
+  const groupLayerByCategory = (layerLists: (VectorTiles | RasterTiles)[]) => {
+    const layerGroupedByCategory = layerLists.reduce(
+      (group: LayerGroupedByCategory[], item) => {
+        const existingCategory = group.find((group: LayerGroupedByCategory) => {
+          let categoryName = "";
+          if (item.category === null) {
+            categoryName = "Others";
+          } else if (item.category.category_name) {
+            categoryName = item.category.category_name;
+          }
+          return group.label === categoryName;
+        });
+
+        if (existingCategory) {
+          existingCategory.layerLists.push(item);
+        } else {
+          if (item.category === null) {
+            group.push({
+              label: "Others",
+              layerLists: [item],
+              defaultOpen: false,
+            });
+          } else if (item.category !== null && item.category.category_name) {
+            group.push({
+              label: item.category.category_name,
+              layerLists: [item],
+              defaultOpen: false,
+            });
+          }
+        }
+        return group;
+      },
+      []
+    );
+    return layerGroupedByCategory;
+    // groupedLayerList.value = layerGroupedByCategory;
+  };
+
   return {
-    fetchVectorTiles,
+    fetchLayer,
     handleVisibility,
     groupedLayerList,
+    groupedActiveLayers,
     updateLayerOpacity,
+    groupLayerByCategory,
   };
 });

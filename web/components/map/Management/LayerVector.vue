@@ -14,6 +14,14 @@ import { provide } from "vue";
 
 const props = defineProps<{
   layerItem: VectorTiles;
+  dragItem: any;
+  dragOverItem: any;
+}>();
+
+const emit = defineEmits<{
+  updateDragItem: [dragItemValue: any];
+  updateDragOverItem: [dragOverItemValue: any];
+  handleChangeOrder: [];
 }>();
 
 const store = useMapRef();
@@ -23,13 +31,13 @@ const storeLayer = useMapLayer();
 const { handleVisibility } = storeLayer;
 
 const groupIndex = computed(() => {
-  if (storeLayer.groupedLayerList)
+  if (storeLayer.groupedActiveLayers)
     if (props.layerItem.category) {
-      return storeLayer.groupedLayerList.findIndex(
+      return storeLayer.groupedActiveLayers.findIndex(
         (el) => el.label === props.layerItem.category.category_name
       );
     } else {
-      return storeLayer.groupedLayerList.findIndex(
+      return storeLayer.groupedActiveLayers.findIndex(
         (el) => el.label === "Others"
       );
     }
@@ -39,10 +47,10 @@ provide("groupIndexProvider", groupIndex.value);
 
 const layerIndex = computed(() => {
   if (groupIndex.value !== undefined) {
-    if (storeLayer?.groupedLayerList?.[groupIndex.value]?.layerLists)
-      return storeLayer.groupedLayerList[groupIndex.value].layerLists.findIndex(
-        (el) => el.layer_id === props.layerItem.layer_id
-      );
+    if (storeLayer?.groupedActiveLayers?.[groupIndex.value]?.layerLists)
+      return storeLayer.groupedActiveLayers[
+        groupIndex.value
+      ].layerLists.findIndex((el) => el.layer_id === props.layerItem.layer_id);
   }
 });
 
@@ -102,13 +110,44 @@ const toggleVisibility = () => {
 </script>
 
 <template>
-  <div>
+  <div
+    @dragenter="
+      () => {
+        // console.log('dragenter');
+        // emit('updateDragOverItem', {
+        //   layerId: props.layerItem.layer_id,
+        //   groupIndex: groupIndex,
+        //   layerIndex: layerIndex,
+        // });
+      }
+    "
+    @drop="
+      () => {
+        // console.log('dragItem', dragItem);
+        // console.log('dragOverItem', dragOverItem);
+        // emit('handleChangeOrder');
+      }
+    "
+    @dragover="(e) => e.preventDefault()"
+  >
     <div
+      draggable="false"
+      @dragstart="
+        (ev) => {
+          // console.log('dragstart', props.layerItem.layer_id);
+          // emit('updateDragItem', {
+          //   layerId: props.layerItem.layer_id,
+          //   groupIndex: groupIndex,
+          //   layerIndex: layerIndex,
+          // });
+          // props.dragItem.current = props.order;
+        }
+      "
       :class="[
         isShowStyling
           ? 'bg-grey-700'
           : 'bg-transparent hover:ring-1 hover:ring-grey-500',
-        'rounded-xxs p-2 flex justify-between items-center gap-2 w-full ',
+        'rounded-xxs p-2 flex justify-between items-center gap-2 w-full',
       ]"
     >
       <div class="w-8/12">

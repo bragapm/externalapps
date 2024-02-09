@@ -85,6 +85,12 @@ export type RasterTiles = {
   feature_detail_columns?: string[];
 };
 
+export type LayerGroupedByCategory = {
+  label: string;
+  layerLists: (VectorTiles | RasterTiles)[];
+  defaultOpen: boolean;
+};
+
 export type Attachment = {
   title: string;
   description: string;

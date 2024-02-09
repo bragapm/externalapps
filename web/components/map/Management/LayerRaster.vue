@@ -18,13 +18,13 @@ const storeLayer = useMapLayer();
 const { handleVisibility } = storeLayer;
 
 const groupIndex = computed(() => {
-  if (storeLayer.groupedLayerList)
+  if (storeLayer.groupedActiveLayers)
     if (props.layerItem.category) {
-      return storeLayer.groupedLayerList.findIndex(
+      return storeLayer.groupedActiveLayers.findIndex(
         (el) => el.label === props.layerItem.category.category_name
       );
     } else {
-      return storeLayer.groupedLayerList.findIndex(
+      return storeLayer.groupedActiveLayers.findIndex(
         (el) => el.label === "Others"
       );
     }
@@ -34,8 +34,8 @@ provide("groupIndexProvider", groupIndex.value);
 
 const layerIndex = computed(() => {
   if (groupIndex.value !== undefined) {
-    if (storeLayer?.groupedLayerList?.[groupIndex.value]?.layerLists)
-      return storeLayer.groupedLayerList[groupIndex.value].layerLists.findIndex(
+    if (storeLayer?.groupedActiveLayers?.[groupIndex.value]?.layerLists)
+      return storeLayer.groupedActiveLayers[groupIndex.value].layerLists.findIndex(
         (el) => el.layer_id === props.layerItem.layer_id
       );
   }

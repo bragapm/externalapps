@@ -56,8 +56,8 @@ onUnmounted(() => {
 
 // get layer list
 const layerStore = useMapLayer();
-const { fetchVectorTiles } = layerStore;
-fetchVectorTiles();
+const { fetchLayer } = layerStore;
+fetchLayer();
 </script>
 
 <template>
