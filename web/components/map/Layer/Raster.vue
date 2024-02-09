@@ -6,14 +6,10 @@ const store = useMapRef();
 const { map } = storeToRefs(store);
 
 const props = defineProps<{
+  renderedLayers: (VectorTiles | RasterTiles)[];
   item: RasterTiles;
+  order: number;
 }>();
-
-const emit = defineEmits<{
-  updateBeforeId: [beforeId: string];
-}>();
-
-const beforeId = inject<globalThis.ComputedRef<string>>("beforeIdProvider");
 
 watchEffect(async () => {
   if (map?.value) {
@@ -28,6 +24,12 @@ watchEffect(async () => {
         minzoom: props.item.minzoom || 5,
         maxzoom: props.item.maxzoom || 15,
       });
+    }
+    if (!map.value.getLayer(props.item.layer_id)) {
+      let beforeId: undefined | string = undefined;
+      if (props.order !== 0) {
+        beforeId = props.renderedLayers[props.order - 1].layer_id;
+      }
       map.value.addLayer(
         {
           id: props.item.layer_id,
@@ -36,7 +38,7 @@ watchEffect(async () => {
           layout: { visibility: props.item.default ? "visible" : "none" },
           paint: { "raster-opacity": 1 },
         },
-        beforeId?.value
+        beforeId || undefined
       );
     }
   }

@@ -27,6 +27,7 @@ const emit = defineEmits<{
 const isPanelOpen = ref(props.defaultOpen);
 
 const store = useMapLayer();
+const mapRefStore = useMapRef();
 
 const dragItem = ref<null | { groupOrder: number; itemOrder: number }>(null);
 const updateDragItem = (order: { groupOrder: number; itemOrder: number }) => {
@@ -49,6 +50,10 @@ const handleChangeOrder = () => {
     copiedGroupedActiveLayers[dragItem.value!.groupOrder].layerLists[
       dragItem.value!.itemOrder
     ];
+  if (mapRefStore.map?.getLayer(movedItem.layer_id)) {
+    mapRefStore.map?.removeLayer(movedItem.layer_id);
+  }
+
   copiedGroupedActiveLayers[dragItem.value!.groupOrder].layerLists.splice(
     dragItem.value!.itemOrder,
     1

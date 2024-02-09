@@ -3,6 +3,7 @@ import IcFileSort from "~/assets/icons/ic-file-sort.svg";
 import type { LayerGroupedByCategory } from "~/utils/types";
 const store = useMapLayer();
 const storeCatalogue = useCatalogue();
+const mapRefStore = useMapRef();
 const { toggleCatalogue } = storeCatalogue;
 
 const filteredLayers = ref<null | LayerGroupedByCategory[]>(null);
@@ -64,6 +65,12 @@ const handleChangeGroupOrder = () => {
     JSON.stringify(store.groupedActiveLayers)
   );
   const movedGroup = copiedGroupedActiveLayers[dragGroup.value!];
+  movedGroup.layerLists.forEach((el: any) => {
+    if (mapRefStore.map?.getLayer(el.layer_id)) {
+      mapRefStore.map?.removeLayer(el.layer_id);
+    }
+  });
+
   copiedGroupedActiveLayers.splice(dragGroup.value!, 1);
   copiedGroupedActiveLayers.splice(dragOverGroup.value!, 0, movedGroup);
   store.groupedActiveLayers = copiedGroupedActiveLayers;
@@ -112,7 +119,7 @@ const handleChangeGroupOrder = () => {
     >
       <template
         v-for="(item, index) in store.groupedActiveLayers"
-        :key="item.label + index"
+        :key="item.label"
       >
         <MapManagementGroup
           :order="index"

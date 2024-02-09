@@ -1,19 +1,15 @@
 <script setup lang="ts">
-import { inject } from "vue";
 import type { VectorTiles, CircleStyles, FillStyles } from "~/utils/types";
 
 const store = useMapRef();
 const { map } = storeToRefs(store);
 
 const props = defineProps<{
+  renderedLayers: (VectorTiles | RasterTiles)[];
   item: VectorTiles;
+  order: number;
 }>();
 
-const emit = defineEmits<{
-  updateBeforeId: [beforeId: string];
-}>();
-
-const beforeId = inject<globalThis.ComputedRef<string>>("beforeIdProvider");
 function isString(value: string | number | boolean): value is string {
   return typeof value === "string";
 }
@@ -53,6 +49,11 @@ watchEffect(async (onInvalidate) => {
       });
     }
     if (!map.value.getLayer(props.item.layer_id)) {
+      let beforeId: undefined | string = undefined;
+      if (props.order !== 0) {
+        beforeId = props.renderedLayers[props.order - 1].layer_id;
+      }
+
       if (props.item.geometry_type === "CIRCLE") {
         if (props.item.circle_style) {
           let paint: any = {},
@@ -91,7 +92,7 @@ watchEffect(async (onInvalidate) => {
               layout,
               paint,
             },
-            beforeId?.value
+            beforeId || undefined
           );
         }
       } else if (props.item.geometry_type === "POLYGON") {
@@ -130,7 +131,7 @@ watchEffect(async (onInvalidate) => {
               layout,
               paint,
             },
-            beforeId?.value
+            beforeId || undefined
           );
         }
       } else if (props.item.geometry_type === "LINE") {
@@ -169,12 +170,12 @@ watchEffect(async (onInvalidate) => {
               layout,
               paint,
             },
-            beforeId?.value
+            beforeId || undefined
           );
         }
       }
 
-      emit("updateBeforeId", props.item.layer_id);
+      // emit("updateBeforeId", props.item.layer_id);
     }
 
     if (props.item.click_popup_columns?.length) {
