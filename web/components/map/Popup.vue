@@ -265,6 +265,7 @@ const prevIndex = () => {
               () => {
                 featureStore.setFeature(popupItems[itemIndex]);
                 featureStore.setRightSidebar('feature');
+                handleClose();
               }
             "
             class="rounded-xs grow h-9 bg-brand-600 text-sm font-medium"

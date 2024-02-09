@@ -6,8 +6,15 @@ import KeenSlider, {
 } from "keen-slider";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcArrowLeft from "~/assets/icons/ic-arrow-left.svg";
+import IcCross from "~/assets/icons/ic-cross.svg";
+import {
+  TransitionRoot,
+  TransitionChild,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/vue";
 
-// Gallery Logic
 const ResizePlugin: KeenSliderPlugin = (slider) => {
   const observer = new ResizeObserver(function () {
     slider.update();
@@ -21,6 +28,7 @@ const ResizePlugin: KeenSliderPlugin = (slider) => {
   });
 };
 
+const current = ref<number>(0);
 const sliderContainer = ref<HTMLElement | null>(null);
 let slider: KeenSliderInstance | null = null;
 let nextImage: (e: MouseEvent) => void;
@@ -32,6 +40,10 @@ watchEffect((onInvalidate) => {
       sliderContainer.value!,
       {
         loop: true,
+        initial: 0,
+        slideChanged: (s) => {
+          current.value = s.track.details.rel;
+        },
       },
       [ResizePlugin]
     );
@@ -50,6 +62,21 @@ watchEffect((onInvalidate) => {
     slider?.destroy();
   });
 });
+
+const isOpen = ref(false);
+
+function closeModal() {
+  isOpen.value = false;
+}
+function openModal(idx: number) {
+  isOpen.value = true;
+  if (idx)
+    setTimeout(() => {
+      slider?.update();
+      slider?.moveToIdx(idx);
+    }, 400);
+  else current.value = 0;
+}
 
 const featureStore = useFeature();
 
@@ -99,39 +126,32 @@ watchEffect(async () => {
     />
 
     <div v-if="detail.gallery.length">
-      <p class="text-white text-sm mt-3">Image Gallery</p>
-      <div class="relative w-full h-44 my-3">
-        <div ref="sliderContainer" class="keen-slider h-full w-full rounded-xs">
-          <img
-            class="keen-slider__slide object-cover min-w-full max-w-full"
-            v-for="(source, idx) of detail.gallery
+      <p class="text-white text-sm my-3">Image Gallery</p>
+      <ul class="flex space-x-1 relative">
+        <img
+          role="button"
+          @click="openModal(idx)"
+          class="rounded-[4px] w-16 h-16 object-cover"
+          v-for="(source, idx) of detail.gallery
+            .map((src, idx) =>
+              idx > 3 ? [] : src.includes(',') ? src.split(',') : src
+            )
+            .flat()"
+          :key="idx"
+          :src="source"
+        />
+        <button
+          v-if="
+            detail.gallery
               .map((src) => (src.includes(',') ? src.split(',') : src))
-              .flat()"
-            :key="idx"
-            :src="source"
-          />
-        </div>
-
-        <button
-          @click="prevImage"
-          class="absolute left-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
+              .flat().length > 4
+          "
+          @click="openModal(4)"
+          class="absolute top-0 right-1 w-16 h-16 bg-grey-900 bg-opacity-30 flex justify-center items-center text-white text-2xs"
         >
-          <IcArrowReg
-            :fontControlled="false"
-            class="w-5 h-5 m-1 -rotate-90 text-grey-50"
-          />
+          More
         </button>
-
-        <button
-          @click="nextImage"
-          class="absolute right-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
-        >
-          <IcArrowReg
-            :fontControlled="false"
-            class="w-5 h-5 m-1 rotate-90 text-grey-50"
-          />
-        </button>
-      </div>
+      </ul>
     </div>
 
     <ul class="mt-3 space-y-3" v-if="detail.attachments.length">
@@ -145,6 +165,104 @@ watchEffect(async () => {
       />
     </ul>
   </div>
+
+  <TransitionRoot appear :show="isOpen" as="template">
+    <Dialog as="div" @close="closeModal" class="relative z-10">
+      <TransitionChild
+        as="template"
+        enter="duration-300 ease-out"
+        enter-from="opacity-0"
+        enter-to="opacity-100"
+        leave="duration-200 ease-in"
+        leave-from="opacity-100"
+        leave-to="opacity-0"
+      >
+        <div class="fixed inset-0 bg-black/25" />
+      </TransitionChild>
+
+      <div class="fixed inset-0 overflow-y-auto rounded-xs">
+        <div
+          class="flex min-h-full items-center justify-center p-4 text-center rounded-xs"
+        >
+          <TransitionChild
+            as="template"
+            enter="duration-300 ease-out"
+            enter-from="opacity-0 scale-95"
+            enter-to="opacity-100 scale-100"
+            leave="duration-200 ease-in"
+            leave-from="opacity-100 scale-100"
+            leave-to="opacity-0 scale-95"
+          >
+            <DialogPanel
+              class="w-full max-w-2xl transform overflow-hidden rounded-xs bg-grey-900 p-3 text-left align-middle shadow-xl transition-all"
+              ><DialogTitle
+                class="text-base font-medium leading-6 flex justify-between items-center"
+              >
+                <h2 class="text-white">Image Gallery</h2>
+                <IcCross
+                  role="button"
+                  @click="closeModal"
+                  :fontControlled="false"
+                  class="w-3 h-3 rotate-180 text-grey-50"
+                />
+              </DialogTitle>
+              <div class="relative w-full my-3">
+                <div
+                  ref="sliderContainer"
+                  class="keen-slider h-full w-full rounded-xs"
+                >
+                  <img
+                    class="keen-slider__slide object-cover min-w-full max-w-full"
+                    v-for="(source, idx) of detail.gallery
+                      .map((src) => (src.includes(',') ? src.split(',') : src))
+                      .flat()"
+                    :key="idx"
+                    :src="source"
+                  />
+                </div>
+
+                <button
+                  @click="prevImage"
+                  class="absolute left-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
+                >
+                  <IcArrowReg
+                    :fontControlled="false"
+                    class="w-5 h-5 m-1 -rotate-90 text-grey-50"
+                  />
+                </button>
+
+                <button
+                  @click="nextImage"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
+                >
+                  <IcArrowReg
+                    :fontControlled="false"
+                    class="w-5 h-5 m-1 rotate-90 text-grey-50"
+                  />
+                </button>
+              </div>
+              <ul class="flex space-x-1 overflow-x-scroll">
+                <img
+                  role="button"
+                  @click="slider?.moveToIdx(idx)"
+                  :class="`rounded-[4px] w-16 h-16 object-cover ${
+                    idx === current && 'border-4 border-brand-500'
+                  }`"
+                  v-for="(source, idx) of detail.gallery
+                    .map((src, idx) =>
+                      idx > 3 ? [] : src.includes(',') ? src.split(',') : src
+                    )
+                    .flat()"
+                  :key="idx"
+                  :src="source"
+                />
+              </ul>
+            </DialogPanel>
+          </TransitionChild>
+        </div>
+      </div>
+    </Dialog>
+  </TransitionRoot>
 </template>
 
 <style>
