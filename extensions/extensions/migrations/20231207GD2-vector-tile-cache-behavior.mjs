@@ -14,7 +14,7 @@ export async function up(knex) {
     AFTER UPDATE OF fill_class_columns, line_class_columns, circle_class_columns, symbol_class_columns
     ON vector_tiles
     FOR EACH ROW
-    WHEN (NEW.cache_duration IS NOT NULL AND NEW.cache_duration > 0)
+    WHEN (NEW.cache_duration > 0)
     EXECUTE FUNCTION handle_vector_tiles_class_columns_update();
   `);
 }

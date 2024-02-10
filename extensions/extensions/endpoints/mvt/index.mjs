@@ -128,7 +128,7 @@ export default (router, { database, logger }) => {
         res.setHeader("Content-Type", "application/x-protobuf");
 
         // Update the cache if caching is enabled for this layer
-        if (layerConfig.cache_duration && layerConfig.cache_duration > 0) {
+        if (layerConfig.cache_duration > 0) {
           const expirationTime = new Date();
           expirationTime.setHours(
             expirationTime.getHours() + layerConfig.cache_duration
