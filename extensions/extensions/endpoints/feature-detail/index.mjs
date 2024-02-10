@@ -6,7 +6,7 @@ export default (router, { database, logger, services }) => {
     const { accountability } = req;
     const { layerName, layerId } = req.params;
 
-    const layerItemService = new ItemsService(layerName, {
+    const layerItemsService = new ItemsService(layerName, {
       accountability,
       schema: req.schema,
       knex: database,
@@ -23,16 +23,16 @@ export default (router, { database, logger, services }) => {
       const layerConfig = await vectorTilesService.readByQuery({
         filter: { layer_name: { _eq: layerName } },
         fields: [
-          "feature_detail",
-          "feature_detail_attachment",
-          "hover_popup_columns",
+          "feature_detail_template",
+          "feature_detail_attachments",
+          "image_columns",
         ],
         limit: 1,
       });
       if (layerConfig.length) {
-        markdown = layerConfig[0].feature_detail;
-        attachments = layerConfig[0].feature_detail_attachment;
-        gallery = layerConfig[0].hover_popup_columns;
+        markdown = layerConfig[0].feature_detail_template;
+        attachments = layerConfig[0].feature_detail_attachments;
+        gallery = layerConfig[0].image_columns;
       } else {
         return next(
           new RouteNotFoundError({ path: "/feature-detail" + req.path })
@@ -50,7 +50,7 @@ export default (router, { database, logger, services }) => {
 
     if (markdown) {
       try {
-        const featureData = await layerItemService.readOne(layerId);
+        const featureData = await layerItemsService.readOne(layerId);
         markdown = markdown.replace(
           /{{\s{1}(\w+)\s{1}}}/g,
           (match, propName) => {
