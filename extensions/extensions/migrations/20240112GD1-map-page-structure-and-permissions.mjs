@@ -24,7 +24,7 @@ export async function up(knex) {
       ('map','title',NULL,'input',NULL,NULL,NULL,false,false,5,'full',NULL,NULL,NULL,false,NULL,NULL,NULL),
       ('map','initial_map_view','cast-json','map','{"defaultView":{"center":{"lng":118.10483551162508,"lat":-0.9964696394390842},"zoom":3.356805567596401,"bearing":0,"pitch":0},"geometryType":"Point"}',NULL,NULL,false,false,7,'full',NULL,NULL,NULL,false,NULL,NULL,NULL);
 
-    INSERT INTO directus_permissions(collection,action,fields) VALUES ('map','read','*');
+    INSERT INTO directus_permissions(collection,action,fields) VALUES ('map','read','lang,information,title,initial_map_view');
   `);
 }
 
