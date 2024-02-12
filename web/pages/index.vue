@@ -21,6 +21,22 @@ const { showTable, fullscreen } = storeToRefs(storeTableData);
 
 const storeCatalogue = useCatalogue();
 const { showCatalogue } = storeToRefs(storeCatalogue);
+
+const currentZoom = ref(map.value?.getZoom().toPrecision(3));
+
+const updateZoomValue = () => {
+  currentZoom.value = map.value?.getZoom().toPrecision(3);
+};
+
+watchEffect((onCleanup) => {
+  map.value?.on("load", () => updateZoomValue());
+  map.value?.on("moveend", () => updateZoomValue());
+
+  onCleanup(() => {
+    map.value?.off("load", () => updateZoomValue());
+    map.value?.off("moveend", () => updateZoomValue());
+  });
+});
 </script>
 
 <template>
@@ -298,6 +314,12 @@ const { showCatalogue } = storeToRefs(storeCatalogue);
         >
           <IcZoomOut class="w-5 h-5 text-white" :fontControlled="false" />
         </button>
+        <input
+          :value="currentZoom"
+          disabled
+          type="text"
+          class="text-xs text-center w-14 p-2 text-grey-200 rounded-xxs bg-black/5 border border-grey-600 focus:outline-none"
+        />
         <button
           @click="() => map && map.zoomIn()"
           class="bg-transparent hover:bg-black p-2 rounded-xs"
