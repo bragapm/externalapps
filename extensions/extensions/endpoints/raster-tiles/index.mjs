@@ -18,7 +18,7 @@ const validateUuid = (input) => {
 const TileNotFoundError = createError(
   "TILE_NOT_FOUND",
   (ext) =>
-    `Tile ${ext.z},${ext.x},${ext.y} for layer_id ${ext.layer_id} not found`,
+    `Tile ${ext.z},${ext.x},${ext.y} for layer_id ${ext.layerId} not found`,
   404
 );
 
@@ -125,7 +125,7 @@ export default (router, { database, env, logger }) => {
       );
     } catch (error) {
       if (error.code === "NoSuchKey") {
-        return next(new TileNotFoundError({ z, x, y, layer_id: layerId }));
+        return next(new TileNotFoundError({ z, x, y, layerId }));
       } else {
         logger.error(error);
         return next(
