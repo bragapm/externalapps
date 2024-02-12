@@ -66,8 +66,12 @@ export const useMapLayer = defineStore("maplayer", () => {
         const [vectorTiles, rasterTiles] = await Promise.all<{
           data: (VectorTiles | RasterTiles)[];
         }>([
-          $fetch("/panel/items/vector_tiles?fields=*.*"),
-          $fetch("/panel/items/raster_tiles?fields=*.*"),
+          $fetch(
+            "/panel/items/vector_tiles?fields=*.*&filter[active][_eq]=true"
+          ),
+          $fetch(
+            "/panel/items/raster_tiles?fields=*.*&filter[active][_eq]=true"
+          ),
         ]);
 
         return { vectorTiles, rasterTiles };
