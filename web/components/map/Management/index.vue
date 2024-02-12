@@ -35,6 +35,10 @@ const handleFilter = (input: string) => {
                 return el.layer_name
                   ?.toLowerCase()
                   .includes(input.toLowerCase());
+              } else if (el.layer_alias) {
+                return el.layer_alias
+                  ?.toLowerCase()
+                  .includes(input.toLowerCase());
               }
             }),
           };
