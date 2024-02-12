@@ -65,7 +65,7 @@ export type VectorTiles = {
   minzoom: number;
   maxzoom: number;
   click_popup_columns?: string[];
-  hover_popup_columns?: string[];
+  image_columns?: string[];
   feature_detail_columns?: string[];
 };
 
@@ -81,7 +81,7 @@ export type RasterTiles = {
   maxzoom: number;
   terrain_rgb: boolean;
   click_popup_columns?: string[];
-  hover_popup_columns?: string[];
+  image_columns?: string[];
   feature_detail_columns?: string[];
 };
 
@@ -104,6 +104,6 @@ export type MapData = {
     subtitle: string;
     information: string;
     initial_map_view: GeoJSON.Feature;
-    information_attachment: Attachment[];
+    information_attachments?: Attachment[];
   };
 };

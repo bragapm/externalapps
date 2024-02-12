@@ -38,7 +38,7 @@ export type PopupItem = {
   tableName: string;
   rowId: string | number;
   clickPopupColumns: string[] | null;
-  hoverPopupColumns: string[] | null;
+  imageColumns: string[] | null;
   featureDetailColumns: string[] | null;
 };
 
@@ -79,7 +79,7 @@ watchEffect(() => {
         rowId: feature.id,
         clickPopupColumns: foundLayer.click_popup_columns,
         featureDetailColumns: foundLayer.feature_detail_columns,
-        hoverPopupColumns: foundLayer.hover_popup_columns,
+        imageColumns: foundLayer.image_columns,
       };
     });
 
@@ -119,7 +119,7 @@ watchEffect(async () => {
         const querystring = new URLSearchParams({
           fields: [
             ...popupItem.clickPopupColumns!,
-            ...popupItem.hoverPopupColumns!,
+            ...popupItem.imageColumns!,
           ]!.join(","),
         } as Record<string, string>);
         const response: { data: any } = await $fetch(
@@ -178,9 +178,7 @@ const prevIndex = () => {
             <img
               class="keen-slider__slide object-cover min-w-full max-w-full"
               v-for="(val, idx) of Object.keys(features[itemIndex] ?? {})
-                .filter((k) =>
-                  popupItems[itemIndex].hoverPopupColumns?.includes(k)
-                )
+                .filter((k) => popupItems[itemIndex].imageColumns?.includes(k))
                 .map((k) =>
                   features[itemIndex][k].includes(',')
                     ? features[itemIndex][k].split(',')
@@ -195,7 +193,7 @@ const prevIndex = () => {
           <button
             v-if="
               Object.keys(features[itemIndex] ?? {}).filter((k) =>
-                popupItems[itemIndex].hoverPopupColumns?.includes(k)
+                popupItems[itemIndex].imageColumns?.includes(k)
               ).length
             "
             @click="prevImage"
@@ -210,7 +208,7 @@ const prevIndex = () => {
           <button
             v-if="
               Object.keys(features[itemIndex] ?? {}).filter((k) =>
-                popupItems[itemIndex].hoverPopupColumns?.includes(k)
+                popupItems[itemIndex].imageColumns?.includes(k)
               ).length
             "
             @click="nextImage"
