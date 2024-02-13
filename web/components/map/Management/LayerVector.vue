@@ -9,6 +9,7 @@ import type {
   CircleStyles,
   VectorTiles,
 } from "~/utils/types";
+import { uncategorizedAlias } from "~/constants";
 import { storeToRefs } from "pinia";
 import { provide } from "vue";
 
@@ -41,7 +42,7 @@ const groupIndex = computed(() => {
       );
     } else {
       return storeLayer.groupedActiveLayers.findIndex(
-        (el) => el.label === "Others"
+        (el) => el.label === uncategorizedAlias
       );
     }
 });

@@ -106,10 +106,10 @@ onUnmounted(() => {
   map.value?.remove();
 });
 
-// get layer list
+// get active layer list
 const layerStore = useMapLayer();
-const { fetchLayer } = layerStore;
-fetchLayer();
+const { fetchActiveLayers } = layerStore;
+fetchActiveLayers();
 </script>
 
 <template>

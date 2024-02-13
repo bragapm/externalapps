@@ -74,6 +74,7 @@ export type RasterTiles = {
   opacity: number;
   bounds: GeoJSON.Polygon;
   category: { category_name: string | null };
+  geometry_type: string;
   default: boolean;
   layer_alias: string;
   layer_id: string;

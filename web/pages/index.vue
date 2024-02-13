@@ -42,7 +42,7 @@ watchEffect((onCleanup) => {
 <template>
   <div
     :class="[
-      showTable && fullscreen && 'z-50',
+      (showCatalogue || (showTable && fullscreen)) && 'z-50',
       'fixed top-0 left-0 w-screen h-screen flex flex-col items-start',
     ]"
   >
@@ -103,83 +103,9 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-1000"
       leave-from="ml-0 opacity-1"
       leave-to="-ml-8 opacity-0"
-      class="w-[calc(100vw-3rem)] h-[calc(100vh-7.5rem)] top-[5.5rem] absolute z-20 left-[1.5rem] bg-grey-900 rounded-xs transition-all ease-in-out duration-300"
+      class="w-[calc(100vw-3rem)] h-[calc(100vh-3rem)] top-[1.5rem] absolute z-[9999999] left-[1.5rem] bg-grey-900 rounded-xs transition-all ease-in-out duration-300"
     >
-      <MapManagementCatalogue
-        :folders="[
-          {
-            name: 'Test',
-            created_at: new Date().toDateString(),
-            created_by: 'Tabah',
-            description: 'Lorem Ipsum',
-            layers: [
-              {
-                layer_alias: 'Tes ALALALALA',
-                layer_id: 123,
-                layer_name: 'teadsdas',
-                geometry_type: 'a',
-                is_active: true,
-                description: `Dataset Layer Description 2
-      Line Max. Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do
-      eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-      minim veniam, quis nostrud exercitation ullamco laboris nisi ut`,
-              },
-              {
-                layer_alias: 'Tes ALALALALA',
-                layer_id: 123,
-                layer_name: 'teadsdas',
-                geometry_type: 'a',
-                is_active: false,
-                description: `Dataset Layer Description 2
-      Line Max. Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do
-      eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-      minim veniam, quis nostrud exercitation ullamco laboris nisi ut`,
-              },
-            ],
-          },
-          {
-            name: 'Test',
-            created_at: new Date().toDateString(),
-            created_by: 'Tabah',
-            description: 'Lorem Ipsum',
-            layers: [
-              {
-                layer_alias: 'Tes ALALALALA',
-                layer_id: 123,
-                layer_name: 'teadsdas',
-                geometry_type: 'a',
-                is_active: true,
-                description: `Dataset Layer Description 2
-      Line Max. Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do
-      eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-      minim veniam, quis nostrud exercitation ullamco laboris nisi ut`,
-              },
-              {
-                layer_alias: 'Tes ALALALALA',
-                layer_id: 123,
-                layer_name: 'teadsdas',
-                geometry_type: 'a',
-                is_active: false,
-                description: `Dataset Layer Description 2
-      Line Max. Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do
-      eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-      minim veniam, quis nostrud exercitation ullamco laboris nisi ut`,
-              },
-              {
-                layer_alias: 'Tes ALALALALA',
-                layer_id: 123,
-                layer_name: 'teadsdas',
-                geometry_type: 'a',
-                is_active: true,
-                description: `Dataset Layer Description 2
-      Line Max. Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do
-      eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-      minim veniam, quis nostrud exercitation ullamco laboris nisi ut`,
-              },
-            ],
-          },
-        ]"
-      />
+      <MapManagementCatalogue />
     </TransitionRoot>
 
     <!-- top left button controller -->

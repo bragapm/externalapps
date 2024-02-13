@@ -118,7 +118,11 @@ const handleChangeGroupOrder = () => {
       </template>
     </div>
     <div
-      v-else-if="!filteredLayers && store.groupedActiveLayers"
+      v-else-if="
+        !filteredLayers &&
+        store.groupedActiveLayers &&
+        store.groupedActiveLayers.length > 0
+      "
       class="flex flex-col gap-2"
     >
       <template
