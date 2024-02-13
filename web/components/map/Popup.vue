@@ -1,10 +1,110 @@
 <script setup lang="ts">
-import type { MapGeoJSONFeature, MapMouseEvent, PointLike } from "maplibre-gl";
+import type {
+  GeoJSONSource,
+  Map,
+  MapGeoJSONFeature,
+  MapMouseEvent,
+  PointLike,
+} from "maplibre-gl";
 import { ref } from "vue";
 import maplibregl from "maplibre-gl";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
 import KeenSlider, { type KeenSliderInstance } from "keen-slider";
+import type { Raw } from "vue";
+
+const addLayer = (map: Raw<Map>, popupItems: PopupItem[]) => {
+  if (map.getSource("highlight")) {
+    (map.getSource("highlight") as GeoJSONSource).setData({
+      type: "FeatureCollection",
+      features: popupItems.map(({ geometry, ...rest }) => ({
+        type: "Feature",
+        properties: rest,
+        geometry,
+      })),
+    });
+  } else {
+    map.addSource("highlight", {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: popupItems.map(({ geometry, ...rest }) => ({
+          type: "Feature",
+          properties: rest,
+          geometry,
+        })),
+      },
+    });
+
+    // add a line layer without line-dasharray defined to fill the gaps in the dashed line
+    map.addLayer({
+      type: "line",
+      source: "highlight",
+      id: "line-background",
+      paint: {
+        "line-color": "yellow",
+        "line-width": 6,
+        "line-opacity": 0.4,
+      },
+    });
+
+    // add a line layer with line-dasharray set to the first value in dashArraySequence
+    map.addLayer({
+      type: "line",
+      source: "highlight",
+      id: "line-dashed",
+      paint: {
+        "line-color": "yellow",
+        "line-width": 6,
+        "line-dasharray": [0, 4, 3],
+      },
+    });
+
+    // technique based on https://jsfiddle.net/2mws8y3q/
+    // an array of valid line-dasharray values, specifying the lengths of the alternating dashes and gaps that form the dash pattern
+    const dashArraySequence = [
+      [0, 4, 3],
+      [0.5, 4, 2.5],
+      [1, 4, 2],
+      [1.5, 4, 1.5],
+      [2, 4, 1],
+      [2.5, 4, 0.5],
+      [3, 4, 0],
+      [0, 0.5, 3, 3.5],
+      [0, 1, 3, 3],
+      [0, 1.5, 3, 2.5],
+      [0, 2, 3, 2],
+      [0, 2.5, 3, 1.5],
+      [0, 3, 3, 1],
+      [0, 3.5, 3, 0.5],
+    ];
+
+    let step = 0;
+
+    function animateDashArray(timestamp: DOMHighResTimeStamp) {
+      // Update line-dasharray using the next value in dashArraySequence. The
+      // divisor in the expression `timestamp / 50` controls the animation speed.
+      const newStep = parseInt(
+        ((timestamp / 50) % dashArraySequence.length).toString()
+      );
+
+      if (newStep !== step) {
+        map.setPaintProperty(
+          "line-dashed",
+          "line-dasharray",
+          dashArraySequence[step]
+        );
+        step = newStep;
+      }
+
+      // Request the next frame of the animation.
+      requestAnimationFrame(animateDashArray);
+    }
+
+    // start the animation
+    animateDashArray(0);
+  }
+};
 
 const sliderContainer = ref<HTMLElement | null>(null);
 let slider: KeenSliderInstance | null = null;
@@ -40,6 +140,7 @@ export type PopupItem = {
   clickPopupColumns: string[] | null;
   imageColumns: string[] | null;
   featureDetailColumns: string[] | null;
+  geometry: GeoJSON.Geometry;
 };
 
 const mapRefStore = useMapRef();
@@ -80,6 +181,7 @@ watchEffect(() => {
         clickPopupColumns: foundLayer.click_popup_columns,
         featureDetailColumns: foundLayer.feature_detail_columns,
         imageColumns: foundLayer.image_columns,
+        geometry: feature.geometry,
       };
     });
 
@@ -90,6 +192,8 @@ watchEffect(() => {
     if (featureList.length && contentRef.value) {
       popupRef.value = new maplibregl.Popup({
         closeButton: false,
+        closeOnClick: false,
+        closeOnMove: false,
         className: "geod-popup",
       })
         .setLngLat(e.lngLat)
@@ -98,6 +202,7 @@ watchEffect(() => {
         .addTo(map.value!);
       window.dispatchEvent(new Event("resize"));
       slider?.moveToIdx(0);
+      addLayer(map.value!, featureList as PopupItem[]);
     }
   });
 });
@@ -165,7 +270,16 @@ const prevIndex = () => {
           <IcCross
             role="button"
             :fontControlled="false"
-            @click="handleClose"
+            @click="
+              () => {
+                (map?.getSource('highlight') as GeoJSONSource)
+                .setData({
+                  type: 'FeatureCollection',
+                  features: []
+                } as any );
+                handleClose();
+              }
+            "
             class="w-3 h-3 text-grey-400"
           ></IcCross>
         </header>
