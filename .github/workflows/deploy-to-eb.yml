@@ -45,12 +45,6 @@ jobs:
           pnpm build
         working-directory: extensions
 
-      - name: Install and build client
-        run: |
-          pnpm install
-          pnpm build
-        working-directory: web
-
       - name: Install Python 3.9
         uses: actions/setup-python@v2
         with:
