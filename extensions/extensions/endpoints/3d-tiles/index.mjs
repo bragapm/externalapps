@@ -121,6 +121,9 @@ export default (router, { database, env, logger }) => {
     }
 
     try {
+      if (fileName.endsWith(".json")) {
+        res.setHeader("Content-Type", "application/json");
+      }
       await pipeline(fileStream, res);
     } catch (error) {
       logger.error(error);
