@@ -1,15 +1,9 @@
-FROM node:20-alpine as builder
+FROM node:20-alpine
+
 WORKDIR /src
 
-COPY package.json pnpm-lock.yaml .npmrc ./
-RUN corepack enable && pnpm install
-
-COPY . .
-RUN pnpm build
-
-FROM node:20-alpine as runner
-WORKDIR /src
-
-COPY --from=builder /src/.output .output
+COPY ./.output /src/.output
+# Optional, only needed if you rely on unbundled dependencies
+# COPY ./node_modules /src/node_modules
 
 CMD [ "node", ".output/server/index.mjs" ]
