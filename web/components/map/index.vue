@@ -5,6 +5,13 @@ import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
 import { useMapData } from "~/utils";
 import bbox from "@turf/bbox";
+import { MapboxOverlay } from "@deck.gl/mapbox/src";
+import { ArcLayer } from "@deck.gl/layers";
+import { Tile3DLayer } from "@deck.gl/geo-layers";
+import { CesiumIonLoader } from "@loaders.gl/3d-tiles";
+
+const AIR_PORTS =
+  "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson";
 
 const { isLoading, data: mapData } = await useMapData();
 
@@ -45,6 +52,40 @@ onMounted(() => {
   setGeolocateRef(geolocate.value);
   map.value.on("load", () => {
     setMapLoad(true);
+
+    const deckOverlay = new MapboxOverlay({
+      layers: [
+        new ArcLayer({
+          id: "arcs",
+          data: AIR_PORTS,
+          dataTransform: ((d: any): unknown[] =>
+            d.features.filter((f: any) => f.properties.scalerank < 4)) as any,
+          // Styles
+          getSourcePosition: (f) => [-0.4531566, 51.4709959], // London
+          getTargetPosition: (f: any) => f.geometry.coordinates,
+          getSourceColor: [0, 128, 200],
+          getTargetColor: [200, 0, 80],
+          getWidth: 1,
+        }),
+        new Tile3DLayer({
+          id: "tile-3d-layer",
+          data: "https://assets.ion.cesium.com/ap-northeast-1/2456455/tileset.json?v=1",
+          loader: CesiumIonLoader,
+          loadOptions: {
+            "cesium-ion": {
+              accessToken:
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmMDQ3OGVhYi05NDExLTRjZWMtODI5My1iOTFiZGY1YzE3MGEiLCJpZCI6MTkzNTMxLCJpYXQiOjE3MDY4NTg2ODN9.1tT2FMwj6RzWQydihlhrsiBUNBB98N8DvAmjbDnIn04",
+            },
+          },
+          _subLayerProps: {
+            scenegraph: { _lighting: "flat" },
+          },
+          getPointColor: [200, 200, 200, 100],
+        }),
+      ],
+    });
+
+    map.value!.addControl(deckOverlay as any);
   });
 });
 onUnmounted(() => {
