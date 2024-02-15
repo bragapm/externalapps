@@ -72,30 +72,33 @@ export const useMapLayer = defineStore("maplayer", () => {
     for (const [key, value] of Object.entries(layers)) {
       value.data.forEach((el) => {
         if (key === "vectorTiles") {
-          const item = el as VectorTiles;
-          if (item.circle_style) {
+          const item = JSON.parse(JSON.stringify(el as VectorTiles));
+          delete item.circle_style;
+          delete item.line_style;
+          delete item.fill_style;
+          if ((el as VectorTiles).circle_style) {
             layersArr.push({
               ...item,
               layer_id: item.layer_id + "_circle",
-              layer_style: item.circle_style,
+              layer_style: (el as VectorTiles).circle_style as CircleStyles,
               source: "vector_tiles",
               geometry_type: "CIRCLE",
             });
           }
-          if (item.line_style) {
+          if ((el as VectorTiles).line_style) {
             layersArr.push({
               ...item,
               layer_id: item.layer_id + "_line",
-              layer_style: item.line_style,
+              layer_style: (el as VectorTiles).line_style as LineStyles,
               source: "vector_tiles",
               geometry_type: "LINE",
             });
           }
-          if (item.fill_style) {
+          if ((el as VectorTiles).fill_style) {
             layersArr.push({
               ...item,
               layer_id: item.layer_id + "_fill",
-              layer_style: item.fill_style,
+              layer_style: (el as VectorTiles).fill_style as FillStyles,
               source: "vector_tiles",
               geometry_type: "POLYGON",
             });

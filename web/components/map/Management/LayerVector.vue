@@ -62,18 +62,8 @@ provide("layerIndexProvider", layerIndex.value);
 
 const isShowStyling = ref(false);
 const visibility = ref<string>(
-  props.layerItem.geometry_type === "CIRCLE"
-    ? props.layerItem.circle_style
-      ? props.layerItem.circle_style.layout_visibility
-      : "none"
-    : props.layerItem.geometry_type === "POLYGON"
-    ? props.layerItem?.fill_style?.layout_visibility === "visible"
-      ? "visible"
-      : "none"
-    : props.layerItem.geometry_type === "LINE"
-    ? props.layerItem?.line_style?.layout_visibility === "visible"
-      ? "visible"
-      : "none"
+  props.layerItem.layer_style
+    ? props.layerItem.layer_style.layout_visibility
     : "none"
 );
 const opacity = ref<string>(
