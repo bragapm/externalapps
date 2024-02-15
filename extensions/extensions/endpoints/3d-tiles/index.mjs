@@ -21,9 +21,15 @@ const TileNotFoundError = createError(
 );
 
 export default (router, { database, env, logger }) => {
-  router.get("/:layerId/:fileName", async (req, res, next) => {
+  router.get("/:layerId/*", async (req, res, next) => {
     const { accountability } = req;
-    const { layerId, fileName } = req.params;
+    const { layerId } = req.params;
+
+    // construct file name
+    const fileName = req.path.slice(`/${layerId}/`.length);
+    if (!fileName) {
+      return next(new RouteNotFoundError({ path: "/3d-tiles" + req.path }));
+    }
 
     // validate uuid
     if (!validateUuid(layerId)) {
@@ -31,7 +37,7 @@ export default (router, { database, env, logger }) => {
     }
 
     let threeDTileRows;
-    // get raster tile entry
+    // get three d tile entry
     try {
       ({ rows: threeDTileRows } = await database.raw(
         `
