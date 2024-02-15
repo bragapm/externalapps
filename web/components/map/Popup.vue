@@ -159,7 +159,7 @@ watchEffect(() => {
   map.value.on("click", (e: MapMouseEvent & Object) => {
     // The 'point' to query for features
     const point = [e.point.x, e.point.y];
-    const filterLayers = mapLayerStore.groupedLayerList
+    const filterLayers = mapLayerStore.groupedActiveLayers
       ?.map(({ layerLists }) => layerLists)
       .flat()
       .filter((e) => Boolean(e.click_popup_columns));
