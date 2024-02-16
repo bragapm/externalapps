@@ -58,6 +58,18 @@ const removeLayer = (layerItem: VectorTiles | RasterTiles) => {
   mapRefStore.map?.removeLayer(layerItem.layer_id);
 };
 
+let timeoutId: NodeJS.Timeout;
+function debounce(func: Function, delay: number) {
+  return function (...args: any[]) {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+}
+
 // get listed layer list
 const layerStore = useMapLayer();
 const { fetchListedLayers } = layerStore;
@@ -107,48 +119,104 @@ const handleChangeDimensionList = (index: number, value: boolean) => {
     dimensionLists.value[index].checked = value;
   }
 };
+const searchFilter = ref("");
 
 const handleScroll = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 };
 
-const handleFilter = () => {
-  if (formatLists.value.filter((el) => el.checked === true)?.length > 0) {
-    const filteredFormat = formatLists.value
-      .filter((el) => el.checked === true)
-      .map((el) => el.type);
-    if (filteredFormat.length === 1 && filteredFormat[0] === "all") {
-      filteredLayers.value = mapLayerStore.groupedLayerList;
-    } else if (filteredFormat.length > 0) {
-      const filtered = JSON.parse(
-        JSON.stringify(mapLayerStore.groupedLayerList)
-      )
-        ?.map((item: LayerGroupedByCategory) => {
-          return {
-            ...item,
-            layerLists: item.layerLists.filter((el: any) => {
-              return filteredFormat.includes(el.geometry_type);
-            }),
-          };
-        })
-        .filter((item: any) => item.layerLists.length > 0);
-      if (filtered) {
-        filteredLayers.value = filtered;
-      }
-    }
+const searchRef = ref("");
+
+const handleFormatFilter = () => {
+  let current = JSON.parse(JSON.stringify(mapLayerStore.groupedLayerList));
+
+  //filter by format
+  const filteredFormat = formatLists.value
+    .filter((el) => el.checked === true && el.type !== "all")
+    .map((el) => el.type);
+
+  const filteredByFormat = current
+    ?.map((item: LayerGroupedByCategory) => {
+      return {
+        ...item,
+        layerLists: item.layerLists.filter((el: any) => {
+          if (filteredFormat.length > 0) {
+            return filteredFormat.includes(el.geometry_type);
+          } else {
+            return el;
+          }
+        }),
+      };
+    })
+    .filter((item: any) => item.layerLists.length > 0);
+
+  current = filteredByFormat;
+  //filter by format
+
+  //filter by dimension
+  const dimensionFormat = dimensionLists.value
+    .filter((el) => el.checked === true && el.type !== "all")
+    .map((el) => el.type);
+
+  const filteredByDimension = current
+    ?.map((item: LayerGroupedByCategory) => {
+      return {
+        ...item,
+        layerLists: item.layerLists.filter((el: any) => {
+          if (dimensionFormat.length > 0) {
+            return dimensionFormat.includes(el.dimension);
+          } else {
+            return el;
+          }
+        }),
+      };
+    })
+    .filter((item: any) => item.layerLists.length > 0);
+
+  current = filteredByDimension;
+  //filter by dimension
+
+  //filter by search
+  if (searchFilter.value !== "") {
+    const filteredBySearch = current
+      ?.map((item: LayerGroupedByCategory) => {
+        return {
+          ...item,
+          layerLists: item.layerLists.filter((el: any) => {
+            if (el.layer_name) {
+              return el.layer_name
+                ?.toLowerCase()
+                .includes(searchFilter.value.toLowerCase());
+            } else if (el.layer_alias) {
+              return el.layer_alias
+                ?.toLowerCase()
+                .includes(searchFilter.value.toLowerCase());
+            }
+          }),
+        };
+      })
+      .filter((item: any) => item.layerLists.length > 0);
+
+    current = filteredBySearch;
   }
+
+  filteredLayers.value = current;
 };
 
 watchEffect(() => {
-  if (formatLists.value.filter((el) => el.checked === true)?.length > 0) {
-    handleFilter();
+  if (
+    formatLists.value.filter((el) => el.checked === true)?.length > 0 ||
+    dimensionLists.value.filter((el) => el.checked === true)?.length > 0
+  ) {
+    handleFormatFilter();
   }
 });
 
-watchEffect(() => {
-  if (mapLayerStore.groupedLayerList) {
-    filteredLayers.value = mapLayerStore.groupedLayerList;
-  }
+const updateSearchFilter = (input: string) => {
+  searchFilter.value = input;
+};
+watch(searchRef, (newValue) => {
+  debounce(updateSearchFilter, 500)(newValue);
 });
 </script>
 
@@ -230,6 +298,7 @@ watchEffect(() => {
             />
           </div>
           <UInput
+            v-model="searchRef"
             color="gray"
             :ui="{ rounded: 'rounded-xxs' }"
             placeholder="Search Dataset"
@@ -247,7 +316,11 @@ watchEffect(() => {
         <div
           class="flex flex-col w-full h-full border border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
         >
-          <template v-for="category of filteredLayers">
+          <template
+            v-for="category of filteredLayers
+              ? filteredLayers
+              : mapLayerStore.groupedLayerList"
+          >
             <div
               class="flex flex-col px-3 py-2 gap-1"
               :id="category.label.split(' ').join('')"
@@ -255,7 +328,7 @@ watchEffect(() => {
               <h3 class="text-grey-50">
                 {{ category.label }}
               </h3>
-              <p class="text-xs text-grey-50">description?</p>
+              <p class="text-xs text-grey-50">description</p>
               <span class="flex items-center gap-3 text-grey-400 text-xs">
                 <!-- <p>Folder by: {{ folder.created_by }}</p>
               <p>Made at: {{ folder.created_at }}</p> -->
@@ -279,6 +352,19 @@ watchEffect(() => {
               </div>
             </div>
           </template>
+          <div
+            v-if="
+              mapLayerStore.groupedLayerList?.length === 0 ||
+              (filteredLayers && filteredLayers.length === 0)
+            "
+            class="flex flex-col w-full h-full border border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
+          >
+            <div
+              class="flex items-center justify-center text-grey-400 text-sm w-full h-full"
+            >
+              No Data Layers Found
+            </div>
+          </div>
         </div>
       </div>
     </div>

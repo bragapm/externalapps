@@ -67,6 +67,7 @@ export type VectorTiles = {
   click_popup_columns?: string[];
   image_columns?: string[];
   feature_detail_columns?: string[];
+  dimension: string;
 };
 
 export type RasterTiles = {
@@ -85,6 +86,7 @@ export type RasterTiles = {
   click_popup_columns?: string[];
   image_columns?: string[];
   feature_detail_columns?: string[];
+  dimension: string;
 };
 
 export type LayerGroupedByCategory = {

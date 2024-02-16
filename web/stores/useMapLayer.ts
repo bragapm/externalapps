@@ -83,6 +83,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               layer_style: (el as VectorTiles).circle_style as CircleStyles,
               source: "vector_tiles",
               geometry_type: "CIRCLE",
+              dimension: "2D",
             });
           }
           if ((el as VectorTiles).line_style) {
@@ -92,6 +93,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               layer_style: (el as VectorTiles).line_style as LineStyles,
               source: "vector_tiles",
               geometry_type: "LINE",
+              dimension: "2D",
             });
           }
           if ((el as VectorTiles).fill_style) {
@@ -101,6 +103,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               layer_style: (el as VectorTiles).fill_style as FillStyles,
               source: "vector_tiles",
               geometry_type: "POLYGON",
+              dimension: "2D",
             });
           }
         } else if (key === "rasterTiles") {
@@ -110,6 +113,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             source: "raster_tiles",
             opacity: 1,
             geometry_type: "RASTER",
+            dimension: "2D",
           });
         }
       });
