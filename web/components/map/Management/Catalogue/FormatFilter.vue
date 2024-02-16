@@ -6,6 +6,11 @@ const props = defineProps<{
   list: any;
   handleChange: any;
 }>();
+const activeFilter = computed(() =>
+  props.list
+    .filter((el: any) => el.checked === true)
+    .map((item: any) => item.type)
+);
 </script>
 
 <template>
@@ -20,7 +25,11 @@ const props = defineProps<{
         ]"
       >
         <IcMapLayerB class="text-grey-200 w-4 h-4" :fontControlled="false" />
-        All Format
+        {{
+          activeFilter.length === 1 && activeFilter[0] === "all"
+            ? "All Format"
+            : activeFilter.length + " selected"
+        }}
       </MenuButton>
     </div>
 
