@@ -45,7 +45,9 @@ const emit = defineEmits<{
     />
     <article>
       <div class="flex items-center justify-between gap-2">
-        <h5 class="text-xs text-grey-50 truncate">{{ item.layer_alias }}</h5>
+        <h5 class="text-xs text-grey-50 truncate">
+          {{ item.layer_alias || item.layer_name }}
+        </h5>
         <button>
           <IcHelp class="w-3 h-3 text-brand-500" :fontControlled="false" />
         </button>

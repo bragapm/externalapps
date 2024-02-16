@@ -78,6 +78,7 @@ export type RasterTiles = {
   default: boolean;
   layer_alias: string;
   layer_id: string;
+  layer_name?: string;
   minzoom: number;
   maxzoom: number;
   terrain_rgb: boolean;

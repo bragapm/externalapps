@@ -62,6 +62,94 @@ const removeLayer = (layerItem: VectorTiles | RasterTiles) => {
 const layerStore = useMapLayer();
 const { fetchListedLayers } = layerStore;
 fetchListedLayers();
+const filteredLayers = ref<LayerGroupedByCategory[] | null>(null);
+
+const formatFilter = [
+  { type: "all", label: "All Format", checked: true },
+  { type: "CIRCLE", label: "Circle", checked: false },
+  { type: "LINE", label: "Line", checked: false },
+  { type: "POLYGON", label: "Polygon", checked: false },
+  { type: "RASTER", label: "Raster", checked: false },
+];
+const formatLists = ref(formatFilter);
+const handleChangeFormatList = (index: number, value: boolean) => {
+  if (index === 0 && value === true) {
+    for (const el of formatLists.value) {
+      if (el.type === "all") {
+        el.checked = true;
+      } else {
+        el.checked = false;
+      }
+    }
+  } else {
+    formatLists.value[0].checked = false;
+    formatLists.value[index].checked = value;
+  }
+};
+
+const dimensionFilter = [
+  { type: "all", label: "All Format", checked: true },
+  { type: "2D", label: "2D", checked: false },
+  { type: "3D", label: "3D", checked: false },
+];
+const dimensionLists = ref(dimensionFilter);
+const handleChangeDimensionList = (index: number, value: boolean) => {
+  if (index === 0 && value === true) {
+    for (const el of dimensionLists.value) {
+      if (el.type === "all") {
+        el.checked = true;
+      } else {
+        el.checked = false;
+      }
+    }
+  } else {
+    dimensionLists.value[0].checked = false;
+    dimensionLists.value[index].checked = value;
+  }
+};
+
+const handleScroll = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+};
+
+const handleFilter = () => {
+  if (formatLists.value.filter((el) => el.checked === true)?.length > 0) {
+    const filteredFormat = formatLists.value
+      .filter((el) => el.checked === true)
+      .map((el) => el.type);
+    if (filteredFormat.length === 1 && filteredFormat[0] === "all") {
+      filteredLayers.value = mapLayerStore.groupedLayerList;
+    } else if (filteredFormat.length > 0) {
+      const filtered = JSON.parse(
+        JSON.stringify(mapLayerStore.groupedLayerList)
+      )
+        ?.map((item: LayerGroupedByCategory) => {
+          return {
+            ...item,
+            layerLists: item.layerLists.filter((el: any) => {
+              return filteredFormat.includes(el.geometry_type);
+            }),
+          };
+        })
+        .filter((item: any) => item.layerLists.length > 0);
+      if (filtered) {
+        filteredLayers.value = filtered;
+      }
+    }
+  }
+};
+
+watchEffect(() => {
+  if (formatLists.value.filter((el) => el.checked === true)?.length > 0) {
+    handleFilter();
+  }
+});
+
+watchEffect(() => {
+  if (mapLayerStore.groupedLayerList) {
+    filteredLayers.value = mapLayerStore.groupedLayerList;
+  }
+});
 </script>
 
 <template>
@@ -111,6 +199,11 @@ fetchListedLayers();
             :label="category.label"
             variant="ghost"
             color="grey"
+            @click="
+              () => {
+                handleScroll(category.label.split(' ').join(''));
+              }
+            "
           />
         </div>
         <div class="border-t" />
@@ -126,50 +219,15 @@ fetchListedLayers();
           class="flex border border-l-0 rounded-tr-xs p-3 items-center justify-between"
         >
           <div class="flex gap-2 items-center">
-            <UButton
-              :ui="{ rounded: 'rounded-xxs' }"
-              label="Sort - Alphabetical (A-Z)"
-              class="text-xs text-white outline-grey-50 border-grey-50"
-              variant="outline"
-              color="grey"
-              @click="
-                () => {
-                  console.log('tes');
-                }
-              "
+            <MapManagementCatalogueSelect />
+            <MapManagementCatalogueFormatFilter
+              :list="formatLists"
+              :handleChange="handleChangeFormatList"
             />
-            <UButton
-              :ui="{ rounded: 'rounded-xxs' }"
-              label="All Format"
-              variant="outline"
-              class="text-xs"
-              color="grey"
-              @click="
-                () => {
-                  console.log('tes');
-                }
-              "
-            >
-              <template #leading>
-                <IcMapLayerB color="grey" />
-              </template>
-            </UButton>
-            <UButton
-              :ui="{ rounded: 'rounded-xxs' }"
-              label="All Dimension"
-              variant="outline"
-              class="text-xs"
-              color="grey"
-              @click="
-                () => {
-                  console.log('tes');
-                }
-              "
-            >
-              <template #leading>
-                <IcMapLayerA color="grey" />
-              </template>
-            </UButton>
+            <MapManagementCatalogueDimensionFilter
+              :list="dimensionLists"
+              :handleChange="handleChangeDimensionList"
+            />
           </div>
           <UInput
             color="gray"
@@ -189,34 +247,38 @@ fetchListedLayers();
         <div
           class="flex flex-col w-full h-full border border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
         >
-          <div
-            class="flex flex-col px-3 py-2 gap-1"
-            v-for="category of mapLayerStore.groupedLayerList"
-          >
-            <h3 class="text-grey-50">{{ category.label }}</h3>
-            <p class="text-xs text-grey-50">description?</p>
-            <span class="flex items-center gap-3 text-grey-400 text-xs">
-              <!-- <p>Folder by: {{ folder.created_by }}</p>
+          <template v-for="category of filteredLayers">
+            <div
+              class="flex flex-col px-3 py-2 gap-1"
+              :id="category.label.split(' ').join('')"
+            >
+              <h3 class="text-grey-50">
+                {{ category.label }}
+              </h3>
+              <p class="text-xs text-grey-50">description?</p>
+              <span class="flex items-center gap-3 text-grey-400 text-xs">
+                <!-- <p>Folder by: {{ folder.created_by }}</p>
               <p>Made at: {{ folder.created_at }}</p> -->
-              <p>No. of Datasets : {{ category.layerLists.length }}</p>
-            </span>
-            <div class="grid grid-cols-4 mt-3 gap-3">
-              <MapManagementCatalogueItem
-                v-for="layer of category.layerLists"
-                :key="layer.layer_id"
-                :item="layer"
-                :isActive="
-                  activeLayers
-                    ? activeLayers.findIndex(
-                        (item) => item.layer_id === layer.layer_id
-                      ) > -1
-                    : false
-                "
-                @add-layer="addLayer"
-                @remove-layer="removeLayer"
-              />
+                <p>No. of Datasets : {{ category.layerLists.length }}</p>
+              </span>
+              <div class="grid grid-cols-4 mt-3 gap-3">
+                <MapManagementCatalogueItem
+                  v-for="layer of category.layerLists"
+                  :key="layer.layer_id"
+                  :item="layer"
+                  :isActive="
+                    activeLayers
+                      ? activeLayers.findIndex(
+                          (item) => item.layer_id === layer.layer_id
+                        ) > -1
+                      : false
+                  "
+                  @add-layer="addLayer"
+                  @remove-layer="removeLayer"
+                />
+              </div>
             </div>
-          </div>
+          </template>
         </div>
       </div>
     </div>
