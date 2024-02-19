@@ -6,11 +6,29 @@ import {
   ListboxOption,
 } from "@headlessui/vue";
 import IcCheck from "~/assets/icons/ic-check.svg";
+
+const mapLayerStore = useMapLayer();
 const sortOption = [
-  { id: 1, name: "Sort - Alphabetical (A-Z)" },
-  { id: 2, name: "Sort - Alphabetical (Z-A)" },
+  { id: "asc", name: "Sort - Alphabetical (A-Z)" },
+  { id: "desc", name: "Sort - Alphabetical (Z-A)" },
 ];
 const sortAlphabetical = ref(sortOption[0]);
+
+watch(sortAlphabetical, async () => {
+  const current = JSON.parse(JSON.stringify(mapLayerStore.groupedLayerList))
+    ?.map(({ layerLists }: any) => layerLists)
+    .flat();
+  current!.sort((a: any, b: any) => {
+    const nameA = a.layer_alias.toUpperCase(); // ignore upper and lowercase
+    const nameB = b.layer_alias.toUpperCase(); // ignore upper and lowercase
+    if (sortAlphabetical.value.id === "asc") {
+      return nameA.localeCompare(nameB);
+    } else {
+      return nameB.localeCompare(nameA);
+    }
+  });
+  mapLayerStore.groupedLayerList = mapLayerStore.groupLayerByCategory(current);
+});
 </script>
 
 <template>

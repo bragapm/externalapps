@@ -204,12 +204,7 @@ const handleFormatFilter = () => {
 };
 
 watchEffect(() => {
-  if (
-    formatLists.value.filter((el) => el.checked === true)?.length > 0 ||
-    dimensionLists.value.filter((el) => el.checked === true)?.length > 0
-  ) {
-    handleFormatFilter();
-  }
+  handleFormatFilter();
 });
 
 const updateSearchFilter = (input: string) => {
@@ -287,7 +282,7 @@ watch(searchRef, (newValue) => {
           class="flex border border-l-0 rounded-tr-xs p-3 items-center justify-between"
         >
           <div class="flex gap-2 items-center">
-            <MapManagementCatalogueSelect />
+            <MapManagementCatalogueSort />
             <MapManagementCatalogueFormatFilter
               :list="formatLists"
               :handleChange="handleChangeFormatList"

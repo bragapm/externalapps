@@ -80,6 +80,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             layersArr.push({
               ...item,
               layer_id: item.layer_id + "_circle",
+              layer_alias: item.layer_alias || item.layer_name,
               layer_style: (el as VectorTiles).circle_style as CircleStyles,
               source: "vector_tiles",
               geometry_type: "CIRCLE",
@@ -90,6 +91,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             layersArr.push({
               ...item,
               layer_id: item.layer_id + "_line",
+              layer_alias: item.layer_alias || item.layer_name,
               layer_style: (el as VectorTiles).line_style as LineStyles,
               source: "vector_tiles",
               geometry_type: "LINE",
@@ -100,6 +102,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             layersArr.push({
               ...item,
               layer_id: item.layer_id + "_fill",
+              layer_alias: item.layer_alias || item.layer_name,
               layer_style: (el as VectorTiles).fill_style as FillStyles,
               source: "vector_tiles",
               geometry_type: "POLYGON",
@@ -118,6 +121,13 @@ export const useMapLayer = defineStore("maplayer", () => {
         }
       });
     }
+
+    //sort by layer_alias is ascending order
+    layersArr!.sort((a: any, b: any) => {
+      const nameA = a.layer_alias.toUpperCase(); // ignore upper and lowercase
+      const nameB = b.layer_alias.toUpperCase(); // ignore upper and lowercase
+      return nameA.localeCompare(nameB);
+    });
     return layersArr;
   };
 
@@ -151,7 +161,12 @@ export const useMapLayer = defineStore("maplayer", () => {
             });
           }
         }
-        return group;
+
+        return group!.sort((a: any, b: any) => {
+          const nameA = a.label.toUpperCase(); // ignore upper and lowercase
+          const nameB = b.label.toUpperCase(); // ignore upper and lowercase
+          return nameA.localeCompare(nameB);
+        });
       },
       []
     );
@@ -166,8 +181,8 @@ export const useMapLayer = defineStore("maplayer", () => {
           const [vectorTiles, rasterTiles] = await Promise.all<{
             data: (VectorTiles | RasterTiles)[];
           }>([
-            $fetch("/panel/items/vector_tiles?fields=*.*"),
-            $fetch("/panel/items/raster_tiles?fields=*.*"),
+            $fetch("/panel/items/vector_tiles?fields=*.*&sort=layer_name"),
+            $fetch("/panel/items/raster_tiles?fields=*.*&sort=layer_alias"),
           ]);
 
           return { vectorTiles, rasterTiles };
@@ -196,10 +211,10 @@ export const useMapLayer = defineStore("maplayer", () => {
             data: (VectorTiles | RasterTiles)[];
           }>([
             $fetch(
-              "/panel/items/vector_tiles?fields=*.*&filter[active][_eq]=true"
+              "/panel/items/vector_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_name"
             ),
             $fetch(
-              "/panel/items/raster_tiles?fields=*.*&filter[active][_eq]=true"
+              "/panel/items/raster_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_alias"
             ),
           ]);
 
@@ -208,6 +223,7 @@ export const useMapLayer = defineStore("maplayer", () => {
       );
 
       const allLayerData: (VectorTiles | RasterTiles)[] = [];
+
       if (layers.value) {
         allLayerData.push(...getLayersArr(layers.value));
       }

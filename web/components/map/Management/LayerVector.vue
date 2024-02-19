@@ -145,10 +145,7 @@ const toggleVisibility = () => {
             'truncate',
           ]"
         >
-          {{
-            layerItem.layer_alias ||
-            (layerItem.source === "vector_tiles" && layerItem.layer_name)
-          }}
+          {{ layerItem.layer_alias }}
         </p>
         <p
           :class="[

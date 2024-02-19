@@ -31,11 +31,7 @@ const handleFilter = (input: string) => {
             ...item,
             defaultOpen: true,
             layerLists: item.layerLists.filter((el: any) => {
-              if (el.layer_name) {
-                return el.layer_name
-                  ?.toLowerCase()
-                  .includes(input.toLowerCase());
-              } else if (el.layer_alias) {
+              if (el.layer_alias) {
                 return el.layer_alias
                   ?.toLowerCase()
                   .includes(input.toLowerCase());
