@@ -5,7 +5,7 @@ import IcArrow from "~/assets/icons/ic-arrow-reg.svg";
 
 const props = defineProps<{
   triggerLabel?: string;
-  triggerIcon?: Component;
+  triggerIcon?: any;
   itemLabel?: string;
   itemDescription?: string;
   items?: {

@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import IcCross from "~/assets/icons/ic-cross.svg";
 import IcFileSort from "~/assets/icons/ic-file-sort.svg";
-import { geomTypeCircle, geomTypeLine, geomTypePolygon, geomTypeRaster, uncategorizedAlias } from "~/constants";
+import {
+  layerTypeFilterOptions,
+  dimensionFilterOptions,
+  uncategorizedAlias,
+} from "~/constants";
 
 const mapRefStore = useMapRef();
 const store = useCatalogue();
@@ -74,14 +78,7 @@ const { fetchListedLayers } = layerStore;
 fetchListedLayers();
 const filteredLayers = ref<LayerGroupedByCategory[] | null>(null);
 
-const formatFilter = [
-  { type: "all", label: "All Format", checked: true },
-  { type: geomTypeCircle, label: "Circle", checked: false },
-  { type: geomTypeLine, label: "Line", checked: false },
-  { type: geomTypePolygon, label: "Polygon", checked: false },
-  { type: geomTypeRaster, label: "Raster", checked: false },
-];
-const formatLists = ref(formatFilter);
+const formatLists = ref(layerTypeFilterOptions);
 const handleChangeFormatList = (index: number, value: boolean) => {
   if (index === 0 && value === true) {
     for (const el of formatLists.value) {
@@ -97,12 +94,7 @@ const handleChangeFormatList = (index: number, value: boolean) => {
   }
 };
 
-const dimensionFilter = [
-  { type: "all", label: "All Format", checked: true },
-  { type: "2D", label: "2D", checked: false },
-  { type: "3D", label: "3D", checked: false },
-];
-const dimensionLists = ref(dimensionFilter);
+const dimensionLists = ref(dimensionFilterOptions);
 const handleChangeDimensionList = (index: number, value: boolean) => {
   if (index === 0 && value === true) {
     for (const el of dimensionLists.value) {

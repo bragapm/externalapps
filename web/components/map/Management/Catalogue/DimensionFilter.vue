@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
-import IcMapLayerB from "~/assets/icons/ic-map-layer-b.svg";
+import IcMapLayerA from "~/assets/icons/ic-map-layer-a.svg";
 
 const props = defineProps<{
   list: any;
@@ -24,7 +24,7 @@ const activeFilter = computed(() =>
             : 'bg-transparent text-grey-200 border-grey-600',
         ]"
       >
-        <IcMapLayerB class="text-grey-200 w-4 h-4" :fontControlled="false" />
+        <IcMapLayerA class="text-grey-200 w-4 h-4" :fontControlled="false" />
         {{
           activeFilter.length === 1 && activeFilter[0] === "all"
             ? "All Dimension"
@@ -49,6 +49,7 @@ const activeFilter = computed(() =>
             <CoreCheckbox
               :index="index"
               :label="item.label"
+              :icon="item.icon"
               :isChecked="item.checked"
               @on-change="handleChange"
             />

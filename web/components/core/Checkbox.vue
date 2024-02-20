@@ -7,6 +7,7 @@ import IcMapLayerB from "~/assets/icons/ic-map-layer-b.svg";
 const props = defineProps<{
   index: number;
   label: string;
+  icon?: string;
   isChecked: boolean;
 }>();
 const emit = defineEmits<{
@@ -51,10 +52,12 @@ watchEffect(() => {
             ]"
           />
         </div>
-        <IcMapLayerB
+        <component
+          v-if="icon"
+          :is="icon"
           :class="['w-4 h-4', checked ? 'text-brand-500' : 'text-grey-400']"
           :fontControlled="false"
-        />
+        ></component>
         <p
           :class="[
             'text-xs select-none whitespace-nowrap',

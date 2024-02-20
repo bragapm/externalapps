@@ -49,6 +49,7 @@ const activeFilter = computed(() =>
             <CoreCheckbox
               :index="index"
               :label="item.label"
+              :icon="item.icon"
               :isChecked="item.checked"
               @on-change="handleChange"
             />
