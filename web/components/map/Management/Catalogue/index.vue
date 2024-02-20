@@ -233,27 +233,15 @@ watch(searchRef, (newValue) => {
       </button>
     </div>
     <div class="h-full flex max-h-[calc(100%-2.25rem)]">
-      <div class="flex flex-col text-white border rounded-l-xs p-2 gap-2">
-        <span>
-          <h2 class="text-xs">Data Catalogue</h2>
-          <p class="text-2xs">Datasets list available in this GeoDashboard</p>
-        </span>
-        <UButton
-          :ui="{ rounded: 'rounded-xxs' }"
-          label="Show All"
-          class="w-full justify-between v"
-          disabled
-          @click="
-            () => {
-              console.log('tes');
-            }
-          "
-        />
-        <div class="border-t" />
+      <div
+        class="flex flex-col text-white border border-grey-700 rounded-l-xs p-2 gap-2"
+      >
         <div class="flex flex-col gap-2">
           <span class="p-1">
-            <h2 class="text-xs">Default Catalogue</h2>
-            <p class="text-2xs">Dataset Folder/Project Provided by Default</p>
+            <h2 class="text-xs text-grey-400">Default Catalogue</h2>
+            <p class="text-2xs text-grey-500">
+              Dataset Folder/Project Provided by Default
+            </p>
           </span>
           <UButton
             v-for="category of mapLayerStore.groupedLayerList"
@@ -267,19 +255,22 @@ watch(searchRef, (newValue) => {
                 handleScroll(category.label.split(' ').join(''));
               }
             "
+            class="text-xs"
           />
         </div>
-        <div class="border-t" />
+        <div class="border-t border-grey-700" />
         <div>
           <span>
-            <h2 class="text-xs">User’s Catalogue</h2>
-            <p class="text-2xs">Dataset Folder/Project Provided by Default</p>
+            <h2 class="text-xs text-grey-400">User’s Catalogue</h2>
+            <p class="text-2xs text-grey-500">
+              Dataset Folder/Project Provided by Default
+            </p>
           </span>
         </div>
       </div>
       <div class="flex flex-col w-full h-full max-h-full">
         <div
-          class="flex border border-l-0 rounded-tr-xs p-3 items-center justify-between"
+          class="flex border border-grey-700 border-l-0 rounded-tr-xs p-3 items-center justify-between"
         >
           <div class="flex gap-2 items-center">
             <MapManagementCatalogueSort />
@@ -309,7 +300,7 @@ watch(searchRef, (newValue) => {
           </UInput>
         </div>
         <div
-          class="flex flex-col w-full h-full border border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
+          class="flex flex-col w-full h-full border border-grey-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y divide-grey-700"
         >
           <template
             v-for="category of filteredLayers
@@ -329,7 +320,9 @@ watch(searchRef, (newValue) => {
               <p>Made at: {{ folder.created_at }}</p> -->
                 <p>No. of Datasets : {{ category.layerLists.length }}</p>
               </span>
-              <div class="grid grid-cols-4 mt-3 gap-3">
+              <div
+                class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-3 gap-3"
+              >
                 <MapManagementCatalogueItem
                   v-for="layer of category.layerLists"
                   :key="layer.layer_id"
@@ -352,7 +345,7 @@ watch(searchRef, (newValue) => {
               mapLayerStore.groupedLayerList?.length === 0 ||
               (filteredLayers && filteredLayers.length === 0)
             "
-            class="flex flex-col w-full h-full border border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
+            class="flex flex-col w-full h-full border border-grey-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
           >
             <div
               class="flex items-center justify-center text-grey-400 text-sm w-full h-full"
