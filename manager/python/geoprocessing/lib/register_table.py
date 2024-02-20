@@ -65,3 +65,13 @@ def register_raster_tile(
                 ],
             )
     logger.info("Register to raster tiles")
+
+
+def register_3d_tile(conn, layer_id: str, three_d_alias: str, uploader: str):
+    with conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """INSERT INTO raster_tiles(layer_id, layer_alias, user_created)
+            VALUES(%s, %s, %s)""",
+                [layer_id, three_d_alias, uploader],
+            )
