@@ -2,6 +2,7 @@
 import type {
   GeoJSONSource,
   LngLatBoundsLike,
+  LngLatLike,
   Map,
   MapGeoJSONFeature,
   MapMouseEvent,
@@ -11,10 +12,26 @@ import { ref } from "vue";
 import maplibregl from "maplibre-gl";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
-import KeenSlider, { type KeenSliderInstance } from "keen-slider";
+import KeenSlider, {
+  type KeenSliderInstance,
+  // type KeenSliderPlugin,
+} from "keen-slider";
 import type { Raw } from "vue";
 import tailwindConfig from "~/tailwind.config";
 import bbox from "@turf/bbox";
+
+/* const ResizePlugin: KeenSliderPlugin = (slider) => {
+  const observer = new ResizeObserver(function () {
+    slider.update();
+  });
+
+  slider.on("created", () => {
+    observer.observe(slider.container);
+  });
+  slider.on("destroyed", () => {
+    observer.unobserve(slider.container);
+  });
+}; */
 
 const showHighlightLayer = (
   map: Raw<Map>,
@@ -30,13 +47,30 @@ const showHighlightLayer = (
         geometry: geom,
       })),
   };
-  map?.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 20 });
+  if (featureList[0].geom.type !== "Point") {
+    map?.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 60 });
+  } else {
+    map?.flyTo({
+      zoom: 15,
+      center: featureList[0].geom.coordinates as LngLatLike,
+    });
+  }
   if (map.getSource("highlight")) {
     (map.getSource("highlight") as GeoJSONSource).setData(newData);
   } else {
     map.addSource("highlight", {
       type: "geojson",
       data: newData,
+    });
+
+    map.addLayer({
+      id: "pulsing-dot",
+      type: "symbol",
+      source: "highlight",
+      layout: {
+        "icon-image": "pulsing-dot",
+      },
+      filter: ["==", "$type", "Point"],
     });
 
     // add a line layer without line-dasharray defined to fill the gaps in the dashed line
@@ -121,9 +155,13 @@ let prevImage: (e: MouseEvent) => void;
 
 onMounted(() => {
   if (sliderContainer.value) {
-    slider = new KeenSlider(sliderContainer.value!, {
-      loop: true,
-    });
+    slider = new KeenSlider(
+      sliderContainer.value!,
+      {
+        loop: true,
+      },
+      []
+    );
     nextImage = (e: MouseEvent) => {
       slider?.update();
       slider?.next();
@@ -165,6 +203,7 @@ const isFetching = ref(false);
 watchEffect(() => {
   if (!map.value) return;
   map.value.on("click", (e: MapMouseEvent & Object) => {
+    itemIndex.value = 0;
     // The 'point' to query for features
     const point = [e.point.x, e.point.y];
     const filterLayers = mapLayerStore.groupedActiveLayers
@@ -188,7 +227,7 @@ watchEffect(() => {
         rowId: feature.id,
         clickPopupColumns: foundLayer.click_popup_columns,
         featureDetailColumns: foundLayer.feature_detail_columns,
-        imageColumns: foundLayer.image_columns,
+        imageColumns: foundLayer.image_columns ?? [],
       };
     });
 
@@ -267,7 +306,14 @@ const nextIndex = () => {
       })),
   };
   (map.value!.getSource("highlight") as GeoJSONSource).setData(newData);
-  map.value!.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 20 });
+  if (features.value[itemIndex.value].geom.type !== "Point") {
+    map.value?.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 60 });
+  } else {
+    map.value?.flyTo({
+      zoom: 15,
+      center: features.value[itemIndex.value].geom.coordinates as LngLatLike,
+    });
+  }
   slider?.moveToIdx(0);
 };
 const prevIndex = () => {
@@ -284,7 +330,14 @@ const prevIndex = () => {
       })),
   };
   (map.value!.getSource("highlight") as GeoJSONSource).setData(newData);
-  map.value!.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 20 });
+  if (features.value[itemIndex.value].geom.type !== "Point") {
+    map.value?.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 60 });
+  } else {
+    map.value?.flyTo({
+      zoom: 15,
+      center: features.value[itemIndex.value].geom.coordinates as LngLatLike,
+    });
+  }
   slider?.moveToIdx(0);
 };
 </script>

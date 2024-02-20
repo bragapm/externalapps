@@ -48,6 +48,9 @@ onMounted(() => {
   setGeolocateRef(geolocate.value);
   map.value.on("load", () => {
     setMapLoad(true);
+    map.value!.addImage("pulsing-dot", createPulsingDot(map.value!, 90), {
+      pixelRatio: 2,
+    });
 
     const L2 = new Tile3DLayer({
       id: "2-3d-layer",
