@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {
   GeoJSONSource,
+  LngLatBoundsLike,
   Map,
   MapGeoJSONFeature,
   MapMouseEvent,
@@ -12,28 +13,30 @@ import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
 import KeenSlider, { type KeenSliderInstance } from "keen-slider";
 import type { Raw } from "vue";
+import tailwindConfig from "~/tailwind.config";
+import bbox from "@turf/bbox";
 
-const addLayer = (map: Raw<Map>, popupItems: PopupItem[]) => {
-  if (map.getSource("highlight")) {
-    (map.getSource("highlight") as GeoJSONSource).setData({
-      type: "FeatureCollection",
-      features: popupItems.map(({ geometry, ...rest }) => ({
+const showHighlightLayer = (
+  map: Raw<Map>,
+  featureList: { geom: GeoJSON.Geometry }[]
+) => {
+  const newData: GeoJSON.FeatureCollection = {
+    type: "FeatureCollection",
+    features: featureList
+      .filter((_, idx) => idx === 0)
+      .map(({ geom, ...rest }) => ({
         type: "Feature",
         properties: rest,
-        geometry,
+        geometry: geom,
       })),
-    });
+  };
+  map?.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 20 });
+  if (map.getSource("highlight")) {
+    (map.getSource("highlight") as GeoJSONSource).setData(newData);
   } else {
     map.addSource("highlight", {
       type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: popupItems.map(({ geometry, ...rest }) => ({
-          type: "Feature",
-          properties: rest,
-          geometry,
-        })),
-      },
+      data: newData,
     });
 
     // add a line layer without line-dasharray defined to fill the gaps in the dashed line
@@ -41,11 +44,13 @@ const addLayer = (map: Raw<Map>, popupItems: PopupItem[]) => {
       type: "line",
       source: "highlight",
       id: "line-background",
+      layout: { "line-cap": "round", "line-join": "round" },
       paint: {
-        "line-color": "yellow",
+        "line-color": (tailwindConfig.theme?.colors as any).grey["600"],
         "line-width": 6,
-        "line-opacity": 0.4,
+        "line-opacity": 0.3,
       },
+      filter: ["!=", "$type", "Point"],
     });
 
     // add a line layer with line-dasharray set to the first value in dashArraySequence
@@ -53,11 +58,14 @@ const addLayer = (map: Raw<Map>, popupItems: PopupItem[]) => {
       type: "line",
       source: "highlight",
       id: "line-dashed",
+      layout: { "line-join": "round" },
       paint: {
-        "line-color": "yellow",
+        "line-color": (tailwindConfig.theme?.colors as any).grey["300"],
         "line-width": 6,
+        "line-opacity": 0.6,
         "line-dasharray": [0, 4, 3],
       },
+      filter: ["!=", "$type", "Point"],
     });
 
     // technique based on https://jsfiddle.net/2mws8y3q/
@@ -85,7 +93,7 @@ const addLayer = (map: Raw<Map>, popupItems: PopupItem[]) => {
       // Update line-dasharray using the next value in dashArraySequence. The
       // divisor in the expression `timestamp / 50` controls the animation speed.
       const newStep = parseInt(
-        ((timestamp / 50) % dashArraySequence.length).toString()
+        ((timestamp / 60) % dashArraySequence.length).toString()
       );
 
       if (newStep !== step) {
@@ -181,7 +189,6 @@ watchEffect(() => {
         clickPopupColumns: foundLayer.click_popup_columns,
         featureDetailColumns: foundLayer.feature_detail_columns,
         imageColumns: foundLayer.image_columns,
-        geometry: feature.geometry,
       };
     });
 
@@ -202,7 +209,6 @@ watchEffect(() => {
         .addTo(map.value!);
       window.dispatchEvent(new Event("resize"));
       slider?.moveToIdx(0);
-      addLayer(map.value!, featureList as PopupItem[]);
     }
   });
 });
@@ -223,6 +229,7 @@ watchEffect(async () => {
       try {
         const querystring = new URLSearchParams({
           fields: [
+            "geom",
             ...popupItem.clickPopupColumns!,
             ...popupItem.imageColumns!,
           ]!.join(","),
@@ -241,19 +248,44 @@ watchEffect(async () => {
     );
     isFetching.value = false;
     features.value = data;
+    showHighlightLayer(map.value!, data as any[]);
   }
 });
 
 const itemIndex = ref(0);
 const nextIndex = () => {
   if (itemIndex.value === popupItems.value.length - 1) return;
-  const i = itemIndex.value + 1;
-  itemIndex.value = i % popupItems.value.length;
+  itemIndex.value++;
+  const newData: GeoJSON.FeatureCollection = {
+    type: "FeatureCollection",
+    features: features.value
+      .filter((_, idx) => idx === itemIndex.value)
+      .map(({ geom, ...rest }) => ({
+        type: "Feature",
+        properties: rest,
+        geometry: geom,
+      })),
+  };
+  (map.value!.getSource("highlight") as GeoJSONSource).setData(newData);
+  map.value!.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 20 });
+  slider?.moveToIdx(0);
 };
 const prevIndex = () => {
   if (itemIndex.value === 0) return;
-  const i = itemIndex.value - 1;
-  itemIndex.value = i % popupItems.value.length;
+  itemIndex.value--;
+  const newData: GeoJSON.FeatureCollection = {
+    type: "FeatureCollection",
+    features: features.value
+      .filter((_, idx) => idx === itemIndex.value)
+      .map(({ geom, ...rest }) => ({
+        type: "Feature",
+        properties: rest,
+        geometry: geom,
+      })),
+  };
+  (map.value!.getSource("highlight") as GeoJSONSource).setData(newData);
+  map.value!.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 20 });
+  slider?.moveToIdx(0);
 };
 </script>
 
@@ -284,7 +316,11 @@ const prevIndex = () => {
           ></IcCross>
         </header>
 
-        <div class="relative w-full h-40">
+        <div
+          :class="`relative w-full ${
+            popupItems[itemIndex]?.imageColumns?.length ? 'h-40' : 'h-0'
+          }`"
+        >
           <div
             ref="sliderContainer"
             class="keen-slider h-full w-full rounded-xs"
