@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import IcCross from "~/assets/icons/ic-cross.svg";
 import IcFileSort from "~/assets/icons/ic-file-sort.svg";
-import IcMapLayerA from "~/assets/icons/ic-map-layer-a.svg";
-import IcMapLayerB from "~/assets/icons/ic-map-layer-b.svg";
-import { uncategorizedAlias } from "~/constants";
+import { geomTypeCircle, geomTypeLine, geomTypePolygon, geomTypeRaster, uncategorizedAlias } from "~/constants";
 
 const mapRefStore = useMapRef();
 const store = useCatalogue();
@@ -78,10 +76,10 @@ const filteredLayers = ref<LayerGroupedByCategory[] | null>(null);
 
 const formatFilter = [
   { type: "all", label: "All Format", checked: true },
-  { type: "CIRCLE", label: "Circle", checked: false },
-  { type: "LINE", label: "Line", checked: false },
-  { type: "POLYGON", label: "Polygon", checked: false },
-  { type: "RASTER", label: "Raster", checked: false },
+  { type: geomTypeCircle, label: "Circle", checked: false },
+  { type: geomTypeLine, label: "Line", checked: false },
+  { type: geomTypePolygon, label: "Polygon", checked: false },
+  { type: geomTypeRaster, label: "Raster", checked: false },
 ];
 const formatLists = ref(formatFilter);
 const handleChangeFormatList = (index: number, value: boolean) => {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { geomTypeCircle, geomTypeLine, geomTypePolygon } from "~/constants";
 import type {
   VectorTiles,
   CircleStyles,
@@ -59,7 +60,7 @@ watchEffect(async (onInvalidate) => {
         beforeId = props.renderedLayers[props.order - 1].layer_id;
       }
 
-      if (props.item.geometry_type === "CIRCLE") {
+      if (props.item.geometry_type === geomTypeCircle) {
         let paint: any = {},
           layout: any = {};
 
@@ -109,7 +110,7 @@ watchEffect(async (onInvalidate) => {
           },
           beforeId || undefined
         );
-      } else if (props.item.geometry_type === "POLYGON") {
+      } else if (props.item.geometry_type === geomTypePolygon) {
         let paint: any = {},
           layout: any = {};
 
@@ -155,7 +156,7 @@ watchEffect(async (onInvalidate) => {
           },
           beforeId || undefined
         );
-      } else if (props.item.geometry_type === "LINE") {
+      } else if (props.item.geometry_type === geomTypeLine) {
         let paint: any = {},
           layout: any = {};
 

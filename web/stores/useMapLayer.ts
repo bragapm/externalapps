@@ -6,7 +6,13 @@ import type {
   LineStyles,
   LayerGroupedByCategory,
 } from "~/utils/types";
-import { uncategorizedAlias } from "~/constants";
+import {
+  geomTypeCircle,
+  geomTypeLine,
+  geomTypePolygon,
+  geomTypeRaster,
+  uncategorizedAlias,
+} from "~/constants";
 
 export const useMapLayer = defineStore("maplayer", () => {
   const groupedActiveLayers = ref<LayerGroupedByCategory[] | null>(null);
@@ -42,13 +48,13 @@ export const useMapLayer = defineStore("maplayer", () => {
       const selected = prev[groupIndex].layerLists[layerIndex];
       if (selected.source === "vector_tiles") {
         let updatedOpacity = opacity;
-        if (selected.geometry_type === "CIRCLE") {
+        if (selected.geometry_type === geomTypeCircle) {
           (selected.layer_style as CircleStyles).paint_circle_opacity =
             updatedOpacity.toString();
-        } else if (selected.geometry_type === "LINE") {
+        } else if (selected.geometry_type === geomTypeLine) {
           (selected.layer_style as LineStyles).paint_line_opacity =
             updatedOpacity.toString();
-        } else if (selected.geometry_type === "POLYGON") {
+        } else if (selected.geometry_type === geomTypePolygon) {
           (selected.layer_style as FillStyles).paint_fill_opacity =
             updatedOpacity.toString();
         }
@@ -83,7 +89,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               layer_alias: item.layer_alias || item.layer_name,
               layer_style: (el as VectorTiles).circle_style as CircleStyles,
               source: "vector_tiles",
-              geometry_type: "CIRCLE",
+              geometry_type: geomTypeCircle,
               dimension: "2D",
             });
           }
@@ -94,7 +100,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               layer_alias: item.layer_alias || item.layer_name,
               layer_style: (el as VectorTiles).line_style as LineStyles,
               source: "vector_tiles",
-              geometry_type: "LINE",
+              geometry_type: geomTypeLine,
               dimension: "2D",
             });
           }
@@ -105,7 +111,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               layer_alias: item.layer_alias || item.layer_name,
               layer_style: (el as VectorTiles).fill_style as FillStyles,
               source: "vector_tiles",
-              geometry_type: "POLYGON",
+              geometry_type: geomTypePolygon,
               dimension: "2D",
             });
           }
@@ -115,7 +121,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             ...item,
             source: "raster_tiles",
             opacity: 1,
-            geometry_type: "RASTER",
+            geometry_type: geomTypeRaster,
             dimension: "2D",
           });
         }

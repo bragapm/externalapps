@@ -4,6 +4,7 @@ import { useFloating, offset, flip, size } from "@floating-ui/vue";
 import IcArrow from "~/assets/icons/ic-arrow-reg.svg";
 import IcPaint from "~/assets/icons/ic-paint.svg";
 import { inject } from "vue";
+import { geomTypeCircle, geomTypeLine, geomTypePolygon } from "~/constants";
 
 const props = defineProps<{
   source: string;
@@ -47,11 +48,12 @@ const paintPropertyName = () => {
   switch (true) {
     case props.source === "raster_tiles":
       return "raster-opacity";
-    case props.source === "vector_tiles" && props.geometryType === "CIRCLE":
+    case props.source === "vector_tiles" &&
+      props.geometryType === geomTypeCircle:
       return "circle-opacity";
-    case props.source === "vector_tiles" && props.geometryType === "LINE":
+    case props.source === "vector_tiles" && props.geometryType === geomTypeLine:
       return "line-opacity";
-    case props.source === "vector_tiles" && props.geometryType === "POLYGON":
+    case props.source === "vector_tiles" && props.geometryType === geomTypePolygon:
       return "fill-opacity";
     default:
       return "";

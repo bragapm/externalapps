@@ -9,7 +9,7 @@ import type {
   CircleStyles,
   VectorTiles,
 } from "~/utils/types";
-import { uncategorizedAlias } from "~/constants";
+import { geomTypeCircle, geomTypeLine, geomTypePolygon, uncategorizedAlias } from "~/constants";
 import { storeToRefs } from "pinia";
 import { provide } from "vue";
 
@@ -67,11 +67,11 @@ const visibility = ref<string>(
     : "none"
 );
 const opacity = ref<string>(
-  props.layerItem.geometry_type === "CIRCLE"
+  props.layerItem.geometry_type === geomTypeCircle
     ? (props.layerItem.layer_style as CircleStyles).paint_circle_opacity
-    : props.layerItem.geometry_type === "POLYGON"
+    : props.layerItem.geometry_type === geomTypePolygon
     ? (props.layerItem.layer_style as FillStyles).paint_fill_opacity
-    : props.layerItem.geometry_type === "LINE"
+    : props.layerItem.geometry_type === geomTypeLine
     ? (props.layerItem.layer_style as LineStyles).paint_line_opacity
     : "0"
 );

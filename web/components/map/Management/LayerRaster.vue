@@ -147,7 +147,7 @@ const updateOpacity = (value: number) => {
         <p
           :class="[visibility ? 'text-grey-400' : 'text-grey-500', 'truncate']"
         >
-          RASTER
+          {{ layerItem.geometry_type }}
         </p>
       </div>
       <div class="flex gap-2 items-center justify-end w-4/12">
