@@ -48,7 +48,12 @@ watchEffect(async () => {
           id: props.item.layer_id,
           type: "hillshade",
           source: props.item.layer_id + "_hillshade",
-          layout: { visibility: props.item.default ? "visible" : "none" },
+          layout: {
+            visibility: props.item.layer_style.layout_visibility as
+              | "visible"
+              | "none"
+              | undefined,
+          },
           paint: { "hillshade-shadow-color": "#473B24" },
         },
         beforeId || undefined

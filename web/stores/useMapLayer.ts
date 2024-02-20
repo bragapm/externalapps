@@ -26,14 +26,7 @@ export const useMapLayer = defineStore("maplayer", () => {
     if (groupedActiveLayers.value) {
       const prev = groupedActiveLayers.value;
       const selected = prev[groupIndex].layerLists[layerIndex];
-
-      if (selected.source === "vector_tiles") {
-        (selected as VectorTiles).layer_style.layout_visibility = visibility;
-      } else if (selected.source === "raster_tiles") {
-        (selected as RasterTiles).default =
-          visibility === "visible" ? true : false;
-      }
-
+      selected.layer_style.layout_visibility = visibility;
       groupedActiveLayers.value = prev;
     }
   };
@@ -123,6 +116,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             opacity: 1,
             geometry_type: geomTypeRaster,
             dimension: "2D",
+            layer_style: { layout_visibility: "none" },
           });
         }
       });

@@ -50,6 +50,8 @@ export type LineStyles = {
   paint_line_opacity: string;
 };
 
+export type RasterStyles = { layout_visibility: string };
+
 export type VectorTiles = {
   source: "vector_tiles";
   bounds: GeoJSON.Polygon;
@@ -75,8 +77,8 @@ export type RasterTiles = {
   opacity: number;
   bounds: GeoJSON.Polygon;
   category: { category_name: string | null };
+  layer_style: RasterStyles;
   geometry_type: string;
-  default: boolean;
   layer_alias: string;
   layer_id: string;
   layer_name?: string;

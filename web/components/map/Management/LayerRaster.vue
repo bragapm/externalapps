@@ -56,14 +56,14 @@ const layerIndex = computed(() => {
 provide("layerIndexProvider", layerIndex.value);
 
 const isShowStyling = ref(false);
-const visibility = ref(props.layerItem.default);
+const visibility = ref(props.layerItem.layer_style.layout_visibility);
 
 const toggleVisibility = () => {
-  if (visibility.value === true) {
+  if (visibility.value === "visible") {
     isShowStyling.value = false;
   }
   if (props.layerItem.terrain_rgb) {
-    if (visibility.value === true) {
+    if (visibility.value === "visible") {
       map.value?.setTerrain(null);
     } else {
       map.value?.setTerrain({
@@ -73,9 +73,10 @@ const toggleVisibility = () => {
     }
   }
   if (groupIndex.value !== undefined && layerIndex.value !== undefined) {
-    const currentVisibility = visibility.value === true ? "none" : "visible";
+    const currentVisibility =
+      visibility.value === "visible" ? "none" : "visible";
     handleVisibility(groupIndex.value, layerIndex.value, currentVisibility);
-    visibility.value = !visibility.value;
+    visibility.value = currentVisibility;
   }
   if (map.value) {
     if (
@@ -140,21 +141,30 @@ const updateOpacity = (value: number) => {
     >
       <div class="w-8/12">
         <p
-          :class="[visibility ? 'text-grey-200' : 'text-grey-500', 'truncate']"
+          :class="[
+            visibility === 'visible' ? 'text-grey-200' : 'text-grey-500',
+            'truncate',
+          ]"
         >
           {{ layerItem.layer_alias }}
         </p>
         <p
-          :class="[visibility ? 'text-grey-400' : 'text-grey-500', 'truncate']"
+          :class="[
+            visibility === 'visible' ? 'text-grey-400' : 'text-grey-500',
+            'truncate',
+          ]"
         >
           {{ layerItem.geometry_type }}
         </p>
       </div>
       <div class="flex gap-2 items-center justify-end w-4/12">
-        <button :disabled="!visibility" @click="isShowStyling = !isShowStyling">
+        <button
+          :disabled="visibility === 'none'"
+          @click="isShowStyling = !isShowStyling"
+        >
           <IcPaint
             :class="[
-              visibility
+              visibility === 'visible'
                 ? isShowStyling
                   ? 'text-brand-500'
                   : 'text-grey-400'
@@ -167,7 +177,7 @@ const updateOpacity = (value: number) => {
         </button>
         <button @click="toggleVisibility">
           <IcEyeCrossed
-            v-if="!visibility"
+            v-if="visibility === 'none'"
             class="text-grey-400 w-3 h-3"
             :fontControlled="false"
           />

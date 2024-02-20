@@ -72,9 +72,9 @@ watchEffect((onCleanup) => {
       leave-from="ml-0 opacity-1"
       leave-to="-ml-8 opacity-0"
       :class="isShowLayerManagement ? 'left-[20.5rem]' : 'left-[1.5rem]'"
-      class="absolute top-[5.5rem] bg-grey-900 h-72 w-[15.5rem] rounded-xs p-3 transition-all ease-in-out duration-300"
+      class="absolute top-[5.5rem] bg-grey-900 h-fit max-h-[calc(100%-12rem)] w-[15.5rem] rounded-xs transition-all ease-in-out duration-300 overflow-hidden flex flex-col"
     >
-      <h2 class="text-white">Legend</h2>
+      <MapLegend />
     </TransitionRoot>
     <TransitionRoot
       as="div"
