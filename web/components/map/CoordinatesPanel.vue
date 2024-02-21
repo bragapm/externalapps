@@ -20,7 +20,7 @@ watchEffect(async () => {
 
 <template>
   <div
-    class="absolute bottom-0 left-0 bg-black/30 rounded-xxs pl-6 pr-2 py-[2px] flex gap-2 text-gray-50 text-2xs"
+    class="z-10 absolute bottom-0 left-0 bg-black/30 rounded-xxs pl-6 pr-2 py-[2px] flex gap-2 text-gray-50 text-2xs"
   >
     <div className="flex gap-2 items-center">
       <p className="whitespace-nowrap">Lat {{ coordinates.lat }}</p>

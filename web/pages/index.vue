@@ -63,7 +63,7 @@ watchEffect((onCleanup) => {
       leave="transform transition-all duration-300"
       leave-from="ml-0 opacity-1"
       leave-to="-ml-8 opacity-0"
-      class="absolute top-[5.5rem] bg-grey-900 w-[18.5rem] rounded-xs left-6 z-10 h-full max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="z-10 absolute top-[5.5rem] bg-grey-900 w-[18.5rem] rounded-xs left-6 h-full max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapManagement />
     </TransitionRoot>
@@ -77,7 +77,7 @@ watchEffect((onCleanup) => {
       leave-from="ml-0 opacity-1"
       leave-to="-ml-8 opacity-0"
       :class="isShowLayerManagement ? 'left-[20.5rem]' : 'left-[1.5rem]'"
-      class="absolute top-[5.5rem] bg-grey-900 h-fit max-h-[calc(100%-12rem)] w-[15.5rem] rounded-xs transition-all ease-in-out duration-300 overflow-hidden flex flex-col"
+      class="z-10 absolute top-[5.5rem] bg-grey-900 h-fit max-h-[calc(100%-12rem)] w-[15.5rem] rounded-xs transition-all ease-in-out duration-300 overflow-hidden flex flex-col"
     >
       <MapLegend />
     </TransitionRoot>
@@ -126,7 +126,7 @@ watchEffect((onCleanup) => {
           ? 'left-[17.5rem]'
           : 'left-[1.5rem]'
       "
-      class="absolute flex flex-col gap-2 shrink top-[5.5rem] left-6 transition-all ease-in-out duration-300"
+      class="z-10 absolute flex flex-col gap-2 shrink top-[5.5rem] left-6 transition-all ease-in-out duration-300"
     >
       <MapButtonControl
         :onClick="() => (isShowLayerManagement = !isShowLayerManagement)"
@@ -152,7 +152,7 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-300"
       leave-from="mr-0 opacity-1"
       leave-to="-mr-8 opacity-0"
-      class="absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapInformation />
     </TransitionRoot>
@@ -165,7 +165,7 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-300"
       leave-from="mr-0 opacity-1"
       leave-to="-mr-8 opacity-0"
-      class="absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapFeatureDetail />
     </TransitionRoot>
@@ -177,7 +177,7 @@ watchEffect((onCleanup) => {
           ? 'right-[20.5rem]'
           : 'right-[1.5rem]'
       "
-      class="absolute flex flex-col gap-2 shrink top-[5.5rem] right-6 transition-all ease-in-out duration-300"
+      class="z-10 absolute flex flex-col gap-2 shrink top-[5.5rem] right-6 transition-all ease-in-out duration-300"
     >
       <MapButtonControl
         :onClick="
@@ -212,13 +212,13 @@ watchEffect((onCleanup) => {
     <!-- bottom left map controller -->
     <div
       :class="showTable ? 'left-[calc(50vw-0.75rem)]' : 'left-6'"
-      class="absolute bottom-8 left-6 transition-all ease-in-out duration-300"
+      class="z-10 absolute bottom-8 left-6 transition-all ease-in-out duration-300"
     >
       <MapCompass />
     </div>
 
     <!-- bottom right map controller -->
-    <div class="absolute bottom-8 right-6">
+    <div class="z-10 absolute bottom-8 right-6">
       <div class="flex gap-2 bg-black/30 rounded-xs p-2">
         <button
           @click="

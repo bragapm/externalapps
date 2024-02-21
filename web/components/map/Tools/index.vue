@@ -33,7 +33,7 @@ const { expandTools } = storeToRefs(toolsStore);
     leave="transition-all duration-300"
     leave-from="mb-0 opacity-1"
     leave-to="-mb-6 opacity-0"
-    class="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-xs transition-all duration-1000 ease-in-out"
+    class="z-10 absolute bottom-8 left-1/2 -translate-x-1/2 rounded-xs transition-all duration-1000 ease-in-out"
   >
     <div
       class="flex gap-2 bg-grey-900 ring-1 ring-grey-700 rounded-xs p-2 transition-all duration-1000 ease-in-out"
