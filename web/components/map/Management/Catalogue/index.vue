@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import IcCross from "~/assets/icons/ic-cross.svg";
 import IcFileSort from "~/assets/icons/ic-file-sort.svg";
+import IcCloudUpload from "~/assets/icons/ic-cloud-upload.svg";
+import IcArrow from "~/assets/icons/ic-arrow-square.svg";
 import {
   layerTypeFilterOptions,
   dimensionFilterOptions,
@@ -16,6 +18,7 @@ const activeLayers = computed(() => {
     ?.map(({ layerLists }) => layerLists)
     .flat();
 });
+const uploadMode = ref(false);
 const addLayer = (layerItem: VectorTiles | RasterTiles) => {
   let groupName = layerItem.category
     ? layerItem.category.category_name
@@ -210,7 +213,9 @@ watch(searchRef, (newValue) => {
     <div class="flex justify-between">
       <div class="flex items-center gap-3">
         <IcFileSort class="text-grey-300 w-4 h-4" :fontControlled="false" />
-        <h1 class="text-grey-50">Data Catalogue</h1>
+        <h1 class="text-grey-50">
+          {{ !uploadMode ? "Data Catalogue" : "User's Catalogue" }}
+        </h1>
       </div>
       <button
         @click="
@@ -224,38 +229,68 @@ watch(searchRef, (newValue) => {
     </div>
     <div class="h-full flex max-h-[calc(100%-2.25rem)]">
       <div
-        class="flex flex-col text-white border border-grey-700 rounded-l-xs p-2 gap-2"
+        class="flex flex-col text-white border border-grey-700 rounded-l-xs gap-2 overflow-hidden"
       >
-        <div class="flex flex-col gap-2">
-          <span class="p-1">
-            <h2 class="text-xs text-grey-400">Default Catalogue</h2>
-            <p class="text-2xs text-grey-500">
-              Dataset Folder/Project Provided by Default
-            </p>
-          </span>
+        <div class="flex-1 overflow-scroll">
+          <div v-if="!uploadMode" class="flex flex-col gap-2 p-2">
+            <span>
+              <h2 class="text-xs text-grey-400">Default Catalogue</h2>
+              <p class="text-2xs text-grey-500">
+                Dataset Folder/Project Provided by Default
+              </p>
+            </span>
+            <UButton
+              v-for="category of mapLayerStore.groupedLayerList"
+              :key="category.label"
+              :ui="{ rounded: 'rounded-xxs' }"
+              :label="category.label"
+              variant="ghost"
+              color="grey"
+              @click="
+                () => {
+                  handleScroll(category.label.split(' ').join(''));
+                }
+              "
+              class="text-xs"
+            />
+          </div>
+          <div v-if="!uploadMode" class="border-t border-grey-700 mx-2" />
+          <div class="flex flex-col gap-2 p-2">
+            <span>
+              <h2 class="text-xs text-grey-400">User’s Catalogue</h2>
+              <p class="text-2xs text-grey-500">
+                Dataset Folder/Project Uploaded by User
+              </p>
+            </span>
+          </div>
+        </div>
+        <div class="flex flex-col p-2 gap-2">
+          <div class="border-t border-grey-700" />
           <UButton
-            v-for="category of mapLayerStore.groupedLayerList"
-            :key="category.label"
             :ui="{ rounded: 'rounded-xxs' }"
-            :label="category.label"
-            variant="ghost"
-            color="grey"
+            :label="!uploadMode ? 'Upload Data' : 'Back to Catalogue'"
+            variant="outline"
+            color="brand"
+            class="w-full justify-between text-sm"
             @click="
               () => {
-                handleScroll(category.label.split(' ').join(''));
+                uploadMode = !uploadMode;
               }
             "
-            class="text-xs"
-          />
-        </div>
-        <div class="border-t border-grey-700" />
-        <div>
-          <span>
-            <h2 class="text-xs text-grey-400">User’s Catalogue</h2>
-            <p class="text-2xs text-grey-500">
-              Dataset Folder/Project Provided by Default
-            </p>
-          </span>
+          >
+            <template #trailing>
+              <IcCloudUpload
+                v-if="!uploadMode"
+                class="w-3 h-3"
+                :fontControlled="false"
+              />
+              <IcArrow
+                v-else-if="uploadMode"
+                class="w-3 h-3"
+                :fontControlled="false"
+              />
+            </template>
+          </UButton>
         </div>
       </div>
       <div class="flex flex-col w-full h-full max-h-full">
@@ -293,12 +328,13 @@ watch(searchRef, (newValue) => {
           class="flex flex-col w-full h-full border border-grey-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y divide-grey-700"
         >
           <template
+            v-if="!uploadMode"
             v-for="category of filteredLayers
               ? filteredLayers
               : mapLayerStore.groupedLayerList"
           >
             <div
-              class="flex flex-col px-3 py-2 gap-1"
+              class="flex flex-col p-3 gap-1"
               :id="category.label.split(' ').join('')"
             >
               <h3 class="text-grey-50">
@@ -330,6 +366,49 @@ watch(searchRef, (newValue) => {
               </div>
             </div>
           </template>
+          <template
+            v-if="uploadMode"
+            v-for="category of filteredLayers
+              ? filteredLayers
+              : mapLayerStore.groupedLayerList"
+          >
+            <div
+              class="flex flex-col p-3 gap-1"
+              :id="category.label.split(' ').join('')"
+            >
+              <h3 class="text-grey-50">
+                {{ category.label }}
+              </h3>
+              <p class="text-xs text-grey-50">description</p>
+              <span class="flex items-center gap-3 text-grey-400 text-xs">
+                <!-- <p>Folder by: {{ folder.created_by }}</p>
+              <p>Made at: {{ folder.created_at }}</p> -->
+                <p>No. of Datasets : {{ category.layerLists.length }}</p>
+              </span>
+              <div
+                class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-3 gap-3"
+              >
+                <MapManagementCatalogueItem
+                  v-for="layer of category.layerLists"
+                  :key="layer.layer_id"
+                  :item="layer"
+                  :isActive="
+                    activeLayers
+                      ? activeLayers.findIndex(
+                          (item) => item.layer_id === layer.layer_id
+                        ) > -1
+                      : false
+                  "
+                  @add-layer="addLayer"
+                  @remove-layer="removeLayer"
+                />
+                <MapManagementCatalogueUploadCard />
+              </div>
+            </div>
+          </template>
+          <div v-if="uploadMode" class="p-3">
+            <MapManagementCatalogueAddFolderCard />
+          </div>
           <div
             v-if="
               mapLayerStore.groupedLayerList?.length === 0 ||
