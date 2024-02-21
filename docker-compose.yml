@@ -40,6 +40,7 @@ services:
       - CACHE_ENABLED=true
       - CACHE_STORE=redis
       - CACHE_AUTO_PURGE=true
+      - CACHE_SYSTEM_TTL=5m
       # file storage
       - STORAGE_LOCATIONS=s3
       - STORAGE_S3_DRIVER=s3
