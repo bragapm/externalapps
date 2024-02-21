@@ -47,6 +47,7 @@ const activeFilter = computed(() =>
         <template v-for="(item, index) in list" :key="item.type">
           <MenuItem as="div" v-slot="{ active }">
             <CoreCheckbox
+              :id="item.type"
               :index="index"
               :label="item.label"
               :icon="item.icon"

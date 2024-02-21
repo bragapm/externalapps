@@ -23,7 +23,7 @@ export const layerTypeFilterOptions = [
 ];
 
 export const dimensionFilterOptions = [
-  { type: "all", label: "All Format", checked: true, icon: IcMapLayerA },
+  { type: "all", label: "All Dimension", checked: true, icon: IcMapLayerA },
   { type: "2D", label: "2D", checked: false, icon: IcGlobe },
   { type: "3D", label: "3D", checked: false, icon: Ic3d },
 ];

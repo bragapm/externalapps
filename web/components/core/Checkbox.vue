@@ -5,6 +5,7 @@ import IcDrawFree from "~/assets/icons/ic-draw-free.svg";
 import IcMapLayerB from "~/assets/icons/ic-map-layer-b.svg";
 
 const props = defineProps<{
+  id: string;
   index: number;
   label: string;
   icon?: string;
@@ -32,6 +33,7 @@ watchEffect(() => {
         }
       "
       class="w-full"
+      :disabled="id === 'all' && isChecked"
     >
       <div
         :class="[
