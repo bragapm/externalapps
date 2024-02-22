@@ -2,6 +2,7 @@ import os
 import traceback
 
 import dramatiq.results
+from dramatiq.middleware import TimeLimitExceeded
 from osgeo import gdal
 
 from utils import init_gdal_config, logger
@@ -9,9 +10,9 @@ from utils import init_gdal_config, logger
 
 @dramatiq.actor(store_results=True)
 def convert(input_file: str, output_file: str, **kwargs):
-    init_gdal_config()
-
     try:
+        init_gdal_config()
+
         # Open the source dataset
         src_ds = gdal.OpenEx(
             f"/vsis3/{os.environ.get('STORAGE_S3_BUCKET')}/{input_file}",
@@ -39,7 +40,10 @@ def convert(input_file: str, output_file: str, **kwargs):
         # Close the dataset
         src_ds = None
     except Exception as err:
-        error_message = str(err)
         error_traceback = traceback.format_exc()
-        logger.error(error_traceback)
+        if isinstance(err, TimeLimitExceeded):
+            error_message = "Time limit exceeded. File might be too big to process."
+        else:
+            error_message = str(err)
+            logger.error(error_traceback)
         return {"error": error_message, "traceback": error_traceback}

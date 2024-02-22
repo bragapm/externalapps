@@ -2,6 +2,7 @@ import os
 import shutil
 import traceback
 
+from dramatiq.middleware import TimeLimitExceeded
 import dramatiq.results
 
 from lib.raster_tiling import delete_generated_tiles, raster_tiling
@@ -22,10 +23,10 @@ def tiling(
     is_terrain: bool,
     **kwargs,
 ):
-    init_gdal_config()
-    bucket = os.environ.get("STORAGE_S3_BUCKET")
-    layer_id = ""
     try:
+        init_gdal_config()
+        bucket = os.environ.get("STORAGE_S3_BUCKET")
+        layer_id = ""
         if not bucket:
             raise Exception("S3 bucket not configured")
         if is_terrain:
@@ -67,11 +68,17 @@ def tiling(
             del_err_generator = delete_generated_tiles(bucket, layer_id)
             for del_err in del_err_generator:
                 del_errs.append(del_err)
-        error_message = str(err)
+
+        error_traceback = traceback.format_exc()
+        if isinstance(err, TimeLimitExceeded):
+            error_message = "Time limit exceeded. File might be too big to process."
+        else:
+            error_message = str(err)
+            logger.error(error_traceback)
+
         if len(del_errs):
             error_message += f" Error deleting half generated tiles. Please delete manually via S3 console: {str(del_errs)}"
-        error_traceback = traceback.format_exc()
-        logger.error(error_traceback)
+
         return {"error": error_message, "traceback": error_traceback}
     finally:
         # cleanup

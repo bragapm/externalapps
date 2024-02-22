@@ -3,6 +3,7 @@ import shutil
 import traceback
 
 import dramatiq
+from dramatiq.middleware import TimeLimitExceeded
 from osgeo import gdal
 
 from lib.create_table import create_table_from_header_info
@@ -30,10 +31,10 @@ def transform(
     table_name: str,
     **kwargs
 ):
-    init_gdal_config()
-    bucket = os.environ.get("STORAGE_S3_BUCKET")
-    table_name = table_name or os.path.splitext(os.path.basename(object_key))[0]
     try:
+        init_gdal_config()
+        bucket = os.environ.get("STORAGE_S3_BUCKET")
+        table_name = table_name or os.path.splitext(os.path.basename(object_key))[0]
         if not bucket:
             raise Exception("S3 bucket not configured")
         header_info, data_source = get_header_info(
@@ -48,9 +49,12 @@ def transform(
         pool.putconn(conn)
         return header_info
     except Exception as err:
-        error_message = str(err)
-        error_traceback = traceback.format_exc()  # This captures the full traceback
-        logger.error(error_traceback)  # Log the full traceback
+        error_traceback = traceback.format_exc()
+        if isinstance(err, TimeLimitExceeded):
+            error_message = "Time limit exceeded. File might be too big to process."
+        else:
+            error_message = str(err)
+            logger.error(error_traceback)
         return {"error": error_message, "traceback": error_traceback}
     finally:
         # cleanup
