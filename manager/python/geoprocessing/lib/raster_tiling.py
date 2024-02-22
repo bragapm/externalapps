@@ -54,7 +54,7 @@ class GDAL2TilesOptions:
         self.zoom = (min_zoom, max_zoom)
 
 
-def delete_generated_tiles(bucket, layer_id: str):
+def delete_generated_tiles(bucket: str, layer_id: str):
     delete_object_list = map(
         lambda x: DeleteObject(x.object_name),
         minio_client.list_objects(bucket, f"raster-tiles/{layer_id}/", recursive=True),

@@ -63,7 +63,7 @@ def tiling(
         }
     except Exception as err:
         del_errs = []
-        if layer_id:
+        if layer_id and bucket:
             del_err_generator = delete_generated_tiles(bucket, layer_id)
             for del_err in del_err_generator:
                 del_errs.append(del_err)
