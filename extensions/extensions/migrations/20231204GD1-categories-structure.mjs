@@ -11,7 +11,8 @@ export async function up(knex) {
       user_updated uuid REFERENCES directus_users (id),
       date_updated timestamp with time zone,
       category_name character varying(255) NOT NULL,
-      category_source character varying(255) NOT NULL,
+      description text,
+      contributor character varying(255),
       parent uuid REFERENCES categories (category_id)
         ON DELETE SET NULL
     );
@@ -27,7 +28,8 @@ export async function up(knex) {
       ('categories','user_updated','user-updated','select-dropdown-m2o','{"template":"{{avatar.$thumbnail}} {{first_name}} {{last_name}}"}','user',NULL,TRUE,TRUE,'half',FALSE),
       ('categories','date_updated','date-updated','datetime',NULL,'datetime','{"relative":true}',TRUE,TRUE,'half',FALSE),
       ('categories','category_name',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,'full',TRUE),
-      ('categories','category_source',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,'full',TRUE),
+      ('categories','description',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,'full',FALSE),
+      ('categories','contributor',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,'full',FALSE),
       ('categories','parent','m2o','select-dropdown-m2o','{"template":"{{category_name}}"}','related-values','{"template":"{{category_name}}"}',FALSE,FALSE,'full',FALSE),
       ('categories','subcategories','o2m','list-o2m-tree-view','{"displayTemplate":"{{category_name}}"}','related-values','{"template":"{{category_name}}"}',FALSE,FALSE,'full',FALSE);
 
