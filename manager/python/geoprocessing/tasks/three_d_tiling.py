@@ -58,7 +58,10 @@ def three_d_tiling(
 
         temp_tiles_dir_path = os.path.join(temp_dir_path, "3dtiles/")
         convert_to_3d_tiles(
-            temp_file_path, outfolder=temp_tiles_dir_path, crs_out=CRS.from_epsg(4978)
+            temp_file_path,
+            outfolder=temp_tiles_dir_path,
+            crs_out=CRS.from_epsg(4978),
+            rgb=False,
         )
 
         layer_id = str(uuid4())
