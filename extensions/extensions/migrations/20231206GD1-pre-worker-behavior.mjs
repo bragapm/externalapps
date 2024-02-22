@@ -10,11 +10,17 @@ export async function up(knex) {
       v_now TIMESTAMP WITH TIME ZONE;
       v_timestamp BIGINT;
       actor_name TEXT;
+      terrain_rgb_enabled boolean;
+      three_d_tiling_enabled boolean;
   BEGIN
       -- If the folder is NULL or is_ready is not true, return early without doing anything
       IF NEW.folder IS NULL OR NEW.is_ready IS NOT TRUE THEN
-          RETURN NEW;
+          RETURN NULL;
       END IF;
+      
+      -- Get worker configuration
+      SELECT terrain_rgb_worker, three_d_tiling_worker INTO STRICT terrain_rgb_enabled, three_d_tiling_enabled
+      FROM directus_settings;
 
       -- Check if the folder is 'Layer Data'
       IF NEW.folder = '${LAYER_DATA_FOLDER_ID}' THEN
@@ -29,8 +35,14 @@ export async function up(knex) {
 
           -- Set worker or actor name
           IF NEW.format_file = 'tif' THEN
+              IF NEW.is_terrain = TRUE AND terrain_rgb_enabled = FALSE THEN
+                  RAISE EXCEPTION 'Terrain RGB worker is not enabled';
+              END IF;
               actor_name := 'tiling';
           ELSIF NEW.format_file = 'las/laz' THEN
+              IF three_d_tiling_enabled = FALSE THEN
+                  RAISE EXCEPTION '3D tiling worker is not enabled';
+              END IF;
               actor_name := 'three_d_tiling';
           ELSE
               actor_name := 'transform';
@@ -72,7 +84,7 @@ export async function up(knex) {
           );
       END IF;
 
-      RETURN NEW;
+      RETURN NULL;
   END;
   $$ LANGUAGE plpgsql;
 
