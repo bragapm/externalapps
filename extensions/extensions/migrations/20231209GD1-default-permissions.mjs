@@ -12,7 +12,8 @@ export async function up(knex) {
       ('fill','read','{}','{}','*'),
       ('external_tiles','read','{"_and":[{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,tile_type,is_tilejson,tilejson_url,tile_url,layer_style_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category,active'),
       ('circle','read','{}','{}','*'),
-      ('categories','read','{}','{}','*');
+      ('categories','read','{}','{}','*'),
+      ('three_d_tiles','read','{"_and":[{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,layer_alias,active');
 
     CREATE OR REPLACE FUNCTION handle_non_admin_non_app_directus_roles_insert()
       RETURNS trigger
@@ -31,7 +32,8 @@ export async function up(knex) {
           (NEW.id,'fill','read','{}','{}','*'),
           (NEW.id,'external_tiles','read','{"_and":[{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,tile_type,is_tilejson,tilejson_url,tile_url,layer_style_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category,active'),
           (NEW.id,'circle','read','{}','{}','*'),
-          (NEW.id,'categories','read','{}','{}','*');
+          (NEW.id,'categories','read','{}','{}','*'),
+          (NEW.id,'three_d_tiles','read','{"_and":[{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,layer_alias,active');
         RETURN NULL;
       END;
     $BODY$;
@@ -49,6 +51,6 @@ export async function down(knex) {
     DROP TRIGGER IF EXISTS on_non_admin_non_app_directus_roles_insert ON directus_roles;
     DROP FUNCTION IF EXISTS handle_non_admin_non_app_directus_roles_insert();
 
-    DELETE FROM directus_permissions WHERE collection IN ('vector_tiles','symbol','raster_tiles','raster_overlays','line','fill','external_tiles','circle','categories') AND role IS NULL AND action = 'read';
+    DELETE FROM directus_permissions WHERE collection IN ('vector_tiles','symbol','raster_tiles','raster_overlays','line','fill','external_tiles','circle','categories','three_d_tiles') AND role IS NULL AND action = 'read';
   `);
 }

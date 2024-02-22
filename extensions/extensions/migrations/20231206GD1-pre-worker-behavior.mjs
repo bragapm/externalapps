@@ -30,6 +30,8 @@ export async function up(knex) {
           -- Set worker or actor name
           IF NEW.format_file = 'tif' THEN
               actor_name := 'tiling';
+          ELSIF NEW.format_file = 'las/laz' THEN
+              actor_name := 'three_d_tiling';
           ELSE
               actor_name := 'transform';
           END IF;
@@ -58,7 +60,8 @@ export async function up(knex) {
                       'raster_alias', NEW.raster_alias,
                       'minzoom', NEW.minzoom,
                       'maxzoom', NEW.maxzoom,
-                      'is_terrain', NEW.is_terrain
+                      'is_terrain', NEW.is_terrain,
+                      'three_d_alias', NEW.three_d_alias
                   ),
                   'options', jsonb_build_object(),
                   'actor_name', actor_name,
