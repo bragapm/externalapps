@@ -7,7 +7,7 @@ import KeenSlider, {
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcArrowLeft from "~/assets/icons/ic-arrow-left.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
-import IcChartPie from "~/assets/icons/ic-chart-pie.svg";
+import IcDetail from "~/assets/icons/ic-detail.svg";
 import {
   TransitionRoot,
   TransitionChild,
@@ -15,7 +15,9 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/vue";
+import type { GeoJSONSource } from "maplibre-gl";
 
+const mapRefStore = useMapRef();
 const ResizePlugin: KeenSliderPlugin = (slider) => {
   const observer = new ResizeObserver(function () {
     slider.update();
@@ -91,21 +93,41 @@ const detail = ref<{
   attachments: [],
   gallery: [],
 });
+const errorMessage = ref("");
 
 watchEffect(async () => {
   if (featureStore.feature)
     try {
       isLoading.value = true;
-      const res = await $fetch(
+      const res: any = await $fetch(
         `/panel/feature-detail/${featureStore.feature.tableName}/${featureStore.feature.rowId}`
       );
-      detail.value = res as any;
+
+      if (Object.values(res).filter((e) => e !== null).length) {
+        detail.value = res;
+      } else {
+        throw new Error("No content");
+      }
     } catch (error) {
-      return null;
+      errorMessage.value = "Error happened";
     } finally {
       isLoading.value = false;
     }
 });
+
+const clearSelection = () => {
+  const emptyData: GeoJSON.FeatureCollection = {
+    type: "FeatureCollection",
+    features: [],
+  };
+  (mapRefStore.map!.getSource("highlight") as GeoJSONSource)?.setData(
+    emptyData
+  );
+  featureStore.setRightSidebar("");
+  setTimeout(() => {
+    featureStore.setFeature(undefined);
+  }, 500);
+};
 </script>
 
 <template>
@@ -124,7 +146,7 @@ watchEffect(async () => {
       v-if="!featureStore.feature"
       class="h-full flex flex-col justify-center items-center text-white text-center gap-3"
     >
-      <IcChartPie :fontControlled="false" class="w-12 h-12 text-brand-500" />
+      <IcDetail :fontControlled="false" class="w-12 h-12 text-brand-500" />
       <h4 class="text-sm text-grey-50">Feature Detail will be shown here.</h4>
       <p class="text-xs text-grey-400">
         Please click layer feature first to show the feature properties here.
@@ -143,10 +165,22 @@ watchEffect(async () => {
       <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
     </div>
 
+    <div
+      v-else-if="Boolean(errorMessage)"
+      class="h-full flex flex-col justify-center items-center text-white text-center gap-3"
+    >
+      <IcDetail :fontControlled="false" class="w-12 h-12 text-brand-500" />
+      <h4 class="text-sm text-grey-50">Content structure has not been set.</h4>
+      <p class="text-xs text-grey-400">
+        Please contact data owner to set content structure for this layer
+        feature detail.
+      </p>
+    </div>
+
     <template v-else-if="detail">
       <MapMarkdownRenderer v-if="detail.markdown" :source="detail.markdown" />
 
-      <div v-if="detail.gallery.length">
+      <div v-if="detail.gallery?.length">
         <p class="text-white text-sm my-3">Image Gallery</p>
         <ul class="flex space-x-1 relative">
           <img
@@ -175,7 +209,7 @@ watchEffect(async () => {
         </ul>
       </div>
 
-      <ul class="mt-3 space-y-3" v-if="detail.attachments.length">
+      <ul class="mt-3 space-y-3" v-if="detail.attachments?.length">
         <p class="text-white text-sm">Attachment</p>
         <MapAttachmentLink
           v-for="attachment in detail.attachments"
@@ -183,9 +217,20 @@ watchEffect(async () => {
           :description="attachment.description"
           :url="attachment.url"
           :icon="attachment.icon"
-        /></ul
-    ></template>
+        />
+      </ul>
+    </template>
   </div>
+  <UButton
+    v-if="featureStore.feature && detail"
+    :ui="{ rounded: 'rounded-xxs' }"
+    label="Clear Feature Selection"
+    variant="outline"
+    color="brand"
+    class="m-3"
+    @click="clearSelection"
+  >
+  </UButton>
 
   <TransitionRoot appear :show="isOpen" as="template">
     <Dialog as="div" @close="closeModal" class="relative z-10">

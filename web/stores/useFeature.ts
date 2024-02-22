@@ -5,7 +5,7 @@ export type rightSidebarEnum = "mapinfo" | "feature" | "";
 
 export const useFeature = defineStore("feature", () => {
   const feature = ref<PopupItem>();
-  function setFeature(newFeature: PopupItem) {
+  function setFeature(newFeature: PopupItem | undefined) {
     feature.value = newFeature;
   }
   const rightSidebar = ref<rightSidebarEnum>("");

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type {
   GeoJSONSource,
-  LngLatBoundsLike,
-  LngLatLike,
   MapGeoJSONFeature,
   MapMouseEvent,
   PointLike,
@@ -220,6 +218,10 @@ const prevFeature = () => {
           ></IcCross>
         </header>
 
+        <h4 class="text-xs font-normal text-left w-full">
+          {{ featureIndex + 1 }}/{{ features.length }} Layer Selection
+        </h4>
+
         <div
           :class="`relative w-full ${
             popupItems[featureIndex]?.imageColumns?.length ? 'h-40' : 'h-0'
@@ -317,13 +319,14 @@ const prevFeature = () => {
         </article>
 
         <footer class="w-full flex items-center pt-2 space-x-2">
-          <IcArrowReg
-            role="button"
-            :fontControlled="false"
-            :disabled="popupItems?.length < 2"
+          <button
+            :disabled="popupItems?.length < 2 || featureIndex === 0"
             @click="prevFeature"
-            class="rounded-xs border w-9 h-9 flex justify-center items-center -rotate-90 text-grey-400 border-grey-400"
-          />
+            class="rounded-xs border w-9 h-9 flex justify-center items-center -rotate-90 text-grey-400 border-grey-400 disabled:text-grey-600 disabled:border-grey-600"
+          >
+            <IcArrowReg :fontControlled="false" />
+          </button>
+
           <button
             @click="
               () => {
@@ -334,13 +337,15 @@ const prevFeature = () => {
           >
             More Detail
           </button>
-          <IcArrowReg
-            role="button"
-            :fontControlled="false"
-            :disabled="popupItems?.length < 2"
+          <button
+            :disabled="
+              popupItems?.length < 2 || featureIndex === features.length - 1
+            "
             @click="nextFeature"
-            class="rounded-xs border w-9 h-9 flex justify-center items-center rotate-90 text-grey-400 border-grey-400"
-          />
+            class="rounded-xs border w-9 h-9 flex justify-center items-center rotate-90 text-grey-400 border-grey-400 disabled:text-grey-600 disabled:border-grey-600"
+          >
+            <IcArrowReg :fontControlled="false" />
+          </button>
         </footer>
       </section>
     </div>
