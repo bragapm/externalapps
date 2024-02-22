@@ -48,7 +48,7 @@ def three_d_tiling(
 ):
     try:
         init_gdal_config()
-        bucket = os.environ.get("STORAGE_S3_BUCKET", "")
+        bucket = os.environ.get("STORAGE_S3_BUCKET")
         temp_dir_path = generate_local_temp_dir_path(object_key)
         temp_file_path = os.path.join(temp_dir_path, object_key)
         layer_id = ""
@@ -80,7 +80,7 @@ def three_d_tiling(
         return {"layer_id": layer_id}
     except Exception as err:
         del_errs = []
-        if layer_id:
+        if layer_id and bucket:
             del_err_generator = delete_generated_tiles(bucket, layer_id)
             for del_err in del_err_generator:
                 del_errs.append(del_err)
