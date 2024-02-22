@@ -5,6 +5,7 @@ import { Map, GeolocateControl } from "maplibre-gl";
 export const useMapRef = defineStore("mapref", () => {
   const mapLoad = ref<boolean>(false);
   const map = ref<null | Raw<Map>>(null);
+  const ctrl = ref<null | any>(null);
   const geolocateRef = ref<null | Raw<GeolocateControl>>(null);
   function setMapLoad(value: boolean) {
     mapLoad.value = value;
@@ -12,9 +13,21 @@ export const useMapRef = defineStore("mapref", () => {
   function setMapRef(value: null | Raw<Map>) {
     map.value = value;
   }
+  function setCtrlRef(value: null | any) {
+    ctrl.value = value;
+  }
   function setGeolocateRef(value: null | Raw<GeolocateControl>) {
     geolocateRef.value = value;
   }
 
-  return { mapLoad, setMapLoad, map, setMapRef, geolocateRef, setGeolocateRef };
+  return {
+    mapLoad,
+    setMapLoad,
+    map,
+    setMapRef,
+    geolocateRef,
+    setGeolocateRef,
+    ctrl,
+    setCtrlRef,
+  };
 });

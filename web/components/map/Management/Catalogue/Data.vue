@@ -15,7 +15,7 @@ const activeLayers = computed(() => {
     .flat();
 });
 
-const addLayer = (layerItem: VectorTiles | RasterTiles) => {
+const addLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
   let groupName = layerItem.category
     ? layerItem.category.category_name
     : uncategorizedAlias;
@@ -34,7 +34,7 @@ const addLayer = (layerItem: VectorTiles | RasterTiles) => {
     });
   }
 };
-const removeLayer = (layerItem: VectorTiles | RasterTiles) => {
+const removeLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
   let groupName = layerItem.category
     ? layerItem.category.category_name
     : uncategorizedAlias;
@@ -56,7 +56,9 @@ const removeLayer = (layerItem: VectorTiles | RasterTiles) => {
     ]?.layerLists.splice(layerIndex as number, 1);
   }
 
-  mapRefStore.map?.removeLayer(layerItem.layer_id);
+  if (layerItem.source !== "three_d_tiles") {
+    mapRefStore.map?.removeLayer(layerItem.layer_id);
+  }
 };
 </script>
 

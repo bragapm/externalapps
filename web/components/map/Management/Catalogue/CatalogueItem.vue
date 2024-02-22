@@ -4,21 +4,21 @@ import IcHelp from "~/assets/icons/ic-help.svg";
 import IcSpinner from "~/assets/icons/ic-spinner.svg";
 import IcCheck from "~/assets/icons/ic-check.svg";
 import IcMapLayerA from "~/assets/icons/ic-map-layer-a.svg";
-import type { VectorTiles, RasterTiles } from "~/utils/types";
+import type { VectorTiles, RasterTiles, ThreeDTiles } from "~/utils/types";
 
 defineProps<{
-  item: VectorTiles | RasterTiles;
+  item: VectorTiles | RasterTiles | ThreeDTiles;
   isActive: boolean;
 }>();
 
 const emit = defineEmits<{
-  addLayer: [layerItem: VectorTiles | RasterTiles];
-  removeLayer: [layerItem: VectorTiles | RasterTiles];
+  addLayer: [layerItem: VectorTiles | RasterTiles | ThreeDTiles];
+  removeLayer: [layerItem: VectorTiles | RasterTiles | ThreeDTiles];
 }>();
 
 const isLoad = ref(false);
 
-const addLayer = (item: VectorTiles | RasterTiles) => {
+const addLayer = (item: VectorTiles | RasterTiles | ThreeDTiles) => {
   isLoad.value = true;
   setTimeout(() => {
     isLoad.value = false;
@@ -26,7 +26,7 @@ const addLayer = (item: VectorTiles | RasterTiles) => {
   }, 750);
 };
 
-const removeLayer = (item: VectorTiles | RasterTiles) => {
+const removeLayer = (item: VectorTiles | RasterTiles | ThreeDTiles) => {
   isLoad.value = true;
   setTimeout(() => {
     isLoad.value = false;
@@ -75,7 +75,9 @@ const removeLayer = (item: VectorTiles | RasterTiles) => {
     <article>
       <div class="flex items-center justify-between gap-2">
         <h5 class="text-xs text-grey-50 truncate">
-          {{ item.layer_alias || item.layer_name }}
+          {{
+            item.layer_alias || (item as VectorTiles | RasterTiles).layer_name
+          }}
         </h5>
         <button>
           <IcHelp class="w-3 h-3 text-brand-500" :fontControlled="false" />

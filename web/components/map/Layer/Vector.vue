@@ -5,13 +5,14 @@ import type {
   CircleStyles,
   FillStyles,
   LineStyles,
+LayerLists,
 } from "~/utils/types";
 
 const store = useMapRef();
 const { map } = storeToRefs(store);
 
 const props = defineProps<{
-  renderedLayers: (VectorTiles | RasterTiles)[];
+  renderedLayers: LayerLists;
   item: VectorTiles;
   order: number;
 }>();

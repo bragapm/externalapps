@@ -1,11 +1,21 @@
 <script lang="ts" setup>
 const store = useMapLayer();
 const renderedLayers = computed(() => {
+  return store.groupedActiveLayers
+    ?.map(({ layerLists }) => layerLists)
+    .flat()
+    .filter((el) => el.source !== "three_d_tiles");
+});
+const threeDRenderedLayers = computed(() => {
   return store.groupedActiveLayers?.map(({ layerLists }) => layerLists).flat();
 });
 </script>
 
 <template>
+  <MapLayer3D
+    v-if="threeDRenderedLayers"
+    :data="threeDRenderedLayers?.filter((el) => el.source === 'three_d_tiles')"
+  />
   <template
     v-if="renderedLayers"
     v-for="(layerItem, index) in renderedLayers"

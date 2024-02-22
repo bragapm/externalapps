@@ -6,7 +6,7 @@ import type { LngLatBoundsLike } from "maplibre-gl";
 import bbox from "@turf/bbox";
 
 defineProps<{
-  bounds: GeoJSON.Polygon;
+  bounds: GeoJSON.Polygon | null;
 }>();
 
 const store = useTableData();
@@ -47,7 +47,9 @@ const { floatingStyles } = useFloating(reference, floating, {
             <button
               @click="
                 () => {
+                  if(bounds){
                   map?.fitBounds(bbox(bounds) as LngLatBoundsLike, { padding: 20 });
+                }
                 }
               "
               :class="[

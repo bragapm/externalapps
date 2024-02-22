@@ -5,12 +5,15 @@ import type {
   FillStyles,
   LineStyles,
   LayerGroupedByCategory,
+  LayerLists,
+  ThreeDTiles,
 } from "~/utils/types";
 import {
   geomTypeCircle,
   geomTypeLine,
   geomTypePolygon,
   geomTypeRaster,
+  geomTypeThreeD,
   uncategorizedAlias,
 } from "~/constants";
 
@@ -61,13 +64,16 @@ export const useMapLayer = defineStore("maplayer", () => {
 
   const getLayersArr = (layers: {
     vectorTiles: {
-      data: (VectorTiles | RasterTiles)[];
+      data: LayerLists;
     };
     rasterTiles: {
-      data: (VectorTiles | RasterTiles)[];
+      data: LayerLists;
+    };
+    threeDTiles: {
+      data: LayerLists;
     };
   }) => {
-    const layersArr: (VectorTiles | RasterTiles)[] = [];
+    const layersArr: LayerLists = [];
     for (const [key, value] of Object.entries(layers)) {
       value.data.forEach((el) => {
         if (key === "vectorTiles") {
@@ -118,6 +124,17 @@ export const useMapLayer = defineStore("maplayer", () => {
             dimension: "2D",
             layer_style: { layout_visibility: "none" },
           });
+        } else if (key === "threeDTiles") {
+          const item = el as ThreeDTiles;
+          layersArr.push({
+            ...item,
+            source: "three_d_tiles",
+            opacity: 1,
+            geometry_type: geomTypeThreeD,
+            dimension: "3D",
+            layer_style: { layout_visibility: "none" },
+            category: { category_name: "3D" },
+          });
         }
       });
     }
@@ -131,7 +148,7 @@ export const useMapLayer = defineStore("maplayer", () => {
     return layersArr;
   };
 
-  const groupLayerByCategory = (layerLists: (VectorTiles | RasterTiles)[]) => {
+  const groupLayerByCategory = (layerLists: LayerLists) => {
     const layerGroupedByCategory = layerLists.reduce(
       (group: LayerGroupedByCategory[], item) => {
         const existingCategory = group.find((group: LayerGroupedByCategory) => {
@@ -178,18 +195,19 @@ export const useMapLayer = defineStore("maplayer", () => {
       const { data: layers, pending } = await useAsyncData(
         "map-layer-tiles",
         async () => {
-          const [vectorTiles, rasterTiles] = await Promise.all<{
-            data: (VectorTiles | RasterTiles)[];
+          const [vectorTiles, rasterTiles, threeDTiles] = await Promise.all<{
+            data: LayerLists;
           }>([
             $fetch("/panel/items/vector_tiles?fields=*.*&sort=layer_name"),
             $fetch("/panel/items/raster_tiles?fields=*.*&sort=layer_alias"),
+            $fetch("/panel/items/three_d_tiles?fields=*.*&sort=layer_alias"),
           ]);
 
-          return { vectorTiles, rasterTiles };
+          return { vectorTiles, rasterTiles, threeDTiles };
         }
       );
 
-      const allLayerData: (VectorTiles | RasterTiles)[] = [];
+      const allLayerData: LayerLists = [];
       if (layers.value) {
         allLayerData.push(...getLayersArr(layers.value));
       }
@@ -207,8 +225,8 @@ export const useMapLayer = defineStore("maplayer", () => {
       const { data: layers, pending } = await useAsyncData(
         "map-layer-tiles",
         async () => {
-          const [vectorTiles, rasterTiles] = await Promise.all<{
-            data: (VectorTiles | RasterTiles)[];
+          const [vectorTiles, rasterTiles, threeDTiles] = await Promise.all<{
+            data: LayerLists;
           }>([
             $fetch(
               "/panel/items/vector_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_name"
@@ -216,13 +234,16 @@ export const useMapLayer = defineStore("maplayer", () => {
             $fetch(
               "/panel/items/raster_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_alias"
             ),
+            $fetch(
+              "/panel/items/three_d_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_alias"
+            ),
           ]);
 
-          return { vectorTiles, rasterTiles };
+          return { vectorTiles, rasterTiles, threeDTiles };
         }
       );
 
-      const allLayerData: (VectorTiles | RasterTiles)[] = [];
+      const allLayerData: LayerLists = [];
 
       if (layers.value) {
         allLayerData.push(...getLayersArr(layers.value));

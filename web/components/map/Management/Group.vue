@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RasterTiles, VectorTiles } from "~/utils/types";
+import type { LayerLists, RasterTiles, VectorTiles } from "~/utils/types";
 import {
   Disclosure,
   DisclosureButton,
@@ -7,13 +7,14 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
+import { geomTypeThreeD } from "~/constants";
 
 const props = defineProps<{
   order: number;
   filtered: boolean;
   defaultOpen: boolean;
   label: string;
-  layerLists: (VectorTiles | RasterTiles)[];
+  layerLists: LayerLists;
   dragGroup?: any;
   dragOverGroup?: any;
 }>();
@@ -72,7 +73,7 @@ const handleChangeOrder = () => {
   <Disclosure v-slot="{ open }">
     <DisclosureButton
       @click="() => (isPanelOpen = !isPanelOpen)"
-      :draggable="filtered ? false : true"
+      :draggable="label === geomTypeThreeD ? false : filtered ? false : true"
       @dragstart="
         (e) => {
           emit('updateDragGroup', order);
@@ -80,12 +81,16 @@ const handleChangeOrder = () => {
       "
       @dragenter="
         () => {
-          emit('updateDragOverGroup', order);
+          if (label !== geomTypeThreeD) {
+            emit('updateDragOverGroup', order);
+          }
         }
       "
       @drop="
         () => {
-          emit('handleChangeGroupOrder');
+          if (label !== geomTypeThreeD) {
+            emit('handleChangeGroupOrder');
+          }
         }
       "
       @dragover="(e) => e.preventDefault()"
@@ -144,6 +149,13 @@ const handleChangeOrder = () => {
             :dragOverItem="dragOverItem"
             @update-drag-over-item="updateDragOverItem"
             @handle-change-order="handleChangeOrder"
+          />
+          <MapManagementLayerThreeD
+            v-else-if="item.source === 'three_d_tiles'"
+            :filtered="filtered"
+            :order="index"
+            :groupOrder="order"
+            :layerItem="(item as ThreeDTiles)"
           />
         </template>
       </DisclosurePanel>

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import bbox from "@turf/bbox";
-import type { RasterTiles } from "~/utils/types";
+import type { LayerLists, RasterTiles } from "~/utils/types";
 
 const store = useMapRef();
 const { map } = storeToRefs(store);
 
 const props = defineProps<{
-  renderedLayers: (VectorTiles | RasterTiles)[];
+  renderedLayers: LayerLists;
   item: RasterTiles;
   order: number;
 }>();

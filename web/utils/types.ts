@@ -91,9 +91,22 @@ export type RasterTiles = {
   dimension: string;
 };
 
+export type ThreeDTiles = {
+  source: "three_d_tiles";
+  opacity: number;
+  layer_style: { layout_visibility: string };
+  geometry_type: string;
+  layer_alias: string;
+  layer_id: string;
+  category: { category_name: string | null };
+  dimension: string;
+};
+
+export type LayerLists = (VectorTiles | RasterTiles | ThreeDTiles)[];
+
 export type LayerGroupedByCategory = {
   label: string;
-  layerLists: (VectorTiles | RasterTiles)[];
+  layerLists: LayerLists;
   defaultOpen: boolean;
 };
 
