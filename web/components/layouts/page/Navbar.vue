@@ -24,6 +24,26 @@ const isDark = computed({
 
 import { useMapData } from "~/utils";
 const { isLoading, data: mapData } = await useMapData();
+
+const myInterval = ref<any>(null);
+
+const startScroll = () => {
+  myInterval.value = setInterval(
+    () =>
+      document.getElementById("test-auto-scroll")?.scrollBy({
+        left: 5,
+        behavior: "smooth",
+      }),
+    100
+  );
+};
+const refreshScroll = () => {
+  clearInterval(myInterval.value);
+  document.getElementById("test-auto-scroll")?.scrollTo({
+    left: 0,
+    behavior: "smooth",
+  });
+};
 </script>
 
 <template>
@@ -130,9 +150,16 @@ const { isLoading, data: mapData } = await useMapData();
         leave-to="opacity-0"
         class="absolute top-0 -right-5 translate-x-full bg-grey-700/30 rounded-xs h-12 p-3 max-w-2xl text-white transition-opacity ease-in-out duration-100"
       >
-        <div class="whitespace-nowrap truncate">
-          {{ mapData?.data.title ?? "" }}
-          <span class="ml-3 text-sm"> {{ mapData?.data.subtitle ?? "" }} </span>
+        <div class="flex items-center">
+          <p class="whitespace-nowrap">{{ mapData?.data.title ?? "" }}</p>
+          <p
+            id="test-auto-scroll"
+            @mouseover="startScroll"
+            @mouseout="refreshScroll"
+            class="hide-scrollbar whitespace-nowrap ml-3 text-sm w-64 overflow-scroll select-none"
+          >
+            {{ mapData?.data.subtitle ?? "" }}
+          </p>
         </div>
       </TransitionRoot>
     </div>
