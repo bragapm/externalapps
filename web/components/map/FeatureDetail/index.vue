@@ -75,7 +75,7 @@ function openModal(idx: number) {
     setTimeout(() => {
       slider?.update();
       slider?.moveToIdx(idx);
-    }, 400);
+    }, 500);
   else current.value = 0;
 }
 
@@ -127,7 +127,7 @@ watchEffect(async () => {
       <IcChartPie :fontControlled="false" class="w-12 h-12 text-brand-500" />
       <h4 class="text-sm text-grey-50">Feature Detail will be shown here.</h4>
       <p class="text-xs text-grey-400">
-        Please select layer feature first to show the feature properties here.
+        Please click layer feature first to show the feature properties here.
       </p>
     </div>
 
@@ -151,7 +151,7 @@ watchEffect(async () => {
         <ul class="flex space-x-1 relative">
           <img
             role="button"
-            @click="openModal(idx)"
+            @click="() => openModal(idx)"
             class="rounded-[4px] w-16 h-16 object-cover"
             v-for="(source, idx) of detail.gallery
               .map((src, idx) =>
@@ -167,7 +167,7 @@ watchEffect(async () => {
                 .map((src) => (src.includes(',') ? src.split(',') : src))
                 .flat().length > 4
             "
-            @click="openModal(4)"
+            @click="() => openModal(4)"
             class="absolute top-0 right-1 w-16 h-16 bg-grey-900 bg-opacity-30 flex justify-center items-center text-white text-2xs"
           >
             More
@@ -267,7 +267,7 @@ watchEffect(async () => {
               <ul class="flex space-x-1 overflow-x-scroll">
                 <img
                   role="button"
-                  @click="slider?.moveToIdx(idx)"
+                  @click="() => slider?.moveToIdx(idx)"
                   :class="`rounded-[4px] w-16 h-16 object-cover ${
                     idx === current && 'border-4 border-brand-500'
                   }`"

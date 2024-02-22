@@ -12,7 +12,6 @@ import maplibregl from "maplibre-gl";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
 import KeenSlider, { type KeenSliderInstance } from "keen-slider";
-import bbox from "@turf/bbox";
 import { showHighlightLayer } from "~/utils/index";
 
 const mapRefStore = useMapRef();
@@ -110,6 +109,11 @@ watchEffect(() => {
         .setMaxWidth("400px")
         .setDOMContent(contentRef.value)
         .addTo(map.value!);
+      featureStore.setRightSidebar("");
+      setTimeout(
+        () => featureStore.setFeature(featureList[0] as PopupItem),
+        500
+      );
       slider?.moveToIdx(0);
     }
   });
@@ -165,16 +169,9 @@ const nextFeature = () => {
       })),
   };
   (map.value!.getSource("highlight") as GeoJSONSource).setData(newData);
-  if (features.value[featureIndex.value].geom.type !== "Point") {
-    map.value?.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 60 });
-  } else {
-    map.value?.flyTo({
-      zoom: 15,
-      center: features.value[featureIndex.value].geom.coordinates as LngLatLike,
-    });
-  }
   slider?.moveToIdx(0);
   slider?.update();
+  featureStore.setFeature(popupItems.value[featureIndex.value]);
 };
 
 const prevFeature = () => {
@@ -191,16 +188,9 @@ const prevFeature = () => {
       })),
   };
   (map.value!.getSource("highlight") as GeoJSONSource).setData(newData);
-  if (features.value[featureIndex.value].geom.type !== "Point") {
-    map.value?.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 60 });
-  } else {
-    map.value?.flyTo({
-      zoom: 15,
-      center: features.value[featureIndex.value].geom.coordinates as LngLatLike,
-    });
-  }
   slider?.moveToIdx(0);
   slider?.update();
+  featureStore.setFeature(popupItems.value[featureIndex.value]);
 };
 </script>
 
@@ -337,7 +327,6 @@ const prevFeature = () => {
           <button
             @click="
               () => {
-                featureStore.setFeature(popupItems[featureIndex]);
                 featureStore.setRightSidebar('feature');
                 popupRef!.remove()             }
             "

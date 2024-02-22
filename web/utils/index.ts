@@ -1,12 +1,6 @@
-import type {
-  GeoJSONSource,
-  LngLatBoundsLike,
-  LngLatLike,
-  Map,
-} from "maplibre-gl";
+import type { GeoJSONSource, Map } from "maplibre-gl";
 import type { MapData } from "./types";
 import type { Raw } from "vue";
-import bbox from "@turf/bbox";
 import tailwindConfig from "~/tailwind.config";
 
 export const useMapData = async () => {
@@ -30,16 +24,8 @@ export const showHighlightLayer = (
         geometry: geom,
       })),
   };
-  console.log(featureList[0].geom.type);
+  // console.log(featureList[0].geom.type);
 
-  if (featureList[0].geom.type !== "Point") {
-    map?.fitBounds(bbox(newData) as LngLatBoundsLike, { padding: 60 });
-  } else {
-    map?.flyTo({
-      zoom: 15,
-      center: featureList[0].geom.coordinates as LngLatLike,
-    });
-  }
   if (map.getSource("highlight")) {
     (map.getSource("highlight") as GeoJSONSource).setData(newData);
   } else {
@@ -169,7 +155,7 @@ export const createPulsingDot = (map: Map, size: number) => ({
     context!.beginPath();
     context!.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2);
     // context!.fillStyle = "rgba(255, 100, 100, 1)";
-    context!.strokeStyle = "white";
+    context!.strokeStyle = (tailwindConfig.theme?.colors as any).brand["200"];
     context!.lineWidth = 2 + 4 * (1 - t);
     context!.fill();
     context!.stroke();
