@@ -3,6 +3,7 @@ import os
 import shutil
 import traceback
 
+from dramatiq.middleware import TimeLimitExceeded
 from minio.deleteobjects import DeleteObject
 from py3dtiles.convert import convert as convert_to_3d_tiles
 from pyproj import CRS
@@ -38,19 +39,19 @@ def upload_3d_tiles(bucket: str, layer_id: str, tiles_dir_path: str):
             minio_client.fput_object(bucket, f"{prefix}{filename}", current_file)
 
 
-@dramatiq.actor(store_results=True)
+@dramatiq.actor(store_results=True, time_limit=3600000)
 def three_d_tiling(
     object_key: str,
     uploader: str,
     three_d_alias: str,
     **kwargs,
 ):
-    init_gdal_config()
-    bucket = os.environ.get("STORAGE_S3_BUCKET", "")
-    temp_dir_path = generate_local_temp_dir_path(object_key)
-    temp_file_path = os.path.join(temp_dir_path, object_key)
-    layer_id = ""
     try:
+        init_gdal_config()
+        bucket = os.environ.get("STORAGE_S3_BUCKET", "")
+        temp_dir_path = generate_local_temp_dir_path(object_key)
+        temp_file_path = os.path.join(temp_dir_path, object_key)
+        layer_id = ""
         if not bucket:
             raise Exception("S3 bucket not configured")
 
@@ -83,11 +84,17 @@ def three_d_tiling(
             del_err_generator = delete_generated_tiles(bucket, layer_id)
             for del_err in del_err_generator:
                 del_errs.append(del_err)
-        error_message = str(err)
+
+        error_traceback = traceback.format_exc()
+        if isinstance(err, TimeLimitExceeded):
+            error_message = "Time limit exceeded. File might be too big to process."
+        else:
+            error_message = str(err)
+            logger.error(error_traceback)
+
         if len(del_errs):
             error_message += f" Error deleting half generated tiles. Please delete manually via S3 console: {str(del_errs)}"
-        error_traceback = traceback.format_exc()
-        logger.error(error_traceback)
+
         return {"error": error_message, "traceback": error_traceback}
     finally:
         # cleanup
