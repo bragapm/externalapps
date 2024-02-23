@@ -39,8 +39,8 @@ export const useMapLayer = defineStore("maplayer", () => {
     layerIndex: number,
     opacity: number
   ) => {
-    if (groupedLayerList.value) {
-      const prev = groupedLayerList.value;
+    if (groupedActiveLayers.value) {
+      const prev = groupedActiveLayers.value;
       const selected = prev[groupIndex].layerLists[layerIndex];
       if (selected.source === "vector_tiles") {
         let updatedOpacity = opacity;
@@ -56,9 +56,11 @@ export const useMapLayer = defineStore("maplayer", () => {
         }
       } else if (selected.source === "raster_tiles") {
         (selected as RasterTiles).opacity = opacity;
+      } else if (selected.source === "three_d_tiles") {
+        (selected as ThreeDTiles).opacity = opacity;
       }
 
-      groupedLayerList.value = prev;
+      groupedActiveLayers.value = prev;
     }
   };
 

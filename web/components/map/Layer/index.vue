@@ -14,7 +14,7 @@ const threeDRenderedLayers = computed(() => {
 <template>
   <MapLayer3D
     v-if="threeDRenderedLayers"
-    :data="threeDRenderedLayers?.filter((el) => el.source === 'three_d_tiles')"
+    :data="(threeDRenderedLayers?.filter((el) => el.source === 'three_d_tiles') as ThreeDTiles[])"
   />
   <template
     v-if="renderedLayers"

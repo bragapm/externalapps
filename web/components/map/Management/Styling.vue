@@ -53,7 +53,8 @@ const paintPropertyName = () => {
       return "circle-opacity";
     case props.source === "vector_tiles" && props.geometryType === geomTypeLine:
       return "line-opacity";
-    case props.source === "vector_tiles" && props.geometryType === geomTypePolygon:
+    case props.source === "vector_tiles" &&
+      props.geometryType === geomTypePolygon:
       return "fill-opacity";
     default:
       return "";
@@ -69,7 +70,7 @@ const handleChangeOpacity = (e: Event) => {
     layerIndex as number,
     decimalOpacity
   );
-  if (map.value) {
+  if (map.value && props.source !== "three_d_tiles") {
     map.value.setPaintProperty(
       props.layerId,
       paintPropertyName(),
