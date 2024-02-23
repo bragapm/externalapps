@@ -46,6 +46,7 @@ onMounted(() => {
 
 // Popup Logic
 export type PopupItem = {
+  layerId: string;
   layerType: string;
   tableName: string;
   rowId: string | number;
@@ -83,6 +84,7 @@ watchEffect(() => {
         (layer) => layer.layer_id === feature.layer.id
       )!;
       return {
+        layerId: feature.layer.id,
         layerType: feature.layer.type,
         tableName: feature.sourceLayer,
         rowId: feature.id,
@@ -149,7 +151,7 @@ watchEffect(async () => {
     features.value = data;
     featureIndex.value = 0;
     slider?.update();
-    showHighlightLayer(map.value!, data as any[]);
+    showHighlightLayer(map.value!, data as any[], popupItems.value[0].layerId);
   }
 });
 
@@ -167,6 +169,7 @@ const nextFeature = () => {
       })),
   };
   (map.value!.getSource("highlight") as GeoJSONSource).setData(newData);
+  moveHighlightLayer(map.value!, popupItems.value[featureIndex.value].layerId);
   slider?.moveToIdx(0);
   slider?.update();
   featureStore.setFeature(popupItems.value[featureIndex.value]);
@@ -186,6 +189,7 @@ const prevFeature = () => {
       })),
   };
   (map.value!.getSource("highlight") as GeoJSONSource).setData(newData);
+  moveHighlightLayer(map.value!, popupItems.value[featureIndex.value].layerId);
   slider?.moveToIdx(0);
   slider?.update();
   featureStore.setFeature(popupItems.value[featureIndex.value]);
@@ -251,7 +255,7 @@ const prevFeature = () => {
           <button
             v-if="
               Object.keys(features[featureIndex] ?? {}).filter((k) =>
-                popupItems[featureIndex].imageColumns?.includes(k)
+                popupItems[featureIndex]?.imageColumns?.includes(k)
               ).length
             "
             @click="prevImage"
@@ -266,7 +270,7 @@ const prevFeature = () => {
           <button
             v-if="
               Object.keys(features[featureIndex] ?? {}).filter((k) =>
-                popupItems[featureIndex].imageColumns?.includes(k)
+                popupItems[featureIndex]?.imageColumns?.includes(k)
               ).length
             "
             @click="nextImage"

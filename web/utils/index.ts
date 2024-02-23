@@ -10,9 +10,26 @@ export const useMapData = async () => {
   return { data, isLoading: pending };
 };
 
+export const moveHighlightLayer = (map: Map, layerName: string) => {
+  // Find the layer that comes after 'targetLayer', if it exists
+  const layers = map.getStyle().layers;
+  let targetIndex = layers.findIndex((layer) => layer.id === layerName);
+  let layerAboveTarget;
+  if (targetIndex !== -1 && targetIndex < layers.length - 1) {
+    layerAboveTarget = layers[targetIndex + 1].id;
+  }
+
+  map.moveLayer("highlight-point-pulsing", layerAboveTarget);
+  map.moveLayer("highlight-line-background", layerAboveTarget);
+  map.moveLayer("highlight-line-dashed", layerAboveTarget);
+  map.moveLayer("highlight-fill-background", layerAboveTarget);
+  map.moveLayer("highlight-fill-outline", layerAboveTarget);
+};
+
 export const showHighlightLayer = (
   map: Raw<Map>,
-  featureList: { geom: GeoJSON.Geometry }[]
+  featureList: { geom: GeoJSON.Geometry }[],
+  layerName: string
 ) => {
   const newData: GeoJSON.FeatureCollection = {
     type: "FeatureCollection",
@@ -35,47 +52,29 @@ export const showHighlightLayer = (
     });
 
     map.addLayer({
-      id: "pulsing-dot",
       type: "symbol",
       source: "highlight",
+      id: "highlight-point-pulsing",
       layout: {
         "icon-image": "pulsing-dot",
       },
       filter: ["==", "$type", "Point"],
     });
 
-    // add a line layer without line-dasharray defined to fill the gaps in the dashed line
     map.addLayer({
       type: "line",
       source: "highlight",
-      id: "line-background",
+      id: "highlight-line-background",
       layout: { "line-cap": "round", "line-join": "round" },
       paint: {
         "line-color": (tailwindConfig.theme?.colors as any).brand["500"],
         "line-width": 6,
         "line-opacity": 0.9,
       },
-      filter: ["!=", "$type", "Point"],
-      // filter: ["==", "$type", "LineString"],
-    });
-
-    // add a line layer with line-dasharray set to the first value in dashArraySequence
-    map.addLayer({
-      type: "line",
-      source: "highlight",
-      id: "line-dashed",
-      layout: { "line-join": "round" },
-      paint: {
-        "line-color": (tailwindConfig.theme?.colors as any).brand["50"],
-        "line-width": 6,
-        "line-dasharray": [0, 4, 3],
-      },
-      filter: ["!=", "$type", "Point"],
-      // filter: ["==", "$type", "LineString"],
+      filter: ["==", "$type", "LineString"],
     });
 
     // technique based on https://jsfiddle.net/2mws8y3q/
-    // an array of valid line-dasharray values, specifying the lengths of the alternating dashes and gaps that form the dash pattern
     const dashArraySequence = [
       [0, 4, 3],
       [0.5, 4, 2.5],
@@ -92,8 +91,20 @@ export const showHighlightLayer = (
       [0, 3, 3, 1],
       [0, 3.5, 3, 0.5],
     ];
-
     let step = 0;
+
+    map.addLayer({
+      type: "line",
+      source: "highlight",
+      id: "highlight-line-dashed",
+      layout: { "line-join": "round" },
+      paint: {
+        "line-color": (tailwindConfig.theme?.colors as any).brand["50"],
+        "line-width": 6,
+        "line-dasharray": dashArraySequence[0],
+      },
+      filter: ["==", "$type", "LineString"],
+    });
 
     function animateDashArray(timestamp: DOMHighResTimeStamp) {
       // Update line-dasharray using the next value in dashArraySequence. The
@@ -104,7 +115,7 @@ export const showHighlightLayer = (
 
       if (newStep !== step) {
         map.setPaintProperty(
-          "line-dashed",
+          "highlight-line-dashed",
           "line-dasharray",
           dashArraySequence[step]
         );
@@ -114,10 +125,49 @@ export const showHighlightLayer = (
       // Request the next frame of the animation.
       requestAnimationFrame(animateDashArray);
     }
-
-    // start the animation
     animateDashArray(0);
+
+    map.addLayer({
+      type: "fill",
+      source: "highlight",
+      id: "highlight-fill-background",
+      paint: {
+        "fill-color": (tailwindConfig.theme?.colors as any).brand["600"],
+        "fill-opacity": 0.6,
+        "fill-opacity-transition": {
+          duration: 900,
+          delay: 0,
+        },
+      } as any,
+      filter: ["==", "$type", "Polygon"],
+    });
+
+    setInterval(() => {
+      const prevVal = map.getPaintProperty(
+        "highlight-fill-background",
+        "fill-opacity"
+      );
+      if (prevVal === 0.6)
+        map.setPaintProperty("highlight-fill-background", "fill-opacity", 0);
+      else
+        map.setPaintProperty("highlight-fill-background", "fill-opacity", 0.6);
+    }, 900);
+
+    map.addLayer({
+      type: "line",
+      source: "highlight",
+      id: "highlight-fill-outline",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: {
+        "line-color": (tailwindConfig.theme?.colors as any).brand["300"],
+        "line-width": 6,
+        "line-opacity": 0.9,
+      },
+      filter: ["==", "$type", "Polygon"],
+    });
   }
+
+  moveHighlightLayer(map, layerName);
 };
 
 export const createPulsingDot = (map: Map, size: number) => ({
