@@ -18,10 +18,18 @@ export default ({ action }, { env, logger }) => {
         logger.error(error);
       });
       listStream.on("end", async () => {
-        try {
-          await minioClient.removeObjects(env.STORAGE_S3_BUCKET, objectKeys);
-        } catch (error) {
-          logger.error(error);
+        // delete per 1000 objects
+        const chunkSize = 1000;
+        const chunks = Array.from(
+          new Array(Math.ceil(objectKeys.length / chunkSize)),
+          (_, i) => objectKeys.slice(i * chunkSize, i * chunkSize + chunkSize)
+        );
+        for (const chunk of chunks) {
+          try {
+            await minioClient.removeObjects(env.STORAGE_S3_BUCKET, chunk);
+          } catch (error) {
+            logger.error(error);
+          }
         }
       });
     }
