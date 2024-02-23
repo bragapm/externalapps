@@ -259,6 +259,13 @@ export const useMapLayer = defineStore("maplayer", () => {
     }
   };
 
+  const threeDLayerCenter = ref<{
+    [key: string]: {
+      center: [number, number];
+      zoom: number;
+    };
+  }>({});
+
   return {
     fetchListedLayers,
     fetchActiveLayers,
@@ -267,5 +274,6 @@ export const useMapLayer = defineStore("maplayer", () => {
     groupedActiveLayers,
     updateLayerOpacity,
     groupLayerByCategory,
+    threeDLayerCenter,
   };
 });

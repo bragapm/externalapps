@@ -6,7 +6,8 @@ import type { LngLatBoundsLike } from "maplibre-gl";
 import bbox from "@turf/bbox";
 
 defineProps<{
-  bounds: GeoJSON.Polygon | null;
+  bounds?: GeoJSON.Polygon;
+  layerId?: string;
 }>();
 
 const store = useTableData();
@@ -14,6 +15,8 @@ const { toggleTable } = store;
 
 const mapStore = useMapRef();
 const { map } = storeToRefs(mapStore);
+
+const mapLayerStore = useMapLayer();
 
 const reference = ref(null);
 const floating = ref(null);
@@ -25,7 +28,7 @@ const { floatingStyles } = useFloating(reference, floating, {
 
 <template>
   <Menu as="div" class="relative inline-block">
-    <MenuButton ref="reference">
+    <MenuButton ref="reference" class="align-middle">
       <IcMenuDots class="text-white w-3 h-3" :fontControlled="false" />
     </MenuButton>
 
@@ -47,9 +50,12 @@ const { floatingStyles } = useFloating(reference, floating, {
             <button
               @click="
                 () => {
+                  if(layerId){
+                    map?.flyTo({ center : (mapLayerStore.threeDLayerCenter.value as any)[layerId].center , zoom : (mapLayerStore.threeDLayerCenter.value as any)[layerId].zoom })
+                  }
                   if(bounds){
-                  map?.fitBounds(bbox(bounds) as LngLatBoundsLike, { padding: 20 });
-                }
+                    map?.fitBounds(bbox(bounds) as LngLatBoundsLike, { padding: {top: 100, bottom:150, left: 300, right: 50} });
+                  }
                 }
               "
               :class="[
