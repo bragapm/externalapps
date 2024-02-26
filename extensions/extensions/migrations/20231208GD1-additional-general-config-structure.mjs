@@ -26,7 +26,7 @@ export async function up(knex) {
       ('directus_settings','project_logo_horizontal','directus_files',NULL,NULL,NULL,NULL,NULL,'nullify');
 
     INSERT INTO directus_permissions(collection,action,permissions,validation,fields)
-    VALUES ('directus_settings','read','{}','{}','project_name,project_descriptor,public_favicon,basemaps,help_center_url,project_logo_horizontal');
+    VALUES ('directus_settings','read','{}','{}','project_name,project_descriptor,public_favicon,basemaps,help_center_url,project_logo_horizontal,public_background');
   `);
 }
 
