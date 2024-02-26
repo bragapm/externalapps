@@ -1,6 +1,4 @@
 <template>
   <LayoutsPageNavbar> </LayoutsPageNavbar>
-  <UContainer>
-    <slot />
-  </UContainer>
+  <slot />
 </template>

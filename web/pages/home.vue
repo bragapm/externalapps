@@ -71,67 +71,69 @@ const { data: homeData, error: homeDataError } = await useFetch<IHomeData>(
 </script>
 
 <template>
-  <div class="space-y-3 pb-6">
-    <template
-      v-if="!homeDataError && homeData"
-      v-for="block in homeData.data.blocks"
-      :key="block.id"
-    >
-      <HomeHeroSlides
-        v-if="block.collection === 'block_hero_slides'"
-        :item="block.item"
-      />
-      <HomeHeroSingle
-        v-else-if="block.collection === 'block_hero_single'"
-        :item="block.item"
-      />
-      <HomeInfoSingleBottom
-        v-else-if="
-          block.collection === 'block_info_single' &&
-          block.item.variant === 'bottom'
-        "
-        :item="block.item"
-      />
-      <HomeInfoSingleSide
-        v-else-if="
-          block.collection === 'block_info_single' &&
-          block.item.variant === 'side'
-        "
-        :item="block.item"
-      />
-      <HomeInfoSlides
-        v-else-if="block.collection === 'block_info_slides'"
-        :item="block.item"
-      />
-      <HomeInfoAccordion
-        v-else-if="block.collection === 'block_info_accordion'"
-        :item="block.item"
-      />
-      <HomeMediaVideo
-        v-else-if="block.collection === 'block_media_video'"
-        :item="block.item"
-      />
-      <HomeMediaIcons
-        v-else-if="block.collection === 'block_media_icons'"
-        :item="block.item"
-      />
-      <HomeCTA
-        v-else-if="block.collection === 'block_cta'"
-        :item="block.item"
-      />
-      <HomeFooterFull
-        v-else-if="
-          block.collection === 'block_footer' && block.item.variant === 'full'
-        "
-        :item="block.item"
-      />
-      <HomeFooterCompact
-        v-else-if="
-          block.collection === 'block_footer' &&
-          block.item.variant === 'compact'
-        "
-        :item="block.item"
-      />
-    </template>
-  </div>
+  <UContainer>
+    <div class="space-y-3 pb-6">
+      <template
+        v-if="!homeDataError && homeData"
+        v-for="block in homeData.data.blocks"
+        :key="block.id"
+      >
+        <HomeHeroSlides
+          v-if="block.collection === 'block_hero_slides'"
+          :item="block.item"
+        />
+        <HomeHeroSingle
+          v-else-if="block.collection === 'block_hero_single'"
+          :item="block.item"
+        />
+        <HomeInfoSingleBottom
+          v-else-if="
+            block.collection === 'block_info_single' &&
+            block.item.variant === 'bottom'
+          "
+          :item="block.item"
+        />
+        <HomeInfoSingleSide
+          v-else-if="
+            block.collection === 'block_info_single' &&
+            block.item.variant === 'side'
+          "
+          :item="block.item"
+        />
+        <HomeInfoSlides
+          v-else-if="block.collection === 'block_info_slides'"
+          :item="block.item"
+        />
+        <HomeInfoAccordion
+          v-else-if="block.collection === 'block_info_accordion'"
+          :item="block.item"
+        />
+        <HomeMediaVideo
+          v-else-if="block.collection === 'block_media_video'"
+          :item="block.item"
+        />
+        <HomeMediaIcons
+          v-else-if="block.collection === 'block_media_icons'"
+          :item="block.item"
+        />
+        <HomeCTA
+          v-else-if="block.collection === 'block_cta'"
+          :item="block.item"
+        />
+        <HomeFooterFull
+          v-else-if="
+            block.collection === 'block_footer' && block.item.variant === 'full'
+          "
+          :item="block.item"
+        />
+        <HomeFooterCompact
+          v-else-if="
+            block.collection === 'block_footer' &&
+            block.item.variant === 'compact'
+          "
+          :item="block.item"
+        />
+      </template>
+    </div>
+  </UContainer>
 </template>
