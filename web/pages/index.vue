@@ -170,6 +170,19 @@ watchEffect((onCleanup) => {
     >
       <MapFeatureDetail />
     </TransitionRoot>
+    <TransitionRoot
+      as="div"
+      :show="featureStore.rightSidebar === '3d-feature'"
+      enter="transition-all duration-300"
+      enter-from="-mr-8 opacity-0"
+      enter-to="mr-0 opacity-1"
+      leave="transition-all duration-300"
+      leave-from="mr-0 opacity-1"
+      leave-to="-mr-8 opacity-0"
+      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+    >
+      <Map3DFeatureDetail />
+    </TransitionRoot>
 
     <!-- top right button controller -->
     <div

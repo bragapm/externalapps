@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { Tile3DLayer } from "@deck.gl/geo-layers";
+import type { Tile3DLayerProps } from "@deck.gl/geo-layers/tile-3d-layer/tile-3d-layer";
 import { Tiles3DLoader } from "@loaders.gl/3d-tiles";
+
+const mapStore = useMapRef();
+const featureStore = useFeature();
 
 const props = defineProps<{
   data: ThreeDTiles[];
@@ -30,7 +34,30 @@ const updateBounds = (id: string, center: [number, number], zoom: number) => {
                 const { cartographicCenter, zoom } = tileset;
                 updateBounds(layer.layer_id, [cartographicCenter[0],cartographicCenter[1]] , zoom)
             },
-          })
+            pickable: true,
+            onClick: (info: any, event: any) => {
+              if (info.object) {
+                console.log(info.object)
+                const { boundingVolume, children, ...header } = info.object.header;
+                const { cartesianModelMatrix, cartographicModelMatrix, featureTableBinary, header: contentHeader, modelMatrix, attributes, ...content } = info.object.content;
+                featureStore.set3DFeature({
+                  header, 
+                  content
+                })
+                featureStore.setRightSidebar('3d-feature')
+              }
+              event.preventDefault();
+              event.stopPropagation();
+            },
+            onHover: ({object, x, y}) => {
+              const el = mapStore.map?.getCanvas()!; // Access the map canvas element
+              if (object) {
+                el.style.cursor = 'pointer'; // Change cursor to pointer when hovering over an object
+              } else {
+                el.style.cursor = ''; // Reset cursor when not hovering over an object
+              }
+            },
+          } as Tile3DLayerProps<unknown>)
       )
     "
   />
