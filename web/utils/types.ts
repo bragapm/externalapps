@@ -126,3 +126,14 @@ export type MapData = {
     information_attachments?: Attachment[];
   };
 };
+
+export type GeneralSettings = {
+  data: {
+    help_center_url?: string;
+    project_descriptor?: string;
+    project_logo_horizontal?: string;
+    project_name: string;
+    public_favicon?: string;
+    public_background?: string;
+  };
+};

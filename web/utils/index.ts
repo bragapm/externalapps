@@ -1,11 +1,18 @@
 import type { GeoJSONSource, Map } from "maplibre-gl";
-import type { MapData } from "./types";
+import type { MapData, GeneralSettings } from "./types";
 import type { Raw } from "vue";
 import tailwindConfig from "~/tailwind.config";
 
 export const useMapData = async () => {
   const { pending, data } = await useFetch<MapData>("/panel/items/map/eng", {
     key: "map",
+  });
+  return { data, isLoading: pending };
+};
+
+export const useGeneralSettings = async () => {
+  const { pending, data } = await useFetch<GeneralSettings>("/panel/settings", {
+    key: "settings",
   });
   return { data, isLoading: pending };
 };

@@ -1,13 +1,7 @@
 <script setup lang="ts">
-const { data, pending } = useFetch<{
-  data: {
-    help_center_url?: string;
-    project_descriptor?: string;
-    project_logo_horizontal?: string;
-    project_name: string;
-    public_favicon?: string;
-  };
-}>("/panel/settings");
+import { useGeneralSettings } from './utils';
+
+const { data } = await useGeneralSettings()
 
 useSeoMeta({
   title: data?.value?.data.project_name || "",
