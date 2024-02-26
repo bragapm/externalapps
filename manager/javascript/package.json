@@ -1,0 +1,18 @@
+{
+  "name": "geo-js-worker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --env-file .env test.js",
+    "start": "node --env-file .env index.js"
+  },
+  "keywords": [],
+  "author": "Miko",
+  "license": "ISC",
+  "dependencies": {
+    "@mapbox/spritezero": "^8.0.3",
+    "graphile-worker": "^0.16.2",
+    "minio": "^7.1.3"
+  }
+}
