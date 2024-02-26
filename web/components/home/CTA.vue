@@ -28,7 +28,7 @@ const bgImgUrl = computed(
 <template>
   <div
     :class="[
-      'grid grid-cols-1 md:grid-cols-2 gap-7 rounded-lg bg-cover bg-no-repeat',
+      'grid grid-cols-1 md:grid-cols-2 gap-7 rounded-lg bg-cover bg-center',
       item.variant === 'image_bg_text_card' ? 'p-6' : 'p-11',
       item.variant === 'image_card' && 'bg-black/5',
     ]"
@@ -76,7 +76,7 @@ const bgImgUrl = computed(
     </div>
     <div
       v-if="item.variant === 'image_card'"
-      class="w-full h-full rounded-lg bg-cover bg-no-repeat"
+      class="w-full h-full rounded-lg bg-cover bg-center"
       :style="`background-image: ${bgImgUrl}`"
     />
   </div>
