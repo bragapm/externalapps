@@ -1,0 +1,157 @@
+<script setup lang="ts">
+import IcAction from "~/assets/icons/ic-action.svg";
+import IcEye from "~/assets/icons/ic-eye.svg";
+import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
+import IcLogoGeodashboardFull from "~/assets/icons/ic-logo-geodashboard-full.svg";
+import IcSpinner from "~/assets/icons/ic-spinner.svg";
+import { useGeneralSettings, useMapData } from "~/utils";
+
+import type { FormError, FormSubmitEvent } from "#ui/types";
+
+interface ILoginData {
+  email: string;
+  password: string;
+}
+
+const { data: mapData } = await useMapData();
+const { data: generalSettingsData } = await useGeneralSettings();
+const loginData = reactive<ILoginData>({ email: "", password: "" });
+const generalErrorMessage = ref("");
+const showPassword = ref(false);
+const isLoading = ref(false);
+
+const validateLoginData = (state: ILoginData) => {
+  const errors: FormError<keyof ILoginData>[] = [];
+  if (!state.email) errors.push({ path: "email", message: "Required" });
+  if (!state.password) errors.push({ path: "password", message: "Required" });
+  return errors;
+};
+
+const handleSubmitLogin = async (event: FormSubmitEvent<ILoginData>) => {
+  generalErrorMessage.value = "";
+  isLoading.value = true;
+  setTimeout(() => {
+    console.log({ email: event.data.email, password: event.data.password });
+    generalErrorMessage.value =
+      "Login information is incorrect. Make sure the email and password is correct and try again.";
+    isLoading.value = false;
+  }, 3000);
+};
+
+const img = useImage();
+const bgImgUrl = computed(() =>
+  generalSettingsData.value?.data.public_background
+    ? `url('${img(generalSettingsData.value.data.public_background, undefined, {
+        provider: "directus",
+      })}')`
+    : null
+);
+</script>
+
+<template>
+  <div class="flex px-6 pb-6 h-[calc(100vh-120px)]">
+    <div
+      :class="[
+        'flex justify-end w-full rounded-lg',
+        bgImgUrl ? 'bg-cover bg-center' : 'bg-grey-900',
+      ]"
+      :style="bgImgUrl && `background-image: ${bgImgUrl}`"
+    >
+      <div class="w-1/2 p-8">
+        <div
+          class="flex flex-col bg-grey-800 rounded-lg h-full px-16 py-8 overflow-scroll justify-center"
+        >
+          <div class="flex flex-col text-center space-y-3 mb-16">
+            <IcLogoGeodashboardFull
+              class="h-5 w-full text-grey-50 mb-4"
+              :fontControlled="false"
+            />
+            <h1 class="text-4xl font-medium text-grey-50">
+              Welcome to {{ mapData?.data.title || "GeoDashboard" }}
+            </h1>
+            <p class="text-grey-500 text-sm">
+              Sign In to continue your mapping journey with us!
+            </p>
+          </div>
+          <UForm
+            ref="formRef"
+            :validate="validateLoginData"
+            :state="loginData"
+            class="flex flex-col space-y-3 mb-7"
+            @submit="handleSubmitLogin"
+          >
+            <UFormGroup name="email">
+              <UInput
+                v-model="loginData.email"
+                type="email"
+                class="w-full"
+                color="gray"
+                size="xl"
+                placeholder="Email"
+                :ui="{ rounded: 'rounded-xxs' }"
+                :disabled="isLoading"
+              />
+            </UFormGroup>
+            <UFormGroup name="password">
+              <UInput
+                v-model="loginData.password"
+                :type="showPassword ? 'text' : 'password'"
+                class="w-full"
+                color="gray"
+                size="xl"
+                placeholder="Password"
+                :ui="{
+                  rounded: 'rounded-xxs',
+                  icon: { trailing: { pointer: '' } },
+                }"
+                :disabled="isLoading"
+              >
+                <template #trailing>
+                  <button type="button" @click="showPassword = !showPassword">
+                    <IcEye v-if="showPassword" class="text-grey-400" />
+                    <IcEyeCrossed v-else class="text-grey-400" />
+                  </button>
+                </template>
+              </UInput>
+            </UFormGroup>
+            <div v-if="generalErrorMessage" class="flex space-x-2 items-center">
+              <IcAction class="text-red-500 h-full" />
+              <p class="grow text-xs text-red-500">
+                {{ generalErrorMessage }}
+              </p>
+            </div>
+            <UButton
+              block
+              size="xl"
+              type="submit"
+              label="Sign In"
+              :ui="{ rounded: 'rounded-xxs' }"
+            >
+              <IcSpinner class="text-white animate-spin" v-if="isLoading" />
+            </UButton>
+          </UForm>
+          <div class="w-full border border-grey-600 mb-7" />
+          <UButton
+            block
+            variant="outline"
+            size="xl"
+            class="mb-7"
+            label="Sign In with Google"
+            :ui="{ rounded: 'rounded-xxs' }"
+            :disabled="isLoading"
+          >
+            <template #leading>
+              <img
+                src="https://lh3.googleusercontent.com/COxitqgJr1sJnIDe8-jiKhxDx1FrYbtRHKJ9z_hELisAlapwE9LUPh6fcXIfb5vwpbMl4xl9H9TRFPc5NOO8Sb3VSgIBrfRYvW6cUA"
+                class="h-5"
+              />
+            </template>
+          </UButton>
+          <p class="text-center text-grey-500 text-sm">
+            ©{{ new Date().getFullYear() }} Braga Technologies
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
