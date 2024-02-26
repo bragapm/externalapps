@@ -63,7 +63,7 @@ const refreshScroll = () => {
     </Presence> -->
     <div
       :class="isExpand ? 'w-full py-3 px-0' : 'w-0 p-0'"
-      class="relative bg-grey-700 rounded-xs flex items-center justify-between z-50 min-w-fit transition-all duration-300 ease-in-out"
+      class="relative bg-grey-900 rounded-xs flex items-center justify-between z-50 min-w-fit transition-all duration-300 ease-in-out"
     >
       <div class="flex items-center gap-2">
         <div class="relative flex items-center p-3 gap-3 h-12">
