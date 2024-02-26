@@ -24,16 +24,11 @@ export async function up(knex) {
     INSERT INTO directus_relations(many_collection,many_field,one_collection,one_field,one_collection_field,one_allowed_collections,junction_field,sort_field,one_deselect_action)
     VALUES
       ('directus_settings','project_logo_horizontal','directus_files',NULL,NULL,NULL,NULL,NULL,'nullify');
-
-    INSERT INTO directus_permissions(collection,action,permissions,validation,fields)
-    VALUES ('directus_settings','read','{}','{}','project_name,project_descriptor,public_favicon,basemaps,help_center_url,project_logo_horizontal,public_background');
   `);
 }
 
 export async function down(knex) {
   await knex.raw(`
-    DELETE FROM directus_permissions WHERE collection = 'directus_settings' AND role IS NULL AND action = 'read';
-
     DELETE FROM directus_relations WHERE many_collection = 'directus_settings' AND one_collection = 'project_logo_horizontal';
 
     DELETE FROM directus_fields WHERE collection = 'directus_settings' AND field IN ('divider-zl85od','help_center_url','securewatch_maxar_username','securewatch_maxar_password','terrain_rgb_worker','three_d_tiling_worker','divider-wu7adw','project_logo_horizontal');

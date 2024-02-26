@@ -4,6 +4,7 @@ export async function up(knex) {
   await knex.raw(`
     INSERT INTO directus_permissions(collection,action,permissions,validation,fields)
     VALUES
+      ('directus_settings','read','{}','{}','project_name,project_descriptor,public_favicon,basemaps,help_center_url,project_logo_horizontal,public_background'),
       ('vector_tiles','read','{"_and":[{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,category,hover_popup_columns,click_popup_columns,image_columns,active,fill_style,line_style,circle_style,symbol_style'),
       ('symbol','read','{}','{}','*'),
       ('raster_tiles','read','{"_and":[{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,category,active'),
@@ -51,6 +52,6 @@ export async function down(knex) {
     DROP TRIGGER IF EXISTS on_non_admin_non_app_directus_roles_insert ON directus_roles;
     DROP FUNCTION IF EXISTS handle_non_admin_non_app_directus_roles_insert();
 
-    DELETE FROM directus_permissions WHERE collection IN ('vector_tiles','symbol','raster_tiles','raster_overlays','line','fill','external_tiles','circle','categories','three_d_tiles') AND role IS NULL AND action = 'read';
+    DELETE FROM directus_permissions WHERE collection IN ('directus_settings','vector_tiles','symbol','raster_tiles','raster_overlays','line','fill','external_tiles','circle','categories','three_d_tiles') AND role IS NULL AND action = 'read';
   `);
 }
