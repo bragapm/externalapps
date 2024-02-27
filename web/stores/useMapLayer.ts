@@ -13,6 +13,7 @@ import {
   geomTypeLine,
   geomTypePolygon,
   geomTypeRaster,
+  geomTypeTerrain,
   geomTypeThreeD,
   uncategorizedAlias,
 } from "~/constants";
@@ -122,9 +123,10 @@ export const useMapLayer = defineStore("maplayer", () => {
             ...item,
             source: "raster_tiles",
             opacity: 1,
-            geometry_type: geomTypeRaster,
+            geometry_type: item.terrain_rgb ? geomTypeTerrain : geomTypeRaster,
             dimension: "2D",
             layer_style: { layout_visibility: "none" },
+            ...(item.terrain_rgb && { category: { category_name: "Terrain" } }),
           });
         } else if (key === "threeDTiles") {
           const item = el as ThreeDTiles;
@@ -184,6 +186,15 @@ export const useMapLayer = defineStore("maplayer", () => {
         return group!.sort((a: any, b: any) => {
           const nameA = a.label.toUpperCase(); // ignore upper and lowercase
           const nameB = b.label.toUpperCase(); // ignore upper and lowercase
+
+          // '3D' group should always come first
+          if (nameA === "3D") return -1;
+          if (nameB === "3D") return 1;
+
+          // 'Terrain' group should always come last
+          if (nameA === "TERRAIN") return 1;
+          if (nameB === "TERRAIN") return -1;
+
           return nameA.localeCompare(nameB);
         });
       },

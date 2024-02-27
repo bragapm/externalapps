@@ -19,6 +19,7 @@ const addLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
   let groupName = layerItem.category
     ? layerItem.category.category_name
     : uncategorizedAlias;
+
   let groupIndex = mapLayerStore.groupedActiveLayers?.findIndex(
     (el) => el.label === groupName
   );
@@ -27,11 +28,28 @@ const addLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
       layerItem
     );
   } else {
-    mapLayerStore.groupedActiveLayers?.push({
-      label: groupName as string,
-      layerLists: [layerItem],
-      defaultOpen: false,
-    });
+    if (
+      mapLayerStore.groupedActiveLayers?.findIndex(
+        (el) => el.label === "Terrain"
+      ) !== -1
+    ) {
+      mapLayerStore.groupedActiveLayers?.splice(-1, 0, {
+        label: groupName as string,
+        layerLists: [layerItem],
+        defaultOpen: false,
+      });
+      // mapLayerStore.groupedActiveLayers?.push({
+      //   label: groupName as string,
+      //   layerLists: [layerItem],
+      //   defaultOpen: false,
+      // });
+    } else {
+      mapLayerStore.groupedActiveLayers?.push({
+        label: groupName as string,
+        layerLists: [layerItem],
+        defaultOpen: false,
+      });
+    }
   }
 };
 const removeLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {

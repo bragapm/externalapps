@@ -97,6 +97,7 @@ export type ThreeDTiles = {
   layer_style: { layout_visibility: string };
   geometry_type: string;
   layer_alias: string;
+  layer_name?: string;
   layer_id: string;
   category: { category_name: string | null };
   dimension: string;
