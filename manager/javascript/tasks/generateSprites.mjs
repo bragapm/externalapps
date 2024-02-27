@@ -1,13 +1,8 @@
-import * as Minio from "minio";
+import os from "os";
 import fs from "fs";
 import path from "path";
+import * as Minio from "minio";
 import spritezero from "@mapbox/spritezero";
-
-// For Windows compatibility
-const directory = path.dirname(new URL(import.meta.url).pathname);
-const __dirname = path.resolve(
-  process.platform === "win32" ? directory.slice(1) : directory
-);
 
 // Configure MinIO client
 const minioClient = new Minio.Client({
@@ -42,11 +37,10 @@ function generateImageAsync(layout) {
 
 export default async function (payload, helpers) {
   const bucketName = process.env.STORAGE_S3_BUCKET;
-  const spritesDir = path.join(__dirname, "sprites");
-  // Check if the directory exists, if not, create it
-  if (!fs.existsSync(spritesDir)) {
-    fs.mkdirSync(spritesDir, { recursive: true });
-  }
+
+  // Use fs.mkdtemp() to create a unique temporary directory within the OS-specific temp directory
+  const tempDirPrefix = path.join(os.tmpdir(), "sprites-");
+  const spritesDir = await fs.promises.mkdtemp(tempDirPrefix);
 
   try {
     const { withPgClient } = helpers;
@@ -111,6 +105,7 @@ export default async function (payload, helpers) {
   } catch (error) {
     console.log(error);
   } finally {
-    fs.rmSync(spritesDir, { recursive: true });
+    // Clean up the temporary directory after use
+    fs.rmSync(spritesDir, { recursive: true, force: true });
   }
 }
