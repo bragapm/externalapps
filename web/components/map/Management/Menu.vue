@@ -102,6 +102,7 @@ const { floatingStyles } = useFloating(reference, floating, {
           </MenuItem>
           <MenuItem v-slot="{ active, close }" as="div">
             <button
+              :disabled="item.source !== 'vector_tiles'"
               @click="
                 () => {
                   toggleTable();
@@ -109,8 +110,11 @@ const { floatingStyles } = useFloating(reference, floating, {
                 }
               "
               :class="[
-                active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
-                'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
+                active && item.source === 'vector_tiles'
+                  ? 'bg-grey-700'
+                  : 'bg-transparent text-grey-200',
+                item.source !== 'vector_tiles' ? 'text-grey-500' : 'text-white',
+                'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs ',
               ]"
             >
               View Data Table
