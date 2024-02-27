@@ -31,8 +31,8 @@ export default (router, { database, logger, services }) => {
       });
       if (layerConfig.length) {
         markdown = layerConfig[0].feature_detail_template;
-        attachments = layerConfig[0].feature_detail_attachments;
-        gallery = layerConfig[0].image_columns;
+        attachments = layerConfig[0].feature_detail_attachments || [];
+        gallery = layerConfig[0].image_columns || [];
       } else {
         return next(
           new RouteNotFoundError({ path: "/feature-detail" + req.path })
@@ -48,29 +48,26 @@ export default (router, { database, logger, services }) => {
       );
     }
 
-    if (markdown) {
+    if (markdown || attachments.length || gallery.length) {
       try {
         const featureData = await layerItemsService.readOne(layerId);
-        markdown = markdown.replace(
-          /{{\s{1}(\w+)\s{1}}}/g,
-          (match, propName) => {
-            if (featureData.hasOwnProperty(propName)) {
-              return featureData[propName];
-            } else {
-              return match;
+        if (markdown) {
+          markdown = markdown.replace(
+            /{{\s{1}(\w+)\s{1}}}/g,
+            (match, propName) => {
+              if (featureData.hasOwnProperty(propName)) {
+                return featureData[propName];
+              } else {
+                return match;
+              }
             }
-          }
-        );
+          );
+        }
         attachments = attachments.map((attachment) => ({
           ...attachment,
           url: featureData[attachment.url_column] ?? "#",
         }));
         gallery = gallery.map((column) => featureData[column] ?? "");
-        return res.json({
-          markdown,
-          attachments,
-          gallery,
-        });
       } catch (error) {
         if (error.code === "FORBIDDEN") {
           return next(error);
@@ -84,8 +81,7 @@ export default (router, { database, logger, services }) => {
           );
         }
       }
-    } else {
-      return res.json({ markdown, attachments, gallery });
     }
+    return res.json({ markdown, attachments, gallery });
   });
 };
