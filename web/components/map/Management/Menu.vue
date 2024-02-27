@@ -16,6 +16,7 @@ const mapStore = useMapRef();
 const { map } = storeToRefs(mapStore);
 
 const mapLayerStore = useMapLayer();
+const tableDataStore = useTableData();
 
 const reference = ref(null);
 const floating = ref(null);
@@ -105,6 +106,7 @@ const { floatingStyles } = useFloating(reference, floating, {
               :disabled="item.source !== 'vector_tiles'"
               @click="
                 () => {
+                  tableDataStore.setActiveCollection(item.layer_name!);
                   toggleTable();
                   close();
                 }

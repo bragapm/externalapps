@@ -163,24 +163,31 @@ const pageCount = ref(10);
 // });
 
 /////
-const columns = ref([
-  {
-    key: "nama_jalan",
-    label: "Nama Jalan",
-  },
-  {
-    key: "fungsi",
-    label: "Fungsi",
-  },
-]);
+const columns = ref([]);
 
 const fetcher = async (url: string, searchParams?: any): Promise<any> =>
   await fetch(`${url}${searchParams ? "?" + searchParams : ""}`).then(
     (response) => response.json()
   );
 
-const { isLoading, isError, isFetching, data, error, refetch } = useQuery({
-  queryKey: ["/panel/items/jaringan_jalan_bandung"],
+const { data: headerData, refetch: refetchHeader } = useQuery({
+  queryKey: [`/panel/fields/${store.activeCollection}`],
+  queryFn: ({ queryKey }) => fetcher(queryKey[0]),
+});
+
+const {
+  isLoading,
+  isError,
+  isFetching,
+  data: tableData,
+  error,
+  refetch: refetchData,
+} = useQuery({
+  queryKey: [
+    `/panel/items/${store.activeCollection}`,
+    pageCount.value.toString(),
+    page.value.toString(),
+  ],
   queryFn: ({ queryKey }) =>
     fetcher(
       queryKey[0],
@@ -194,7 +201,24 @@ const { isLoading, isError, isFetching, data, error, refetch } = useQuery({
 
 watchEffect(() => {
   if (page.value) {
-    refetch();
+    refetchData();
+  }
+});
+
+watchEffect(() => {
+  if (headerData.value) {
+    const currentColumns = headerData.value.data.map((el: any) => {
+      return {
+        key: el.field,
+        label: capitalizeEachWords(el.field),
+        is_primary_key: el.schema.is_primary_key,
+        type: el.type,
+      };
+    });
+
+    columns.value = currentColumns.filter(
+      (el: any) => !el.is_primary_key && el.type !== "geometry"
+    );
   }
 });
 </script>
@@ -224,7 +248,10 @@ watchEffect(() => {
             class="w-[14px] h-[14px] text-grey-400"
             :fontControlled="false"
           />
-          Data Jaringan Jalan Bandung
+          {{
+            store.activeCollection &&
+            capitalizeEachWords(store.activeCollection)
+          }}
         </button>
         <div class="border-l border-grey-700 h-8"></div>
         <button
@@ -267,7 +294,7 @@ watchEffect(() => {
     <div class="h-[calc(100%-5.5rem)] flex flex-col gap-2">
       <UTable
         v-model="selected"
-        :rows="data?.data"
+        :rows="tableData?.data"
         :columns="columns"
         class="overflow-scroll"
         :ui="{
@@ -314,7 +341,7 @@ watchEffect(() => {
         <UPagination
           v-model="page"
           :page-count="pageCount"
-          :total="data?.meta.filter_count"
+          :total="tableData?.meta.filter_count"
           :active-button="{ variant: 'paginationActive' }"
           :inactive-button="{ variant: 'paginationInactive' }"
           :prev-button="{ variant: 'paginationInactive' }"

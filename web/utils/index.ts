@@ -229,3 +229,17 @@ export const createPulsingDot = (map: Map, size: number) => ({
     return true;
   },
 });
+
+export const capitalizeEachWords = (text: string) => {
+  const splitText = text.split("_");
+
+  for (let i = 0; i < splitText.length; i++) {
+    if (splitText[i]) {
+      splitText[i] = splitText[i][0].toUpperCase() + splitText[i].substring(1);
+    } else {
+      splitText[i] = "";
+    }
+  }
+
+  return splitText.join(" ");
+};
