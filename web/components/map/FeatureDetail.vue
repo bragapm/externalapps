@@ -7,7 +7,7 @@ import KeenSlider, {
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 import IcArrowLeft from "~/assets/icons/ic-arrow-left.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
-import IcDetail from "~/assets/icons/ic-detail.svg";
+import IcRectangleList from "~/assets/icons/ic-rectangle-list.svg";
 import {
   TransitionRoot,
   TransitionChild,
@@ -146,7 +146,10 @@ const clearSelection = () => {
       v-if="!featureStore.feature"
       class="h-full flex flex-col justify-center items-center text-white text-center gap-3"
     >
-      <IcDetail :fontControlled="false" class="w-12 h-12 text-brand-500" />
+      <IcRectangleList
+        :fontControlled="false"
+        class="w-12 h-12 text-brand-500"
+      />
       <h4 class="text-sm text-grey-50">Feature Detail will be shown here.</h4>
       <p class="text-xs text-grey-400">
         Please click layer feature first to show the feature properties here.
@@ -169,7 +172,10 @@ const clearSelection = () => {
       v-else-if="Boolean(errorMessage)"
       class="h-full flex flex-col justify-center items-center text-white text-center gap-3"
     >
-      <IcDetail :fontControlled="false" class="w-12 h-12 text-brand-500" />
+      <IcRectangleList
+        :fontControlled="false"
+        class="w-12 h-12 text-brand-500"
+      />
       <h4 class="text-sm text-grey-50">Content structure has not been set.</h4>
       <p class="text-xs text-grey-400">
         Please contact data owner to set content structure for this layer

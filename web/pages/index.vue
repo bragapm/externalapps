@@ -3,7 +3,7 @@ import { TransitionRoot } from "@headlessui/vue";
 import IcBasemap from "~/assets/icons/ic-basemap.svg";
 import IcBookmark from "~/assets/icons/ic-bookmark.svg";
 // import IcChart from "~/assets/icons/ic-chart.svg";
-import IcDetail from "~/assets/icons/ic-detail.svg";
+import IcRectangleList from "~/assets/icons/ic-rectangle-list.svg";
 import IcLocation from "~/assets/icons/ic-location.svg";
 import IcMapExtent from "~/assets/icons/ic-map-instance.svg";
 import IcMapLayer from "~/assets/icons/ic-map-layer.svg";
@@ -213,7 +213,7 @@ watchEffect((onCleanup) => {
         "
         :active="featureStore.rightSidebar === 'feature'"
       >
-        <IcDetail class="w-5 h-5" :fontControlled="false" />
+        <IcRectangleList class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>
     </div>
 
