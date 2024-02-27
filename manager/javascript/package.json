@@ -4,14 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --env-file .env test.js",
-    "start": "node --env-file .env index.js"
+    "test": "node test.js",
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "Miko",
   "license": "ISC",
   "dependencies": {
     "@mapbox/spritezero": "^8.0.3",
+    "dotenv": "^16.4.5",
     "graphile-worker": "^0.16.2",
     "minio": "^7.1.3"
   }

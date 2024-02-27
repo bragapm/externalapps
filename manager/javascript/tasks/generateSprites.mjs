@@ -1,34 +1,66 @@
-// tasks/generateSprites.js
-import spritezero from "@mapbox/spritezero";
+import * as Minio from "minio";
 import fs from "fs";
 import path from "path";
-import os from "os";
-import * as Minio from "minio";
+import spritezero from "@mapbox/spritezero";
+
+// For Windows compatibility
+const directory = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = path.resolve(
+  process.platform === "win32" ? directory.slice(1) : directory
+);
 
 // Configure MinIO client
 const minioClient = new Minio.Client({
-  endPoint: "localhost", // Use your MinIO or S3 endpoint
-  port: 9000, // Default MinIO port, for S3 use 443 and set useSSL to true
-  useSSL: false, // Set to true for S3 or if your MinIO is set up with SSL
-  accessKey: "YOUR_ACCESS_KEY",
-  secretKey: "YOUR_SECRET_KEY",
+  endPoint: process.env.STORAGE_S3_ENDPOINT, // Use MinIO or S3 endpoint
+  region: process.env.STORAGE_S3_REGION,
+  port: 443, // Default MinIO port, for S3 use 443 and set useSSL to true
+  useSSL: true, // Set to true for S3 or if your MinIO is set up with SSL
+  accessKey: process.env.STORAGE_S3_KEY,
+  secretKey: process.env.STORAGE_S3_SECRET,
 });
 
-// Adjust the endpoint, port, and useSSL according to whether you're connecting to MinIO or AWS S3
+function generateLayoutAsync(svgs, pixelRatio, format) {
+  return new Promise((resolve, reject) => {
+    spritezero.generateLayout(
+      { imgs: svgs, pixelRatio, format },
+      (err, layout) => {
+        if (err) reject(err);
+        else resolve(layout);
+      }
+    );
+  });
+}
+
+function generateImageAsync(layout) {
+  return new Promise((resolve, reject) => {
+    spritezero.generateImage(layout, (err, image) => {
+      if (err) reject(err);
+      else resolve(image);
+    });
+  });
+}
 
 export default async function (payload, helpers) {
-  const { bucketName, iconKeys, spriteName } = payload;
-  const { withPgClient } = helpers;
-
-  // Temporary directory for downloaded icons and generated sprites
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sprites-"));
+  const bucketName = process.env.STORAGE_S3_BUCKET;
+  const spritesDir = path.join(__dirname, "sprites");
+  // Check if the directory exists, if not, create it
+  if (!fs.existsSync(spritesDir)) {
+    fs.mkdirSync(spritesDir, { recursive: true });
+  }
 
   try {
-    // Step 2: Download icons from S3
+    const { withPgClient } = helpers;
+    const { rows } = await withPgClient((pgClient) =>
+      pgClient.query(
+        `select filename_disk, filename_download, title from public.directus_files where folder = 'ffffffff-ffff-4fff-bfff-fffffffffffe' and type = 'image/svg+xml'`
+      )
+    );
+    const iconKeys = rows.map(({ filename_disk }) => filename_disk);
+
     await Promise.all(
       iconKeys.map(async (key) => {
         return new Promise((resolve, reject) => {
-          const filePath = path.join(tempDir, key);
+          const filePath = path.join(spritesDir, key);
           const fileStream = fs.createWriteStream(filePath);
           minioClient.getObject(bucketName, key, (err, stream) => {
             if (err) {
@@ -41,44 +73,44 @@ export default async function (payload, helpers) {
       })
     );
 
-    // Step 3: Generate sprites using spritezero
-    const svgs = iconKeys.map((key) => {
-      return {
-        svg: fs.readFileSync(path.join(tempDir, key)),
+    for (const pxRatio of [1, 2, 4]) {
+      const svgs = iconKeys.map((key) => ({
+        svg: fs.readFileSync(path.join(spritesDir, key)),
         id: path.basename(key, ".svg"),
-      };
-    });
+      }));
 
-    // Generate both 1x and 2x sprites
-    [1, 2].forEach((pixelRatio) => {
-      const pngPath = path.join(tempDir, `${spriteName}${pixelRatio}x.png`);
-      spritezero.generateLayout(
-        { imgs: svgs, pixelRatio, format: true },
-        (err, layout) => {
-          if (err) throw err;
-          spritezero.generateImage(layout, (err, image) => {
-            if (err) throw err;
-            fs.writeFileSync(pngPath, image);
-            // Step 4: Upload generated sprites back to S3
-            minioClient.fPutObject(
-              bucketName,
-              `${spriteName}${pixelRatio}x.png`,
-              pngPath,
-              "image/png",
-              (err, etag) => {
-                if (err) {
-                  console.log("Upload Error:", err);
-                  return;
-                }
-                console.log("Upload Success, ETag:", etag);
-              }
-            );
-          });
-        }
+      const pngPath = path.resolve(spritesDir, `sprite@${pxRatio}.png`);
+      const jsonPath = path.resolve(spritesDir, `sprite@${pxRatio}.json`);
+
+      // Generate image layout for PNG sprite image
+      const imageLayout = await generateLayoutAsync(svgs, pxRatio, false);
+      const image = await generateImageAsync(imageLayout);
+      fs.writeFileSync(pngPath, image);
+
+      // Generate data layout for JSON sprite manifest
+      const dataLayout = await generateLayoutAsync(svgs, pxRatio, true);
+      fs.writeFileSync(jsonPath, JSON.stringify(dataLayout));
+
+      // Upload JSON and PNG to MinIO
+      await minioClient.fPutObject(
+        bucketName,
+        `sprites/sprite@${pxRatio}.png`,
+        pngPath,
+        { "Content-Type": "image/png" }
       );
-    });
+      console.log(`Upload PNG ${pxRatio} Success`);
+
+      await minioClient.fPutObject(
+        bucketName,
+        `sprites/sprite@${pxRatio}.json`,
+        jsonPath,
+        { "Content-Type": "application/json" }
+      );
+      console.log(`Upload JSON ${pxRatio} Success`);
+    }
+  } catch (error) {
+    console.log(error);
   } finally {
-    // Clean up the temporary directory
-    fs.rmdirSync(tempDir, { recursive: true });
+    fs.rmSync(spritesDir, { recursive: true });
   }
 }

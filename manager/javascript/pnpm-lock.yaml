@@ -4,6 +4,9 @@ dependencies:
   '@mapbox/spritezero':
     specifier: ^8.0.3
     version: 8.0.3
+  dotenv:
+    specifier: ^16.4.5
+    version: 16.4.5
   graphile-worker:
     specifier: ^0.16.2
     version: 0.16.2
@@ -406,6 +409,11 @@ packages:
       dom-serializer: 1.4.1
       domelementtype: 2.3.0
       domhandler: 4.3.1
+    dev: false
+
+  /dotenv@16.4.5:
+    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+    engines: {node: '>=12'}
     dev: false
 
   /emoji-regex@8.0.0:

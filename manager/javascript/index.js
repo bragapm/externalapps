@@ -1,4 +1,5 @@
 const { run } = require("graphile-worker");
+require('dotenv').config()
 
 async function main() {
     const runner = await run({

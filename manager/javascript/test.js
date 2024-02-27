@@ -1,25 +1,13 @@
-const { addJob, quickAddJob } = require('graphile-worker');
+const { quickAddJob } = require('graphile-worker');
+require('dotenv').config()
 
-async function enqueueSpriteGeneration() {
-    await addJob('generateSprites', {
-        bucketName: 'your-s3-bucket-name',
-        iconKeys: ['icons/icon1.svg', 'icons/icon2.svg'], // Keys of your icons in S3
-        spriteName: 'mysprite' // Base name for the generated sprite
-    });
-}
-
-async function enqueueHello() {
+async function enqueueGenerateSprites() {
     await quickAddJob(
-        // makeWorkerUtils options
         { connectionString: process.env.DB_CONNECTION_STRING },
-
-        // Task identifier
-        "hello",
-
-        // Payload
+        "generateSprites",
         { name: "Bobby Tables" },
     )
 }
 
-const test = async () => { enqueueHello() }
+const test = async () => { enqueueGenerateSprites() }
 test()
