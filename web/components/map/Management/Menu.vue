@@ -6,8 +6,7 @@ import type { LngLatBoundsLike } from "maplibre-gl";
 import bbox from "@turf/bbox";
 
 defineProps<{
-  bounds?: GeoJSON.Polygon;
-  layerId?: string;
+  item: VectorTiles | RasterTiles | ThreeDTiles;
 }>();
 
 const store = useTableData();
@@ -50,11 +49,12 @@ const { floatingStyles } = useFloating(reference, floating, {
             <button
               @click="
                 () => {
-                  if(layerId){
-                    map?.flyTo({ center : (mapLayerStore.threeDLayerCenter.value as any)[layerId].center , zoom : (mapLayerStore.threeDLayerCenter.value as any)[layerId].zoom })
-                  }
-                  if(bounds){
-                    map?.fitBounds(bbox(bounds) as LngLatBoundsLike, { padding: {top: 100, bottom:150, left: 300, right: 50} });
+                  if(item.source ==='three_d_tiles'){
+                    map?.flyTo({ center : (mapLayerStore.threeDLayerCenter.value as any)[item.layer_id].center , zoom : (mapLayerStore.threeDLayerCenter.value as any)[item.layer_id].zoom })
+                  }else{
+                    if((item as VectorTiles|RasterTiles).bounds){
+                      map?.fitBounds(bbox(item.bounds) as LngLatBoundsLike, { padding: {top: 100, bottom:150, left: 300, right: 50} });
+                    }
                   }
                 }
               "
@@ -119,7 +119,11 @@ const { floatingStyles } = useFloating(reference, floating, {
           <hr class="border-t-2 border-grey-800" />
           <MenuItem v-slot="{ active }">
             <button
-              @click="() => {}"
+              @click="
+                () => {
+                  mapLayerStore.removeLayer(item);
+                }
+              "
               :class="[
                 active
                   ? 'bg-grey-700 text-white'

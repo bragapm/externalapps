@@ -183,7 +183,7 @@ const updateOpacity = (value: number) => {
           />
           <IcEye v-else class="text-grey-400 w-3 h-3" :fontControlled="false" />
         </button>
-        <MapManagementMenu :bounds="layerItem.bounds" />
+        <MapManagementMenu :item="layerItem" />
       </div>
     </div>
     <TransitionRoot

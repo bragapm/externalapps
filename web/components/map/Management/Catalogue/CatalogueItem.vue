@@ -13,8 +13,9 @@ defineProps<{
 
 const emit = defineEmits<{
   addLayer: [layerItem: VectorTiles | RasterTiles | ThreeDTiles];
-  removeLayer: [layerItem: VectorTiles | RasterTiles | ThreeDTiles];
 }>();
+
+const mapLayerStore = useMapLayer();
 
 const isLoad = ref(false);
 
@@ -30,7 +31,7 @@ const removeLayer = (item: VectorTiles | RasterTiles | ThreeDTiles) => {
   isLoad.value = true;
   setTimeout(() => {
     isLoad.value = false;
-    emit("removeLayer", item);
+    mapLayerStore.removeLayer(item);
   }, 750);
 };
 </script>

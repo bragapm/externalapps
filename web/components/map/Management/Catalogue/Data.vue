@@ -7,7 +7,6 @@ const props = defineProps<{
 }>();
 
 const mapLayerStore = useMapLayer();
-const mapRefStore = useMapRef();
 
 const activeLayers = computed(() => {
   return mapLayerStore.groupedActiveLayers
@@ -52,32 +51,7 @@ const addLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
     }
   }
 };
-const removeLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
-  let groupName = layerItem.category
-    ? layerItem.category.category_name
-    : uncategorizedAlias;
-  let groupIndex = mapLayerStore.groupedActiveLayers?.findIndex(
-    (el) => el.label === groupName
-  );
-  let layerIndex = mapLayerStore.groupedActiveLayers?.[
-    groupIndex as number
-  ].layerLists.findIndex((el) => el.layer_id === layerItem.layer_id);
 
-  if (
-    mapLayerStore.groupedActiveLayers?.[groupIndex as number].layerLists
-      .length === 1
-  ) {
-    mapLayerStore.groupedActiveLayers?.splice(groupIndex as number, 1);
-  } else {
-    mapLayerStore.groupedActiveLayers?.[
-      groupIndex as number
-    ]?.layerLists.splice(layerIndex as number, 1);
-  }
-
-  if (layerItem.source !== "three_d_tiles") {
-    mapRefStore.map?.removeLayer(layerItem.layer_id);
-  }
-};
 </script>
 
 <template>
@@ -118,7 +92,6 @@ const removeLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
                 : false
             "
             @add-layer="addLayer"
-            @remove-layer="removeLayer"
           />
         </div>
       </div>
@@ -157,7 +130,6 @@ const removeLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
                 : false
             "
             @add-layer="addLayer"
-            @remove-layer="removeLayer"
           />
           <MapManagementCatalogueUploadCard />
         </div>

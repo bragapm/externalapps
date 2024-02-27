@@ -19,6 +19,7 @@ import {
 } from "~/constants";
 
 export const useMapLayer = defineStore("maplayer", () => {
+  const mapRefStore = useMapRef();
   const groupedActiveLayers = ref<LayerGroupedByCategory[] | null>(null);
   const groupedLayerList = ref<LayerGroupedByCategory[] | null>(null);
 
@@ -277,6 +278,34 @@ export const useMapLayer = defineStore("maplayer", () => {
     };
   }>({});
 
+  //remove item from groupedActiveLayer
+  const removeLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
+    let groupName = layerItem.category
+      ? layerItem.category.category_name
+      : uncategorizedAlias;
+    let groupIndex = groupedActiveLayers.value?.findIndex(
+      (el) => el.label === groupName
+    );
+    let layerIndex = groupedActiveLayers.value?.[
+      groupIndex as number
+    ].layerLists.findIndex((el) => el.layer_id === layerItem.layer_id);
+
+    if (
+      groupedActiveLayers.value?.[groupIndex as number].layerLists.length === 1
+    ) {
+      groupedActiveLayers.value?.splice(groupIndex as number, 1);
+    } else {
+      groupedActiveLayers.value?.[groupIndex as number]?.layerLists.splice(
+        layerIndex as number,
+        1
+      );
+    }
+
+    if (layerItem.source !== "three_d_tiles") {
+      mapRefStore.map?.removeLayer(layerItem.layer_id);
+    }
+  };
+
   return {
     fetchListedLayers,
     fetchActiveLayers,
@@ -286,5 +315,6 @@ export const useMapLayer = defineStore("maplayer", () => {
     updateLayerOpacity,
     groupLayerByCategory,
     threeDLayerCenter,
+    removeLayer,
   };
 });
