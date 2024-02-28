@@ -13,7 +13,9 @@ export default (router, { database, logger }) => {
     // Check if the user has permission to access the requested layer
     if (
       !accountability.admin &&
-      !accountability.permissions.some((el) => el.collection === layerName)
+      !accountability.permissions.some(
+        (el) => el.collection === layerName && el.action === "read"
+      )
     ) {
       return next(new RouteNotFoundError({ path: "/mvt" + req.path }));
     }
