@@ -2,7 +2,7 @@ import os from "os";
 import fs from "fs";
 import path from "path";
 import * as Minio from "minio";
-import spritezero from "@mapbox/spritezero";
+import spritezero from "@elastic/spritezero";
 
 // Configure MinIO client
 const minioClient = new Minio.Client({
@@ -14,10 +14,10 @@ const minioClient = new Minio.Client({
   secretKey: process.env.STORAGE_S3_SECRET,
 });
 
-function generateLayoutAsync(svgs, pixelRatio, format) {
+function generateLayoutAsync(svgs, pixelRatio, format, sdf) {
   return new Promise((resolve, reject) => {
     spritezero.generateLayout(
-      { imgs: svgs, pixelRatio, format },
+      { imgs: svgs, pixelRatio, format, sdf },
       (err, layout) => {
         if (err) reject(err);
         else resolve(layout);
@@ -77,18 +77,18 @@ export default async function (payload, helpers) {
       const jsonPath = path.resolve(spritesDir, `sprite@${pxRatio}.json`);
 
       // Generate image layout for PNG sprite image
-      const imageLayout = await generateLayoutAsync(svgs, pxRatio, false);
+      const imageLayout = await generateLayoutAsync(svgs, pxRatio, false, true);
       const image = await generateImageAsync(imageLayout);
       fs.writeFileSync(pngPath, image);
 
       // Generate data layout for JSON sprite manifest
-      const dataLayout = await generateLayoutAsync(svgs, pxRatio, true);
+      const dataLayout = await generateLayoutAsync(svgs, pxRatio, true, true);
       fs.writeFileSync(jsonPath, JSON.stringify(dataLayout));
 
       // Upload JSON and PNG to MinIO
       await minioClient.fPutObject(
         bucketName,
-        `sprites/sprite@${pxRatio}.png`,
+        `sprites/sprite@${pxRatio}x.png`,
         pngPath,
         { "Content-Type": "image/png" }
       );
@@ -96,7 +96,7 @@ export default async function (payload, helpers) {
 
       await minioClient.fPutObject(
         bucketName,
-        `sprites/sprite@${pxRatio}.json`,
+        `sprites/sprite@${pxRatio}x.json`,
         jsonPath,
         { "Content-Type": "application/json" }
       );

@@ -15,14 +15,20 @@ const store = useMapRef();
 const { setMapLoad, setMapRef, setGeolocateRef } = store;
 
 //map init
-onMounted(() => {
+onMounted(async () => {
   setMapLoad(false);
   const apiKey = "D7JUUxLv3oK21JM9jscD";
+  const style = await (
+    await fetch(
+      `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`
+    )
+  ).json();
+  style.sprite = window.location.origin + "/panel/sprites/sprite";
 
   map.value = markRaw(
     new Map({
       container: mapContainer.value!,
-      style: `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`,
+      style,
       bounds: bbox(
         mapData?.value?.data.initial_map_view || [
           [95.01, -11.01], // Southwest coordinates (longitude, latitude)
