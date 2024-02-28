@@ -8,7 +8,6 @@ async function main() {
         pollInterval: 2000,
         preparedStatements: true,
         schema: "graphile_worker",
-        crontabFile: "crontab",
         concurrentJobs: 3,
         fileExtensions: [".js", ".cjs", ".mjs"],
         taskDirectory: `${__dirname}/tasks`,
