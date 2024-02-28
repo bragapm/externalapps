@@ -44,6 +44,7 @@ def three_d_tiling(
     object_key: str,
     uploader: str,
     three_d_alias: str,
+    has_color: bool,
     **kwargs,
 ):
     try:
@@ -62,7 +63,7 @@ def three_d_tiling(
             temp_file_path,
             outfolder=temp_tiles_dir_path,
             crs_out=CRS.from_epsg(4978),
-            rgb=False,
+            rgb=has_color,
         )
 
         layer_id = str(uuid4())
