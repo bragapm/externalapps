@@ -1,18 +1,10 @@
-import os from "os";
 import fs from "fs";
+import os from "os";
 import path from "path";
-import * as Minio from "minio";
+
 import spritezero from "@elastic/spritezero";
 
-// Configure MinIO client
-const minioClient = new Minio.Client({
-  endPoint: process.env.STORAGE_S3_ENDPOINT, // Use MinIO or S3 endpoint
-  region: process.env.STORAGE_S3_REGION,
-  port: 443, // Default MinIO port, for S3 use 443 and set useSSL to true
-  useSSL: true, // Set to true for S3 or if your MinIO is set up with SSL
-  accessKey: process.env.STORAGE_S3_KEY,
-  secretKey: process.env.STORAGE_S3_SECRET,
-});
+import minioClient from "../utils/minioClient.mjs";
 
 function generateLayoutAsync(svgs, pixelRatio, format, sdf) {
   return new Promise((resolve, reject) => {
