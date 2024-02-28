@@ -4,6 +4,7 @@ import path from "path";
 
 import spritezero from "@elastic/spritezero";
 
+import { LAYER_ICONS_FOLDER_ID } from "../utils/const.mjs";
 import minioClient from "../utils/minioClient.mjs";
 
 function generateLayoutAsync(svgs, pixelRatio, format, sdf) {
@@ -38,7 +39,7 @@ export default async function (payload, helpers) {
     const { withPgClient } = helpers;
     const { rows } = await withPgClient((pgClient) =>
       pgClient.query(
-        `select filename_disk, filename_download, title from public.directus_files where folder = 'ffffffff-ffff-4fff-bfff-fffffffffffe' and type = 'image/svg+xml'`
+        `select filename_disk, filename_download, title from public.directus_files where folder = '${LAYER_ICONS_FOLDER_ID}' and type = 'image/svg+xml'`
       )
     );
     const iconKeys = rows.map(({ filename_disk }) => filename_disk);
