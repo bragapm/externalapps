@@ -73,7 +73,8 @@ export async function up(knex) {
                       'minzoom', NEW.minzoom,
                       'maxzoom', NEW.maxzoom,
                       'is_terrain', NEW.is_terrain,
-                      'three_d_alias', NEW.three_d_alias
+                      'three_d_alias', NEW.three_d_alias,
+                      'has_color', NEW.has_color
                   ),
                   'options', jsonb_build_object(),
                   'actor_name', actor_name,
