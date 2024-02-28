@@ -2,10 +2,10 @@
   "name": "geo-js-worker",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
-    "test": "node test.js",
-    "start": "node index.js"
+    "test": "node test.mjs",
+    "start": "node index.mjs"
   },
   "keywords": [],
   "author": "Miko",
