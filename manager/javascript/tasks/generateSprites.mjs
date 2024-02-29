@@ -28,18 +28,24 @@ function generateImageAsync(layout) {
   });
 }
 
-export default async function (payload, helpers) {
+export default async function ({ queueId }, helpers) {
   const bucketName = process.env.STORAGE_S3_BUCKET;
 
   // Use fs.mkdtemp() to create a unique temporary directory within the OS-specific temp directory
   const tempDirPrefix = path.join(os.tmpdir(), "sprites-");
   const spritesDir = await fs.promises.mkdtemp(tempDirPrefix);
 
+  const { withPgClient } = helpers;
   try {
-    const { withPgClient } = helpers;
+    await withPgClient((pgClient) =>
+      pgClient.query(
+        `UPDATE sprite_generation_queue SET date_updated = CURRENT_TIMESTAMP, status = 'consumed' WHERE id = '${queueId}';`
+      )
+    );
+
     const { rows } = await withPgClient((pgClient) =>
       pgClient.query(
-        `select filename_disk, filename_download, title from public.directus_files where folder = '${LAYER_ICONS_FOLDER_ID}' and type = 'image/svg+xml'`
+        `SELECT filename_disk, filename_download, title FROM directus_files WHERE folder = '${LAYER_ICONS_FOLDER_ID}' AND type = 'image/svg+xml'`
       )
     );
     const iconKeys = rows.map(({ filename_disk }) => filename_disk);
@@ -95,7 +101,18 @@ export default async function (payload, helpers) {
       );
       console.log(`Upload JSON ${pxRatio} Success`);
     }
+
+    await withPgClient((pgClient) =>
+      pgClient.query(
+        `UPDATE sprite_generation_queue SET date_updated = CURRENT_TIMESTAMP, status = 'done' WHERE id = '${queueId}';`
+      )
+    );
   } catch (error) {
+    await withPgClient((pgClient) =>
+      pgClient.query(
+        `UPDATE sprite_generation_queue SET date_updated = CURRENT_TIMESTAMP, status = 'done', errors = '${error.stack}' WHERE id = '${queueId}';`
+      )
+    );
     console.log(error);
   } finally {
     // Clean up the temporary directory after use
