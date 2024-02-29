@@ -2,7 +2,7 @@ import { LAYER_DATA_FOLDER_ID } from "./const/FOLDER_IDS.mjs";
 
 export async function up(knex) {
   await knex.raw(`
-  CREATE OR REPLACE FUNCTION handle_directus_files_update()
+  CREATE OR REPLACE FUNCTION handle_directus_files_layer_data_ready()
   RETURNS TRIGGER AS $$
   DECLARE
       folder_name varchar(255);
@@ -13,87 +13,79 @@ export async function up(knex) {
       terrain_rgb_enabled boolean;
       three_d_tiling_enabled boolean;
   BEGIN
-      -- If the folder is NULL or is_ready is not true, return early without doing anything
-      IF NEW.folder IS NULL OR NEW.is_ready IS NOT TRUE THEN
-          RETURN NULL;
-      END IF;
-      
       -- Get worker configuration
       SELECT terrain_rgb_worker, three_d_tiling_worker INTO STRICT terrain_rgb_enabled, three_d_tiling_enabled
       FROM directus_settings;
 
-      -- Check if the folder is 'Layer Data'
-      IF NEW.folder = '${LAYER_DATA_FOLDER_ID}' THEN
-          -- Generate a random UUID
-          v_uuid := gen_random_uuid();
+      -- Generate a random UUID
+      v_uuid := gen_random_uuid();
 
-          -- Get current timestamp
-          v_now := NOW();
-              
-          -- Convert the current timestamp to milliseconds
-          v_timestamp := EXTRACT(EPOCH FROM v_now) * 1000;
+      -- Get current timestamp
+      v_now := NOW();
+          
+      -- Convert the current timestamp to milliseconds
+      v_timestamp := EXTRACT(EPOCH FROM v_now) * 1000;
 
-          -- Set worker or actor name
-          IF NEW.format_file = 'tif' THEN
-              IF NEW.is_terrain = TRUE AND terrain_rgb_enabled = FALSE THEN
-                  RAISE EXCEPTION 'Terrain RGB worker is not enabled';
-              END IF;
-              actor_name := 'tiling';
-          ELSIF NEW.format_file = 'las/laz' THEN
-              IF three_d_tiling_enabled = FALSE THEN
-                  RAISE EXCEPTION '3D tiling worker is not enabled';
-              END IF;
-              actor_name := 'three_d_tiling';
-          ELSE
-              actor_name := 'transform';
+      -- Set worker or actor name
+      IF NEW.format_file = 'tif' THEN
+          IF NEW.is_terrain = TRUE AND terrain_rgb_enabled = FALSE THEN
+              RAISE EXCEPTION 'Terrain RGB worker is not enabled';
           END IF;
-
-          -- Perform the insertion
-          INSERT INTO geoprocessing_queue(
-              message_id,
-              queue_name,
-              state,
-              mtime,
-              message
-          )
-          VALUES (
-              v_uuid,
-              'default',
-              'queued',
-              v_now,
-              jsonb_build_object(
-                  'args', jsonb_build_array(),
-                  'kwargs', jsonb_build_object(
-                      'object_key', NEW.filename_disk,
-                      'table_name', NEW.table_name,
-                      'uploader', NEW.uploaded_by,
-                      'format_file', NEW.format_file,
-                      'is_zipped', NEW.is_zipped,
-                      'raster_alias', NEW.raster_alias,
-                      'minzoom', NEW.minzoom,
-                      'maxzoom', NEW.maxzoom,
-                      'is_terrain', NEW.is_terrain,
-                      'three_d_alias', NEW.three_d_alias,
-                      'has_color', NEW.has_color
-                  ),
-                  'options', jsonb_build_object(),
-                  'actor_name', actor_name,
-                  'message_id', v_uuid::text,
-                  'queue_name', 'default',
-                  'message_timestamp', v_timestamp::text
-              ) 
-          );
+          actor_name := 'tiling';
+      ELSIF NEW.format_file = 'las/laz' THEN
+          IF three_d_tiling_enabled = FALSE THEN
+              RAISE EXCEPTION '3D tiling worker is not enabled';
+          END IF;
+          actor_name := 'three_d_tiling';
+      ELSE
+          actor_name := 'transform';
       END IF;
+
+      -- Perform the insertion
+      INSERT INTO geoprocessing_queue(
+          message_id,
+          queue_name,
+          state,
+          mtime,
+          message
+      )
+      VALUES (
+          v_uuid,
+          'default',
+          'queued',
+          v_now,
+          jsonb_build_object(
+              'args', jsonb_build_array(),
+              'kwargs', jsonb_build_object(
+                  'object_key', NEW.filename_disk,
+                  'table_name', NEW.table_name,
+                  'uploader', NEW.uploaded_by,
+                  'format_file', NEW.format_file,
+                  'is_zipped', NEW.is_zipped,
+                  'raster_alias', NEW.raster_alias,
+                  'minzoom', NEW.minzoom,
+                  'maxzoom', NEW.maxzoom,
+                  'is_terrain', NEW.is_terrain,
+                  'three_d_alias', NEW.three_d_alias,
+                  'has_color', NEW.has_color
+              ),
+              'options', jsonb_build_object(),
+              'actor_name', actor_name,
+              'message_id', v_uuid::text,
+              'queue_name', 'default',
+              'message_timestamp', v_timestamp::text
+          ) 
+      );
 
       RETURN NULL;
   END;
   $$ LANGUAGE plpgsql;
 
-  CREATE TRIGGER on_directus_files_update
+  CREATE TRIGGER on_directus_files_layer_data_ready
   AFTER UPDATE ON directus_files
   FOR EACH ROW
-  WHEN (OLD.* IS DISTINCT FROM NEW.*) -- Only if the row actually changed
-  EXECUTE FUNCTION handle_directus_files_update();
+  WHEN (OLD.* IS DISTINCT FROM NEW.* AND NEW.folder = '${LAYER_DATA_FOLDER_ID}' AND NEW.is_ready IS TRUE)
+  EXECUTE FUNCTION handle_directus_files_layer_data_ready();
 
   CREATE OR REPLACE FUNCTION handle_geoprocessing_queue_insert()
   RETURNS TRIGGER AS $$
@@ -123,7 +115,7 @@ export async function down(knex) {
     DROP TRIGGER IF EXISTS on_geoprocessing_queue_insert ON geoprocessing_queue;
     DROP FUNCTION IF EXISTS handle_geoprocessing_queue_insert();
 
-    DROP TRIGGER IF EXISTS on_directus_files_update ON directus_files;
-    DROP FUNCTION IF EXISTS handle_directus_files_update();
+    DROP TRIGGER IF EXISTS on_directus_files_layer_data_ready ON directus_files;
+    DROP FUNCTION IF EXISTS handle_directus_files_layer_data_ready();
   `);
 }
