@@ -7,7 +7,7 @@ async function enqueueGenerateSprites() {
   await quickAddJob(
     { connectionString: process.env.DB_CONNECTION_STRING },
     "generateSprites",
-    { name: "Bobby Tables" }
+    { queueId: crypto.randomUUID() }
   );
 }
 
