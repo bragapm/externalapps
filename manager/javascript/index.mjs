@@ -12,7 +12,7 @@ async function main() {
     schema: "graphile_worker",
     concurrentJobs: 3,
     fileExtensions: [".js", ".cjs", ".mjs"],
-    taskDirectory: `${__dirname}/tasks`,
+    taskDirectory: `${import.meta.dirname}/tasks`,
   });
   await runner.promise;
 }
