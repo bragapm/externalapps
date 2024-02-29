@@ -14,6 +14,101 @@ export type CircleStyles = {
   paint_circle_stroke_width: number;
 };
 
+export type SymbolStyles = {
+  id: string;
+  name: string;
+  layout_icon_allow_overlap: boolean;
+  layout_icon_anchor:
+    | "center"
+    | "left"
+    | "right"
+    | "top"
+    | "bottom"
+    | "top-left"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-right";
+  layout_icon_ignore_placement: boolean;
+  layout_icon_image: any;
+  layout_icon_keep_upright: boolean;
+  layout_icon_offset: number[];
+  layout_icon_optional: boolean;
+  layout_icon_overlap: "never" | "always" | "cooperative";
+  layout_icon_padding: number[];
+  layout_icon_pitch_alignment: "map" | "viewport" | "auto";
+  layout_icon_rotate: number;
+  layout_icon_rotation_alignment: "map" | "viewport" | "auto";
+  layout_icon_size: number;
+  layout_icon_text_fit: "none" | "width" | "height" | "both";
+  layout_icon_text_fit_padding: number[];
+  layout_symbol_avoid_edges: boolean;
+  layout_symbol_placement: "point" | "line" | "line-center";
+  layout_symbol_sort_key: number;
+  layout_symbol_spacing: number;
+  layout_symbol_z_order: "auto" | "viewport-y" | "source";
+  layout_text_allow_overlap: boolean;
+  layout_text_anchor:
+    | "center"
+    | "left"
+    | "right"
+    | "top"
+    | "bottom"
+    | "top-left"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-right";
+  layout_text_field: any;
+  layout_text_font: string[];
+  layout_text_ignore_placement: boolean;
+  layout_text_justify: "auto" | "left" | "center" | "right";
+  layout_text_keep_upright: boolean;
+  layout_text_letter_spacing: number;
+  layout_text_line_height: number;
+  layout_text_max_angle: number;
+  layout_text_max_width: number;
+  layout_text_offset: number[];
+  layout_text_optional: boolean;
+  layout_text_overlap: "never" | "always" | "cooperative";
+  layout_text_padding: number;
+  layout_text_pitch_alignment: "map" | "viewport" | "auto";
+  layout_text_radial_offset: number;
+  layout_text_rotate: number;
+  layout_text_rotation_alignment:
+    | "map"
+    | "viewport"
+    | "viewport-glyph"
+    | "auto";
+  layout_text_size: number;
+  layout_text_transform: "none" | "uppercase" | "lowercase";
+  layout_text_variable_anchor:
+    | "center"
+    | "left"
+    | "right"
+    | "top"
+    | "bottom"
+    | "top-left"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-right";
+  layout_text_variable_anchor_offset: any[];
+  layout_text_writing_mode: "horizontal" | "vertical";
+  layout_visibility: "visible" | "none";
+  paint_icon_color: string;
+  paint_icon_halo_blur: number;
+  paint_icon_halo_color: string;
+  paint_icon_halo_width: number;
+  paint_icon_opacity: string;
+  paint_icon_translate: number[];
+  paint_icon_translate_anchor: "map" | "viewport";
+  paint_text_color: string;
+  paint_text_halo_blur: number;
+  paint_text_halo_color: string;
+  paint_text_halo_width: number;
+  paint_text_opacity: string;
+  paint_text_translate: number[];
+  paint_text_translate_anchor: "map" | "viewport";
+};
+
 export type FillStyles = {
   id: string;
   layout_visibility: string;
@@ -57,9 +152,10 @@ export type VectorTiles = {
   bounds: GeoJSON.Polygon;
   category: { category_name: string | null };
   circle_style?: CircleStyles;
+  symbol_style?: SymbolStyles;
   fill_style?: FillStyles;
   line_style?: LineStyles;
-  layer_style: CircleStyles | FillStyles | LineStyles;
+  layer_style: CircleStyles | FillStyles | LineStyles | SymbolStyles;
   geometry_type: string;
   layer_alias: string;
   layer_id: string;

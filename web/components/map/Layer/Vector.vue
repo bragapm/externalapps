@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { geomTypeCircle, geomTypeLine, geomTypePolygon } from "~/constants";
+import {
+  geomTypeCircle,
+  geomTypeLine,
+  geomTypePolygon,
+  geomTypeSymbol,
+} from "~/constants";
 import type {
   VectorTiles,
   CircleStyles,
   FillStyles,
   LineStyles,
-LayerLists,
+  LayerLists,
+  SymbolStyles,
 } from "~/utils/types";
 
 const store = useMapRef();
@@ -25,6 +31,8 @@ function parseString(input: string) {
   try {
     const parsed = JSON.parse(input);
     if (Array.isArray(parsed)) {
+      return parsed;
+    } else if (typeof parsed === "number") {
       return parsed;
     }
   } catch (e) {
@@ -71,15 +79,11 @@ watchEffect(async (onInvalidate) => {
             category === "paint" &&
             props.item.layer_style?.[key as keyof typeof props.item.layer_style]
           ) {
-            paint[nameStrings.join("-")] = nameStrings.includes("opacity")
-              ? parseFloat(
-                  (props.item.layer_style as CircleStyles).paint_circle_opacity
-                )
-              : isString(
-                  (props.item.layer_style as CircleStyles)[
-                    key as keyof CircleStyles
-                  ]
-                )
+            paint[nameStrings.join("-")] = isString(
+              (props.item.layer_style as CircleStyles)[
+                key as keyof CircleStyles
+              ]
+            )
               ? parseString(
                   (props.item.layer_style as CircleStyles)[
                     key as keyof CircleStyles
@@ -94,9 +98,19 @@ watchEffect(async (onInvalidate) => {
               key as keyof CircleStyles
             ]
           ) {
-            layout[nameStrings.join("-")] = (
-              props.item.layer_style as CircleStyles
-            )[key as keyof CircleStyles];
+            layout[nameStrings.join("-")] = isString(
+              (props.item.layer_style as CircleStyles)[
+                key as keyof CircleStyles
+              ]
+            )
+              ? parseString(
+                  (props.item.layer_style as CircleStyles)[
+                    key as keyof CircleStyles
+                  ] as string
+                )
+              : (props.item.layer_style as CircleStyles)[
+                  key as keyof CircleStyles
+                ];
           }
         });
 
@@ -104,6 +118,68 @@ watchEffect(async (onInvalidate) => {
           {
             id: props.item.layer_id,
             type: "circle",
+            source: props.item.layer_id,
+            "source-layer": props.item.layer_name,
+            layout,
+            paint,
+          },
+          beforeId || undefined
+        );
+      } else if (props.item.geometry_type === geomTypeSymbol) {
+        let paint: any = {},
+          layout: any = {};
+
+        Object.keys(props.item.layer_style).forEach((key) => {
+          const [category, ...nameStrings] = key.split("_");
+          if (
+            category === "paint" &&
+            props.item.layer_style?.[key as keyof typeof props.item.layer_style]
+          ) {
+            paint[nameStrings.join("-")] = nameStrings.includes("opacity")
+              ? parseFloat(
+                  (props.item.layer_style as SymbolStyles)[
+                    key as keyof SymbolStyles
+                  ]
+                )
+              : isString(
+                  (props.item.layer_style as SymbolStyles)[
+                    key as keyof SymbolStyles
+                  ]
+                )
+              ? parseString(
+                  (props.item.layer_style as SymbolStyles)[
+                    key as keyof SymbolStyles
+                  ] as string
+                )
+              : (props.item.layer_style as SymbolStyles)[
+                  key as keyof SymbolStyles
+                ];
+          } else if (
+            category === "layout" &&
+            (props.item.layer_style as SymbolStyles)?.[
+              key as keyof SymbolStyles
+            ]
+          ) {
+            layout[nameStrings.join("-")] = isString(
+              (props.item.layer_style as SymbolStyles)[
+                key as keyof SymbolStyles
+              ]
+            )
+              ? parseString(
+                  (props.item.layer_style as SymbolStyles)[
+                    key as keyof SymbolStyles
+                  ] as string
+                )
+              : (props.item.layer_style as SymbolStyles)[
+                  key as keyof SymbolStyles
+                ];
+          }
+        });
+
+        map.value.addLayer(
+          {
+            id: props.item.layer_id,
+            type: "symbol",
             source: props.item.layer_id,
             "source-layer": props.item.layer_name,
             layout,
@@ -121,15 +197,9 @@ watchEffect(async (onInvalidate) => {
             category === "paint" &&
             props.item.layer_style?.[key as keyof typeof props.item.layer_style]
           ) {
-            paint[nameStrings.join("-")] = nameStrings.includes("opacity")
-              ? parseFloat(
-                  (props.item.layer_style as FillStyles).paint_fill_opacity
-                )
-              : isString(
-                  (props.item.layer_style as FillStyles)[
-                    key as keyof FillStyles
-                  ]
-                )
+            paint[nameStrings.join("-")] = isString(
+              (props.item.layer_style as FillStyles)[key as keyof FillStyles]
+            )
               ? parseString(
                   (props.item.layer_style as FillStyles)[
                     key as keyof FillStyles
@@ -167,15 +237,9 @@ watchEffect(async (onInvalidate) => {
             category === "paint" &&
             props.item.layer_style?.[key as keyof typeof props.item.layer_style]
           ) {
-            paint[nameStrings.join("-")] = nameStrings.includes("opacity")
-              ? parseFloat(
-                  (props.item.layer_style as LineStyles).paint_line_opacity
-                )
-              : isString(
-                  (props.item.layer_style as LineStyles)[
-                    key as keyof LineStyles
-                  ]
-                )
+            paint[nameStrings.join("-")] = isString(
+              (props.item.layer_style as LineStyles)[key as keyof LineStyles]
+            )
               ? parseString(
                   (props.item.layer_style as LineStyles)[
                     key as keyof LineStyles

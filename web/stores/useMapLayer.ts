@@ -13,6 +13,7 @@ import {
   geomTypeLine,
   geomTypePolygon,
   geomTypeRaster,
+  geomTypeSymbol,
   geomTypeTerrain,
   geomTypeThreeD,
   uncategorizedAlias,
@@ -66,6 +67,25 @@ export const useMapLayer = defineStore("maplayer", () => {
     }
   };
 
+  const updateLayerPaintProperty = (
+    groupIndex: number,
+    layerIndex: number,
+    propName: string,
+    propValue: string | number
+  ) => {
+    if (groupedActiveLayers.value) {
+      const prev = groupedActiveLayers.value;
+      const selected = prev[groupIndex].layerLists[layerIndex];
+      if (selected.geometry_type === geomTypeCircle) {
+        (selected.layer_style as Record<string, any>)[
+          "paint_" + propName.replace(/-/g, "_")
+        ] = propValue;
+      }
+
+      groupedActiveLayers.value = prev;
+    }
+  };
+
   const getLayersArr = (layers: {
     vectorTiles: {
       data: LayerLists;
@@ -83,6 +103,7 @@ export const useMapLayer = defineStore("maplayer", () => {
         if (key === "vectorTiles") {
           const item = JSON.parse(JSON.stringify(el as VectorTiles));
           delete item.circle_style;
+          delete item.symbol_style;
           delete item.line_style;
           delete item.fill_style;
           if ((el as VectorTiles).circle_style) {
@@ -93,6 +114,17 @@ export const useMapLayer = defineStore("maplayer", () => {
               layer_style: (el as VectorTiles).circle_style as CircleStyles,
               source: "vector_tiles",
               geometry_type: geomTypeCircle,
+              dimension: "2D",
+            });
+          }
+          if ((el as VectorTiles).symbol_style) {
+            layersArr.push({
+              ...item,
+              layer_id: item.layer_id + "_symbol",
+              layer_alias: item.layer_alias || item.layer_name,
+              layer_style: (el as VectorTiles).symbol_style as SymbolStyles,
+              source: "vector_tiles",
+              geometry_type: geomTypeSymbol,
               dimension: "2D",
             });
           }
@@ -316,5 +348,6 @@ export const useMapLayer = defineStore("maplayer", () => {
     groupLayerByCategory,
     threeDLayerCenter,
     removeLayer,
+    updateLayerPaintProperty,
   };
 });

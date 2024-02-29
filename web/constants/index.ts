@@ -10,6 +10,7 @@ import IcDrawFree from "~/assets/icons/ic-draw-free.svg";
 export const uncategorizedAlias = "Others";
 
 export const geomTypeCircle = "Circle";
+export const geomTypeSymbol = "Symbol";
 export const geomTypePolygon = "Polygon";
 export const geomTypeLine = "Line";
 export const geomTypeRaster = "Raster";
