@@ -1,8 +1,13 @@
 import fs from "fs";
 import os from "os";
 import path from "path";
+<<<<<<< HEAD
 
 import spritezero from "@elastic/spritezero";
+=======
+import * as Minio from "minio";
+import spritezero from "@mapbox/spritezero";
+>>>>>>> 7d9a120 (Graphile : swap to @mapbox/spritezero)
 
 import { LAYER_ICONS_FOLDER_ID } from "../utils/const.mjs";
 import minioClient from "../utils/minioClient.mjs";

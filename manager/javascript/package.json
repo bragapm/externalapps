@@ -11,7 +11,11 @@
   "author": "Miko",
   "license": "ISC",
   "dependencies": {
+<<<<<<< HEAD
     "@elastic/spritezero": "6.2.0",
+=======
+    "@mapbox/spritezero": "^8.0.3",
+>>>>>>> 7d9a120 (Graphile : swap to @mapbox/spritezero)
     "dotenv": "^16.4.5",
     "graphile-worker": "^0.16.2",
     "minio": "^7.1.3"
