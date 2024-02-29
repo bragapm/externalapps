@@ -6,6 +6,7 @@ import type { LngLatBoundsLike } from "maplibre-gl";
 import bbox from "@turf/bbox";
 
 defineProps<{
+  disabled: boolean;
   item: VectorTiles | RasterTiles | ThreeDTiles;
 }>();
 
@@ -28,8 +29,11 @@ const { floatingStyles } = useFloating(reference, floating, {
 
 <template>
   <Menu as="div" class="relative inline-block">
-    <MenuButton ref="reference" class="align-middle">
-      <IcMenuDots class="text-white w-3 h-3" :fontControlled="false" />
+    <MenuButton :disabled="disabled" ref="reference" class="align-middle">
+      <IcMenuDots
+        :class="['w-3 h-3', disabled ? 'text-grey-600' : 'text-grey-400']"
+        :fontControlled="false"
+      />
     </MenuButton>
 
     <transition

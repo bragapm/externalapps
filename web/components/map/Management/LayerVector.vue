@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import IcEye from "~/assets/icons/ic-eye.svg";
 import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
-import IcPaint from "~/assets/icons/ic-paint.svg";
+import IcMarkerStyle from "~/assets/icons/ic-marker-style.svg";
 import { TransitionRoot } from "@headlessui/vue";
 import type {
   LineStyles,
@@ -9,7 +9,12 @@ import type {
   CircleStyles,
   VectorTiles,
 } from "~/utils/types";
-import { geomTypeCircle, geomTypeLine, geomTypePolygon, uncategorizedAlias } from "~/constants";
+import {
+  geomTypeCircle,
+  geomTypeLine,
+  geomTypePolygon,
+  uncategorizedAlias,
+} from "~/constants";
 import { storeToRefs } from "pinia";
 import { provide } from "vue";
 
@@ -80,9 +85,6 @@ const updateOpacity = (value: number) => {
 };
 
 const toggleVisibility = () => {
-  if (visibility.value === "visible") {
-    isShowStyling.value = false;
-  }
   if (groupIndex.value !== undefined && layerIndex.value !== undefined) {
     const currentVisibility =
       visibility.value === "visible" ? "none" : "visible";
@@ -135,7 +137,7 @@ const toggleVisibility = () => {
           ? 'bg-grey-700'
           : 'bg-transparent hover:ring-1 hover:ring-grey-500',
         filtered ? 'cursor-pointer' : 'cursor-grab',
-        'rounded-xxs p-2 flex justify-between items-center gap-2 w-full',
+        'rounded-xxs p-2 flex justify-between items-center gap-2 w-full transition-all duration-500 ease',
       ]"
     >
       <div class="w-8/12">
@@ -161,7 +163,7 @@ const toggleVisibility = () => {
           :disabled="visibility === 'none'"
           @click="isShowStyling = !isShowStyling"
         >
-          <IcPaint
+          <IcMarkerStyle
             :class="[
               visibility === 'visible'
                 ? isShowStyling
@@ -174,15 +176,19 @@ const toggleVisibility = () => {
             :fontControlled="false"
           />
         </button>
-        <button @click="toggleVisibility">
+        <button
+          :disabled="isShowStyling"
+          @click="toggleVisibility"
+          :class="isShowStyling ? 'text-grey-600' : 'text-grey-400'"
+        >
           <IcEyeCrossed
             v-if="visibility === 'none'"
-            class="text-grey-400 w-3 h-3"
+            class="w-3 h-3"
             :fontControlled="false"
           />
-          <IcEye v-else class="text-grey-400 w-3 h-3" :fontControlled="false" />
+          <IcEye v-else class="w-3 h-3" :fontControlled="false" />
         </button>
-        <MapManagementMenu :item="layerItem" />
+        <MapManagementMenu :item="layerItem" :disabled="isShowStyling" />
       </div>
     </div>
     <TransitionRoot
@@ -195,7 +201,12 @@ const toggleVisibility = () => {
       leaveTo="transform max-h-0 opacity-0"
       class="transition-all duration-500 ease-in-out"
     >
+      <MapManagementStylingCircle
+        v-if="layerItem.geometry_type === geomTypeCircle"
+        :layerItem="layerItem"
+      />
       <MapManagementStyling
+        v-else
         :source="layerItem.source"
         :opacity="opacity ? parseFloat(opacity) : 0"
         :layerId="layerItem.layer_id"

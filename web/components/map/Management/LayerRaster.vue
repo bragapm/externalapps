@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import IcEye from "~/assets/icons/ic-eye.svg";
 import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
-import IcPaint from "~/assets/icons/ic-paint.svg";
+import IcMarkerStyle from "~/assets/icons/ic-marker-style.svg";
 import { TransitionRoot } from "@headlessui/vue";
 import type { RasterTiles } from "~/utils/types";
 import { uncategorizedAlias } from "~/constants";
@@ -59,9 +59,6 @@ const isShowStyling = ref(false);
 const visibility = ref(props.layerItem.layer_style.layout_visibility);
 
 const toggleVisibility = () => {
-  if (visibility.value === "visible") {
-    isShowStyling.value = false;
-  }
   if (props.layerItem.terrain_rgb) {
     if (visibility.value === "visible") {
       map.value?.setTerrain(null);
@@ -162,7 +159,7 @@ const updateOpacity = (value: number) => {
           :disabled="visibility === 'none'"
           @click="isShowStyling = !isShowStyling"
         >
-          <IcPaint
+          <IcMarkerStyle
             :class="[
               visibility === 'visible'
                 ? isShowStyling
@@ -175,15 +172,19 @@ const updateOpacity = (value: number) => {
             :fontControlled="false"
           />
         </button>
-        <button @click="toggleVisibility">
+        <button
+          :disabled="isShowStyling"
+          @click="toggleVisibility"
+          :class="isShowStyling ? 'text-grey-600' : 'text-grey-400'"
+        >
           <IcEyeCrossed
             v-if="visibility === 'none'"
-            class="text-grey-400 w-3 h-3"
+            class="w-3 h-3"
             :fontControlled="false"
           />
-          <IcEye v-else class="text-grey-400 w-3 h-3" :fontControlled="false" />
+          <IcEye v-else class="w-3 h-3" :fontControlled="false" />
         </button>
-        <MapManagementMenu :item="layerItem" />
+        <MapManagementMenu :item="layerItem" :disabled="isShowStyling" />
       </div>
     </div>
     <TransitionRoot

@@ -67,9 +67,10 @@ export const useMapLayer = defineStore("maplayer", () => {
     }
   };
 
-  const updateLayerPaintProperty = (
+  const updateLayerProperty = (
     groupIndex: number,
     layerIndex: number,
+    propType: "paint" | "layout",
     propName: string,
     propValue: string | number
   ) => {
@@ -78,7 +79,7 @@ export const useMapLayer = defineStore("maplayer", () => {
       const selected = prev[groupIndex].layerLists[layerIndex];
       if (selected.geometry_type === geomTypeCircle) {
         (selected.layer_style as Record<string, any>)[
-          "paint_" + propName.replace(/-/g, "_")
+          `${propType}_` + propName.replace(/-/g, "_")
         ] = propValue;
       }
 
@@ -348,6 +349,6 @@ export const useMapLayer = defineStore("maplayer", () => {
     groupLayerByCategory,
     threeDLayerCenter,
     removeLayer,
-    updateLayerPaintProperty,
+    updateLayerProperty,
   };
 });

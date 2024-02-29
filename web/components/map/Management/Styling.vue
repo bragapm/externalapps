@@ -2,7 +2,7 @@
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { useFloating, offset, flip, size } from "@floating-ui/vue";
 import IcArrow from "~/assets/icons/ic-arrow-reg.svg";
-import IcPaint from "~/assets/icons/ic-paint.svg";
+import IcMarkerStyle from "~/assets/icons/ic-marker-style.svg";
 import { inject } from "vue";
 import { geomTypeCircle, geomTypeLine, geomTypePolygon } from "~/constants";
 
@@ -81,12 +81,8 @@ const handleChangeOpacity = (e: Event) => {
 </script>
 
 <template>
-  <div class="pt-1">
-    <div class="bg-grey-800 rounded-xxs divide-y-[1px] divide-grey-700">
-      <div class="p-2 flex items-center gap-[6px]">
-        <IcPaint class="w-3 h-3 text-grey-400" :fontControlled="false" />
-        <p class="text-grey-50 text-2xs font-medium">Styling</p>
-      </div>
+  <div>
+    <div class="bg-grey-800 rounded-xxs">
       <div class="p-2 space-y-2">
         <div class="flex justify-between items-center text-2xs">
           <p class="text-grey-200">Opacity</p>
