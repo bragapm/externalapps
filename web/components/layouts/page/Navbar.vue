@@ -5,6 +5,7 @@ import IcLogoGeodashboardFull from "~/assets/icons/ic-logo-geodashboard-full.svg
 import IcLink from "~/assets/icons/ic-link.svg";
 import IcMapFlat from "~/assets/icons/ic-map-flat.svg";
 import IcTopnav from "~/assets/icons/ic-topnav.svg";
+import IcUser from "~/assets/icons/ic-user.svg";
 
 const route = useRoute();
 
@@ -133,12 +134,11 @@ const refreshScroll = () => {
             <IcLink class="text-base" />
           </template>
         </UButton>
-        <UAvatar
-          src="https://avatars.githubusercontent.com/u/739984?v=4"
-          alt="Avatar"
-          size="md"
-          :ui="{ rounded: 'rounded-full' }"
-        />
+        <UButton
+          label="Share Map"
+          class="h-9 w-9 rounded-full flex items-center justify-center"
+          ><NuxtLink to="/login"> <IcUser class="" /></NuxtLink>
+        </UButton>
       </TransitionRoot>
       <TransitionRoot
         :show="!isExpand"
@@ -185,12 +185,11 @@ const refreshScroll = () => {
           <IcLink class="text-base" />
         </template>
       </UButton>
-      <UAvatar
-        src="https://avatars.githubusercontent.com/u/739984?v=4"
-        alt="Avatar"
-        size="md"
-        :ui="{ rounded: 'rounded-full' }"
-      />
+      <UButton
+        label="Share Map"
+        class="h-9 w-9 rounded-full flex items-center justify-center"
+        ><NuxtLink to="/login"> <IcUser class="" /></NuxtLink>
+      </UButton>
     </div>
   </div>
 </template>

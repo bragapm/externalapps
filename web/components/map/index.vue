@@ -18,11 +18,9 @@ const { setMapLoad, setMapRef, setGeolocateRef } = store;
 onMounted(async () => {
   setMapLoad(false);
   const apiKey = "D7JUUxLv3oK21JM9jscD";
-  const style = await (
-    await fetch(
-      `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`
-    )
-  ).json();
+  const style: any = await $fetch(
+    `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`
+  );
   style.sprite = window.location.origin + "/panel/sprites/sprite";
 
   map.value = markRaw(

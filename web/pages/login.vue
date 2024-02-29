@@ -30,12 +30,20 @@ const validateLoginData = (state: ILoginData) => {
 const handleSubmitLogin = async (event: FormSubmitEvent<ILoginData>) => {
   generalErrorMessage.value = "";
   isLoading.value = true;
-  setTimeout(() => {
-    console.log({ email: event.data.email, password: event.data.password });
+  const { email, password } = event.data;
+
+  try {
+    const res: any = await $fetch("/panel/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+    console.log(res.data);
+  } catch (error) {
     generalErrorMessage.value =
       "Login information is incorrect. Make sure the email and password is correct and try again.";
+  } finally {
     isLoading.value = false;
-  }, 3000);
+  }
 };
 
 const img = useImage();
@@ -127,7 +135,11 @@ const bgImgUrl = computed(() =>
               label="Sign In"
               :ui="{ rounded: 'rounded-xxs' }"
             >
-              <IcSpinner class="text-white animate-spin" v-if="isLoading" />
+              <IcSpinner
+                class="text-white animate-spin h-6 w-6"
+                :fontControlled="false"
+                v-if="isLoading"
+              />
             </UButton>
           </UForm>
           <div class="w-full border border-grey-600 mb-7" />

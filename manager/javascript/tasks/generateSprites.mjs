@@ -73,8 +73,8 @@ export default async function (payload, helpers) {
         id: path.basename(key, ".svg"),
       }));
 
-      const pngPath = path.resolve(spritesDir, `sprite@${pxRatio}.png`);
-      const jsonPath = path.resolve(spritesDir, `sprite@${pxRatio}.json`);
+      const pngPath = path.resolve(spritesDir, `sprite@${pxRatio}x.png`);
+      const jsonPath = path.resolve(spritesDir, `sprite@${pxRatio}x.json`);
 
       // Generate image layout for PNG sprite image
       const imageLayout = await generateLayoutAsync(svgs, pxRatio, false, true);
