@@ -11,8 +11,8 @@
   "author": "Miko",
   "license": "ISC",
   "dependencies": {
-    "@mapbox/spritezero": "^8.0.3",
     "dotenv": "^16.4.5",
+    "execa": "^8.0.1",
     "graphile-worker": "^0.16.2",
     "minio": "^7.1.3"
   }

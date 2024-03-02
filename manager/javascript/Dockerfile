@@ -1,11 +1,11 @@
 FROM node:20-alpine
-# Add glibc compatibility for Alpine
-# Fulfilling mapnik requirement (spritezero dependency)
-RUN apk update && apk add --no-cache gcompat libstdc++
-
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+
+COPY ./dist/spreet-v0.11.0.tar.gz /tmp/spreet.tar.gz
+RUN tar -xzf /tmp/spreet.tar.gz -C /tmp \
+    && mv /tmp/spreet /usr/local/bin/spreet \
+    && chmod +x /usr/local/bin/spreet \
+    && rm /tmp/spreet.tar.gz
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
