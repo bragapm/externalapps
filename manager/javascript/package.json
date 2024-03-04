@@ -11,6 +11,7 @@
   "author": "Miko",
   "license": "ISC",
   "dependencies": {
+    "@xeokit/xeokit-convert": "1.1.15-beta-5",
     "dotenv": "^16.4.5",
     "execa": "^8.0.1",
     "graphile-worker": "^0.16.2",
