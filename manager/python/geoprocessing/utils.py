@@ -1,3 +1,5 @@
+from tempfile import gettempdir
+
 import dramatiq_pg
 import dramatiq.results
 import logging
@@ -78,7 +80,7 @@ def create_bbox_polygon(lon_min, lat_min, lon_max, lat_max):
 
 
 def generate_local_temp_dir_path(object_key: str):
-    return os.path.join("/tmp", f"geodashboard_{object_key}")
+    return os.path.join(gettempdir(), f"geodashboard_geoprocessing_{object_key}")
 
 
 def generate_vrt_path(object_key: str):
