@@ -234,3 +234,9 @@ export type GeneralSettings = {
     public_background?: string;
   };
 };
+
+export type AuthPayload = {
+  access_token: string;
+  refresh_token: string;
+  expires: number;
+};

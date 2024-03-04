@@ -8,44 +8,24 @@ import { useGeneralSettings, useMapData } from "~/utils";
 
 import type { FormError, FormSubmitEvent } from "#ui/types";
 
-interface ILoginData {
+type SigninData = {
   email: string;
   password: string;
-}
+};
 
 const { data: mapData } = await useMapData();
 const { data: generalSettingsData } = await useGeneralSettings();
-const loginData = reactive<ILoginData>({ email: "", password: "" });
+const signinData = reactive<SigninData>({ email: "", password: "" });
 const generalErrorMessage = ref("");
 const showPassword = ref(false);
 const isLoading = ref(false);
 
-const validateLoginData = (state: ILoginData) => {
-  const errors: FormError<keyof ILoginData>[] = [];
+const validateSigninData = (state: SigninData) => {
+  const errors: FormError<keyof SigninData>[] = [];
   if (!state.email) errors.push({ path: "email", message: "Required" });
   if (!state.password) errors.push({ path: "password", message: "Required" });
   return errors;
 };
-
-const handleSubmitLogin = async (event: FormSubmitEvent<ILoginData>) => {
-  generalErrorMessage.value = "";
-  isLoading.value = true;
-  const { email, password } = event.data;
-
-  try {
-    const res: any = await $fetch("/panel/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
-    console.log(res.data);
-  } catch (error) {
-    generalErrorMessage.value =
-      "Login information is incorrect. Make sure the email and password is correct and try again.";
-  } finally {
-    isLoading.value = false;
-  }
-};
-
 const img = useImage();
 const bgImgUrl = computed(() =>
   generalSettingsData.value?.data.public_background
@@ -54,6 +34,30 @@ const bgImgUrl = computed(() =>
       })}')`
     : null
 );
+
+const { signin, signout } = useAuth();
+const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
+  generalErrorMessage.value = "";
+  isLoading.value = true;
+  const { email, password } = event.data;
+
+  try {
+    const { data } = await $fetch<{ data: AuthPayload }>("/panel/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+    signin(data.access_token);
+    localStorage.setItem(refreshTokenKey, data.refresh_token);
+    setTimeout(() => {
+      tryRefresh(data.refresh_token, signin, signout);
+    }, data.expires - 1000);
+    await navigateTo("/");
+  } catch (error) {
+    generalErrorMessage.value =
+      "Signin information is incorrect. Make sure the email and password is correct and try again.";
+    isLoading.value = false;
+  }
+};
 </script>
 
 <template>
@@ -83,14 +87,14 @@ const bgImgUrl = computed(() =>
           </div>
           <UForm
             ref="formRef"
-            :validate="validateLoginData"
-            :state="loginData"
+            :validate="validateSigninData"
+            :state="signinData"
             class="flex flex-col space-y-3 mb-7"
-            @submit="handleSubmitLogin"
+            @submit="handleSignin"
           >
             <UFormGroup name="email">
               <UInput
-                v-model="loginData.email"
+                v-model="signinData.email"
                 type="email"
                 class="w-full"
                 color="gray"
@@ -102,7 +106,7 @@ const bgImgUrl = computed(() =>
             </UFormGroup>
             <UFormGroup name="password">
               <UInput
-                v-model="loginData.password"
+                v-model="signinData.password"
                 :type="showPassword ? 'text' : 'password'"
                 class="w-full"
                 color="gray"

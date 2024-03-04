@@ -1,5 +1,5 @@
 import type { GeoJSONSource, Map } from "maplibre-gl";
-import type { MapData, GeneralSettings } from "./types";
+import type { MapData, GeneralSettings, AuthPayload } from "./types";
 import type { Raw } from "vue";
 import tailwindConfig from "~/tailwind.config";
 
@@ -242,4 +242,29 @@ export const capitalizeEachWords = (text: string) => {
   }
 
   return splitText.join(" ");
+};
+
+export const refreshTokenKey = "geo_refresh";
+
+export const tryRefresh = async (
+  refresh_token: string,
+  signin: (newToken: string) => void,
+  signout: Function
+) => {
+  try {
+    const { data } = await $fetch<{ data: AuthPayload }>(
+      "/panel/auth/refresh",
+      {
+        method: "POST",
+        body: JSON.stringify({ refresh_token }),
+      }
+    );
+    signin(data.access_token);
+    localStorage.setItem(refreshTokenKey, data.refresh_token);
+    setTimeout(() => {
+      tryRefresh(data.refresh_token, signin, signout);
+    }, data.expires - 1000);
+  } catch (error) {
+    signout();
+  }
 };

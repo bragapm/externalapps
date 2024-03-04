@@ -137,7 +137,7 @@ const refreshScroll = () => {
         <UButton
           label="Share Map"
           class="h-9 w-9 rounded-full flex items-center justify-center"
-          ><NuxtLink to="/login"> <IcUser class="" /></NuxtLink>
+          ><NuxtLink to="/signin"> <IcUser class="" /></NuxtLink>
         </UButton>
       </TransitionRoot>
       <TransitionRoot
@@ -188,7 +188,7 @@ const refreshScroll = () => {
       <UButton
         label="Share Map"
         class="h-9 w-9 rounded-full flex items-center justify-center"
-        ><NuxtLink to="/login"> <IcUser class="" /></NuxtLink>
+        ><NuxtLink to="/signin"> <IcUser class="" /></NuxtLink>
       </UButton>
     </div>
   </div>
