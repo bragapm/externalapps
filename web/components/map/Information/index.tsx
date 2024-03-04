@@ -1,16 +1,20 @@
-import { defineComponent, onMounted, ref } from "vue";
+import {
+  defineComponent as createElement,
+  watchEffect as useEffect,
+  ref as useAtom,
+} from "vue";
 import { useMapData } from "~/utils";
 import IcArrowLeft from "~/assets/icons/ic-arrow-left.svg";
 import MapMarkdownRenderer from "~/components/map/MarkdownRenderer.vue";
 import MapAttachmentLink from "~/components/map/AttachmentLink.vue";
 
-export default defineComponent({
+export default createElement({
   setup() {
-    const isLoading = ref(true);
-    const data = ref<MapData | null>(null);
+    const isLoading = useAtom(true);
+    const data = useAtom<MapData | null>(null);
     const featureStore = useFeature();
 
-    onMounted(async () => {
+    useEffect(async () => {
       const mapData = await useMapData();
       isLoading.value = mapData.isLoading.value;
       data.value = mapData.data.value;
