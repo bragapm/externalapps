@@ -1,4 +1,7 @@
-import { LAYER_DATA_FOLDER_ID } from "./const/FOLDER_IDS.mjs";
+import {
+  LAYER_DATA_FOLDER_ID,
+  LAYER_ICONS_FOLDER_ID,
+} from "./const/FOLDER_IDS.mjs";
 
 export async function up(knex) {
   await knex.raw(`
@@ -107,11 +110,98 @@ export async function up(knex) {
   AFTER INSERT ON geoprocessing_queue
   FOR EACH ROW
   EXECUTE FUNCTION handle_geoprocessing_queue_insert();
+
+  CREATE OR REPLACE FUNCTION handle_directus_files_layer_icons_upload()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+  AS $BODY$
+    DECLARE
+      queue_id uuid;
+      processed_files jsonb;
+    BEGIN
+      -- Check if there's unprocessed job
+      SELECT id, files INTO queue_id, processed_files FROM sprite_generation_queue
+      WHERE status = 'queued'
+      ORDER BY date_created DESC
+      LIMIT 1;
+      
+      IF queue_id IS NOT NULL THEN
+        processed_files := jsonb_set(processed_files, ARRAY['add'], COALESCE(processed_files -> 'add', '[]'::jsonb) || jsonb_build_array(NEW.filename_download), TRUE);
+        
+        UPDATE sprite_generation_queue
+        SET date_created = CURRENT_TIMESTAMP,
+          files = processed_files
+        WHERE id = queue_id;
+      ELSE
+        queue_id := gen_random_uuid();
+        processed_files := jsonb_build_object('add', ARRAY[NEW.filename_download]);
+        
+        INSERT INTO sprite_generation_queue(id, files)
+        VALUES (queue_id, processed_files);
+      END IF;
+      
+      -- Use same key and delay to throttle process when user uploads multiple icons 
+      PERFORM graphile_worker.add_job('generateSprites', json_build_object('queueId', queue_id), run_at := CURRENT_TIMESTAMP + INTERVAL '10', job_key := 'generateSprites');
+      RETURN NULL;
+    END;
+  $BODY$;
+
+  CREATE OR REPLACE TRIGGER on_directus_files_layer_icons_upload
+    AFTER UPDATE 
+    ON directus_files
+    FOR EACH ROW
+    WHEN (NEW.folder = '${LAYER_ICONS_FOLDER_ID}' AND NEW.type = 'image/svg+xml')
+    EXECUTE FUNCTION handle_directus_files_layer_icons_upload();
+
+  CREATE OR REPLACE FUNCTION handle_directus_files_layer_icons_delete()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+  AS $BODY$
+    DECLARE
+      queue_id uuid;
+      processed_files jsonb;
+    BEGIN
+      -- Check if there's unprocessed job
+      SELECT id, files INTO queue_id, processed_files FROM sprite_generation_queue
+      WHERE status = 'queued'
+      ORDER BY date_created DESC
+      LIMIT 1;
+      
+      IF queue_id IS NOT NULL THEN
+        processed_files := jsonb_set(processed_files, ARRAY['remove'], COALESCE(processed_files -> 'remove', '[]'::jsonb) || jsonb_build_array(OLD.filename_download), TRUE);
+        
+        UPDATE sprite_generation_queue
+        SET date_created = CURRENT_TIMESTAMP,
+          files = processed_files
+        WHERE id = queue_id;
+      ELSE
+        queue_id := gen_random_uuid();
+        processed_files := jsonb_build_object('remove', ARRAY[OLD.filename_download]);
+        
+        INSERT INTO sprite_generation_queue(id, files)
+        VALUES (queue_id, processed_files);
+      END IF;
+      
+      -- Use same key and delay to throttle process when user deletes multiple icons 
+      PERFORM graphile_worker.add_job('generateSprites', json_build_object('queueId', queue_id), run_at := CURRENT_TIMESTAMP + INTERVAL '10', job_key := 'generateSprites');
+      RETURN NULL;
+    END;
+  $BODY$;
+
+  CREATE OR REPLACE TRIGGER on_directus_files_layer_icons_delete
+    AFTER DELETE
+    ON directus_files
+    FOR EACH ROW
+    WHEN (OLD.folder = '${LAYER_ICONS_FOLDER_ID}' AND OLD.type = 'image/svg+xml')
+    EXECUTE FUNCTION handle_directus_files_layer_icons_delete();
 `);
 }
 
 export async function down(knex) {
   await knex.raw(`
+    DROP TRIGGER IF EXISTS on_directus_files_layer_icons_delete ON geoprocessing_queue;
+    DROP FUNCTION IF EXISTS handle_directus_files_layer_icons_delete();
+
     DROP TRIGGER IF EXISTS on_geoprocessing_queue_insert ON geoprocessing_queue;
     DROP FUNCTION IF EXISTS handle_geoprocessing_queue_insert();
 
