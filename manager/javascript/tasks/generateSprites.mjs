@@ -10,7 +10,7 @@ export default async function ({ queueId }, helpers) {
   const bucketName = process.env.STORAGE_S3_BUCKET;
 
   // Use fs.mkdtemp() to create a unique temporary directory within the OS-specific temp directory
-  const tempDirPrefix = path.join(os.tmpdir(), "sprites-");
+  const tempDirPrefix = path.join(os.tmpdir(), "geodashboard_sprites_");
   const spritesDir = await fs.promises.mkdtemp(tempDirPrefix);
 
   const { withPgClient } = helpers;
