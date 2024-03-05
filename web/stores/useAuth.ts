@@ -7,17 +7,16 @@ export const useAuth = defineStore("authData", () => {
     isSignedIn.value = true;
     accessToken.value = newToken;
   }
-  function signout() {
+  async function signout() {
     isSignedIn.value = false;
     accessToken.value = "";
-    fetch("/panel/auth/logout", {
+    await fetch("/panel/auth/logout", {
       method: "POST",
       body: JSON.stringify({
         refresh_token: localStorage.getItem(refreshTokenKey),
       }),
-    }).then(() => {
-      localStorage.removeItem(refreshTokenKey);
     });
+    localStorage.removeItem(refreshTokenKey);
   }
   return { isSignedIn, accessToken, signin, signout };
 });

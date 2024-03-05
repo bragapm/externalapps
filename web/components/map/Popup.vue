@@ -203,7 +203,7 @@ const prevFeature = () => {
         class="flex w-72 flex-col items-center justify-center gap-3 p-3 overflow-hidden bg-grey-800 rounded-xs text-grey-100"
       >
         <header
-          class="flex justify-between w-full border-b pb-1 border-grey-700"
+          class="flex justify-between items-center w-full border-b pb-1 border-grey-700"
         >
           <h4 class="text-xs font-medium">Detail Popup</h4>
           <IcCross
@@ -218,7 +218,7 @@ const prevFeature = () => {
                 } as any );
                 popupRef!.remove();              }
             "
-            class="w-3 h-3 text-grey-400"
+            class="-mr-1 w-5 h-4 px-1 py-0.5 text-grey-400"
           ></IcCross>
         </header>
 

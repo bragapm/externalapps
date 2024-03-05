@@ -140,7 +140,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               :ui="{ rounded: 'rounded-xxs' }"
             >
               <IcSpinner
-                class="text-white animate-spin h-6 w-6"
+                class="text-white animate-spin h-6 w-6 p-1"
                 :fontControlled="false"
                 v-if="isLoading"
               />
