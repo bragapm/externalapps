@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useGeneralSettings } from './utils';
+import { useGeneralSettings } from "./utils";
 
-const { data } = await useGeneralSettings()
+const { signin, signout } = useAuth();
+const { data } = await useGeneralSettings();
 
 useSeoMeta({
   title: data?.value?.data.project_name || "",
@@ -11,6 +12,11 @@ useSeoMeta({
   ogImage: data?.value?.data.public_favicon
     ? `/panel/assets/${data.value.data.public_favicon}`
     : "",
+});
+
+onMounted(() => {
+  const refresh_token = localStorage.getItem(refreshTokenKey);
+  if (refresh_token) tryRefresh(refresh_token, signin, signout);
 });
 </script>
 
@@ -25,4 +31,5 @@ useSeoMeta({
     <NuxtPage />
   </NuxtLayout>
   <!-- <NuxtWelcome /> -->
+  <UNotifications />
 </template>

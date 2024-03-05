@@ -52,6 +52,8 @@ const refreshScroll = () => {
     behavior: "smooth",
   });
 };
+
+const toast = useToast();
 </script>
 
 <template>
@@ -187,18 +189,21 @@ const refreshScroll = () => {
           />
         </template>
       </UInput>
+
       <UButton :ui="{ rounded: 'rounded-xxs' }" label="Share Map">
         <template #trailing>
           <IcLink class="text-base" />
         </template>
       </UButton>
+
       <Popover class="relative">
-        <PopoverButton
+        <PopoverButton as="span"
           ><UButton
             class="h-9 w-9 rounded-full flex items-center justify-center"
           >
-            <IcUser /> </UButton
-        ></PopoverButton>
+            <IcUser />
+          </UButton>
+        </PopoverButton>
         <transition
           enter-active-class="transition duration-200 ease-out"
           enter-from-class="translate-y-1 opacity-0"
@@ -208,7 +213,7 @@ const refreshScroll = () => {
           leave-to-class="translate-y-1 opacity-0"
         >
           <PopoverPanel
-            class="absolute -right-1 z-10 mt-3 w-screen max-w-sm transform px-4 sm:px-0 lg:max-w-80"
+            class="absolute -right-1 z-10 mt-3 w-screen max-w-sm px-4 sm:px-0 lg:max-w-80"
           >
             <div
               class="relative bg-grey-900 p-2 rounded-xs shadow-lg ring-1 ring-grey-800"
@@ -250,14 +255,23 @@ const refreshScroll = () => {
                   <p class="text-xs font-medium text-grey-200">Help</p>
                 </button>
               </div>
-              <button
+              <PopoverButton
                 v-if="authStore.isSignedIn"
                 class="flex items-center space-x-2 px-2 py-2 w-full"
-                @click="authStore.signout"
+                @click="
+                  async () => {
+                    toast.add({
+                      title: 'Sign Out Successful',
+                      description: 'You are now browsing as a guest.',
+                      icon: 'i-heroicons-information-circle',
+                    });
+                    await authStore.signout();
+                  }
+                "
               >
                 <IcLogout class="text-red-500" />
                 <p class="text-xs font-medium text-red-500">Sign Out</p>
-              </button>
+              </PopoverButton>
               <PopoverButton
                 v-else
                 class="flex items-center space-x-2 px-2 py-2 w-full"

@@ -37,5 +37,19 @@ export default defineAppConfig({
         },
       },
     },
+    notifications: {
+      position: "bottom-0 top-auto",
+    },
+    notification: {
+      background: "bg-grey-900",
+      rounded: "rounded-xs",
+      title: "text-sm font-medium text-grey-50",
+      description: "text-sm font-normal text-gray-400",
+      ring: "ring-1 ring-gray-800",
+      padding: "p-4",
+      icon: {
+        color: "text-brand-500",
+      },
+    },
   },
 });
