@@ -84,7 +84,7 @@ watch(filterRef, (newVal) => {
         <img
           :src="`/panel/assets/${modelValue.id}`"
           alt="test"
-          class="h-4 w-4"
+          class="filter-icon h-4 w-4"
         />
         <p class="text-grey-400 text-2xs">{{ modelValue.title || "-" }}</p>
       </div>
@@ -130,7 +130,7 @@ watch(filterRef, (newVal) => {
             <img
               :src="`/panel/assets/${item.id}`"
               alt="test"
-              class="h-4 w-4 fill-red-500 stroke-white"
+              class="filter-icon h-4 w-4 fill-red-500 stroke-white"
             />
           </button>
         </div>
@@ -138,3 +138,10 @@ watch(filterRef, (newVal) => {
     </teleport>
   </Popover>
 </template>
+
+<style>
+.filter-icon {
+  filter: invert(68%) sepia(38%) saturate(23%) hue-rotate(22deg) brightness(95%)
+    contrast(99%);
+}
+</style>
