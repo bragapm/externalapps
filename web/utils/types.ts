@@ -29,7 +29,8 @@ export type SymbolStyles = {
     | "bottom-left"
     | "bottom-right";
   layout_icon_ignore_placement: boolean;
-  layout_icon_image: any;
+  layout_icon_image: string;
+  icon_image_title: string;
   layout_icon_keep_upright: boolean;
   layout_icon_offset: number[];
   layout_icon_optional: boolean;

@@ -21,7 +21,7 @@ const { floatingStyles } = useFloating(reference, floating, {
   <Popover class="relative w-full flex items-center">
     <PopoverButton
       ref="reference"
-      class="w-full flex gap-2 focus:outline-none p-2 border border-grey-500 rounded-xxs"
+      class="w-full flex items-center gap-2 focus:outline-none p-2 border border-grey-500 rounded-xxs"
     >
       <div
         class="w-full h-3 rounded-xxs"
@@ -29,7 +29,7 @@ const { floatingStyles } = useFloating(reference, floating, {
           backgroundColor: modelValue,
         }"
       ></div>
-      <IcArrowReg :fontControlled="false" class="w-3 h-3 rotate-180 text-grey-50" />
+      <IcArrowReg :fontControlled="false" class="w-4 h-4 rotate-180 text-grey-50" />
     </PopoverButton>
 
     <teleport to="body">

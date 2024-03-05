@@ -51,10 +51,10 @@ const onHueChange = (event: any) => {
 };
 
 const handleEyedropper = () => {
-  if (!window.EyeDropper) {
+  if (!(window as any).EyeDropper) {
     console.log("browser not supported");
   } else {
-    const eyeDropper = new window.EyeDropper();
+    const eyeDropper = new (window as any).EyeDropper();
     eyeDropper
       .open()
       .then((result: { sRGBHex: string }) => {

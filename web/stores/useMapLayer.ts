@@ -77,11 +77,9 @@ export const useMapLayer = defineStore("maplayer", () => {
     if (groupedActiveLayers.value) {
       const prev = groupedActiveLayers.value;
       const selected = prev[groupIndex].layerLists[layerIndex];
-      if (selected.geometry_type === geomTypeCircle) {
-        (selected.layer_style as Record<string, any>)[
-          `${propType}_` + propName.replace(/-/g, "_")
-        ] = propValue;
-      }
+      (selected.layer_style as Record<string, any>)[
+        `${propType}_` + propName.replace(/-/g, "_")
+      ] = propValue;
 
       groupedActiveLayers.value = prev;
     }
@@ -123,7 +121,13 @@ export const useMapLayer = defineStore("maplayer", () => {
               ...item,
               layer_id: item.layer_id + "_symbol",
               layer_alias: item.layer_alias || item.layer_name,
-              layer_style: (el as VectorTiles).symbol_style as SymbolStyles,
+              layer_style: {
+                ...((el as VectorTiles).symbol_style as SymbolStyles),
+                layout_icon_image: (el as any).symbol_style?.layout_icon_image
+                  .id,
+                icon_image_title: (el as any).symbol_style?.layout_icon_image
+                  .title,
+              },
               source: "vector_tiles",
               geometry_type: geomTypeSymbol,
               dimension: "2D",
@@ -245,7 +249,7 @@ export const useMapLayer = defineStore("maplayer", () => {
           const [vectorTiles, rasterTiles, threeDTiles] = await Promise.all<{
             data: LayerLists;
           }>([
-            $fetch("/panel/items/vector_tiles?fields=*.*&sort=layer_name"),
+            $fetch("/panel/items/vector_tiles?fields=*.*.*&sort=layer_name"),
             $fetch("/panel/items/raster_tiles?fields=*.*&sort=layer_alias"),
             $fetch("/panel/items/three_d_tiles?fields=*.*&sort=layer_alias"),
           ]);
@@ -276,7 +280,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             data: LayerLists;
           }>([
             $fetch(
-              "/panel/items/vector_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_name"
+              "/panel/items/vector_tiles?fields=*.*.*&filter[active][_eq]=true&sort=layer_name"
             ),
             $fetch(
               "/panel/items/raster_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_alias"

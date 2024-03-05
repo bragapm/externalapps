@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import IcArrow from "~/assets/icons/ic-arrow-reg.svg";
-// import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
-// import { useFloating, offset, flip, size } from "@floating-ui/vue";
 import { inject } from "vue";
 
 const props = defineProps<{
@@ -33,23 +30,6 @@ const fillColor = ref(
 const strokeColor = ref(
   (props.layerItem.layer_style as CircleStyles).paint_circle_stroke_color
 );
-
-// const reference = ref(null);
-// const floating = ref(null);
-// const { floatingStyles } = useFloating(reference, floating, {
-//   placement: "bottom-start",
-//   middleware: [
-//     offset(10),
-//     flip(),
-//     size({
-//       apply({ rects, elements }) {
-//         Object.assign(elements.floating.style, {
-//           width: `${rects.reference.width}px`,
-//         });
-//       },
-//     }),
-//   ],
-// });
 
 const store = useMapLayer();
 const { updateLayerProperty } = store;
@@ -87,7 +67,7 @@ const handleChangeProperty = (
         <UInput
           v-model="circleRadius"
           @blur="
-            (e) => {
+            (e:any) => {
               handleChangeProperty('paint',parseFloat(e.target.value as string), 'circle-radius');
             }
           "
@@ -110,7 +90,7 @@ const handleChangeProperty = (
         <UInput
           v-model="circleStrokeWidth"
           @blur="
-            (e) => {
+            (e:any) => {
               handleChangeProperty('paint',parseFloat(e.target.value as string), 'circle-stroke-width');
             }
           "
@@ -157,7 +137,7 @@ const handleChangeProperty = (
         <UInput
           v-model="strokeOpacity"
           @blur="
-             (e) => {
+             (e:any) => {
               handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'circle-opacity');
             }
           "
@@ -174,26 +154,14 @@ const handleChangeProperty = (
           </template>
         </UInput>
       </div>
-      <UInput
+      <CoreInputColor
         v-model="strokeColor"
-        @input="
-          (e:any) => {
-            handleChangeProperty('paint',e.target.value, 'circle-stroke-color');
+        :updateColor="
+          (color:string) => {
+            handleChangeProperty('paint', color, 'circle-stroke-color');
           }
         "
-        type="color"
-        variant="none"
-        :padded="false"
-        :ui="{ rounded: 'rounded-xxs' }"
-        inputClass="cursor-pointer [&::-webkit-color-swatch]:rounded-[4px] [&::-webkit-color-swatch]:border-0 bg-grey-700 focus:ring-0 focus:border-none border-1 border-grey-600 px-2 py-1"
-      >
-        <template #trailing>
-          <IcArrow
-            class="w-4 h-4 rotate-180 text-grey-400"
-            :fontControlled="false"
-          />
-        </template>
-      </UInput>
+      />
     </div>
     <div class="bg-grey-800 rounded-xxs p-2 space-y-1">
       <p class="text-grey-50 text-2xs">Color</p>
@@ -228,7 +196,7 @@ const handleChangeProperty = (
         <UInput
           v-model="fillOpacity"
           @blur="
-             (e) => {
+             (e:any) => {
               handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'circle-opacity');
             }
           "
@@ -245,26 +213,14 @@ const handleChangeProperty = (
           </template>
         </UInput>
       </div>
-      <UInput
+      <CoreInputColor
         v-model="fillColor"
-        @input="
-          (e:any) => {
-            handleChangeProperty('paint',e.target.value, 'circle-color');
+        :updateColor="
+          (color:string) => {
+            handleChangeProperty('paint', color, 'circle-color');
           }
         "
-        type="color"
-        variant="none"
-        :padded="false"
-        :ui="{ rounded: 'rounded-xxs' }"
-        inputClass="cursor-pointer [&::-webkit-color-swatch]:rounded-[4px] [&::-webkit-color-swatch]:border-0 bg-grey-700 focus:ring-0 focus:border-none border-1 border-grey-600 px-2 py-1"
-      >
-        <template #trailing>
-          <IcArrow
-            class="w-4 h-4 rotate-180 text-grey-400"
-            :fontControlled="false"
-          />
-        </template>
-      </UInput>
+      />
     </div>
   </div>
 </template>

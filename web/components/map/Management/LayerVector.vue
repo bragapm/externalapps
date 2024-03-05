@@ -13,6 +13,7 @@ import {
   geomTypeCircle,
   geomTypeLine,
   geomTypePolygon,
+  geomTypeSymbol,
   uncategorizedAlias,
 } from "~/constants";
 import { storeToRefs } from "pinia";
@@ -203,6 +204,18 @@ const toggleVisibility = () => {
     >
       <MapManagementStylingCircle
         v-if="layerItem.geometry_type === geomTypeCircle"
+        :layerItem="layerItem"
+      />
+      <MapManagementStylingLine
+        v-else-if="layerItem.geometry_type === geomTypeLine"
+        :layerItem="layerItem"
+      />
+      <MapManagementStylingFill
+        v-else-if="layerItem.geometry_type === geomTypePolygon"
+        :layerItem="layerItem"
+      />
+      <MapManagementStylingSymbol
+        v-else-if="layerItem.geometry_type === geomTypeSymbol"
         :layerItem="layerItem"
       />
       <MapManagementStyling
