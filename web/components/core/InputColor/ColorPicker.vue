@@ -8,6 +8,7 @@ import {
   clamp,
 } from "~/utils/colorPicker";
 import IcEyeDropper from "~/assets/icons/ic-eye-dropper.svg";
+import IcArrowSquare from "~/assets/icons/ic-arrow-square.svg";
 
 const props = defineProps<{
   color: string;
@@ -67,10 +68,59 @@ const handleEyedropper = () => {
       });
   }
 };
+
+const inputMode = ref(0);
+const handleChangeInputMode = () => {
+  if (inputMode.value === 2) {
+    inputMode.value = 0;
+  } else {
+    inputMode.value++;
+  }
+};
+
+const handleRgbChange = (component: "r" | "g" | "b", value: number) => {
+  if (value) {
+    const { r, g, b } = parsedColor.value.rgb;
+
+    switch (component) {
+      case "r":
+        selectedColor.value = rgbToHex({ r: value ?? 0, g, b });
+        return;
+      case "g":
+        selectedColor.value = rgbToHex({ r, g: value ?? 0, b });
+        return;
+      case "b":
+        selectedColor.value = rgbToHex({ r, g, b: value ?? 0 });
+        return;
+      default:
+        return;
+    }
+  }
+};
+
+const handleHsvChange = (component: "h" | "s" | "v", value: number) => {
+  if (value) {
+    const { h, s, v } = parsedColor.value.hsv;
+
+    switch (component) {
+      case "h":
+        selectedColor.value = rgbToHex(hsvToRgb({ h: value ?? 0, s, v }));
+        return;
+      case "s":
+        selectedColor.value = rgbToHex(hsvToRgb({ h: value ?? 0, s, v }));
+        return;
+      case "v":
+        selectedColor.value = rgbToHex(hsvToRgb({ h: value ?? 0, s, v }));
+        return;
+      default:
+        return;
+    }
+  }
+};
 </script>
 
 <template>
-  <div class="w-64 grid gap-3 p-1">
+  <div class="w-72 grid gap-3 p-1">
     <div class="relative">
       <div
         class="relative w-full h-36 rounded-xxs"
@@ -173,6 +223,121 @@ const handleEyedropper = () => {
           <IcEyeDropper :fontControlled="false" class="w-4 h-4 text-grey-400" />
         </button>
       </div>
+    </div>
+    <div class="grid grid-cols-4 gap-2">
+      <UInput
+        v-if="inputMode === 2"
+        v-model="parsedColor.hex"
+        color="gray"
+        :ui="{ rounded: 'rounded-xxs' }"
+        placeholder="Filter"
+        @input="
+          (e:Event) => {
+            selectedColor = (e.target as HTMLInputElement).value;
+          }
+        "
+        class="col-span-3"
+      >
+      </UInput>
+      <template v-else-if="inputMode === 0">
+        <UInput
+          v-model="parsedColor.rgb.r"
+          color="gray"
+          :ui="{ rounded: 'rounded-xxs' }"
+          placeholder="Filter"
+          @input="
+            (e:Event) => {
+              handleRgbChange('r',parseFloat((e.target as HTMLInputElement).value))
+            }
+          "
+          :maxlength="3"
+        >
+        </UInput>
+        <UInput
+          v-model="parsedColor.rgb.g"
+          color="gray"
+          :ui="{ rounded: 'rounded-xxs' }"
+          placeholder="Filter"
+          @input="
+            (e:Event) => {
+              handleRgbChange('g',parseFloat((e.target as HTMLInputElement).value))
+            }
+          "
+          :maxlength="3"
+        >
+        </UInput>
+        <UInput
+          v-model="parsedColor.rgb.b"
+          color="gray"
+          :ui="{ rounded: 'rounded-xxs' }"
+          placeholder="Filter"
+          @input="
+            (e:Event) => {
+              handleRgbChange('b',parseFloat((e.target as HTMLInputElement).value))
+            }
+          "
+          :maxlength="3"
+        >
+        </UInput>
+      </template>
+      <template v-else-if="inputMode === 1">
+        <UInput
+          v-model="parsedColor.hsv.h"
+          color="gray"
+          :ui="{ rounded: 'rounded-xxs' }"
+          placeholder="Filter"
+          @input="
+            (e:Event) => {
+              handleHsvChange('h',parseFloat((e.target as HTMLInputElement).value))
+            }
+          "
+          :maxlength="3"
+        >
+        </UInput>
+        <UInput
+          v-model="parsedColor.hsv.s"
+          color="gray"
+          :ui="{ rounded: 'rounded-xxs' }"
+          placeholder="Filter"
+          @input="
+            (e:Event) => {
+              handleHsvChange('s',parseFloat((e.target as HTMLInputElement).value))
+            }
+          "
+          :maxlength="3"
+        >
+        </UInput>
+        <UInput
+          v-model="parsedColor.hsv.v"
+          color="gray"
+          :ui="{ rounded: 'rounded-xxs' }"
+          placeholder="Filter"
+          @input="
+            (e:Event) => {
+              handleHsvChange('v',parseInt((e.target as HTMLInputElement).value))
+            }
+          "
+          :maxlength="3"
+        >
+        </UInput>
+      </template>
+      <UButton
+        @click="handleChangeInputMode"
+        :ui="{ base: 'border border-grey-600', rounded: 'rounded-[4px]' }"
+        size="2xs"
+        color="grey"
+        variant="solid"
+        class="bg-grey-700 justify-between"
+      >
+        <p class="text-xs">
+          {{ inputMode === 0 ? "RGB" : inputMode === 1 ? "HSV" : "HEX" }}
+        </p>
+        <template #trailing>
+          <IcArrowSquare
+            :fontControlled="false"
+            class="w-4 h-4 rotate-180 text-grey-50"
+        /></template>
+      </UButton>
     </div>
   </div>
 </template>
