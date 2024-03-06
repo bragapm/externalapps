@@ -10,11 +10,13 @@ import minioClient from "../utils/minioClient.mjs";
 export default async function ({ queueId }, helpers) {
   const bucketName = process.env.STORAGE_S3_BUCKET;
 
+  const { withPgClient, logger } = helpers;
+  logger.info(`Received generateSprites job with queue ID: ${queueId}`);
+
   // Use fs.mkdtemp() to create a unique temporary directory within the OS-specific temp directory
   const tempDirPrefix = path.join(os.tmpdir(), "geodashboard_sprites_");
   const spritesDir = await fs.promises.mkdtemp(tempDirPrefix);
 
-  const { withPgClient } = helpers;
   try {
     await withPgClient((pgClient) =>
       pgClient.query(
@@ -29,6 +31,7 @@ export default async function ({ queueId }, helpers) {
     );
     const iconKeys = rows.map(({ filename_disk }) => filename_disk);
 
+    logger.info("Downloading all icons");
     await Promise.all(
       iconKeys.map(async (key) => {
         return new Promise((resolve, reject) => {
@@ -46,6 +49,7 @@ export default async function ({ queueId }, helpers) {
     );
 
     for (const pxRatio of [1, 2, 4]) {
+      logger.info(`Generating sprite with pixel ratio ${pxRatio}`);
       const filePath = path.resolve(spritesDir, `sprite@${pxRatio}x`);
       const args = [
         "--ratio",
@@ -58,6 +62,7 @@ export default async function ({ queueId }, helpers) {
       ];
       await execa(`spreet`, args);
 
+      logger.info("Uploading PNG and JSON");
       // Upload JSON and PNG to MinIO
       await minioClient.fPutObject(
         bucketName,
@@ -65,7 +70,7 @@ export default async function ({ queueId }, helpers) {
         filePath + ".png",
         { "Content-Type": "image/png" }
       );
-      console.log(`Upload PNG ${pxRatio} Success`);
+      logger.info(`Upload PNG ${pxRatio} Success`);
 
       await minioClient.fPutObject(
         bucketName,
@@ -73,7 +78,7 @@ export default async function ({ queueId }, helpers) {
         filePath + ".json",
         { "Content-Type": "application/json" }
       );
-      console.log(`Upload JSON ${pxRatio} Success`);
+      logger.info(`Upload JSON ${pxRatio} Success`);
     }
 
     await withPgClient((pgClient) =>
@@ -87,7 +92,7 @@ export default async function ({ queueId }, helpers) {
         `UPDATE sprite_generation_queue SET date_updated = CURRENT_TIMESTAMP, status = 'done', errors = '${error.stack}' WHERE id = '${queueId}';`
       )
     );
-    console.log(error);
+    logger.error(error);
   } finally {
     // Clean up the temporary directory after use
     fs.rmSync(spritesDir, { recursive: true, force: true });
