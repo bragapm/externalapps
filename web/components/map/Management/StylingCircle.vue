@@ -11,6 +11,7 @@ const layerIndex = inject("layerIndexProvider");
 const circleRadius = ref(
   (props.layerItem.layer_style as CircleStyles).paint_circle_radius
 );
+const circleStrokeDash = ref(null);
 const circleStrokeWidth = ref(
   (props.layerItem.layer_style as CircleStyles).paint_circle_stroke_width
 );
@@ -46,15 +47,9 @@ const handleChangeProperty = (
     layerIndex as number,
     propType,
     propName,
-    value
+    value,
+    props.layerItem.layer_id
   );
-  if (map.value) {
-    if (propType === "paint") {
-      map.value.setPaintProperty(props.layerItem.layer_id, propName, value);
-    } else if (propType === "layout") {
-      map.value.setLayoutProperty(props.layerItem.layer_id, propName, value);
-    }
-  }
 };
 </script>
 
@@ -86,7 +81,13 @@ const handleChangeProperty = (
       </div>
       <p class="text-grey-400 text-2xs">Stroke</p>
       <div class="grid grid-cols-4 gap-1">
-        <div class="col-span-3"></div>
+        <div class="col-span-3">
+          <CoreInputDash
+            disabled
+            v-model="circleStrokeDash"
+            :updateLineDash="(value) => {}"
+          />
+        </div>
         <UInput
           v-model="circleStrokeWidth"
           @blur="

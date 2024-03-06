@@ -38,16 +38,9 @@ const handleChangeProperty = (
     layerIndex as number,
     propType,
     propName,
-    value
+    value,
+    props.layerItem.layer_id
   );
-
-  if (map.value) {
-    if (propType === "paint") {
-      map.value.setPaintProperty(props.layerItem.layer_id, propName, value);
-    } else if (propType === "layout") {
-      map.value.setLayoutProperty(props.layerItem.layer_id, propName, value);
-    }
-  }
 };
 const updateIconTitle = (title: string) => {
   if (store.groupedActiveLayers) {

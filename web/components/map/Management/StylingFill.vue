@@ -30,23 +30,17 @@ const handleChangeProperty = (
     layerIndex as number,
     propType,
     propName,
-    value
+    value,
+    props.layerItem.layer_id
   );
-  if (map.value) {
-    if (propType === "paint") {
-      map.value.setPaintProperty(props.layerItem.layer_id, propName, value);
-    } else if (propType === "layout") {
-      map.value.setLayoutProperty(props.layerItem.layer_id, propName, value);
-    }
-  }
 };
 </script>
 
 <template>
   <div>
-    <div class="bg-grey-800 rounded-xxs p-2 space-y-1">
+    <!-- <div class="bg-grey-800 rounded-xxs p-2 space-y-1">
       <p class="text-grey-50 text-2xs">Appearance</p>
-    </div>
+    </div> -->
     <div class="bg-grey-800 rounded-xxs p-2 space-y-1">
       <p class="text-grey-50 text-2xs">Color</p>
       <p class="text-grey-400 text-2xs">Fill Color Opacity</p>

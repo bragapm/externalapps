@@ -5,6 +5,7 @@ import {
   geomTypePolygon,
   geomTypeSymbol,
 } from "~/constants";
+import { isString, parseString } from "~/utils";
 import type {
   VectorTiles,
   CircleStyles,
@@ -22,24 +23,6 @@ const props = defineProps<{
   item: VectorTiles;
   order: number;
 }>();
-
-function isString(value: string | number | boolean): value is string {
-  return typeof value === "string";
-}
-
-function parseString(input: string) {
-  try {
-    const parsed = JSON.parse(input);
-    if (Array.isArray(parsed)) {
-      return parsed;
-    } else if (typeof parsed === "number") {
-      return parsed;
-    }
-  } catch (e) {
-    // Do nothing, will return the input string
-  }
-  return input;
-}
 
 watchEffect(async (onInvalidate) => {
   const onMouseEnter = () => {

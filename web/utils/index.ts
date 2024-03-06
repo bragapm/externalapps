@@ -268,3 +268,21 @@ export const tryRefresh = async (
     signout();
   }
 };
+
+export function isString(value: string | number | boolean): value is string {
+  return typeof value === "string";
+}
+
+export function parseString(input: string) {
+  try {
+    const parsed = JSON.parse(input);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    } else if (typeof parsed === "number") {
+      return parsed;
+    }
+  } catch (e) {
+    // Do nothing, will return the input string
+  }
+  return input;
+}

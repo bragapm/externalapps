@@ -11,6 +11,25 @@ const layerIndex = inject("layerIndexProvider");
 const lineWidth = ref(
   (props.layerItem.layer_style as LineStyles).paint_line_width
 );
+const lineDash = ref(
+  (props.layerItem.layer_style as LineStyles).paint_line_dasharray
+);
+const dashWidth = ref(
+  (props.layerItem.layer_style as LineStyles).paint_line_dasharray
+    ? JSON.parse(
+        (props.layerItem.layer_style as LineStyles).paint_line_dasharray
+      )[0]
+    : null
+);
+
+const dashGap = ref(
+  (props.layerItem.layer_style as LineStyles).paint_line_dasharray &&
+    (props.layerItem.layer_style as LineStyles).paint_line_dasharray.length > 1
+    ? JSON.parse(
+        (props.layerItem.layer_style as LineStyles).paint_line_dasharray
+      )[1]
+    : null
+);
 const lineOpacity = ref(
   parseFloat((props.layerItem.layer_style as LineStyles).paint_line_opacity) *
     100
@@ -26,7 +45,7 @@ const { map } = storeToRefs(mapStore);
 
 const handleChangeProperty = (
   propType: "paint" | "layout",
-  value: string | number,
+  value: string | number | boolean,
   propName: string
 ) => {
   updateLayerProperty(
@@ -34,15 +53,9 @@ const handleChangeProperty = (
     layerIndex as number,
     propType,
     propName,
-    value
+    value,
+    props.layerItem.layer_id
   );
-  if (map.value) {
-    if (propType === "paint") {
-      map.value.setPaintProperty(props.layerItem.layer_id, propName, value);
-    } else if (propType === "layout") {
-      map.value.setLayoutProperty(props.layerItem.layer_id, propName, value);
-    }
-  }
 };
 </script>
 
@@ -50,8 +63,37 @@ const handleChangeProperty = (
   <div>
     <div class="bg-grey-800 rounded-xxs p-2 space-y-1">
       <p class="text-grey-50 text-2xs">Appearance</p>
-      <div class="grid grid-cols-2 gap-1">
-        <p class="text-grey-400 text-2xs self-center">Size</p>
+      <p class="text-grey-400 text-2xs">Stroke</p>
+      <div class="grid grid-cols-4 gap-1">
+        <div class="col-span-3">
+          <CoreInputDash
+            v-model="lineDash"
+            :updateLineDash="
+              (value) => {
+                if (value !== null) {
+                  let dashArray = [];
+                  if (dashWidth) {
+                    dashArray.push(dashWidth);
+                    if (dashGap) {
+                      dashArray.push(dashGap);
+                    }
+                  } else {
+                    dashWidth = value[0];
+                    dashGap = value[1];
+                    dashArray = value;
+                  }
+                  handleChangeProperty(
+                    'paint',
+                    JSON.stringify(dashArray),
+                    'line-dasharray'
+                  );
+                } else {
+                  handleChangeProperty('paint', value, 'line-dasharray');
+                }
+              }
+            "
+          />
+        </div>
         <UInput
           v-model="lineWidth"
           @blur="
@@ -69,6 +111,51 @@ const handleChangeProperty = (
         >
           <template #trailing>
             <span class="text-grey-400 text-2xs">px</span>
+          </template>
+        </UInput>
+      </div>
+      <div class="grid grid-cols-2 gap-1">
+        <UInput
+          :disabled="!lineDash"
+          v-model="dashWidth"
+          @blur="
+            (e:Event) => {
+              let newDashArray = [parseFloat((e.target as HTMLInputElement).value)]
+              if(dashGap){newDashArray.push(dashGap)}
+              handleChangeProperty('paint', JSON.stringify(newDashArray), 'line-dasharray');
+            }
+          "
+          type="number"
+          color="gray"
+          :ui="{ rounded: 'rounded-xxs' }"
+          placeholder="Dash"
+          size="2xs"
+          min="0"
+          max="100"
+        >
+          <template #trailing>
+            <span class="text-grey-400 text-2xs">Dash</span>
+          </template>
+        </UInput>
+        <UInput
+          :disabled="!lineDash"
+          v-model="dashGap"
+          @blur="
+            (e:Event) => {
+              let newDashArray = [dashWidth, parseFloat((e.target as HTMLInputElement).value)]
+              handleChangeProperty('paint',  JSON.stringify(newDashArray), 'line-dasharray');
+            }
+          "
+          type="number"
+          color="gray"
+          :ui="{ rounded: 'rounded-xxs' }"
+          placeholder="Gap"
+          size="2xs"
+          min="0"
+          max="100"
+        >
+          <template #trailing>
+            <span class="text-grey-400 text-2xs">Gap</span>
           </template>
         </UInput>
       </div>

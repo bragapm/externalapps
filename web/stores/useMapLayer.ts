@@ -18,6 +18,7 @@ import {
   geomTypeThreeD,
   uncategorizedAlias,
 } from "~/constants";
+import { isString, parseString } from "~/utils";
 
 export const useMapLayer = defineStore("maplayer", () => {
   const mapRefStore = useMapRef();
@@ -72,9 +73,17 @@ export const useMapLayer = defineStore("maplayer", () => {
     layerIndex: number,
     propType: "paint" | "layout",
     propName: string,
-    propValue: string | number
+    propValue: string | number | boolean,
+    layerId: string
   ) => {
     if (groupedActiveLayers.value) {
+      let newValue;
+
+      if (isString(propValue)) {
+        newValue = parseString(propValue);
+      } else {
+        newValue = propValue;
+      }
       const prev = groupedActiveLayers.value;
       const selected = prev[groupIndex].layerLists[layerIndex];
       (selected.layer_style as Record<string, any>)[
@@ -82,6 +91,13 @@ export const useMapLayer = defineStore("maplayer", () => {
       ] = propValue;
 
       groupedActiveLayers.value = prev;
+      if (mapRefStore.map) {
+        if (propType === "paint") {
+          mapRefStore.map.setPaintProperty(layerId, propName, newValue);
+        } else if (propType === "layout") {
+          mapRefStore.map.setLayoutProperty(layerId, propName, newValue);
+        }
+      }
     }
   };
 
