@@ -11,7 +11,7 @@ export default async function ({ queueId }, helpers) {
   const bucketName = process.env.STORAGE_S3_BUCKET;
 
   const { withPgClient, logger } = helpers;
-  logger.info(`Received generateSprites job with queue ID: ${queueId}`);
+  logger.info(`Received generateSprites task with queue ID: ${queueId}`);
 
   // Use fs.mkdtemp() to create a unique temporary directory within the OS-specific temp directory
   const tempDirPrefix = path.join(os.tmpdir(), "geodashboard_sprites_");
@@ -20,13 +20,15 @@ export default async function ({ queueId }, helpers) {
   try {
     await withPgClient((pgClient) =>
       pgClient.query(
-        `UPDATE sprite_generation_queue SET date_updated = CURRENT_TIMESTAMP, status = 'consumed' WHERE id = '${queueId}';`
+        "UPDATE other_processing_queue SET date_updated = CURRENT_TIMESTAMP, status = 'consumed' WHERE id = $1",
+        [queueId]
       )
     );
 
     const { rows } = await withPgClient((pgClient) =>
       pgClient.query(
-        `SELECT filename_disk, filename_download, title FROM directus_files WHERE folder = '${LAYER_ICONS_FOLDER_ID}' AND type = 'image/svg+xml'`
+        "SELECT filename_disk, filename_download, title FROM directus_files WHERE folder = $1 AND type = 'image/svg+xml'",
+        [LAYER_ICONS_FOLDER_ID]
       )
     );
     const iconKeys = rows.map(({ filename_disk }) => filename_disk);
@@ -83,13 +85,15 @@ export default async function ({ queueId }, helpers) {
 
     await withPgClient((pgClient) =>
       pgClient.query(
-        `UPDATE sprite_generation_queue SET date_updated = CURRENT_TIMESTAMP, status = 'done' WHERE id = '${queueId}';`
+        "UPDATE other_processing_queue SET date_updated = CURRENT_TIMESTAMP, status = 'done' WHERE id = $1",
+        [queueId]
       )
     );
   } catch (error) {
     await withPgClient((pgClient) =>
       pgClient.query(
-        `UPDATE sprite_generation_queue SET date_updated = CURRENT_TIMESTAMP, status = 'done', errors = '${error.stack}' WHERE id = '${queueId}';`
+        "UPDATE other_processing_queue SET date_updated = CURRENT_TIMESTAMP, status = 'done', results = $1 WHERE id = $2",
+        [{ error, stack: error.stack }, queueId]
       )
     );
     logger.error(error);
