@@ -1,9 +1,14 @@
-import { LAYER_DATA_FOLDER_ID } from "./const/FOLDER_IDS.mjs";
+import {
+  BIM_DATA_FOLDER_ID,
+  LAYER_DATA_FOLDER_ID,
+} from "./const/FOLDER_IDS.mjs";
 
 export async function up(knex) {
   await knex.raw(`
   INSERT INTO directus_folders (id, name)
-  VALUES ('${LAYER_DATA_FOLDER_ID}', 'Layer Data');
+  VALUES
+    ('${LAYER_DATA_FOLDER_ID}', 'Layer Data'),
+    ('${BIM_DATA_FOLDER_ID}', 'BIM Data');
 
   INSERT INTO directus_collections(collection, icon, color)
   VALUES ('layer_data', 'layers', '#6644FF');
@@ -73,34 +78,38 @@ export async function up(knex) {
       ('geoprocessing_queue', 'result'),
       ('geoprocessing_queue', 'result_ttl');
 
-  CREATE TABLE IF NOT EXISTS sprite_generation_queue (
+  CREATE TABLE IF NOT EXISTS other_processing_queue (
     id uuid NOT NULL PRIMARY KEY,
     status character varying(255) NOT NULL DEFAULT 'queued',
     date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     date_updated timestamp with time zone,
-    files jsonb NOT NULL,
-    errors text
+    task character varying(255) NOT NULL,
+    payload jsonb,
+    results jsonb,
+    additional_info jsonb
   );
 
   INSERT INTO directus_collections(collection, "group", icon, color)
-  VALUES ('sprite_generation_queue', 'internal', 'browse_gallery', '#E35169');
+  VALUES ('other_processing_queue', 'internal', 'browse_gallery', '#E35169');
 
   INSERT INTO directus_fields(collection,field,special,interface,options,display,display_options,readonly,hidden,sort,width,translations,note,conditions,required,"group",validation,validation_message)
   VALUES
-    ('sprite_generation_queue','id',NULL,'input',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-    ('sprite_generation_queue','status',NULL,'select-dropdown','{"choices":[{"text":"consumed","value":"consumed"},{"text":"queued","value":"queued"},{"text":"done","value":"done"}]}','labels','{"choices":[{"text":"consumed","value":"consumed","foreground":"#FFFFFF","background":"#3399FF"},{"text":"queued","value":"queued","foreground":"#18222F","background":"#D3DAE4"},{"text":"done","value":"done","foreground":"#FFFFFF","background":"#2ECDA7"}]}',TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-    ('sprite_generation_queue','date_created','date-created','datetime',NULL,'datetime','{"relative":true}',TRUE,TRUE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-    ('sprite_generation_queue','date_updated','date-updated','datetime',NULL,'datetime','{"relative":true}',TRUE,TRUE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-    ('sprite_generation_queue','files','cast-json','input-code',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
-    ('sprite_generation_queue','errors',NULL,'input-code',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL);
+    ('other_processing_queue','id',NULL,'input',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+    ('other_processing_queue','status',NULL,'select-dropdown','{"choices":[{"text":"consumed","value":"consumed"},{"text":"queued","value":"queued"},{"text":"done","value":"done"}]}','labels','{"choices":[{"text":"consumed","value":"consumed","foreground":"#FFFFFF","background":"#3399FF"},{"text":"queued","value":"queued","foreground":"#18222F","background":"#D3DAE4"},{"text":"done","value":"done","foreground":"#FFFFFF","background":"#2ECDA7"}]}',TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+    ('other_processing_queue','date_created','date-created','datetime',NULL,'datetime','{"relative":true}',TRUE,TRUE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+    ('other_processing_queue','date_updated','date-updated','datetime',NULL,'datetime','{"relative":true}',TRUE,TRUE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+    ('other_processing_queue','task',NULL,'input',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+    ('other_processing_queue','payload','cast-json','input-code',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+    ('other_processing_queue','results','cast-json','input-code',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+    ('other_processing_queue','additional_info','cast-json','input-code',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL);
   `);
 }
 
 export async function down(knex) {
   await knex.raw(`
-    DELETE FROM directus_fields WHERE collection = 'sprite_generation_queue';
-    DELETE FROM directus_collections WHERE collection = 'sprite_generation_queue';
-    DROP TABLE IF EXISTS sprite_generation_queue;
+    DELETE FROM directus_fields WHERE collection = 'other_processing_queue';
+    DELETE FROM directus_collections WHERE collection = 'other_processing_queue';
+    DROP TABLE IF EXISTS other_processing_queue;
 
     DELETE FROM directus_fields WHERE collection = 'geoprocessing_queue';
     DELETE FROM directus_collections WHERE collection = 'geoprocessing_queue';
@@ -124,6 +133,6 @@ export async function down(knex) {
     DROP COLUMN IF EXISTS is_ready;
 
     DELETE FROM directus_collections WHERE collection = 'layer_data';
-    DELETE FROM directus_folders WHERE id = '${LAYER_DATA_FOLDER_ID}';
+    DELETE FROM directus_folders WHERE id IN ('${LAYER_DATA_FOLDER_ID}',${BIM_DATA_FOLDER_ID});
   `);
 }

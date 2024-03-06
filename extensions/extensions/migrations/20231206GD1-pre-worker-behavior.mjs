@@ -1,4 +1,5 @@
 import {
+  BIM_DATA_FOLDER_ID,
   LAYER_DATA_FOLDER_ID,
   LAYER_ICONS_FOLDER_ID,
 } from "./const/FOLDER_IDS.mjs";
@@ -120,26 +121,28 @@ export async function up(knex) {
       processed_files jsonb;
     BEGIN
       -- Check if there's unprocessed job
-      SELECT id, files INTO queue_id, processed_files FROM sprite_generation_queue
+      SELECT id, additional_info INTO queue_id, processed_files
+      FROM other_processing_queue
       WHERE status = 'queued'
+      AND task = 'generateSprites'
       ORDER BY date_created DESC
       LIMIT 1;
-      
+
       IF queue_id IS NOT NULL THEN
         processed_files := jsonb_set(processed_files, ARRAY['add'], COALESCE(processed_files -> 'add', '[]'::jsonb) || jsonb_build_array(NEW.filename_download), TRUE);
-        
-        UPDATE sprite_generation_queue
+
+        UPDATE other_processing_queue
         SET date_created = CURRENT_TIMESTAMP,
-          files = processed_files
+          additional_info = processed_files
         WHERE id = queue_id;
       ELSE
         queue_id := gen_random_uuid();
         processed_files := jsonb_build_object('add', ARRAY[NEW.filename_download]);
-        
-        INSERT INTO sprite_generation_queue(id, files)
-        VALUES (queue_id, processed_files);
+
+        INSERT INTO other_processing_queue(id, task, payload, additional_info)
+        VALUES (queue_id, 'generateSprites', jsonb_build_object('queueId', queue_id), processed_files);
       END IF;
-      
+
       -- Use same key and delay to throttle process when user uploads multiple icons 
       PERFORM graphile_worker.add_job('generateSprites', json_build_object('queueId', queue_id), run_at := CURRENT_TIMESTAMP + INTERVAL '10', job_key := 'generateSprites');
       RETURN NULL;
@@ -162,26 +165,28 @@ export async function up(knex) {
       processed_files jsonb;
     BEGIN
       -- Check if there's unprocessed job
-      SELECT id, files INTO queue_id, processed_files FROM sprite_generation_queue
+      SELECT id, additional_info INTO queue_id, processed_files
+      FROM other_processing_queue
       WHERE status = 'queued'
+      AND task = 'generateSprites'
       ORDER BY date_created DESC
       LIMIT 1;
-      
+
       IF queue_id IS NOT NULL THEN
         processed_files := jsonb_set(processed_files, ARRAY['remove'], COALESCE(processed_files -> 'remove', '[]'::jsonb) || jsonb_build_array(OLD.filename_download), TRUE);
-        
-        UPDATE sprite_generation_queue
+
+        UPDATE other_processing_queue
         SET date_created = CURRENT_TIMESTAMP,
-          files = processed_files
+          additional_info = processed_files
         WHERE id = queue_id;
       ELSE
         queue_id := gen_random_uuid();
         processed_files := jsonb_build_object('remove', ARRAY[OLD.filename_download]);
-        
-        INSERT INTO sprite_generation_queue(id, files)
-        VALUES (queue_id, processed_files);
+
+        INSERT INTO other_processing_queue(id, task, payload, additional_info)
+        VALUES (queue_id, 'generateSprites', jsonb_build_object('queueId', queue_id), processed_files);
       END IF;
-      
+
       -- Use same key and delay to throttle process when user deletes multiple icons 
       PERFORM graphile_worker.add_job('generateSprites', json_build_object('queueId', queue_id), run_at := CURRENT_TIMESTAMP + INTERVAL '10', job_key := 'generateSprites');
       RETURN NULL;
@@ -194,13 +199,51 @@ export async function up(knex) {
     FOR EACH ROW
     WHEN (OLD.folder = '${LAYER_ICONS_FOLDER_ID}' AND OLD.type = 'image/svg+xml')
     EXECUTE FUNCTION handle_directus_files_layer_icons_delete();
+
+  CREATE OR REPLACE FUNCTION handle_directus_files_bim_data_ready()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+  AS $BODY$
+    DECLARE
+      worker_enabled boolean;
+      queue_id uuid;
+    BEGIN
+      SELECT convert_to_xkt_worker INTO STRICT worker_enabled
+      FROM directus_settings;
+
+      IF worker_enabled = FALSE THEN
+        RAISE EXCEPTION 'Convert to XKT worker is not enabled';
+      END IF;
+
+      queue_id := gen_random_uuid();
+
+      INSERT INTO other_processing_queue(id, task, payload)
+      VALUES (queue_id, 'convertToXkt', jsonb_build_object('objectKey', NEW.filename_disk, 'uploader', NEW.uploaded_by, 'queueId', queue_id));
+
+      PERFORM graphile_worker.add_job('convertToXkt', json_build_object('objectKey', NEW.filename_disk, 'uploader', NEW.uploaded_by, 'queueId', queue_id));
+      RETURN NULL;
+    END;
+  $BODY$;
+
+  CREATE OR REPLACE TRIGGER on_directus_files_bim_data_ready
+    AFTER UPDATE 
+    ON directus_files
+    FOR EACH ROW
+    WHEN (NEW.folder = '${BIM_DATA_FOLDER_ID}' AND NEW.is_ready IS TRUE)
+    EXECUTE FUNCTION handle_directus_files_bim_data_ready();
 `);
 }
 
 export async function down(knex) {
   await knex.raw(`
-    DROP TRIGGER IF EXISTS on_directus_files_layer_icons_delete ON geoprocessing_queue;
+    DROP TRIGGER IF EXISTS on_directus_files_bim_data_ready ON directus_files;
+    DROP FUNCTION IF EXISTS handle_directus_files_bim_data_ready();
+
+    DROP TRIGGER IF EXISTS on_directus_files_layer_icons_delete ON directus_files;
     DROP FUNCTION IF EXISTS handle_directus_files_layer_icons_delete();
+
+    DROP TRIGGER IF EXISTS on_directus_files_layer_icons_upload ON directus_files;
+    DROP FUNCTION IF EXISTS handle_directus_files_layer_icons_upload();
 
     DROP TRIGGER IF EXISTS on_geoprocessing_queue_insert ON geoprocessing_queue;
     DROP FUNCTION IF EXISTS handle_geoprocessing_queue_insert();
