@@ -139,7 +139,7 @@ const { isPending, isError, data, error } = useQuery({
           <PopoverButton
             v-else
             class="flex items-center space-x-2 px-2 py-2 w-full"
-            @click="() => navigateTo('/signin')"
+            @click="() => authStore.mutateAuthModal()"
           >
             <IcLogin class="text-grey-400" />
             <p class="text-xs font-medium text-grey-200">Sign In</p>

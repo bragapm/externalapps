@@ -9,7 +9,7 @@ import IcLogin from "~/assets/icons/ic-login.svg";
 import IcLogout from "~/assets/icons/ic-logout.svg";
 
 const route = useRoute();
-
+const toast = useToast();
 const colorMode = useColorMode();
 
 // const isExpand = useState('isExpand', () => true)
@@ -138,12 +138,23 @@ const authStore = useAuth();
           </template>
         </UButton>
         <UButton
+          @click="
+            async () => {
+              if (authStore.isSignedIn) {
+                toast.add({
+                  title: 'Sign Out Successful',
+                  description: 'You are now browsing as a guest.',
+                  icon: 'i-heroicons-information-circle',
+                });
+                await authStore.signout();
+              } else authStore.mutateAuthModal(true);
+            }
+          "
           label="Share Map"
           class="h-9 w-9 rounded-full flex items-center justify-center"
-          ><NuxtLink to="/signin">
-            <IcLogout class="" v-if="authStore.isSignedIn" />
-            <IcLogin class="" v-else />
-          </NuxtLink>
+        >
+          <IcLogout v-if="authStore.isSignedIn" />
+          <IcLogin v-else />
         </UButton>
       </TransitionRoot>
       <TransitionRoot
@@ -196,4 +207,5 @@ const authStore = useAuth();
       <LayoutsNavbarAuth />
     </div>
   </div>
+  <LayoutsAuthModal :isExpand="isExpand"> </LayoutsAuthModal>
 </template>

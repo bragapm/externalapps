@@ -18,5 +18,21 @@ export const useAuth = defineStore("authData", () => {
     });
     localStorage.removeItem(refreshTokenKey);
   }
-  return { isSignedIn, accessToken, signin, signout };
+  const authModal = ref<boolean>(false);
+  function mutateAuthModal(newState?: boolean) {
+    if (typeof newState === "undefined") {
+      authModal.value = !authModal.value;
+    } else {
+      authModal.value = newState;
+    }
+  }
+
+  return {
+    isSignedIn,
+    accessToken,
+    signin,
+    signout,
+    authModal,
+    mutateAuthModal,
+  };
 });
