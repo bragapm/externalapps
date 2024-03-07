@@ -1,7 +1,25 @@
 <script lang="ts" setup>
+import type { Feature, GeoJsonProperties, Geometry } from "geojson";
 import { useDrawControl } from "~/utils/useDrawControl";
+import area from "@turf/area";
 
-const { drawer } = useDrawControl({ mode: "draw_polygon" });
+const areaCount = ref<number>(0);
+
+const { drawer } = useDrawControl({
+  mode: "draw_polygon",
+  onCreated: (feature) => {
+    areaCount.value = parseFloat(area(feature).toFixed(2));
+  },
+  onUpdated: (feature) => {
+    areaCount.value = parseFloat(area(feature).toFixed(2));
+  },
+});
+
+const handleReset = () => {
+  areaCount.value = 0;
+  drawer?.deleteAll();
+  drawer?.changeMode("draw_polygon");
+};
 </script>
 
 <template>
@@ -11,6 +29,7 @@ const { drawer } = useDrawControl({ mode: "draw_polygon" });
     </p>
     <div class="flex gap-1">
       <UInput
+        readonly
         color="gray"
         :ui="{ rounded: 'rounded-xxs' }"
         placeholder="0"
@@ -43,12 +62,8 @@ const { drawer } = useDrawControl({ mode: "draw_polygon" });
   </div>
   <div class="p-2">
     <UButton
-      @click="
-        () => {
-          drawer?.deleteAll();
-          drawer?.changeMode('draw_polygon');
-        }
-      "
+      :disabled="areaCount === 0"
+      @click="handleReset"
       color="grey"
       variant="outline"
       :ui="{ rounded: 'rounded-[4px]' }"

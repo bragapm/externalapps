@@ -1,7 +1,31 @@
 <script lang="ts" setup>
 import { useDrawControl } from "~/utils/useDrawControl";
+import length from "@turf/length";
 
-const { drawer } = useDrawControl({ mode: "draw_line_string" });
+const lengthCount = ref<number>(0);
+
+const { drawer } = useDrawControl({
+  mode: "draw_line_string",
+  onCreated: (feature) => {
+    lengthCount.value = parseFloat(
+      length(feature, {
+        units: "meters",
+      }).toFixed(2)
+    );
+  },
+  onUpdated: (feature) => {
+    lengthCount.value = parseFloat(
+      length(feature, {
+        units: "meters",
+      }).toFixed(2)
+    );
+  },
+});
+const handleReset = () => {
+  lengthCount.value = 0;
+  drawer?.deleteAll();
+  drawer?.changeMode("draw_line_string");
+};
 </script>
 
 <template>
@@ -11,6 +35,8 @@ const { drawer } = useDrawControl({ mode: "draw_line_string" });
     </p>
     <div class="flex gap-1">
       <UInput
+        v-model="lengthCount"
+        readonly
         color="gray"
         :ui="{ rounded: 'rounded-xxs' }"
         placeholder="0"
@@ -42,12 +68,8 @@ const { drawer } = useDrawControl({ mode: "draw_line_string" });
   </div>
   <div class="p-2">
     <UButton
-      @click="
-        () => {
-          drawer?.deleteAll();
-          drawer?.changeMode('draw_line_string');
-        }
-      "
+      :disabled="lengthCount === 0"
+      @click="handleReset"
       color="grey"
       variant="outline"
       :ui="{ rounded: 'rounded-[4px]' }"
