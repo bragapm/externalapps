@@ -233,6 +233,7 @@ export type GeneralSettings = {
     project_name: string;
     public_favicon?: string;
     public_background?: string;
+    basemaps?: { name: string; type: string; url: string; tileSize?: number }[];
   };
 };
 

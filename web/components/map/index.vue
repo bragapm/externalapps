@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Map, GeolocateControl } from "maplibre-gl";
-import type { LngLatBoundsLike } from "maplibre-gl";
+import type { LngLatBoundsLike, StyleSpecification } from "maplibre-gl";
 import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
 import { addHighlightLayer, useMapData } from "~/utils";
@@ -13,15 +13,35 @@ const map = shallowRef<null | Raw<Map>>(null);
 const geolocate = shallowRef<null | Raw<GeolocateControl>>(null);
 const store = useMapRef();
 const { setMapLoad, setMapRef, setGeolocateRef } = store;
+const { data: generalSettingsData } = await useGeneralSettings();
 
 //map init
 onMounted(async () => {
   setMapLoad(false);
   const apiKey = "D7JUUxLv3oK21JM9jscD";
-  const style: any = await $fetch(
+  const style: StyleSpecification = await $fetch(
     `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`
   );
   style.sprite = window.location.origin + "/panel/sprites/sprite";
+
+  if (Array.isArray(generalSettingsData.value?.data.basemaps)) {
+    for (const basemap of generalSettingsData.value.data.basemaps) {
+      if (basemap.type === "raster") {
+        const name = `__geodashboard_basemap-${basemap.name}`;
+        style.sources[name] = {
+          type: "raster",
+          tiles: [basemap.url],
+          tileSize: basemap.tileSize ?? 512,
+        };
+        style.layers.push({
+          id: name,
+          type: "raster",
+          source: name,
+          layout: { visibility: "none" },
+        });
+      }
+    }
+  }
 
   map.value = markRaw(
     new Map({

@@ -7,6 +7,7 @@ export const useMapRef = defineStore("mapref", () => {
   const map = ref<null | Raw<Map>>(null);
   const ctrl = ref<null | any>(null);
   const geolocateRef = ref<null | Raw<GeolocateControl>>(null);
+  const currentBasemap = ref("default");
   function setMapLoad(value: boolean) {
     mapLoad.value = value;
   }
@@ -19,6 +20,9 @@ export const useMapRef = defineStore("mapref", () => {
   function setGeolocateRef(value: null | Raw<GeolocateControl>) {
     geolocateRef.value = value;
   }
+  function setCurrentBaseMap(value: string) {
+    currentBasemap.value = value;
+  }
 
   return {
     mapLoad,
@@ -29,5 +33,7 @@ export const useMapRef = defineStore("mapref", () => {
     setGeolocateRef,
     ctrl,
     setCtrlRef,
+    currentBasemap,
+    setCurrentBaseMap,
   };
 });

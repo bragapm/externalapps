@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { TransitionRoot } from "@headlessui/vue";
-import { MenuItem } from "@headlessui/vue";
 import IcArrowFat from "~/assets/icons/ic-arrow-fat.svg";
 import IcChart from "~/assets/icons/ic-chart.svg";
 import IcDrawFree from "~/assets/icons/ic-draw-free.svg";
@@ -145,41 +144,10 @@ const handleCloseToolsCard = () => {
       <MapToolsDropdown
         :triggerIcon="IcMapFlat"
         :itemLabel="'Basemap'"
-        :itemDescription="'Draw on Map and add to layer'"
+        :itemDescription="'Change basemap'"
       >
         <template #custom-item>
-          <div
-            v-for="item in [
-              {
-                id: 1,
-                label: 'Satellite',
-                url: 'https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/-122.4241,37.78,15.25,0,60/400x400?access_token=pk.eyJ1IjoiaGFmaXphbmFkbGkiLCJhIjoiY2s0M3pxdmtnMGRmODNkcG11a2RkdGEyNiJ9.zJ_0jcPOGZko34FBrPxDRA',
-              },
-              {
-                id: 1,
-                label: 'Dark Theme',
-                url: 'https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/-122.4241,37.78,15.25,0,60/400x400?access_token=pk.eyJ1IjoiaGFmaXphbmFkbGkiLCJhIjoiY2s0M3pxdmtnMGRmODNkcG11a2RkdGEyNiJ9.zJ_0jcPOGZko34FBrPxDRA',
-              },
-            ]"
-            :key="item.id"
-          >
-            <MenuItem v-slot="{ active }">
-              <button
-                :class="[
-                  active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
-                  'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
-                ]"
-              >
-                <NuxtImg
-                  width="64px"
-                  height="64px"
-                  class="rounded-xxs"
-                  :src="item.url"
-                />
-                {{ item.label }}
-              </button>
-            </MenuItem>
-          </div>
+          <MapToolsBasemap />
         </template>
       </MapToolsDropdown>
       <div class="border-l border-grey-700 h-8"></div>
