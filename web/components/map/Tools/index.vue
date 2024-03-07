@@ -30,16 +30,21 @@ const toolsStore = useMapTools();
 const { toggleExpandTools } = toolsStore;
 const { expandTools } = storeToRefs(toolsStore);
 
+const showCard = ref(false);
 const activeTools = ref<toolItem | null>(null);
 
 const handleOpenToolsCard = (item: toolItem) => {
+  showCard.value = true;
   showTools.value = false;
   activeTools.value = item;
 };
 
 const handleCloseToolsCard = () => {
-  activeTools.value = null;
+  showCard.value = false;
   showTools.value = true;
+  setTimeout(() => {
+    activeTools.value = null;
+  }, 400);
 };
 </script>
 
@@ -188,7 +193,7 @@ const handleCloseToolsCard = () => {
     </div>
   </TransitionRoot>
   <MapToolsCard
-    :active="activeTools !== null"
+    :active="showCard"
     :onClose="handleCloseToolsCard"
     :label="activeTools?.labelCard || activeTools?.label"
     :icon="activeTools?.icon"

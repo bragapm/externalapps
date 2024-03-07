@@ -83,6 +83,7 @@ fetchActiveLayers();
 
 <style scoped>
 @import "https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css";
+@import "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css";
 
 .map-wrap {
   position: relative;

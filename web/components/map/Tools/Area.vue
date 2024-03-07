@@ -1,4 +1,8 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { useDrawControl } from "~/utils/useDrawControl";
+
+const { drawer } = useDrawControl({ mode: "draw_polygon" });
+</script>
 
 <template>
   <div class="p-2 flex flex-col gap-2">
@@ -39,7 +43,12 @@
   </div>
   <div class="p-2">
     <UButton
-      disabled
+      @click="
+        () => {
+          drawer?.deleteAll();
+          drawer?.changeMode('draw_polygon');
+        }
+      "
       color="grey"
       variant="outline"
       :ui="{ rounded: 'rounded-[4px]' }"
