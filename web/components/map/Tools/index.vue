@@ -13,6 +13,14 @@ import IcSearch from "~/assets/icons/ic-search.svg";
 import IcTools from "~/assets/icons/ic-tools.svg";
 import { storeToRefs } from "pinia";
 
+type toolItem = {
+  id: string;
+  label: string;
+  labelCard?: string;
+  icon?: string;
+  action?: (item?: any) => void;
+};
+
 const showTools = ref(true);
 const showIsochroneCard = ref(false);
 const store = useTableData();
@@ -21,6 +29,18 @@ const { showTable } = storeToRefs(store);
 const toolsStore = useMapTools();
 const { toggleExpandTools } = toolsStore;
 const { expandTools } = storeToRefs(toolsStore);
+
+const activeTools = ref<toolItem | null>(null);
+
+const handleOpenToolsCard = (item: toolItem) => {
+  showTools.value = false;
+  activeTools.value = item;
+};
+
+const handleCloseToolsCard = () => {
+  activeTools.value = null;
+  showTools.value = true;
+};
 </script>
 
 <template>
@@ -54,10 +74,7 @@ const { expandTools } = storeToRefs(toolsStore);
             id: 'isochrone',
             label: 'Isochrone',
             icon: IcDrawFree,
-            action: () => {
-              showIsochroneCard = true;
-              showTools = false;
-            },
+            action: () => console.log('isochrone'),
           },
           {
             id: 'buffer_area',
@@ -101,14 +118,22 @@ const { expandTools } = storeToRefs(toolsStore);
         :itemDescription="'Draw on Map and add to layer'"
         :items="[
           {
-            id: 'distance',
-            label: 'Distance',
+            id: 'length',
+            label: 'Length',
+            labelCard: 'Length Measurement Tool',
             icon: IcRuler,
+            action: (item) => {
+              handleOpenToolsCard(item);
+            },
           },
           {
             id: 'area',
             label: 'Area',
+            labelCard: 'Area Measurement Tool',
             icon: IcRulerCorner,
+            action: (item) => {
+              handleOpenToolsCard(item);
+            },
           },
         ]"
       ></MapToolsDropdown>
@@ -163,15 +188,12 @@ const { expandTools } = storeToRefs(toolsStore);
     </div>
   </TransitionRoot>
   <MapToolsCard
-    :active="showIsochroneCard"
-    :onClose="
-      () => {
-        showIsochroneCard = false;
-        showTools = true;
-      }
-    "
-    :label="'Isochrone Tool'"
+    :active="activeTools !== null"
+    :onClose="handleCloseToolsCard"
+    :label="activeTools?.labelCard || activeTools?.label"
+    :icon="activeTools?.icon"
   >
-    <MapToolsIsochrone />
+    <MapToolsLength v-if="activeTools?.id === 'length'" />
+    <MapToolsArea v-else-if="activeTools?.id === 'area'" />
   </MapToolsCard>
 </template>

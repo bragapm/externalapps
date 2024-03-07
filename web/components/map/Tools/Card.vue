@@ -6,6 +6,8 @@ import IcDrawSquare from "~/assets/icons/ic-draw-square.svg";
 export interface Props {
   active?: boolean;
   label?: string;
+  labelCard?: string;
+  icon?: string;
   onClose?: () => void;
 }
 const props = withDefaults(defineProps<Props>(), {
@@ -20,15 +22,19 @@ const props = withDefaults(defineProps<Props>(), {
     as="div"
     :show="active"
     enter="transition-all duration-300"
-    enter-from="-bottom-8 opacity-0"
-    enter-to="bottom-0 opacity-1"
+    enter-from="-mb-10 opacity-0"
+    enter-to="mb-0 opacity-1"
     leave="transition-all duration-300"
-    leave-from="bottom-0 opacity-1"
-    leave-to="-bottom-8 opacity-0"
-    class="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-xs bg-grey-800 w-[20rem] divide-y divide-grey-200"
+    leave-from="mb-0 opacity-1"
+    leave-to="-mb-10 opacity-0"
+    class="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-xs bg-grey-800 w-[20rem] divide-y divide-grey-700"
   >
     <div class="flex items-center gap-[6px] p-2">
-      <IcDrawSquare class="w-3 h-3 text-grey-400" :fontControlled="false" />
+      <component
+        :is="icon"
+        class="w-3 h-3 text-grey-400"
+        :fontControlled="false"
+      ></component>
       <p class="flex-1 text-grey-200 text-2xs">{{ label }}</p>
       <UButton @click="onClose" size="sm" color="transparent" class="p-0">
         <IcCross class="w-2 h-2 text-grey-400 m-2" :fontControlled="false" />

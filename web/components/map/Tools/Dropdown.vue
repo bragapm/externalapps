@@ -11,8 +11,9 @@ const props = defineProps<{
   items?: {
     id: string;
     label: string;
+    labelCard?: string;
     icon?: string;
-    action?: () => void;
+    action?: (item?: any) => void;
   }[];
 }>();
 
@@ -71,7 +72,13 @@ const { expandTools } = storeToRefs(toolsStore);
         <template v-for="item in items" :key="item.id">
           <MenuItem v-slot="{ active }">
             <button
-              @click="item.action"
+              @click="
+                () => {
+                  if (item.action) {
+                    item.action(item);
+                  }
+                }
+              "
               :class="[
                 active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
