@@ -3,6 +3,9 @@ import type { MapData, GeneralSettings, AuthPayload } from "./types";
 import type { Raw } from "vue";
 import tailwindConfig from "~/tailwind.config";
 
+export const getBrandColor = (colorStep: string): string =>
+  (tailwindConfig.theme?.colors as any).brand[colorStep];
+
 export const useMapData = async () => {
   const { pending, data } = await useFetch<MapData>("/panel/items/map/eng", {
     key: "map",
@@ -33,6 +36,133 @@ export const moveHighlightLayer = (map: Map, layerName: string) => {
   map.moveLayer("highlight-fill-outline", layerAboveTarget);
 };
 
+export const addHighlightLayer = (map: Map) => {
+  map.addSource("highlight", {
+    type: "geojson",
+    data: {
+      type: "FeatureCollection",
+      features: [],
+    },
+  });
+
+  map.addLayer({
+    type: "symbol",
+    source: "highlight",
+    id: "highlight-point-pulsing",
+    layout: {
+      "icon-image": "pulsing-dot",
+    },
+    filter: ["==", "$type", "Point"],
+  });
+
+  map.addLayer({
+    type: "line",
+    source: "highlight",
+    id: "highlight-line-background",
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: {
+      "line-color": getBrandColor("500"),
+      "line-width": 6,
+      "line-opacity": 0.9,
+    },
+    filter: ["==", "$type", "LineString"],
+  });
+
+  // technique based on https://jsfiddle.net/2mws8y3q/
+  const dashArraySequence = [
+    [0, 4, 3],
+    [0.5, 4, 2.5],
+    [1, 4, 2],
+    [1.5, 4, 1.5],
+    [2, 4, 1],
+    [2.5, 4, 0.5],
+    [3, 4, 0],
+    [0, 0.5, 3, 3.5],
+    [0, 1, 3, 3],
+    [0, 1.5, 3, 2.5],
+    [0, 2, 3, 2],
+    [0, 2.5, 3, 1.5],
+    [0, 3, 3, 1],
+    [0, 3.5, 3, 0.5],
+  ];
+
+  map.addLayer({
+    type: "line",
+    source: "highlight",
+    id: "highlight-line-dashed",
+    layout: { "line-join": "round" },
+    paint: {
+      "line-color": getBrandColor("50"),
+      "line-width": 6,
+      "line-dasharray": dashArraySequence[0],
+    },
+    filter: ["==", "$type", "LineString"],
+  });
+
+  map.addLayer({
+    type: "fill",
+    source: "highlight",
+    id: "highlight-fill-background",
+    paint: {
+      "fill-color": getBrandColor("600"),
+      "fill-opacity": 0.6,
+      "fill-opacity-transition": {
+        duration: 900,
+        delay: 0,
+      },
+    } as any,
+    filter: ["==", "$type", "Polygon"],
+  });
+
+  map.addLayer({
+    type: "line",
+    source: "highlight",
+    id: "highlight-fill-outline",
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: {
+      "line-color": getBrandColor("300"),
+      "line-width": 6,
+      "line-opacity": 0.9,
+    },
+    filter: ["==", "$type", "Polygon"],
+  });
+
+  // Animate polyline
+  let step = 0;
+  function animateDashArray(timestamp: DOMHighResTimeStamp) {
+    // Update line-dasharray using the next value in dashArraySequence. The
+    // divisor in the expression `timestamp / 50` controls the animation speed.
+    const newStep = parseInt(
+      ((timestamp / 60) % dashArraySequence.length).toString()
+    );
+
+    if (newStep !== step) {
+      map.setPaintProperty(
+        "highlight-line-dashed",
+        "line-dasharray",
+        dashArraySequence[step]
+      );
+      step = newStep;
+    }
+
+    // Request the next frame of the animation.
+    requestAnimationFrame(animateDashArray);
+  }
+
+  animateDashArray(0);
+
+  // Animate polygon
+  setInterval(() => {
+    const prevVal = map.getPaintProperty(
+      "highlight-fill-background",
+      "fill-opacity"
+    );
+    if (prevVal === 0.6)
+      map.setPaintProperty("highlight-fill-background", "fill-opacity", 0);
+    else map.setPaintProperty("highlight-fill-background", "fill-opacity", 0.6);
+  }, 900);
+};
+
 export const showHighlightLayer = (
   map: Raw<Map>,
   featureList: { geom: GeoJSON.Geometry }[],
@@ -49,131 +179,7 @@ export const showHighlightLayer = (
       })),
   };
   // console.log(featureList[0].geom.type);
-
-  if (map.getSource("highlight")) {
-    (map.getSource("highlight") as GeoJSONSource).setData(newData);
-  } else {
-    map.addSource("highlight", {
-      type: "geojson",
-      data: newData,
-    });
-
-    map.addLayer({
-      type: "symbol",
-      source: "highlight",
-      id: "highlight-point-pulsing",
-      layout: {
-        "icon-image": "pulsing-dot",
-      },
-      filter: ["==", "$type", "Point"],
-    });
-
-    map.addLayer({
-      type: "line",
-      source: "highlight",
-      id: "highlight-line-background",
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
-        "line-color": (tailwindConfig.theme?.colors as any).brand["500"],
-        "line-width": 6,
-        "line-opacity": 0.9,
-      },
-      filter: ["==", "$type", "LineString"],
-    });
-
-    // technique based on https://jsfiddle.net/2mws8y3q/
-    const dashArraySequence = [
-      [0, 4, 3],
-      [0.5, 4, 2.5],
-      [1, 4, 2],
-      [1.5, 4, 1.5],
-      [2, 4, 1],
-      [2.5, 4, 0.5],
-      [3, 4, 0],
-      [0, 0.5, 3, 3.5],
-      [0, 1, 3, 3],
-      [0, 1.5, 3, 2.5],
-      [0, 2, 3, 2],
-      [0, 2.5, 3, 1.5],
-      [0, 3, 3, 1],
-      [0, 3.5, 3, 0.5],
-    ];
-    let step = 0;
-
-    map.addLayer({
-      type: "line",
-      source: "highlight",
-      id: "highlight-line-dashed",
-      layout: { "line-join": "round" },
-      paint: {
-        "line-color": (tailwindConfig.theme?.colors as any).brand["50"],
-        "line-width": 6,
-        "line-dasharray": dashArraySequence[0],
-      },
-      filter: ["==", "$type", "LineString"],
-    });
-
-    function animateDashArray(timestamp: DOMHighResTimeStamp) {
-      // Update line-dasharray using the next value in dashArraySequence. The
-      // divisor in the expression `timestamp / 50` controls the animation speed.
-      const newStep = parseInt(
-        ((timestamp / 60) % dashArraySequence.length).toString()
-      );
-
-      if (newStep !== step) {
-        map.setPaintProperty(
-          "highlight-line-dashed",
-          "line-dasharray",
-          dashArraySequence[step]
-        );
-        step = newStep;
-      }
-
-      // Request the next frame of the animation.
-      requestAnimationFrame(animateDashArray);
-    }
-    animateDashArray(0);
-
-    map.addLayer({
-      type: "fill",
-      source: "highlight",
-      id: "highlight-fill-background",
-      paint: {
-        "fill-color": (tailwindConfig.theme?.colors as any).brand["600"],
-        "fill-opacity": 0.6,
-        "fill-opacity-transition": {
-          duration: 900,
-          delay: 0,
-        },
-      } as any,
-      filter: ["==", "$type", "Polygon"],
-    });
-
-    setInterval(() => {
-      const prevVal = map.getPaintProperty(
-        "highlight-fill-background",
-        "fill-opacity"
-      );
-      if (prevVal === 0.6)
-        map.setPaintProperty("highlight-fill-background", "fill-opacity", 0);
-      else
-        map.setPaintProperty("highlight-fill-background", "fill-opacity", 0.6);
-    }, 900);
-
-    map.addLayer({
-      type: "line",
-      source: "highlight",
-      id: "highlight-fill-outline",
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
-        "line-color": (tailwindConfig.theme?.colors as any).brand["300"],
-        "line-width": 6,
-        "line-opacity": 0.9,
-      },
-      filter: ["==", "$type", "Polygon"],
-    });
-  }
-
+  (map.getSource("highlight") as GeoJSONSource).setData(newData);
   moveHighlightLayer(map, layerName);
 };
 
@@ -212,7 +218,7 @@ export const createPulsingDot = (map: Map, size: number) => ({
     context!.beginPath();
     context!.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2);
     // context!.fillStyle = "rgba(255, 100, 100, 1)";
-    context!.strokeStyle = (tailwindConfig.theme?.colors as any).brand["200"];
+    context!.strokeStyle = getBrandColor("200");
     context!.lineWidth = 2 + 4 * (1 - t);
     context!.fill();
     context!.stroke();

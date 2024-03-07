@@ -3,7 +3,7 @@ import { Map, GeolocateControl } from "maplibre-gl";
 import type { LngLatBoundsLike } from "maplibre-gl";
 import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
-import { useMapData } from "~/utils";
+import { addHighlightLayer, useMapData } from "~/utils";
 import bbox from "@turf/bbox";
 
 const { isLoading, data: mapData } = await useMapData();
@@ -52,6 +52,9 @@ onMounted(async () => {
     map.value!.addImage("pulsing-dot", createPulsingDot(map.value!, 90), {
       pixelRatio: 2,
     });
+  });
+  map.value.on("style.load", () => {
+    addHighlightLayer(map.value!);
   });
 });
 onUnmounted(() => {
