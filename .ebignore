@@ -24,6 +24,7 @@ __pycache__
 .devcontainer
 .vscode
 manager/test/
+manager/javascript/node_modules/
 
 # misc
 .DS_Store
