@@ -72,6 +72,14 @@ export default async function ({ queueId }, helpers) {
         filePath + ".png",
         { "Content-Type": "image/png" }
       );
+      if (pxRatio === 1) {
+        await minioClient.fPutObject(
+          bucketName,
+          `sprites/sprite.png`,
+          filePath + ".png",
+          { "Content-Type": "image/png" }
+        );
+      }
       logger.info(`Upload PNG ${pxRatio} Success`);
 
       await minioClient.fPutObject(
@@ -80,6 +88,14 @@ export default async function ({ queueId }, helpers) {
         filePath + ".json",
         { "Content-Type": "application/json" }
       );
+      if (pxRatio === 1) {
+        await minioClient.fPutObject(
+          bucketName,
+          `sprites/sprite.json`,
+          filePath + ".json",
+          { "Content-Type": "application/json" }
+        );
+      }
       logger.info(`Upload JSON ${pxRatio} Success`);
     }
 
