@@ -12,27 +12,10 @@ type UserMe = {
   first_name: string;
   last_name: string;
   email: string;
-  password: string;
-  location: null;
-  title: null;
-  description: null;
-  tags: null;
   avatar: string | null;
   language: null;
-  tfa_secret: null;
-  status: string;
-  role: string;
-  last_access: Date;
-  last_page: string;
-  provider: string;
-  external_identifier: null;
-  auth_data: null;
-  email_notifications: boolean;
   appearance: null;
-  theme_dark: null;
-  theme_light: null;
-  theme_light_overrides: null;
-  theme_dark_overrides: null;
+  role: { name: string };
 };
 
 const authStore = useAuth();
@@ -41,10 +24,27 @@ const { isSignedIn } = storeToRefs(authStore);
 
 const { isPending, isError, data, error } = useQuery({
   queryKey: ["todos"],
-  queryFn: () =>
-    $fetch<{ data: UserMe }>("/panel/users/me", {
-      headers: { Authorization: "Bearer " + authStore.accessToken },
-    }).then((res) => res.data),
+  queryFn: async () => {
+    const queryString = new URLSearchParams({
+      fields: [
+        "id",
+        "first_name",
+        "last_name",
+        "email",
+        "avatar",
+        "language",
+        "appearance",
+        "role.name",
+      ].join(","),
+    });
+    const res = await $fetch<{ data: UserMe }>(
+      "/panel/users/me?" + queryString,
+      {
+        headers: { Authorization: "Bearer " + authStore.accessToken },
+      }
+    );
+    return res.data;
+  },
   enabled: isSignedIn,
 });
 </script>
@@ -91,7 +91,7 @@ const { isPending, isError, data, error } = useQuery({
                 {{ isSignedIn && data ? data.email : "Published Map" }}
               </h5>
               <p class="text-sm font-normal text-grey-500">
-                {{ isSignedIn && data ? data.role : "Public Access" }}
+                {{ isSignedIn && data ? data.role.name : "Public Access" }}
               </p>
             </article>
             <div
