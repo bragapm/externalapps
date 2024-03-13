@@ -16,7 +16,6 @@ const props = defineProps<{
 }>();
 
 const isSaturationMouseDown = ref(false);
-const isHueMouseDown = ref(false);
 
 const selectedColor = ref(props.color);
 const parsedColor = computed(() => parseColor(selectedColor.value));
@@ -32,21 +31,6 @@ const onSaturationChange = (event: any) => {
   const v = 100 - (y / height) * 100;
 
   const rgb = hsvToRgb({ h: parsedColor.value?.hsv.h, s, v });
-  selectedColor.value = rgbToHex(rgb);
-  props.updateColor(selectedColor.value);
-};
-
-const onHueChange = (event: any) => {
-  const { width, left } = event.target.getBoundingClientRect();
-  const x = clamp(event.clientX - left, 0, width);
-  const h = Math.round((x / width) * 360);
-
-  const hsv = {
-    h,
-    s: parsedColor.value?.hsv.s,
-    v: parsedColor.value?.hsv.v,
-  };
-  const rgb = hsvToRgb(hsv);
   selectedColor.value = rgbToHex(rgb);
   props.updateColor(selectedColor.value);
 };
@@ -85,12 +69,15 @@ const handleRgbChange = (component: "r" | "g" | "b", value: number) => {
     switch (component) {
       case "r":
         selectedColor.value = rgbToHex({ r: value ?? 0, g, b });
+        props.updateColor(selectedColor.value);
         return;
       case "g":
         selectedColor.value = rgbToHex({ r, g: value ?? 0, b });
+        props.updateColor(selectedColor.value);
         return;
       case "b":
         selectedColor.value = rgbToHex({ r, g, b: value ?? 0 });
+        props.updateColor(selectedColor.value);
         return;
       default:
         return;
@@ -105,16 +92,68 @@ const handleHsvChange = (component: "h" | "s" | "v", value: number) => {
     switch (component) {
       case "h":
         selectedColor.value = rgbToHex(hsvToRgb({ h: value ?? 0, s, v }));
+        props.updateColor(selectedColor.value);
         return;
       case "s":
         selectedColor.value = rgbToHex(hsvToRgb({ h: value ?? 0, s, v }));
+        props.updateColor(selectedColor.value);
         return;
       case "v":
         selectedColor.value = rgbToHex(hsvToRgb({ h: value ?? 0, s, v }));
+        props.updateColor(selectedColor.value);
         return;
       default:
         return;
     }
+  }
+};
+
+const thumbSlide = (e: MouseEvent) => {
+  e.preventDefault();
+
+  let shiftX =
+    e.clientX - document.getElementById("thumb")?.getBoundingClientRect().left!;
+
+  document.addEventListener("mousemove", onMouseMove);
+  document.addEventListener("mouseup", onMouseUp);
+
+  function onMouseMove(event: MouseEvent) {
+    let newLeft =
+      event.clientX -
+      shiftX -
+      document.getElementById("slider")?.getBoundingClientRect().left!;
+    let rightEdge =
+      document.getElementById("slider")?.offsetWidth! -
+      document.getElementById("thumb")?.offsetWidth!;
+
+    // the pointer is out of slider => lock the thumb within the bounaries
+    if (newLeft < 0) {
+      newLeft = 0;
+    } else if (newLeft > rightEdge) {
+      newLeft = rightEdge;
+    }
+
+    // document.getElementById("thumb")!.style.left = newLeft + "px";
+
+    const x = clamp(newLeft, 0, rightEdge);
+
+    const h = Math.round((x / rightEdge) * 360);
+
+    if (h !== 360) {
+      const hsv = {
+        h,
+        s: parsedColor.value?.hsv.s,
+        v: parsedColor.value?.hsv.v,
+      };
+      const rgb = hsvToRgb(hsv);
+      selectedColor.value = rgbToHex(rgb);
+      props.updateColor(selectedColor.value);
+    }
+  }
+
+  function onMouseUp() {
+    document.removeEventListener("mouseup", onMouseUp);
+    document.removeEventListener("mousemove", onMouseMove);
   }
 };
 </script>
@@ -166,6 +205,7 @@ const handleHsvChange = (component: "h" | "s" | "v", value: number) => {
       <div class="flex items-center gap-2">
         <div class="relative w-full">
           <div
+            id="slider"
             class="relative rounded-full w-full h-1"
             :style="{
               backgroundImage: `linear-gradient(
@@ -181,34 +221,32 @@ const handleHsvChange = (component: "h" | "s" | "v", value: number) => {
             }"
           >
             <div
-              class="absolute w-2 h-2 -translate-x-1 -translate-y-[2px] rounded-full bg-grey-400"
+              @mousedown="
+                (event:MouseEvent) => {
+                  thumbSlide(event)
+           
+                }
+              "
+              @dragstart="
+                () => {
+                  return false;
+                }
+              "
+              id="thumb"
+              class="absolute w-3 h-3 -translate-y-[4px] rounded-full bg-grey-400"
               :style="{
                 left: (hueCoords ?? 0) + '%',
               }"
             />
           </div>
-          <div
+          <!-- <div
             @mousedown="
               (e) => {
-                isHueMouseDown = true;
-                onHueChange(e);
-              }
-            "
-            @mousemove="
-              (e) => {
-                if (isHueMouseDown) {
-                  onHueChange(e);
-                }
-              }
-            "
-            @mouseup="
-              (e) => {
-                isHueMouseDown = false;
-                onHueChange(e);
+                thumbSlide(e);
               }
             "
             class="w-full h-full absolute top-0 left-0"
-          ></div>
+          ></div> -->
         </div>
         <button
           class="flex gap-2 items-center bg-grey-700 p-2 border rounded-xxs border-grey-600"
@@ -234,6 +272,7 @@ const handleHsvChange = (component: "h" | "s" | "v", value: number) => {
         @input="
           (e:Event) => {
             selectedColor = (e.target as HTMLInputElement).value;
+            updateColor(selectedColor);
           }
         "
         class="col-span-3"
@@ -245,7 +284,7 @@ const handleHsvChange = (component: "h" | "s" | "v", value: number) => {
           color="gray"
           :ui="{ rounded: 'rounded-xxs' }"
           placeholder="Filter"
-          @input="
+          @blur="
             (e:Event) => {
               handleRgbChange('r',parseFloat((e.target as HTMLInputElement).value))
             }
@@ -258,7 +297,7 @@ const handleHsvChange = (component: "h" | "s" | "v", value: number) => {
           color="gray"
           :ui="{ rounded: 'rounded-xxs' }"
           placeholder="Filter"
-          @input="
+          @blur="
             (e:Event) => {
               handleRgbChange('g',parseFloat((e.target as HTMLInputElement).value))
             }
@@ -271,7 +310,7 @@ const handleHsvChange = (component: "h" | "s" | "v", value: number) => {
           color="gray"
           :ui="{ rounded: 'rounded-xxs' }"
           placeholder="Filter"
-          @input="
+          @blur="
             (e:Event) => {
               handleRgbChange('b',parseFloat((e.target as HTMLInputElement).value))
             }
