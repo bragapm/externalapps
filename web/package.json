@@ -34,6 +34,7 @@
     "@tanstack/vue-query": "^5.24.1",
     "@turf/area": "^6.5.0",
     "@turf/bbox": "^6.5.0",
+    "@turf/helpers": "^6.5.0",
     "@turf/length": "^6.5.0",
     "deck.gl": "^8.8.27",
     "keen-slider": "^6.8.6",

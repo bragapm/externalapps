@@ -1,17 +1,28 @@
 <script lang="ts" setup>
-import type { Feature, GeoJsonProperties, Geometry } from "geojson";
 import { useDrawControl } from "~/utils/useDrawControl";
 import area from "@turf/area";
+import { convertArea } from "@turf/helpers";
 
 const areaCount = ref<number>(0);
+const areaUnit = ref<string>("m");
 
 const { drawer } = useDrawControl({
   mode: "draw_polygon",
   onCreated: (feature) => {
-    areaCount.value = parseFloat(area(feature).toFixed(2));
+    areaCount.value =
+      areaUnit.value === "m"
+        ? parseFloat(area(feature).toFixed(2))
+        : parseFloat(
+            convertArea(area(feature), "meters", "kilometers").toFixed(2)
+          );
   },
   onUpdated: (feature) => {
-    areaCount.value = parseFloat(area(feature).toFixed(2));
+    areaCount.value =
+      areaUnit.value === "m"
+        ? parseFloat(area(feature).toFixed(2))
+        : parseFloat(
+            convertArea(area(feature), "meters", "kilometers").toFixed(2)
+          );
   },
 });
 
@@ -29,6 +40,7 @@ const handleReset = () => {
     </p>
     <div class="flex gap-1">
       <UInput
+        v-model="areaCount"
         readonly
         color="gray"
         :ui="{ rounded: 'rounded-xxs' }"
@@ -38,13 +50,21 @@ const handleReset = () => {
       >
         <template #trailing>
           <span class="text-gray-500 dark:text-gray-400 text-xs"
-            >Area Result (m<span><sup>2</sup></span
+            >Area Result ({{ areaUnit }}<span><sup>2</sup></span
             >)</span
           >
         </template>
       </UInput>
       <UButton
-        color="grey"
+        @click="
+          () => {
+            if (areaUnit === 'km') {
+              areaCount = parseFloat((areaCount * 1000000).toFixed(2));
+              areaUnit = 'm';
+            }
+          }
+        "
+        :color="areaUnit === 'm' ? 'brand' : 'grey'"
         variant="outline"
         :ui="{ rounded: 'rounded-[4px]' }"
         class="text-2xs p-1 gap-0"
@@ -52,7 +72,15 @@ const handleReset = () => {
         Meter<sup>2</sup>
       </UButton>
       <UButton
-        color="grey"
+        @click="
+          () => {
+            if (areaUnit === 'm') {
+              areaCount = parseFloat((areaCount / 1000000).toFixed(2));
+              areaUnit = 'km';
+            }
+          }
+        "
+        :color="areaUnit === 'km' ? 'brand' : 'grey'"
         variant="outline"
         :ui="{ rounded: 'rounded-[4px]' }"
         class="text-2xs p-1 gap-0"

@@ -1,22 +1,26 @@
 <script lang="ts" setup>
 import { useDrawControl } from "~/utils/useDrawControl";
+import { addHighlightLayer } from "~/utils";
 import length from "@turf/length";
 
+const store = useMapRef();
+
 const lengthCount = ref<number>(0);
+const lengthUnit = ref<string>("m");
 
 const { drawer } = useDrawControl({
   mode: "draw_line_string",
   onCreated: (feature) => {
     lengthCount.value = parseFloat(
       length(feature, {
-        units: "meters",
+        units: lengthUnit.value === "m" ? "meters" : "kilometers",
       }).toFixed(2)
     );
   },
   onUpdated: (feature) => {
     lengthCount.value = parseFloat(
       length(feature, {
-        units: "meters",
+        units: lengthUnit.value === "m" ? "meters" : "kilometers",
       }).toFixed(2)
     );
   },
@@ -45,12 +49,20 @@ const handleReset = () => {
       >
         <template #trailing>
           <span class="text-gray-500 dark:text-gray-400 text-xs"
-            >Distance Result (m)</span
+            >Distance Result ({{ lengthUnit }})</span
           >
         </template>
       </UInput>
       <UButton
-        color="grey"
+        @click="
+          () => {
+            if (lengthUnit === 'km') {
+              lengthCount = parseFloat((lengthCount * 1000).toFixed(2));
+              lengthUnit = 'm';
+            }
+          }
+        "
+        :color="lengthUnit === 'm' ? 'brand' : 'grey'"
         variant="outline"
         :ui="{ rounded: 'rounded-[4px]' }"
         class="text-2xs p-1 gap-0"
@@ -58,7 +70,15 @@ const handleReset = () => {
         Meter
       </UButton>
       <UButton
-        color="grey"
+        @click="
+          () => {
+            if (lengthUnit === 'm') {
+              lengthCount = parseFloat((lengthCount / 1000).toFixed(2));
+              lengthUnit = 'km';
+            }
+          }
+        "
+        :color="lengthUnit === 'km' ? 'brand' : 'grey'"
         variant="outline"
         :ui="{ rounded: 'rounded-[4px]' }"
         class="text-2xs p-1 gap-0"
