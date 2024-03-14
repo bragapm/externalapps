@@ -4,6 +4,7 @@ import MapboxDraw, {
 } from "@mapbox/mapbox-gl-draw";
 import type { Feature, GeoJsonProperties, Geometry } from "geojson";
 import type { Raw } from "vue";
+import glDrawStyles from "~/constants/glDrawStyles";
 
 type DrawControl = {
   mode: string;
@@ -37,7 +38,7 @@ export const useDrawControl = ({ mode, onCreated, onUpdated }: DrawControl) => {
         displayControlsDefault: false,
         keybindings: true,
         touchEnabled: true,
-        // styles: drawStyles,
+        styles: glDrawStyles,
       })
     );
 
