@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/vue-query";
 import IcCross from "~/assets/icons/ic-cross.svg";
 import IcDownload from "~/assets/icons/ic-download.svg";
 import IcExpand from "~/assets/icons/ic-expand.svg";
@@ -13,7 +13,6 @@ const selected = ref([]);
 const selectedIds = ref<string[]>([]);
 const highlightedIds = ref<string[]>([]);
 const page = ref(1);
-const pageCount = ref(10);
 
 const { data: headerData, refetch: refetchHeader } = useQuery({
   queryKey: [`/panel/fields/${store.activeCollection}`],
@@ -46,40 +45,34 @@ const columns = computed<
 });
 
 const {
+  data: tableData,
+  error,
+  fetchNextPage,
   isLoading,
   isError,
   isFetching,
-  data: tableData,
-  error,
-  refetch: refetchData,
-} = useQuery({
-  queryKey: [
-    `/panel/items/${store.activeCollection}?`,
-    pageCount.value.toString(),
-    page.value.toString(),
-  ],
-  queryFn: ({ queryKey }) =>
-    $fetch<{ data: any; meta: any }>(
-      queryKey[0] +
-        new URLSearchParams({
-          limit: pageCount.value.toString(),
-          offset: ((page.value - 1) * pageCount.value).toString(),
-          meta: "filter_count",
-        })
-    ),
-});
+} = useInfiniteQuery({
+  queryKey: [`/panel/items/${store.activeCollection}?`],
+  queryFn: async ({ pageParam = 0 }) => {
+    const queryParams: Record<string, string> = {
+      limit: "25",
+      page: pageParam.toString(),
+      meta: "filter_count",
+    };
+    if (pageParam) {
+      delete queryParams.meta;
+    }
 
-watchEffect(() => {
-  if (page.value) {
-    refetchData();
-  }
+    return $fetch<{ data: any; meta: any }>(
+      `/panel/items/${store.activeCollection}?` +
+        new URLSearchParams(queryParams)
+    );
+  },
+  initialPageParam: 0,
+  getNextPageParam: (_, pages) => pages.length + 1,
 });
 
 const isAllChecked = ref(false);
-
-watchEffect(() => {
-  console.log(tableData);
-});
 
 const onRowSelect = (fid: string | number, _: boolean) => {
   if (selectedIds.value.includes(fid as string))
@@ -187,7 +180,7 @@ const onRowSelect = (fid: string | number, _: boolean) => {
       <UPagination
         class="flex justify-end py-3"
         v-model="page"
-        :page-count="pageCount"
+        :page-count="25"
         :total="tableData?.meta.filter_count"
         :active-button="{ variant: 'paginationActive' }"
         :inactive-button="{ variant: 'paginationInactive' }"
@@ -234,35 +227,51 @@ const onRowSelect = (fid: string | number, _: boolean) => {
           <p class="line-clamp-2">{{ column.label }}</p>
         </div>
       </header>
-      <section v-if="tableData?.data.length">
-        <div
-          class="flex w-full"
-          v-for="rowData in tableData.data"
-          :key="rowData.ogc_fid"
-        >
-          <div class="h-18 w-14 flex items-center justify-center">
-            <CoreCheckbox
-              id="id-checkbox"
-              :index="rowData.ogc_fid"
-              :is-checked="
-                isAllChecked || selectedIds.includes(rowData.ogc_fid)
-              "
-              :forHeader="true"
-              @on-change="onRowSelect"
-            />
-          </div>
+      <section v-if="tableData?.pages.length">
+        <div v-for="tableRows in tableData.pages">
           <div
-            v-for="column in columns"
-            :key="column.key"
-            class="h-18 flex-1 min-w-[10rem] text-grey-400 flex items-center text-xs font-normal px-3 py-4"
+            class="flex w-full"
+            v-for="rowData in tableRows.data"
+            :key="rowData.ogc_fid"
           >
-            <p class="line-clamp-2">{{ rowData[column.key] }}</p>
+            <div class="h-[4.5rem] w-14 flex items-center justify-center">
+              <CoreCheckbox
+                id="id-checkbox"
+                :index="rowData.ogc_fid"
+                :is-checked="
+                  isAllChecked || selectedIds.includes(rowData.ogc_fid)
+                "
+                :forHeader="true"
+                @on-change="onRowSelect"
+              />
+            </div>
+            <div
+              v-for="column in columns"
+              :key="column.key"
+              class="h-[4.5rem] flex-1 min-w-[10rem] text-grey-400 flex items-center text-xs font-normal px-3 py-4"
+            >
+              <p class="line-clamp-2">{{ rowData[column.key] }}</p>
+            </div>
           </div>
         </div>
-        <button class="w-full bg-brand-400 rounded-xs my-2 py-2 text-white">
-          <p class="text-xs">Load More</p>
-        </button>
+
+        <div class="flex w-full justify-center items-center mb-2">
+          <button
+            @click="() => fetchNextPage()"
+            class="w-1/3 bg-brand-600 mt-2 h-9 text-white text-center rounded-xxs text-xs border border-grey-50"
+          >
+            Load More
+          </button>
+        </div>
       </section>
+      <span
+        class="absolute rounded-xxs border border-grey-600 bottom-8 left-8 w-1/4 bg-grey-800 h-9 text-grey-400 flex justify-center items-center text-xs"
+        >0 row selected</span
+      >
+      <span
+        class="absolute rounded-xxs border border-grey-600 bottom-8 right-8 w-1/4 bg-grey-800 h-9 text-grey-400 flex justify-center items-center text-xs"
+        >from {{ tableData?.pages[0].meta.filter_count }} rows</span
+      >
     </section>
   </div>
 </template>
