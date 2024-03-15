@@ -102,6 +102,9 @@ const handleCloseToolsCard = () => {
             id: 'find_coordinate',
             label: 'Find Coordinate',
             icon: IcDrawFree,
+            action: (item) => {
+              handleOpenToolsCard(item);
+            },
           },
           {
             id: 'administrative_area',
@@ -168,5 +171,6 @@ const handleCloseToolsCard = () => {
   >
     <MapToolsLength v-if="activeTools?.id === 'length'" />
     <MapToolsArea v-else-if="activeTools?.id === 'area'" />
+    <MapToolsFindCoordinate v-else-if="activeTools?.id === 'find_coordinate'" />
   </MapToolsCard>
 </template>
