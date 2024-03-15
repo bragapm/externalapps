@@ -1,55 +1,151 @@
 <script setup lang="ts">
 import { MenuItem } from "@headlessui/vue";
+import type { RasterTileSource, StyleSpecification } from "maplibre-gl";
+import { mapApiKey } from "~/constants";
+
+type Basemap = {
+  name: string;
+  url: string;
+  thumbnailUrl: string;
+  type: string;
+};
 
 const store = useMapRef();
 const { data: generalSettingsData } = await useGeneralSettings();
 const { currentBasemap, setCurrentBaseMap, map, mapLoad } = store;
+const mapLayerStore = useMapLayer();
+const basemapList = ref<null | Basemap[]>(null);
+function isImgUrl(url: string) {
+  const img = new Image();
+  img.src = url;
+  return new Promise((resolve) => {
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+  });
+}
 
-const basemaps = computed(() => {
+watchEffect(async () => {
   const basemaps = [
     {
       name: "Maptiler Satellite",
-      url: "https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=D7JUUxLv3oK21JM9jscD",
+      url: `https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${mapApiKey}`,
+      thumbnailUrl: `https://api.maptiler.com/tiles/satellite-v2/0/0/0.jpg?key=${mapApiKey}`,
+      type: "raster",
     },
   ];
   if (Array.isArray(generalSettingsData.value?.data.basemaps)) {
     for (const basemap of generalSettingsData.value.data.basemaps) {
-      basemaps.push({ name: basemap.name, url: basemap.url });
+      let item: Record<string, string> = {
+        name: basemap.name,
+        url: basemap.url,
+        type: basemap.type,
+      };
+      if (basemap.type === "raster") {
+        item["thumbnailUrl"] = basemap.url
+          .replace("{z}", "0")
+          .replace("{x}", "0")
+          .replace("{y}", "0");
+      } else if (basemap.type === "tile") {
+        const check = await isImgUrl(
+          basemap.url.replace("tiles.json", "0/0/0.png")
+        );
+        if (check) {
+          item["thumbnailUrl"] = basemap.url.replace("tiles.json", "0/0/0.png");
+        } else {
+          item["thumbnailUrl"] = basemap.url.replace("tiles.json", "0/0/0.jpg");
+        }
+      } else {
+        const check = await isImgUrl(
+          basemap.url.replace("style.json", "0/0/0.png")
+        );
+        if (check) {
+          item["thumbnailUrl"] = basemap.url.replace("style.json", "0/0/0.png");
+        } else {
+          item["thumbnailUrl"] = basemap.url.replace("style.json", "0/0/0.jpg");
+        }
+      }
+      basemaps.push(item as Basemap);
     }
   }
-  return basemaps;
+  basemapList.value = basemaps;
 });
 
-const handleChangeBasemap = (name: string) => {
+const refreshActiveLayer = () => {
+  setTimeout(() => {
+    let current = JSON.parse(JSON.stringify(mapLayerStore.groupedActiveLayers));
+    mapLayerStore.groupedActiveLayers = [...current];
+  }, 500);
+};
+
+const handleChangeBasemap = async (name: string, url: string, type: string) => {
   if (map && mapLoad) {
-    if (currentBasemap === "default") {
-      map.setLayoutProperty("Satellite", "visibility", "none");
-      map.setLayoutProperty("Satellite Mediumres 2021", "visibility", "none");
+    if (type === "raster") {
+      map.setStyle({
+        version: 8,
+        sprite: window.location.origin + "/panel/sprites/sprite",
+        glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${mapApiKey}`,
+        sources: {
+          "basemap-sources": {
+            type: "raster",
+            tiles: [url],
+            tileSize: 256,
+          },
+        },
+        layers: [
+          {
+            id: "basemap-tiles",
+            type: "raster",
+            source: "basemap-sources",
+            minzoom: 0,
+            maxzoom: 22,
+          },
+        ],
+      });
+      refreshActiveLayer();
+    } else if (type === "tile") {
+      const tile: RasterTileSource = await $fetch(url);
+      const style: StyleSpecification = {
+        version: 8,
+        sprite: window.location.origin + "/panel/sprites/sprite",
+        glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${mapApiKey}`,
+        sources: {
+          "basemap-sources": {
+            type: "raster",
+            tiles: tile.tiles,
+            tileSize: 256,
+          },
+        },
+        layers: [
+          {
+            id: "basemap-tiles",
+            type: "raster",
+            source: "basemap-sources",
+            minzoom: 0,
+            maxzoom: 22,
+          },
+        ],
+      };
+      map.setStyle(style);
+      refreshActiveLayer();
     } else {
-      map.setLayoutProperty(currentBasemap, "visibility", "none");
+      map.setStyle(url);
+      refreshActiveLayer();
     }
-    if (name === "Maptiler Satellite") {
-      map.setLayoutProperty("Satellite", "visibility", "visible");
-      map.setLayoutProperty(
-        "Satellite Mediumres 2021",
-        "visibility",
-        "visible"
-      );
-      setCurrentBaseMap("default");
-    } else {
-      map.setLayoutProperty(`__geodashboard_basemap-${name}`, "visibility", "visible");
-      setCurrentBaseMap(`__geodashboard_basemap-${name}`);
-    }
+    setCurrentBaseMap(name);
   }
 };
 </script>
 
 <template>
-  <div v-for="basemap in basemaps" :key="basemap.name">
-    <MenuItem v-slot="{ active }" @click="handleChangeBasemap(basemap.name)">
+  <div v-for="basemap in basemapList" :key="basemap.name">
+    <MenuItem
+      v-slot="{ active }"
+      @click="handleChangeBasemap(basemap.name, basemap.url, basemap.type)"
+    >
       <button
         :class="[
           active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
+          currentBasemap === basemap.name && 'bg-grey-700',
           'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
         ]"
       >
@@ -57,12 +153,7 @@ const handleChangeBasemap = (name: string) => {
           width="64px"
           height="64px"
           class="rounded-xxs"
-          :src="
-            basemap.url
-              .replace('{z}', '0')
-              .replace('{x}', '0')
-              .replace('{y}', '0')
-          "
+          :src="basemap.thumbnailUrl"
         />
         {{ basemap.name }}
       </button>

@@ -7,7 +7,7 @@ export const useMapRef = defineStore("mapref", () => {
   const map = ref<null | Raw<Map>>(null);
   const ctrl = ref<null | any>(null);
   const geolocateRef = ref<null | Raw<GeolocateControl>>(null);
-  const currentBasemap = ref("default");
+  const currentBasemap = ref("Maptiler Satellite");
   function setMapLoad(value: boolean) {
     mapLoad.value = value;
   }

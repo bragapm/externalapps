@@ -3,8 +3,9 @@ import { Map, GeolocateControl } from "maplibre-gl";
 import type { LngLatBoundsLike, StyleSpecification } from "maplibre-gl";
 import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
-import { addHighlightLayer, useMapData } from "~/utils";
+import { useMapData } from "~/utils";
 import bbox from "@turf/bbox";
+import { mapApiKey } from "~/constants";
 
 const { isLoading, data: mapData } = await useMapData();
 
@@ -13,35 +14,33 @@ const map = shallowRef<null | Raw<Map>>(null);
 const geolocate = shallowRef<null | Raw<GeolocateControl>>(null);
 const store = useMapRef();
 const { setMapLoad, setMapRef, setGeolocateRef } = store;
-const { data: generalSettingsData } = await useGeneralSettings();
 
 //map init
 onMounted(async () => {
   setMapLoad(false);
-  const apiKey = "D7JUUxLv3oK21JM9jscD";
-  const style: StyleSpecification = await $fetch(
-    `https://api.maptiler.com/maps/satellite/style.json?key=${apiKey}`
-  );
-  style.sprite = window.location.origin + "/panel/sprites/sprite";
-
-  if (Array.isArray(generalSettingsData.value?.data.basemaps)) {
-    for (const basemap of generalSettingsData.value.data.basemaps) {
-      if (basemap.type === "raster") {
-        const name = `__geodashboard_basemap-${basemap.name}`;
-        style.sources[name] = {
-          type: "raster",
-          tiles: [basemap.url],
-          tileSize: basemap.tileSize ?? 512,
-        };
-        style.layers.push({
-          id: name,
-          type: "raster",
-          source: name,
-          layout: { visibility: "none" },
-        });
-      }
-    }
-  }
+  const style: StyleSpecification = {
+    version: 8,
+    sprite: window.location.origin + "/panel/sprites/sprite",
+    glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${mapApiKey}`,
+    sources: {
+      "basemap-sources": {
+        type: "raster",
+        tiles: [
+          `https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=${mapApiKey}`,
+        ],
+        tileSize: 256,
+      },
+    },
+    layers: [
+      {
+        id: "basemap-tiles",
+        type: "raster",
+        source: "basemap-sources",
+        minzoom: 0,
+        maxzoom: 24,
+      },
+    ],
+  };
 
   map.value = markRaw(
     new Map({
@@ -73,9 +72,6 @@ onMounted(async () => {
       pixelRatio: 2,
     });
   });
-  map.value.on("style.load", () => {
-    addHighlightLayer(map.value!);
-  });
 });
 onUnmounted(() => {
   setMapLoad(false);
@@ -99,7 +95,6 @@ fetchActiveLayers();
     /></a> -->
     <div class="map" ref="mapContainer"></div>
     <MapLayer v-if="store.mapLoad" />
-    <!-- <MapMvtLayer :mapRef="map" v-if="store.mapLoad" /> -->
     <MapPopup />
   </div>
 </template>

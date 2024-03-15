@@ -178,9 +178,13 @@ export const showHighlightLayer = (
         geometry: geom,
       })),
   };
+  if (map.getSource("highlight")) {
+    (map.getSource("highlight") as GeoJSONSource).setData(newData);
+    moveHighlightLayer(map, layerName);
+  } else {
+    addHighlightLayer(map);
+  }
   // console.log(featureList[0].geom.type);
-  (map.getSource("highlight") as GeoJSONSource).setData(newData);
-  moveHighlightLayer(map, layerName);
 };
 
 export const createPulsingDot = (map: Map, size: number) => ({
