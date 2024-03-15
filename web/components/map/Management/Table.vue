@@ -9,170 +9,40 @@ import IcSort from "~/assets/icons/ic-sort.svg";
 const store = useTableData();
 const { toggleTable, toggleFullscreen } = store;
 
-// const columns = [
-//   {
-//     key: "name",
-//     label: "Name",
-//   },
-//   {
-//     key: "address",
-//     label: "address",
-//   },
-//   // {
-//   //   key: "email",
-//   //   label: "Email",
-//   // },
-//   // {
-//   //   key: "role",
-//   //   label: "Role",
-//   // },
-//   // {
-//   //   key: "actions",
-//   // },
-// ];
-
-// const dummyData = [
-//   {
-//     id: 1,
-//     name: "Lindsay Walton",
-//     title: "Front-end Developer",
-//     email: "lindsay.walton@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 2,
-//     name: "Courtney Henry",
-//     title: "Designer",
-//     email: "courtney.henry@example.com",
-//     role: "Admin",
-//   },
-//   {
-//     id: 3,
-//     name: "Tom Cook",
-//     title: "Director of Product",
-//     email: "tom.cook@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 4,
-//     name: "Whitney Francis",
-//     title: "Copywriter",
-//     email: "whitney.francis@example.com",
-//     role: "Admin",
-//   },
-//   {
-//     id: 5,
-//     name: "Leonard Krasner",
-//     title: "Senior Designer",
-//     email: "leonard.krasner@example.com",
-//     role: "Owner",
-//   },
-//   {
-//     id: 6,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 7,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 8,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 9,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 10,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 11,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 12,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 13,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 14,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 15,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 16,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-//   {
-//     id: 17,
-//     name: "Floyd Miles",
-//     title: "Principal Designer",
-//     email: "floyd.miles@example.com",
-//     role: "Member",
-//   },
-// ];
-
 const selected = ref([]);
-
+const selectedIds = ref<string[]>([]);
+const highlightedIds = ref<string[]>([]);
 const page = ref(1);
 const pageCount = ref(10);
 
-// const rows = computed(() => {
-//   return dummyData.slice((page.value - 1) * pageCount.value, page.value * pageCount.value);
-// });
-
-/////
-const columns = ref([]);
-
-const fetcher = async (url: string, searchParams?: any): Promise<any> =>
-  await fetch(`${url}${searchParams ? "?" + searchParams : ""}`).then(
-    (response) => response.json()
-  );
-
 const { data: headerData, refetch: refetchHeader } = useQuery({
   queryKey: [`/panel/fields/${store.activeCollection}`],
-  queryFn: ({ queryKey }) => fetcher(queryKey[0]),
+  queryFn: ({ queryKey }) =>
+    $fetch<{ data: any }>(queryKey[0]).then((r) => r.data),
+});
+
+const columns = computed<
+  {
+    key: string;
+    label: string;
+    is_primary_key: boolean;
+    type: string;
+  }[]
+>(() => {
+  if (headerData.value) {
+    const currentColumns = headerData.value.map((el: any) => {
+      return {
+        key: el.field,
+        label: capitalizeEachWords(el.field),
+        is_primary_key: el.schema.is_primary_key,
+        type: el.type,
+      };
+    });
+
+    return currentColumns.filter(
+      (el: any) => !el.is_primary_key && el.type !== "geometry"
+    );
+  } else return [];
 });
 
 const {
@@ -184,18 +54,18 @@ const {
   refetch: refetchData,
 } = useQuery({
   queryKey: [
-    `/panel/items/${store.activeCollection}`,
+    `/panel/items/${store.activeCollection}?`,
     pageCount.value.toString(),
     page.value.toString(),
   ],
   queryFn: ({ queryKey }) =>
-    fetcher(
-      queryKey[0],
-      new URLSearchParams({
-        limit: pageCount.value.toString(),
-        offset: ((page.value - 1) * pageCount.value).toString(),
-        meta: "filter_count",
-      })
+    $fetch<{ data: any; meta: any }>(
+      queryKey[0] +
+        new URLSearchParams({
+          limit: pageCount.value.toString(),
+          offset: ((page.value - 1) * pageCount.value).toString(),
+          meta: "filter_count",
+        })
     ),
 });
 
@@ -205,22 +75,17 @@ watchEffect(() => {
   }
 });
 
-watchEffect(() => {
-  if (headerData.value) {
-    const currentColumns = headerData.value.data.map((el: any) => {
-      return {
-        key: el.field,
-        label: capitalizeEachWords(el.field),
-        is_primary_key: el.schema.is_primary_key,
-        type: el.type,
-      };
-    });
+const isAllChecked = ref(false);
 
-    columns.value = currentColumns.filter(
-      (el: any) => !el.is_primary_key && el.type !== "geometry"
-    );
-  }
+watchEffect(() => {
+  console.log(tableData);
 });
+
+const onRowSelect = (fid: string | number, _: boolean) => {
+  if (selectedIds.value.includes(fid as string))
+    selectedIds.value = selectedIds.value.filter((e) => e !== fid);
+  else selectedIds.value = [...selectedIds.value, fid as string];
+};
 </script>
 
 <template>
@@ -291,7 +156,8 @@ watchEffect(() => {
         </button>
       </div>
     </div>
-    <div class="h-[calc(100%-5.5rem)] flex flex-col gap-2">
+    <!-- Old Table -->
+    <!-- <section class="h-[calc(100%-5.5rem)] flex flex-col gap-2">
       <UTable
         v-model="selected"
         :rows="tableData?.data"
@@ -317,49 +183,86 @@ watchEffect(() => {
           },
         }"
       >
-        <!-- <template #name-data="{ row }">
-          <span
-            :class="[
-              selected.find((person) => person.id === row.id) &&
-                'text-primary-500 dark:text-primary-400',
-            ]"
-            >{{ row.name }}</span
-          >
-        </template> -->
-
-        <!-- <template #actions-data="{ row }">
-          <UDropdown :items="items(row)">
-            <UButton
-              color="gray"
-              variant="ghost"
-              icon="i-heroicons-ellipsis-horizontal-20-solid"
-            />
-          </UDropdown>
-        </template> -->
       </UTable>
-      <div class="flex justify-end py-3">
-        <UPagination
-          v-model="page"
-          :page-count="pageCount"
-          :total="tableData?.meta.filter_count"
-          :active-button="{ variant: 'paginationActive' }"
-          :inactive-button="{ variant: 'paginationInactive' }"
-          :prev-button="{ variant: 'paginationInactive' }"
-          :next-button="{ variant: 'paginationInactive' }"
-          :first-button="{
-            variant: 'paginationInactive',
-          }"
-          :last-button="{
-            variant: 'paginationInactive',
-          }"
-          show-first
-          show-last
-          :ui="{
-            wrapper: 'gap-2',
-            rounded: 'first:rounded-s-xxs last:rounded-e-xxs',
-          }"
-        />
-      </div>
-    </div>
+      <UPagination
+        class="flex justify-end py-3"
+        v-model="page"
+        :page-count="pageCount"
+        :total="tableData?.meta.filter_count"
+        :active-button="{ variant: 'paginationActive' }"
+        :inactive-button="{ variant: 'paginationInactive' }"
+        :prev-button="{ variant: 'paginationInactive' }"
+        :next-button="{ variant: 'paginationInactive' }"
+        :first-button="{
+          variant: 'paginationInactive',
+        }"
+        :last-button="{
+          variant: 'paginationInactive',
+        }"
+        show-first
+        show-last
+        :ui="{
+          wrapper: 'gap-2',
+          rounded: 'first:rounded-s-xxs last:rounded-e-xxs',
+        }"
+      />
+    </section> -->
+
+    <!-- New Table -->
+    <section
+      class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-grey-700 w-full overflow-scroll"
+    >
+      <header class="flex w-full">
+        <div class="bg-grey-800 h-14 w-14 flex items-center justify-center">
+          <CoreCheckbox
+            id="all-checkbox"
+            :index="0"
+            :is-checked="isAllChecked"
+            :forHeader="true"
+            @on-change="
+              (_, newValue) => {
+                isAllChecked = newValue;
+              }
+            "
+          />
+        </div>
+        <div
+          v-for="column in columns"
+          :key="column.key"
+          class="bg-grey-800 h-14 flex-1 min-w-[10rem] text-grey-50 flex items-center text-xs font-medium px-3 py-4"
+        >
+          <p class="line-clamp-2">{{ column.label }}</p>
+        </div>
+      </header>
+      <section v-if="tableData?.data.length">
+        <div
+          class="flex w-full"
+          v-for="rowData in tableData.data"
+          :key="rowData.ogc_fid"
+        >
+          <div class="h-18 w-14 flex items-center justify-center">
+            <CoreCheckbox
+              id="id-checkbox"
+              :index="rowData.ogc_fid"
+              :is-checked="
+                isAllChecked || selectedIds.includes(rowData.ogc_fid)
+              "
+              :forHeader="true"
+              @on-change="onRowSelect"
+            />
+          </div>
+          <div
+            v-for="column in columns"
+            :key="column.key"
+            class="h-18 flex-1 min-w-[10rem] text-grey-400 flex items-center text-xs font-normal px-3 py-4"
+          >
+            <p class="line-clamp-2">{{ rowData[column.key] }}</p>
+          </div>
+        </div>
+        <button class="w-full bg-brand-400 rounded-xs my-2 py-2 text-white">
+          <p class="text-xs">Load More</p>
+        </button>
+      </section>
+    </section>
   </div>
 </template>
