@@ -1,15 +1,29 @@
 <script lang="ts" setup>
 const mapStore = useMapRef();
 const { map } = mapStore;
+const toast = useToast();
 
 const longitudeRef = ref("");
 const latitudeRef = ref("");
 
 const findCoordinate = () => {
-  map?.flyTo({
-    center: [parseFloat(longitudeRef.value), parseFloat(latitudeRef.value)],
-    zoom: 10,
-  });
+  const latRegex = /^-?([1-8]?\d(?:\.\d{1,})?|90(?:\.0{1,6})?)$/;
+  const longRegex = /^-?((1[0-7]|[1-9])?\d(?:\.\d{1,})?|180(?:\.0{1,6})?)$/;
+  const isLatitudeValid = latRegex.test(latitudeRef.value);
+  const isLongitudeValid = longRegex.test(longitudeRef.value);
+
+  if (isLatitudeValid && isLongitudeValid) {
+    map?.flyTo({
+      center: [parseFloat(longitudeRef.value), parseFloat(latitudeRef.value)],
+      zoom: 6,
+    });
+  } else {
+    toast.add({
+      title: "Invalid Input",
+      icon: "i-heroicons-information-circle",
+      timeout: 1500,
+    });
+  }
 };
 </script>
 
@@ -42,6 +56,7 @@ const findCoordinate = () => {
   </div>
   <div class="p-2">
     <UButton
+      :disabled="!longitudeRef || !latitudeRef"
       @click="findCoordinate"
       color="grey"
       variant="outline"
