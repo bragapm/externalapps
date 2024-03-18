@@ -166,24 +166,25 @@ export const addHighlightLayer = (map: Map) => {
 export const showHighlightLayer = (
   map: Raw<Map>,
   featureList: { geom: GeoJSON.Geometry }[],
-  layerName: string
+  layerName: string,
+  isAll?: boolean
 ) => {
   const newData: GeoJSON.FeatureCollection = {
     type: "FeatureCollection",
     features: featureList
-      .filter((_, idx) => idx === 0)
+      .filter((_, idx) => (isAll ? true : idx === 0))
       .map(({ geom, ...rest }) => ({
         type: "Feature",
         properties: rest,
         geometry: geom,
       })),
   };
-  if (map.getSource("highlight")) {
-    (map.getSource("highlight") as GeoJSONSource).setData(newData);
-    moveHighlightLayer(map, layerName);
-  } else {
+  if (!map.getSource("highlight")) {
     addHighlightLayer(map);
   }
+
+  (map.getSource("highlight") as GeoJSONSource).setData(newData);
+  moveHighlightLayer(map, layerName);
   // console.log(featureList[0].geom.type);
 };
 

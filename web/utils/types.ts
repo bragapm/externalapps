@@ -214,6 +214,9 @@ export type RasterTiles = {
   maxzoom: number;
   terrain_rgb: boolean;
   dimension: string;
+  click_popup_columns?: string[];
+  image_columns?: string[];
+  feature_detail_columns?: string[];
 };
 
 export type RasterTilesConfig = {
@@ -236,6 +239,9 @@ export type ThreeDTiles = {
   layer_id: string;
   category: { category_name: string };
   dimension: string;
+  click_popup_columns?: string[];
+  image_columns?: string[];
+  feature_detail_columns?: string[];
 };
 
 export type ThreeDTilesConfig = {

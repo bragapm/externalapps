@@ -80,7 +80,7 @@ watchEffect(() => {
     });
 
     const featureList = features.map((feature: MapGeoJSONFeature) => {
-      const foundLayer = filterLayers?.find(
+      const foundLayer  = filterLayers?.find(
         (layer) => layer.layer_id === feature.layer.id
       )!;
       return {
@@ -194,6 +194,15 @@ const prevFeature = () => {
   slider?.update();
   featureStore.setFeature(popupItems.value[featureIndex.value]);
 };
+
+const removePopup = () => {
+  popupRef.value!.remove();
+  (map.value!.getSource("highlight") as GeoJSONSource).setData({
+    type: "FeatureCollection",
+    features: [],
+  } as any);
+};
+
 </script>
 
 <template>
@@ -209,15 +218,7 @@ const prevFeature = () => {
           <IcCross
             role="button"
             :fontControlled="false"
-            @click="
-              () => {
-                (map?.getSource('highlight') as GeoJSONSource)
-                .setData({
-                  type: 'FeatureCollection',
-                  features: []
-                } as any );
-                popupRef!.remove();              }
-            "
+            @click="removePopup"
             class="-mr-1 w-5 h-4 px-1 py-0.5 text-grey-400"
           ></IcCross>
         </header>

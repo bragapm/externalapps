@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useQuery, useInfiniteQuery } from "@tanstack/vue-query";
+import type { GeoJSONSource, LngLatBoundsLike } from "maplibre-gl";
 import IcCross from "~/assets/icons/ic-cross.svg";
 import IcDownload from "~/assets/icons/ic-download.svg";
 import IcExpand from "~/assets/icons/ic-expand.svg";
 import IcFilter from "~/assets/icons/ic-filter.svg";
 import IcShrink from "~/assets/icons/ic-shrink.svg";
 import IcSort from "~/assets/icons/ic-sort.svg";
+import bbox from "@turf/bbox";
 
 const store = useTableData();
 const { toggleTable, toggleFullscreen } = store;
@@ -89,9 +91,50 @@ const onRowSelect = (fid: string) => {
   }
 };
 
-// watchEffect(() => {
-//   console.log(tableData.value);
-// });
+const mapRefStore = useMapRef();
+watch(
+  highlightedIds,
+  async (newValue, oldValue) => {
+    if (!newValue.length) {
+      if (mapRefStore.map?.getSource("highlight")) {
+        (mapRefStore.map.getSource("highlight") as GeoJSONSource).setData({
+          type: "FeatureCollection",
+          features: [],
+        } as any);
+      }
+    } else {
+      const queryParams: Record<string, string> = {
+        fields: "geom",
+        "filter[ogc_fid][_in]": newValue.join(","),
+      };
+      const { data } = await $fetch<{ data: any }>(
+        `/panel/items/${store.activeCollection}?` +
+          new URLSearchParams(queryParams)
+      );
+      showHighlightLayer(mapRefStore.map!, data, store.activeCollection!, true);
+      mapRefStore.map!.fitBounds(
+        bbox({
+          type: "FeatureCollection",
+          features: data.map(({ geom }: { geom: GeoJSON.Geometry }) => ({
+            type: "Feature",
+            geometry: geom,
+          })),
+        } as GeoJSON.FeatureCollection) as LngLatBoundsLike,
+        {
+          padding: {
+            top: 80,
+            bottom: 20,
+            left: window.innerWidth * 0.49,
+            right: 20,
+          },
+        }
+      );
+    }
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <template>
