@@ -151,41 +151,62 @@ export type RasterStyles = { layout_visibility: string };
 export type VectorTiles = {
   source: "vector_tiles";
   bounds: GeoJSON.Polygon;
-  category: { category_name: string | null };
-  circle_style?: CircleStyles;
-  symbol_style?: SymbolStyles;
-  fill_style?: FillStyles;
-  line_style?: LineStyles;
+  category?: { category_name?: string };
   layer_style: CircleStyles | FillStyles | LineStyles | SymbolStyles;
   geometry_type: string;
   layer_alias: string;
   layer_id: string;
   layer_name: string;
-  minzoom: number;
-  maxzoom: number;
+  minzoom?: number;
+  maxzoom?: number;
   click_popup_columns?: string[];
   image_columns?: string[];
   feature_detail_columns?: string[];
   dimension: string;
 };
 
-export type RasterTiles = {
-  source: "raster_tiles";
-  opacity: number;
-  bounds: GeoJSON.Polygon;
-  category: { category_name: string | null };
-  layer_style: RasterStyles;
-  geometry_type: string;
-  layer_alias: string;
+export type VectorTilesConfig = {
   layer_id: string;
-  layer_name?: string;
-  minzoom: number;
-  maxzoom: number;
-  terrain_rgb: boolean;
+  layer_name: string;
+  bounds: GeoJSON.Polygon;
+  geometry_type: string;
+  category?: { category_name?: string };
+  circle_style?: CircleStyles;
+  symbol_style?: SymbolStyles;
+  fill_style?: FillStyles;
+  line_style?: LineStyles;
+  layer_alias?: string;
+  minzoom?: number;
+  maxzoom?: number;
   click_popup_columns?: string[];
   image_columns?: string[];
   feature_detail_columns?: string[];
+};
+
+export type RasterTiles = {
+  source: "raster_tiles";
+  opacity: number;
+  layer_style: RasterStyles;
+  bounds: GeoJSON.Polygon;
+  category?: { category_name?: string };
+  geometry_type: string;
+  layer_alias: string;
+  layer_id: string;
+  minzoom: number;
+  maxzoom: number;
+  terrain_rgb: boolean;
   dimension: string;
+};
+
+export type RasterTilesConfig = {
+  layer_id: string;
+  bounds: GeoJSON.Polygon;
+  minzoom: number;
+  maxzoom: number;
+  terrain_rgb: boolean;
+  layer_alias: string;
+  active: boolean;
+  category?: { category_name?: string };
 };
 
 export type ThreeDTiles = {
@@ -194,11 +215,24 @@ export type ThreeDTiles = {
   layer_style: { layout_visibility: string };
   geometry_type: string;
   layer_alias: string;
-  layer_name?: string;
   layer_id: string;
-  category: { category_name: string | null };
+  category: { category_name: string };
   dimension: string;
 };
+
+export type ThreeDTilesConfig = {
+  active: boolean;
+  layer_alias: string;
+  layer_id: string;
+  opacity: number;
+  visible: boolean;
+};
+
+export type LayerConfigLists = (
+  | VectorTilesConfig
+  | RasterTilesConfig
+  | ThreeDTilesConfig
+)[];
 
 export type LayerLists = (VectorTiles | RasterTiles | ThreeDTiles)[];
 

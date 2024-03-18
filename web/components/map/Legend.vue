@@ -11,7 +11,6 @@ const legendLists = computed(() => {
     .flat()
     .filter((el) => el.source === "vector_tiles");
 });
-
 </script>
 
 <template>
@@ -21,11 +20,11 @@ const legendLists = computed(() => {
   <div
     class="p-3 flex-1 overflow-scroll transition-all duration-500 ease-in-out"
   >
-    <div
-      v-if="legendLists && legendLists.length > 0"
-      class="flex flex-col"
-    >
-      <template v-for="(item, index) in legendLists" :key="item.label">
+    <div v-if="legendLists && legendLists.length > 0" class="flex flex-col">
+      <template
+        v-for="(item, index) in (legendLists as VectorTiles[])"
+        :key="item.label"
+      >
         <TransitionRoot
           :show="item.layer_style.layout_visibility === 'visible'"
           enter="transition duration-500 ease-in-out"

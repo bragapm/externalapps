@@ -7,6 +7,9 @@ import type {
   LayerGroupedByCategory,
   LayerLists,
   ThreeDTiles,
+  ThreeDTilesConfig,
+  RasterTilesConfig,
+  VectorTilesConfig,
 } from "~/utils/types";
 import {
   geomTypeCircle,
@@ -103,42 +106,43 @@ export const useMapLayer = defineStore("maplayer", () => {
 
   const getLayersArr = (layers: {
     vectorTiles: {
-      data: LayerLists;
+      data: LayerConfigLists;
     };
     rasterTiles: {
-      data: LayerLists;
+      data: LayerConfigLists;
     };
     threeDTiles: {
-      data: LayerLists;
+      data: LayerConfigLists;
     };
   }) => {
     const layersArr: LayerLists = [];
     for (const [key, value] of Object.entries(layers)) {
       value.data.forEach((el) => {
         if (key === "vectorTiles") {
-          const item = JSON.parse(JSON.stringify(el as VectorTiles));
+          const item = JSON.parse(JSON.stringify(el as VectorTilesConfig));
           delete item.circle_style;
           delete item.symbol_style;
           delete item.line_style;
           delete item.fill_style;
-          if ((el as VectorTiles).circle_style) {
+          if ((el as VectorTilesConfig).circle_style) {
             layersArr.push({
               ...item,
               layer_id: item.layer_id + "_circle",
               layer_alias: item.layer_alias || item.layer_name,
-              layer_style: (el as VectorTiles).circle_style as CircleStyles,
+              layer_style: (el as VectorTilesConfig)
+                .circle_style as CircleStyles,
               source: "vector_tiles",
               geometry_type: geomTypeCircle,
               dimension: "2D",
             });
           }
-          if ((el as VectorTiles).symbol_style) {
+          if ((el as VectorTilesConfig).symbol_style) {
             layersArr.push({
               ...item,
               layer_id: item.layer_id + "_symbol",
               layer_alias: item.layer_alias || item.layer_name,
               layer_style: {
-                ...((el as VectorTiles).symbol_style as SymbolStyles),
+                ...((el as VectorTilesConfig).symbol_style as SymbolStyles),
                 layout_icon_image: (el as any).symbol_style?.layout_icon_image
                   .id,
                 icon_image_title: (el as any).symbol_style?.layout_icon_image
@@ -149,60 +153,80 @@ export const useMapLayer = defineStore("maplayer", () => {
               dimension: "2D",
             });
           }
-          if ((el as VectorTiles).line_style) {
+          if ((el as VectorTilesConfig).line_style) {
             layersArr.push({
               ...item,
               layer_id: item.layer_id + "_line",
               layer_alias: item.layer_alias || item.layer_name,
-              layer_style: (el as VectorTiles).line_style as LineStyles,
+              layer_style: (el as VectorTilesConfig).line_style as LineStyles,
               source: "vector_tiles",
               geometry_type: geomTypeLine,
               dimension: "2D",
             });
           }
-          if ((el as VectorTiles).fill_style) {
+          if ((el as VectorTilesConfig).fill_style) {
             layersArr.push({
               ...item,
               layer_id: item.layer_id + "_fill",
               layer_alias: item.layer_alias || item.layer_name,
-              layer_style: (el as VectorTiles).fill_style as FillStyles,
+              layer_style: (el as VectorTilesConfig).fill_style as FillStyles,
               source: "vector_tiles",
               geometry_type: geomTypePolygon,
               dimension: "2D",
             });
           }
         } else if (key === "rasterTiles") {
-          const item = el as RasterTiles;
-          layersArr.push({
-            ...item,
+          const item = el as RasterTilesConfig;
+          let RasterTilesItem: RasterTiles;
+          RasterTilesItem = {
+            layer_alias: item.layer_alias,
+            layer_id: item.layer_id,
+            bounds: item.bounds,
+            minzoom: item.minzoom,
+            maxzoom: item.maxzoom,
+            terrain_rgb: item.terrain_rgb,
             source: "raster_tiles",
             opacity: 1,
+            layer_style: {
+              layout_visibility: "none",
+            },
             geometry_type: item.terrain_rgb ? geomTypeTerrain : geomTypeRaster,
             dimension: "2D",
-            layer_style: { layout_visibility: "none" },
+            category: item.category,
             ...(item.terrain_rgb && { category: { category_name: "Terrain" } }),
-          });
+          };
+          layersArr.push(RasterTilesItem);
         } else if (key === "threeDTiles") {
-          const item = el as ThreeDTiles;
-          layersArr.push({
-            ...item,
+          const item = el as ThreeDTilesConfig;
+          let ThreeDTilesItem: ThreeDTiles;
+          ThreeDTilesItem = {
             source: "three_d_tiles",
-            opacity: 1,
+            opacity: item.opacity,
+            layer_style: {
+              layout_visibility: item.visible ? "visible" : "none",
+            },
             geometry_type: geomTypeThreeD,
-            dimension: "3D",
-            layer_style: { layout_visibility: "none" },
+            layer_alias: item.layer_alias,
+            layer_id: item.layer_id,
             category: { category_name: "3D" },
-          });
+            dimension: "3D",
+          };
+          layersArr.push(ThreeDTilesItem);
         }
       });
     }
 
     //sort by layer_alias is ascending order
-    layersArr!.sort((a: any, b: any) => {
-      const nameA = a.layer_alias.toUpperCase(); // ignore upper and lowercase
-      const nameB = b.layer_alias.toUpperCase(); // ignore upper and lowercase
-      return nameA.localeCompare(nameB);
-    });
+    layersArr.sort(
+      (
+        a: VectorTiles | RasterTiles | ThreeDTiles,
+        b: VectorTiles | RasterTiles | ThreeDTiles
+      ) => {
+        const nameA = a.layer_alias.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.layer_alias.toUpperCase(); // ignore upper and lowercase
+        return nameA.localeCompare(nameB);
+      }
+    );
     return layersArr;
   };
 
@@ -213,7 +237,7 @@ export const useMapLayer = defineStore("maplayer", () => {
           let categoryName = "";
           if (item.category === null) {
             categoryName = uncategorizedAlias;
-          } else if (item.category.category_name) {
+          } else if (item.category?.category_name) {
             categoryName = item.category.category_name;
           }
           return group.label === categoryName;
@@ -228,7 +252,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               layerLists: [item],
               defaultOpen: false,
             });
-          } else if (item.category !== null && item.category.category_name) {
+          } else if (item.category !== null && item.category?.category_name) {
             group.push({
               label: item.category.category_name,
               layerLists: [item],
@@ -237,20 +261,22 @@ export const useMapLayer = defineStore("maplayer", () => {
           }
         }
 
-        return group!.sort((a: any, b: any) => {
-          const nameA = a.label.toUpperCase(); // ignore upper and lowercase
-          const nameB = b.label.toUpperCase(); // ignore upper and lowercase
+        return group!.sort(
+          (a: LayerGroupedByCategory, b: LayerGroupedByCategory) => {
+            const nameA = a.label.toUpperCase(); // ignore upper and lowercase
+            const nameB = b.label.toUpperCase(); // ignore upper and lowercase
 
-          // '3D' group should always come first
-          if (nameA === "3D") return -1;
-          if (nameB === "3D") return 1;
+            // '3D' group should always come first
+            if (nameA === "3D") return -1;
+            if (nameB === "3D") return 1;
 
-          // 'Terrain' group should always come last
-          if (nameA === "TERRAIN") return 1;
-          if (nameB === "TERRAIN") return -1;
+            // 'Terrain' group should always come last
+            if (nameA === "TERRAIN") return 1;
+            if (nameB === "TERRAIN") return -1;
 
-          return nameA.localeCompare(nameB);
-        });
+            return nameA.localeCompare(nameB);
+          }
+        );
       },
       []
     );
@@ -263,7 +289,7 @@ export const useMapLayer = defineStore("maplayer", () => {
         "map-layer-tiles",
         async () => {
           const [vectorTiles, rasterTiles, threeDTiles] = await Promise.all<{
-            data: LayerLists;
+            data: LayerConfigLists;
           }>([
             $fetch("/panel/items/vector_tiles?fields=*.*.*&sort=layer_name"),
             $fetch("/panel/items/raster_tiles?fields=*.*&sort=layer_alias"),
@@ -293,7 +319,7 @@ export const useMapLayer = defineStore("maplayer", () => {
         "map-layer-tiles",
         async () => {
           const [vectorTiles, rasterTiles, threeDTiles] = await Promise.all<{
-            data: LayerLists;
+            data: LayerConfigLists;
           }>([
             $fetch(
               "/panel/items/vector_tiles?fields=*.*.*&filter[active][_eq]=true&sort=layer_name"

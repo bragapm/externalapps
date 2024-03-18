@@ -33,7 +33,7 @@ const groupIndex = computed(() => {
   if (storeLayer.groupedActiveLayers)
     if (props.layerItem.category) {
       return storeLayer.groupedActiveLayers.findIndex(
-        (el) => el.label === props.layerItem.category.category_name
+        (el) => el.label === props.layerItem.category?.category_name
       );
     } else {
       return storeLayer.groupedActiveLayers.findIndex(

@@ -110,7 +110,7 @@ const { floatingStyles } = useFloating(reference, floating, {
               :disabled="item.source !== 'vector_tiles'"
               @click="
                 () => {
-                  tableDataStore.setActiveCollection(item.layer_name!);
+                  tableDataStore.setActiveCollection((item as VectorTiles).layer_name);
                   toggleTable();
                   close();
                 }

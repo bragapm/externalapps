@@ -77,7 +77,7 @@ const removeLayer = (item: VectorTiles | RasterTiles | ThreeDTiles) => {
       <div class="flex items-center justify-between gap-2">
         <h5 class="text-xs text-grey-50 truncate">
           {{
-            item.layer_alias || (item as VectorTiles | RasterTiles).layer_name
+            item.layer_alias || (item as VectorTiles).layer_name
           }}
         </h5>
         <button>
