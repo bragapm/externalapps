@@ -279,7 +279,7 @@ export const tryRefresh = async (
   }
 };
 
-export function isString(value: string | number | boolean): value is string {
+export function isString(value: any) {
   return typeof value === "string";
 }
 

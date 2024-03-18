@@ -1,69 +1,62 @@
 <script setup lang="ts">
 import { uncategorizedAlias } from "~/constants";
 
-const props = defineProps<{
+defineProps<{
   uploadMode: boolean;
-  filteredLayers: LayerGroupedByCategory[] | null;
+  filteredLayers: LayerGroupedByCategory[];
 }>();
 
 const mapLayerStore = useMapLayer();
 
 const activeLayers = computed(() => {
   return mapLayerStore.groupedActiveLayers
-    ?.map(({ layerLists }) => layerLists)
+    .map(({ layerLists }) => layerLists)
     .flat();
 });
 
-const addLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
-  let groupName = layerItem.category
-    ? layerItem.category.category_name
-    : uncategorizedAlias;
+const addLayer = (
+  layerItem: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
+) => {
+  let groupName = layerItem.category?.category_name || uncategorizedAlias;
 
-  let groupIndex = mapLayerStore.groupedActiveLayers?.findIndex(
+  let groupIndex = mapLayerStore.groupedActiveLayers.findIndex(
     (el) => el.label === groupName
   );
   if (groupIndex !== -1) {
-    mapLayerStore.groupedActiveLayers?.[groupIndex as number].layerLists.push(
-      layerItem
-    );
+    mapLayerStore.groupedActiveLayers[groupIndex].layerLists.push(layerItem);
   } else {
     if (
-      mapLayerStore.groupedActiveLayers?.findIndex(
+      mapLayerStore.groupedActiveLayers.findIndex(
         (el) => el.label === "Terrain"
       ) !== -1
     ) {
-      mapLayerStore.groupedActiveLayers?.splice(-1, 0, {
-        label: groupName as string,
+      mapLayerStore.groupedActiveLayers.splice(-1, 0, {
+        label: groupName,
         layerLists: [layerItem],
         defaultOpen: false,
       });
-      // mapLayerStore.groupedActiveLayers?.push({
-      //   label: groupName as string,
+      // mapLayerStore.groupedActiveLayers.push({
+      //   label: groupName,
       //   layerLists: [layerItem],
       //   defaultOpen: false,
       // });
     } else {
-      mapLayerStore.groupedActiveLayers?.push({
-        label: groupName as string,
+      mapLayerStore.groupedActiveLayers.push({
+        label: groupName,
         layerLists: [layerItem],
         defaultOpen: false,
       });
     }
   }
 };
-
 </script>
 
 <template>
   <div
     class="flex flex-col w-full h-full border border-grey-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y divide-grey-700"
   >
-    <template
-      v-if="!uploadMode"
-      v-for="category of filteredLayers
-        ? filteredLayers
-        : mapLayerStore.groupedLayerList"
-    >
+    <!-- TODO separation for user uploaded data -->
+    <template v-if="!uploadMode" v-for="category of filteredLayers">
       <div
         class="flex flex-col p-3 gap-1"
         :id="category.label.split(' ').join('')"
@@ -96,12 +89,7 @@ const addLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
         </div>
       </div>
     </template>
-    <template
-      v-if="uploadMode"
-      v-for="category of filteredLayers
-        ? filteredLayers
-        : mapLayerStore.groupedLayerList"
-    >
+    <template v-if="uploadMode" v-for="category of filteredLayers">
       <div
         class="flex flex-col p-3 gap-1"
         :id="category.label.split(' ').join('')"
@@ -139,10 +127,7 @@ const addLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
       <MapManagementCatalogueAddFolderCard />
     </div>
     <div
-      v-if="
-        mapLayerStore.groupedLayerList?.length === 0 ||
-        (filteredLayers && filteredLayers.length === 0)
-      "
+      v-if="filteredLayers.length === 0"
       class="flex flex-col w-full h-full border border-grey-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
     >
       <div

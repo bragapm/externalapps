@@ -9,24 +9,23 @@ const groupIndex = inject("groupIndexProvider");
 const layerIndex = inject("layerIndexProvider");
 
 const iconOpacity = ref(
-  parseFloat((props.layerItem.layer_style as SymbolStyles).paint_icon_opacity) *
-    100
+  parseFloat(
+    (props.layerItem.layer_style as SymbolStyles).paint_icon_opacity ?? "1"
+  ) * 100
 );
 const iconColor = ref(
-  (props.layerItem.layer_style as SymbolStyles).paint_icon_color
+  (props.layerItem.layer_style as SymbolStyles).paint_icon_color ?? "#000000"
 );
 const iconSize = ref(
-  (props.layerItem.layer_style as SymbolStyles).layout_icon_size
+  (props.layerItem.layer_style as SymbolStyles).layout_icon_size ?? 1
 );
 const iconImage = ref({
-  id: (props.layerItem.layer_style as SymbolStyles).layout_icon_image,
-  title: (props.layerItem.layer_style as SymbolStyles).icon_image_title,
+  id: (props.layerItem.layer_style as SymbolStyles).layout_icon_image ?? "",
+  title: (props.layerItem.layer_style as SymbolStyles).icon_image_title ?? "",
 });
 
 const store = useMapLayer();
 const { updateLayerProperty } = store;
-const mapStore = useMapRef();
-const { map } = storeToRefs(mapStore);
 
 const handleChangeProperty = (
   propType: "paint" | "layout",

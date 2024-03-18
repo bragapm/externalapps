@@ -2,46 +2,29 @@
 import { inject } from "vue";
 
 const props = defineProps<{
-  layerItem: VectorTiles;
+  layerItem: VectorTiles | LoadedGeoJson;
 }>();
+const style = props.layerItem.layer_style as LineStyles;
 
 const groupIndex = inject("groupIndexProvider");
 const layerIndex = inject("layerIndexProvider");
 
-const lineWidth = ref(
-  (props.layerItem.layer_style as LineStyles).paint_line_width
-);
-const lineDash = ref(
-  (props.layerItem.layer_style as LineStyles).paint_line_dasharray
-);
+const lineWidth = ref(style.paint_line_width);
+const lineDash = ref(style.paint_line_dasharray ?? "");
 const dashWidth = ref(
-  (props.layerItem.layer_style as LineStyles).paint_line_dasharray
-    ? JSON.parse(
-        (props.layerItem.layer_style as LineStyles).paint_line_dasharray
-      )[0]
-    : null
+  style.paint_line_dasharray ? JSON.parse(style.paint_line_dasharray)[0] : null
 );
 
 const dashGap = ref(
-  (props.layerItem.layer_style as LineStyles).paint_line_dasharray &&
-    (props.layerItem.layer_style as LineStyles).paint_line_dasharray.length > 1
-    ? JSON.parse(
-        (props.layerItem.layer_style as LineStyles).paint_line_dasharray
-      )[1]
+  style.paint_line_dasharray?.length
+    ? JSON.parse(style.paint_line_dasharray)[1]
     : null
 );
-const lineOpacity = ref(
-  parseFloat((props.layerItem.layer_style as LineStyles).paint_line_opacity) *
-    100
-);
-const lineColor = ref(
-  (props.layerItem.layer_style as LineStyles).paint_line_color
-);
+const lineOpacity = ref(parseFloat(style.paint_line_opacity ?? "1") * 100);
+const lineColor = ref(style.paint_line_color ?? "#000000");
 
 const store = useMapLayer();
 const { updateLayerProperty } = store;
-const mapStore = useMapRef();
-const { map } = storeToRefs(mapStore);
 
 const handleChangeProperty = (
   propType: "paint" | "layout",

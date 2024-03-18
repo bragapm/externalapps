@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
+  fetchingListedLayers: boolean;
   uploadMode: boolean;
 }>();
 
@@ -19,7 +20,12 @@ const handleScroll = (id: string) => {
           Dataset Folder/Project Provided by Default
         </p>
       </span>
+      <div v-if="fetchingListedLayers">
+        <!-- TODO UI for loading state -->
+        Loading...
+      </div>
       <UButton
+        v-else
         v-for="category of mapLayerStore.groupedLayerList"
         :key="category.label"
         :ui="{ rounded: 'rounded-xxs' }"
@@ -41,6 +47,7 @@ const handleScroll = (id: string) => {
         <p class="text-2xs text-grey-500">
           Dataset Folder/Project Uploaded by User
         </p>
+        <!-- TODO separation for loaded_geojson source -->
       </span>
     </div>
   </div>

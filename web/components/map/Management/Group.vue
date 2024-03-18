@@ -127,11 +127,11 @@ const handleChangeOrder = () => {
           :key="item.layer_id"
         >
           <MapManagementLayerVector
-            v-if="item.source === 'vector_tiles'"
+            v-if="item.source === 'vector_tiles' || item.source === 'loaded_geojson'"
             :filtered="filtered"
             :order="index"
             :groupOrder="order"
-            :layerItem="(item as VectorTiles)"
+            :layerItem="item"
             :dragItem="dragItem"
             @update-drag-item="updateDragItem"
             :dragOverItem="dragOverItem"
@@ -143,7 +143,7 @@ const handleChangeOrder = () => {
             :filtered="filtered"
             :order="index"
             :groupOrder="order"
-            :layerItem="(item as RasterTiles)"
+            :layerItem="item"
             :dragItem="dragItem"
             @update-drag-item="updateDragItem"
             :dragOverItem="dragOverItem"
@@ -155,7 +155,7 @@ const handleChangeOrder = () => {
             :filtered="filtered"
             :order="index"
             :groupOrder="order"
-            :layerItem="(item as ThreeDTiles)"
+            :layerItem="item"
           />
         </template>
       </DisclosurePanel>

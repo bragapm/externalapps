@@ -2,23 +2,22 @@
 import { inject } from "vue";
 
 const props = defineProps<{
-  layerItem: VectorTiles;
+  layerItem: VectorTiles | LoadedGeoJson;
 }>();
 
 const groupIndex = inject("groupIndexProvider");
 const layerIndex = inject("layerIndexProvider");
 const fillOpacity = ref(
-  parseFloat((props.layerItem.layer_style as FillStyles).paint_fill_opacity) *
-    100
+  parseFloat(
+    (props.layerItem.layer_style as FillStyles).paint_fill_opacity ?? "1"
+  ) * 100
 );
 const fillColor = ref(
-  (props.layerItem.layer_style as FillStyles).paint_fill_color
+  (props.layerItem.layer_style as FillStyles).paint_fill_color ?? "#000000"
 );
 
 const store = useMapLayer();
 const { updateLayerProperty } = store;
-const mapStore = useMapRef();
-const { map } = storeToRefs(mapStore);
 
 const handleChangeProperty = (
   propType: "paint" | "layout",

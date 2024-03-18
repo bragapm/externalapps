@@ -23,7 +23,7 @@ const props = defineProps<{
   order: number;
   groupOrder: number;
   filtered: boolean;
-  layerItem: VectorTiles;
+  layerItem: VectorTiles | LoadedGeoJson;
   dragItem: any;
   dragOverItem: any;
 }>();
@@ -67,19 +67,15 @@ const layerIndex = computed(() => {
 provide("layerIndexProvider", layerIndex.value);
 
 const isShowStyling = ref(false);
-const visibility = ref<string>(
-  props.layerItem.layer_style
-    ? props.layerItem.layer_style.layout_visibility
-    : "none"
-);
+const visibility = ref<string>(props.layerItem.layer_style.layout_visibility ?? "visible");
 const opacity = ref<string>(
   props.layerItem.geometry_type === geomTypeCircle
-    ? (props.layerItem.layer_style as CircleStyles).paint_circle_opacity
+    ? (props.layerItem.layer_style as CircleStyles).paint_circle_opacity ?? "1"
     : props.layerItem.geometry_type === geomTypePolygon
-    ? (props.layerItem.layer_style as FillStyles).paint_fill_opacity
+    ? (props.layerItem.layer_style as FillStyles).paint_fill_opacity ?? "1"
     : props.layerItem.geometry_type === geomTypeLine
-    ? (props.layerItem.layer_style as LineStyles).paint_line_opacity
-    : "0"
+    ? (props.layerItem.layer_style as LineStyles).paint_line_opacity ?? "1"
+    : "1"
 );
 const updateOpacity = (value: number) => {
   opacity.value = (value / 100).toString();

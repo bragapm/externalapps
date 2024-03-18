@@ -2,7 +2,7 @@
 const store = useMapLayer();
 const renderedLayers = computed(() => {
   return store.groupedActiveLayers
-    ?.map(({ layerLists }) => layerLists)
+    .map(({ layerLists }) => layerLists)
     .flat()
     .filter((el) => el.source !== "three_d_tiles");
 });
@@ -23,10 +23,13 @@ const threeDRenderedLayers = computed(() => {
   >
     <!-- <template v-for="layerItem in groupItem.layerLists"> -->
     <MapLayerVector
-      v-if="layerItem.source === 'vector_tiles'"
+      v-if="
+        layerItem.source === 'vector_tiles' ||
+        layerItem.source === 'loaded_geojson'
+      "
       :renderedLayers="renderedLayers"
       :order="index"
-      :item="(layerItem as VectorTiles)"
+      :item="(layerItem as VectorTiles | LoadedGeoJson)"
     />
     <MapLayerRasterTerrain
       v-else-if="layerItem.source === 'raster_tiles' && layerItem.terrain_rgb"

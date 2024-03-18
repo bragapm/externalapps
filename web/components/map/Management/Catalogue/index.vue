@@ -4,11 +4,15 @@ import IcFileSort from "~/assets/icons/ic-file-sort.svg";
 import IcCloudUpload from "~/assets/icons/ic-cloud-upload.svg";
 import IcArrow from "~/assets/icons/ic-arrow-square.svg";
 import { layerTypeFilterOptions, dimensionFilterOptions } from "~/constants";
+import FileUploadInput from "./FileUploadInput.vue";
 
-const store = useCatalogue();
-const { toggleCatalogue } = store;
+const catalogueStore = useCatalogue();
+const { toggleCatalogue } = catalogueStore;
 const mapLayerStore = useMapLayer();
+const { fetchListedLayers } = mapLayerStore;
+const fetchingListedLayers = ref(true);
 const uploadMode = ref(false);
+const fileUploadInput = ref<InstanceType<typeof FileUploadInput> | null>(null);
 
 let timeoutId: NodeJS.Timeout;
 function debounce(func: Function, delay: number) {
@@ -23,10 +27,11 @@ function debounce(func: Function, delay: number) {
 }
 
 // get listed layer list
-const layerStore = useMapLayer();
-const { fetchListedLayers } = layerStore;
-fetchListedLayers();
-const filteredLayers = ref<LayerGroupedByCategory[] | null>(null);
+onMounted(async () => {
+  await fetchListedLayers();
+  fetchingListedLayers.value = false;
+});
+const filteredLayers = ref<LayerGroupedByCategory[]>([]);
 
 const formatLists = ref(layerTypeFilterOptions);
 const handleChangeFormatList = (index: number, value: boolean) => {
@@ -83,52 +88,56 @@ const searchFilter = ref("");
 const searchRef = ref("");
 
 const applyFilter = () => {
-  let current = JSON.parse(JSON.stringify(mapLayerStore.groupedLayerList));
+  let current = mapLayerStore.groupedLayerList;
 
   //filter by format
-  const filteredFormat = formatLists.value
-    .filter((el) => el.checked === true && el.type !== "all")
-    .map((el) => el.type);
+  if (formatLists.value.length) {
+    const filteredFormat = formatLists.value
+      .filter((el) => el.checked === true && el.type !== "all")
+      .map((el) => el.type);
 
-  const filteredByFormat = current
-    ?.map((item: LayerGroupedByCategory) => {
-      return {
-        ...item,
-        layerLists: item.layerLists.filter((el: any) => {
-          if (filteredFormat.length > 0) {
-            return filteredFormat.includes(el.geometry_type);
-          } else {
-            return el;
-          }
-        }),
-      };
-    })
-    .filter((item: any) => item.layerLists.length > 0);
+    const filteredByFormat = current
+      .map((item: LayerGroupedByCategory) => {
+        return {
+          ...item,
+          layerLists: item.layerLists.filter((el: any) => {
+            if (filteredFormat.length > 0) {
+              return filteredFormat.includes(el.geometry_type);
+            } else {
+              return el;
+            }
+          }),
+        };
+      })
+      .filter((item: any) => item.layerLists.length > 0);
 
-  current = filteredByFormat;
+    current = filteredByFormat;
+  }
   //filter by format
 
   //filter by dimension
-  const dimensionFormat = dimensionLists.value
-    .filter((el) => el.checked === true && el.type !== "all")
-    .map((el) => el.type);
+  if (dimensionLists.value.length) {
+    const dimensionFormat = dimensionLists.value
+      .filter((el) => el.checked === true && el.type !== "all")
+      .map((el) => el.type);
 
-  const filteredByDimension = current
-    ?.map((item: LayerGroupedByCategory) => {
-      return {
-        ...item,
-        layerLists: item.layerLists.filter((el: any) => {
-          if (dimensionFormat.length > 0) {
-            return dimensionFormat.includes(el.dimension);
-          } else {
-            return el;
-          }
-        }),
-      };
-    })
-    .filter((item: any) => item.layerLists.length > 0);
+    const filteredByDimension = current
+      ?.map((item: LayerGroupedByCategory) => {
+        return {
+          ...item,
+          layerLists: item.layerLists.filter((el: any) => {
+            if (dimensionFormat.length > 0) {
+              return dimensionFormat.includes(el.dimension);
+            } else {
+              return el;
+            }
+          }),
+        };
+      })
+      .filter((item: any) => item.layerLists.length > 0);
 
-  current = filteredByDimension;
+    current = filteredByDimension;
+  }
   //filter by dimension
 
   //filter by search
@@ -137,12 +146,13 @@ const applyFilter = () => {
       ?.map((item: LayerGroupedByCategory) => {
         return {
           ...item,
-          layerLists: item.layerLists.filter((el: any) => {
-            if (el.layer_name) {
-              return el.layer_name
-                ?.toLowerCase()
+          layerLists: item.layerLists.filter((el) => {
+            if (el.source === "vector_tiles") {
+              const name = el.layer_alias ?? el.layer_name;
+              return name
+                .toLowerCase()
                 .includes(searchFilter.value.toLowerCase());
-            } else if (el.layer_alias) {
+            } else {
               return el.layer_alias
                 ?.toLowerCase()
                 .includes(searchFilter.value.toLowerCase());
@@ -193,9 +203,14 @@ watch(searchRef, (newValue) => {
       <div
         class="flex flex-col text-white border border-grey-700 rounded-l-xs gap-2 overflow-hidden w-60"
       >
-        <MapManagementCatalogueLists :uploadMode="uploadMode" />
+        <MapManagementCatalogueLists
+          :fetchingListedLayers="fetchingListedLayers"
+          :uploadMode="uploadMode"
+        />
         <div class="flex flex-col p-2 gap-2">
           <div class="border-t border-grey-700" />
+          <!-- TODO UI flow for file upload -->
+          <MapManagementCatalogueFileUploadInput ref="fileUploadInput" />
           <UButton
             :ui="{ rounded: 'rounded-xxs' }"
             :label="!uploadMode ? 'Upload Data' : 'Back to Catalogue'"
@@ -204,7 +219,9 @@ watch(searchRef, (newValue) => {
             class="w-full justify-between text-sm"
             @click="
               () => {
-                uploadMode = !uploadMode;
+                // TODO alter uploadMode logic and UI (multiple files)
+                // uploadMode = !uploadMode;
+                fileUploadInput?.input?.click();
               }
             "
           >
@@ -214,11 +231,7 @@ watch(searchRef, (newValue) => {
                 class="w-3 h-3"
                 :fontControlled="false"
               />
-              <IcArrow
-                v-else-if="uploadMode"
-                class="w-3 h-3"
-                :fontControlled="false"
-              />
+              <IcArrow v-else class="w-3 h-3" :fontControlled="false" />
             </template>
           </UButton>
         </div>
@@ -254,7 +267,12 @@ watch(searchRef, (newValue) => {
             </template>
           </UInput>
         </div>
+        <div v-if="fetchingListedLayers">
+          <!-- TODO UI for loading state -->
+          Loading...
+        </div>
         <MapManagementCatalogueData
+          v-else
           :uploadMode="uploadMode"
           :filteredLayers="filteredLayers"
         />

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AddLayerObject } from "maplibre-gl";
 import {
   geomTypeCircle,
   geomTypeLine,
@@ -13,6 +14,7 @@ import type {
   LineStyles,
   LayerLists,
   SymbolStyles,
+  LoadedGeoJson,
 } from "~/utils/types";
 
 const store = useMapRef();
@@ -20,7 +22,7 @@ const { map } = storeToRefs(store);
 
 const props = defineProps<{
   renderedLayers: LayerLists;
-  item: VectorTiles;
+  item: VectorTiles | LoadedGeoJson;
   order: number;
 }>();
 
@@ -32,19 +34,37 @@ watchEffect(async (onInvalidate) => {
     map.value!.getCanvas().style.cursor = "";
   };
 
-  if (map?.value) {
+  if (map.value) {
     if (!map.value.getSource(props.item.layer_id)) {
-      map.value.addSource(props.item.layer_id, {
-        type: "vector",
-        tiles: [
-          window.location.origin +
-            "/panel/mvt/" +
-            props.item.layer_name +
-            "?z={z}&x={x}&y={y}",
-        ],
-        minzoom: props.item.minzoom || 5,
-        maxzoom: props.item.maxzoom || 15,
-      });
+      if (props.item.source === "vector_tiles") {
+        map.value.addSource(props.item.layer_id, {
+          type: "vector",
+          tiles: [
+            window.location.origin +
+              "/panel/mvt/" +
+              props.item.layer_name +
+              "?z={z}&x={x}&y={y}",
+          ],
+          minzoom: props.item.minzoom || 5,
+          maxzoom: props.item.maxzoom || 15,
+        });
+      } else {
+        try {
+          const loadedGeoJson = await iDB.loadedGeoJsonData.get(
+            props.item.layer_id
+          );
+          if (loadedGeoJson) {
+            map.value.addSource(props.item.layer_id, {
+              type: "geojson",
+              data: loadedGeoJson.data,
+            });
+          } else {
+            console.error("Layer does not exists in IndexedDB");
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
     }
     if (!map.value.getLayer(props.item.layer_id)) {
       let beforeId: undefined | string = undefined;
@@ -97,17 +117,17 @@ watchEffect(async (onInvalidate) => {
           }
         });
 
-        map.value.addLayer(
-          {
-            id: props.item.layer_id,
-            type: "circle",
-            source: props.item.layer_id,
-            "source-layer": props.item.layer_name,
-            layout,
-            paint,
-          },
-          beforeId || undefined
-        );
+        const layer: AddLayerObject = {
+          id: props.item.layer_id,
+          type: "circle",
+          source: props.item.layer_id,
+          layout,
+          paint,
+        };
+        if (props.item.source === "vector_tiles") {
+          layer["source-layer"] = props.item.layer_name;
+        }
+        map.value.addLayer(layer, beforeId || undefined);
       } else if (props.item.geometry_type === geomTypeSymbol) {
         let paint: any = {},
           layout: any = {};
@@ -199,17 +219,17 @@ watchEffect(async (onInvalidate) => {
           }
         });
 
-        map.value.addLayer(
-          {
-            id: props.item.layer_id,
-            type: "fill",
-            source: props.item.layer_id,
-            "source-layer": props.item.layer_name,
-            layout,
-            paint,
-          },
-          beforeId || undefined
-        );
+        const layer: AddLayerObject = {
+          id: props.item.layer_id,
+          type: "fill",
+          source: props.item.layer_id,
+          layout,
+          paint,
+        };
+        if (props.item.source === "vector_tiles") {
+          layer["source-layer"] = props.item.layer_name;
+        }
+        map.value.addLayer(layer, beforeId || undefined);
       } else if (props.item.geometry_type === geomTypeLine) {
         let paint: any = {},
           layout: any = {};
@@ -239,30 +259,33 @@ watchEffect(async (onInvalidate) => {
           }
         });
 
-        map.value.addLayer(
-          {
-            id: props.item.layer_id,
-            type: "line",
-            source: props.item.layer_id,
-            "source-layer": props.item.layer_name,
-            layout,
-            paint,
-          },
-          beforeId || undefined
-        );
+        const layer: AddLayerObject = {
+          id: props.item.layer_id,
+          type: "line",
+          source: props.item.layer_id,
+          layout,
+          paint,
+        };
+        if (props.item.source === "vector_tiles") {
+          layer["source-layer"] = props.item.layer_name;
+        }
+        map.value.addLayer(layer, beforeId || undefined);
       }
 
       // emit("updateBeforeId", props.item.layer_id);
     }
 
-    if (props.item.click_popup_columns?.length) {
+    if (
+      props.item.source === "vector_tiles" &&
+      props.item.click_popup_columns?.length
+    ) {
       map.value.on("mouseenter", props.item.layer_id, onMouseEnter);
       map.value.on("mouseleave", props.item.layer_id, onMouseLeave);
     }
   }
 
   onInvalidate(() => {
-    if (map?.value) {
+    if (map.value) {
       map.value.off("mouseenter", props.item.layer_id, onMouseEnter);
       map.value.off("mouseleave", props.item.layer_id, onMouseLeave);
     }

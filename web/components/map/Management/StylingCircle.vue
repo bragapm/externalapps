@@ -2,7 +2,7 @@
 import { inject } from "vue";
 
 const props = defineProps<{
-  layerItem: VectorTiles;
+  layerItem: VectorTiles | LoadedGeoJson;
 }>();
 
 const groupIndex = inject("groupIndexProvider");
@@ -17,19 +17,21 @@ const circleStrokeWidth = ref(
 );
 const fillOpacity = ref(
   parseFloat(
-    (props.layerItem.layer_style as CircleStyles).paint_circle_opacity
+    (props.layerItem.layer_style as CircleStyles).paint_circle_opacity ?? "1"
   ) * 100
 );
 const strokeOpacity = ref(
   parseFloat(
-    (props.layerItem.layer_style as CircleStyles).paint_circle_stroke_opacity
+    (props.layerItem.layer_style as CircleStyles).paint_circle_stroke_opacity ??
+      "1"
   ) * 100
 );
 const fillColor = ref(
-  (props.layerItem.layer_style as CircleStyles).paint_circle_color
+  (props.layerItem.layer_style as CircleStyles).paint_circle_color ?? "#000000"
 );
 const strokeColor = ref(
-  (props.layerItem.layer_style as CircleStyles).paint_circle_stroke_color
+  (props.layerItem.layer_style as CircleStyles).paint_circle_stroke_color ??
+    "#000000"
 );
 
 const store = useMapLayer();

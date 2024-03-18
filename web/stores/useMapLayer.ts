@@ -10,6 +10,8 @@ import type {
   ThreeDTilesConfig,
   RasterTilesConfig,
   VectorTilesConfig,
+  LoadedGeoJson,
+  LayerConfigLists,
 } from "~/utils/types";
 import {
   geomTypeCircle,
@@ -22,11 +24,12 @@ import {
   uncategorizedAlias,
 } from "~/constants";
 import { isString, parseString } from "~/utils";
+import iDB from "~/utils/iDB";
 
 export const useMapLayer = defineStore("maplayer", () => {
   const mapRefStore = useMapRef();
-  const groupedActiveLayers = ref<LayerGroupedByCategory[] | null>(null);
-  const groupedLayerList = ref<LayerGroupedByCategory[] | null>(null);
+  const groupedActiveLayers = ref<LayerGroupedByCategory[]>([]);
+  const groupedLayerList = ref<LayerGroupedByCategory[]>([]);
 
   const handleVisibility = (
     groupIndex: number,
@@ -83,7 +86,7 @@ export const useMapLayer = defineStore("maplayer", () => {
       let newValue;
 
       if (isString(propValue)) {
-        newValue = parseString(propValue);
+        newValue = parseString(propValue as string);
       } else {
         newValue = propValue;
       }
@@ -217,16 +220,20 @@ export const useMapLayer = defineStore("maplayer", () => {
     }
 
     //sort by layer_alias is ascending order
-    layersArr.sort(
-      (
-        a: VectorTiles | RasterTiles | ThreeDTiles,
-        b: VectorTiles | RasterTiles | ThreeDTiles
-      ) => {
-        const nameA = a.layer_alias.toUpperCase(); // ignore upper and lowercase
-        const nameB = b.layer_alias.toUpperCase(); // ignore upper and lowercase
-        return nameA.localeCompare(nameB);
+    layersArr.sort((a, b) => {
+      let nameA: string, nameB: string;
+      if (a.source === "vector_tiles") {
+        nameA = a.layer_alias?.toUpperCase() || a.layer_name.toUpperCase();
+      } else {
+        nameA = a.layer_alias.toUpperCase();
       }
-    );
+      if (b.source === "vector_tiles") {
+        nameB = b.layer_alias?.toUpperCase() || b.layer_name.toUpperCase();
+      } else {
+        nameB = b.layer_alias.toUpperCase();
+      }
+      return nameA.localeCompare(nameB);
+    });
     return layersArr;
   };
 
@@ -261,22 +268,20 @@ export const useMapLayer = defineStore("maplayer", () => {
           }
         }
 
-        return group!.sort(
-          (a: LayerGroupedByCategory, b: LayerGroupedByCategory) => {
-            const nameA = a.label.toUpperCase(); // ignore upper and lowercase
-            const nameB = b.label.toUpperCase(); // ignore upper and lowercase
+        return group.sort((a, b) => {
+          const nameA = a.label.toUpperCase(); // ignore upper and lowercase
+          const nameB = b.label.toUpperCase(); // ignore upper and lowercase
 
-            // '3D' group should always come first
-            if (nameA === "3D") return -1;
-            if (nameB === "3D") return 1;
+          // '3D' group should always come first
+          if (nameA === "3D") return -1;
+          if (nameB === "3D") return 1;
 
-            // 'Terrain' group should always come last
-            if (nameA === "TERRAIN") return 1;
-            if (nameB === "TERRAIN") return -1;
+          // 'Terrain' group should always come last
+          if (nameA === "TERRAIN") return 1;
+          if (nameB === "TERRAIN") return -1;
 
-            return nameA.localeCompare(nameB);
-          }
-        );
+          return nameA.localeCompare(nameB);
+        });
       },
       []
     );
@@ -285,31 +290,44 @@ export const useMapLayer = defineStore("maplayer", () => {
 
   const fetchListedLayers = async () => {
     try {
-      const { data: layers, pending } = await useAsyncData(
-        "map-layer-tiles",
-        async () => {
-          const [vectorTiles, rasterTiles, threeDTiles] = await Promise.all<{
+      const [vectorTiles, rasterTiles, threeDTiles, loadedGeoJsonData] =
+        await Promise.all([
+          $fetch<{
             data: LayerConfigLists;
-          }>([
-            $fetch("/panel/items/vector_tiles?fields=*.*.*&sort=layer_name"),
-            $fetch("/panel/items/raster_tiles?fields=*.*&sort=layer_alias"),
-            $fetch("/panel/items/three_d_tiles?fields=*.*&sort=layer_alias"),
-          ]);
+          }>("/panel/items/vector_tiles?fields=*.*.*&sort=layer_name"),
+          $fetch<{
+            data: LayerConfigLists;
+          }>("/panel/items/raster_tiles?fields=*.*&sort=layer_alias"),
+          $fetch<{
+            data: LayerConfigLists;
+          }>("/panel/items/three_d_tiles?fields=*.*&sort=layer_alias"),
+          iDB.loadedGeoJsonData.toArray(),
+        ]);
 
-          return { vectorTiles, rasterTiles, threeDTiles };
-        }
+      const allLayerData = groupLayerByCategory(
+        getLayersArr({
+          vectorTiles,
+          rasterTiles,
+          threeDTiles,
+        }).concat(
+          loadedGeoJsonData.map((el) => {
+            return {
+              source: el.source,
+              layer_id: el.layer_id,
+              layer_alias: el.layer_alias,
+              layer_style: el.layer_style,
+              bounds: el.bounds,
+              category: el.category,
+              geometry_type: el.geometry_type,
+              dimension: el.dimension,
+            };
+          })
+        )
       );
 
-      const allLayerData: LayerLists = [];
-      if (layers.value) {
-        allLayerData.push(...getLayersArr(layers.value));
-      }
-
-      if (allLayerData) {
-        groupedLayerList.value = groupLayerByCategory(allLayerData);
-      }
+      groupedLayerList.value = allLayerData;
     } catch (error) {
-      return null;
+      return [];
     }
   };
 
@@ -346,7 +364,7 @@ export const useMapLayer = defineStore("maplayer", () => {
         groupedActiveLayers.value = groupLayerByCategory(allLayerData);
       }
     } catch (error) {
-      return null;
+      return [];
     }
   };
 
@@ -358,7 +376,9 @@ export const useMapLayer = defineStore("maplayer", () => {
   }>({});
 
   //remove item from groupedActiveLayer
-  const removeLayer = (layerItem: VectorTiles | RasterTiles | ThreeDTiles) => {
+  const removeLayer = (
+    layerItem: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
+  ) => {
     let groupName = layerItem.category
       ? layerItem.category.category_name
       : uncategorizedAlias;

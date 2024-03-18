@@ -15,12 +15,22 @@ const sortOption = [
 const sortAlphabetical = ref(sortOption[0]);
 
 watch(sortAlphabetical, async () => {
-  const current = JSON.parse(JSON.stringify(mapLayerStore.groupedLayerList))
-    ?.map(({ layerLists }: any) => layerLists)
+  const current = mapLayerStore.groupedLayerList
+    .map(({ layerLists }) => layerLists)
     .flat();
-  current!.sort((a: any, b: any) => {
-    const nameA = a.layer_alias.toUpperCase(); // ignore upper and lowercase
-    const nameB = b.layer_alias.toUpperCase(); // ignore upper and lowercase
+  current.sort((a, b) => {
+    let nameA: string;
+    let nameB: string;
+    if (a.source === "vector_tiles") {
+      nameA = a.layer_alias?.toUpperCase() ?? a.layer_name.toUpperCase()
+    } else {
+      nameA = a.layer_alias.toUpperCase()
+    }
+    if (b.source === "vector_tiles") {
+      nameB = b.layer_alias?.toUpperCase() ?? b.layer_name.toUpperCase()
+    } else {
+      nameB = b.layer_alias.toUpperCase()
+    }
     if (sortAlphabetical.value.id === "asc") {
       return nameA.localeCompare(nameB);
     } else {

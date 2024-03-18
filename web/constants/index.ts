@@ -10,6 +10,7 @@ import IcDrawFree from "~/assets/icons/ic-draw-free.svg";
 export const mapApiKey = "D7JUUxLv3oK21JM9jscD";
 
 export const uncategorizedAlias = "Others";
+export const uncategorizedLoadedData = "Loaded Data"
 
 export const geomTypeCircle = "Circle";
 export const geomTypeSymbol = "Symbol";

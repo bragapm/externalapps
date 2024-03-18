@@ -7,7 +7,7 @@ import bbox from "@turf/bbox";
 
 defineProps<{
   disabled: boolean;
-  item: VectorTiles | RasterTiles | ThreeDTiles;
+  item: LayerLists[number];
 }>();
 
 const store = useTableData();

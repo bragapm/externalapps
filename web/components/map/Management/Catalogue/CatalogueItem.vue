@@ -4,22 +4,31 @@ import IcHelp from "~/assets/icons/ic-help.svg";
 import IcSpinner from "~/assets/icons/ic-spinner.svg";
 import IcCheck from "~/assets/icons/ic-check.svg";
 import IcMapLayerA from "~/assets/icons/ic-map-layer-a.svg";
-import type { VectorTiles, RasterTiles, ThreeDTiles } from "~/utils/types";
+import type {
+  VectorTiles,
+  RasterTiles,
+  ThreeDTiles,
+  LoadedGeoJson,
+} from "~/utils/types";
 
 defineProps<{
-  item: VectorTiles | RasterTiles | ThreeDTiles;
+  item: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson;
   isActive: boolean;
 }>();
 
 const emit = defineEmits<{
-  addLayer: [layerItem: VectorTiles | RasterTiles | ThreeDTiles];
+  addLayer: [
+    layerItem: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
+  ];
 }>();
 
 const mapLayerStore = useMapLayer();
 
 const isLoad = ref(false);
 
-const addLayer = (item: VectorTiles | RasterTiles | ThreeDTiles) => {
+const addLayer = (
+  item: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
+) => {
   isLoad.value = true;
   setTimeout(() => {
     isLoad.value = false;
@@ -27,7 +36,9 @@ const addLayer = (item: VectorTiles | RasterTiles | ThreeDTiles) => {
   }, 750);
 };
 
-const removeLayer = (item: VectorTiles | RasterTiles | ThreeDTiles) => {
+const removeLayer = (
+  item: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
+) => {
   isLoad.value = true;
   setTimeout(() => {
     isLoad.value = false;
@@ -77,7 +88,9 @@ const removeLayer = (item: VectorTiles | RasterTiles | ThreeDTiles) => {
       <div class="flex items-center justify-between gap-2">
         <h5 class="text-xs text-grey-50 truncate">
           {{
-            item.layer_alias || (item as VectorTiles).layer_name
+            item.source === "vector_tiles"
+              ? item.layer_alias ?? item.layer_name
+              : item.layer_alias
           }}
         </h5>
         <button>
