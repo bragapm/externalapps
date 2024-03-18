@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { GeoJSONSource } from "maplibre-gl";
+
 const mapStore = useMapRef();
 const { map } = mapStore;
 const toast = useToast();
@@ -17,6 +19,51 @@ const findCoordinate = () => {
       center: [parseFloat(longitudeRef.value), parseFloat(latitudeRef.value)],
       zoom: 6,
     });
+    if (!map?.getSource("find-coordinate-point")) {
+      map?.addSource("find-coordinate-point", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              geometry: {
+                type: "Point",
+                coordinates: [
+                  parseFloat(longitudeRef.value),
+                  parseFloat(latitudeRef.value),
+                ],
+              },
+            },
+          ],
+        },
+      });
+      map?.addLayer({
+        type: "symbol",
+        source: "find-coordinate-point",
+        id: "find-coordinate-point-pulsing",
+        layout: {
+          "icon-image": "pulsing-dot",
+        },
+      });
+    } else {
+      (map?.getSource("find-coordinate-point") as GeoJSONSource).setData({
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "Point",
+              coordinates: [
+                parseFloat(longitudeRef.value),
+                parseFloat(latitudeRef.value),
+              ],
+            },
+          },
+        ],
+      });
+    }
   } else {
     toast.add({
       title: "Invalid Input",
@@ -25,6 +72,13 @@ const findCoordinate = () => {
     });
   }
 };
+
+onUnmounted(() => {
+  if (map?.getSource("find-coordinate-point")) {
+    map.removeLayer("find-coordinate-point-pulsing");
+    map.removeSource("find-coordinate-point");
+  }
+});
 </script>
 
 <template>
