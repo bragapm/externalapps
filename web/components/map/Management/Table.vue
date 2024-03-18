@@ -6,13 +6,12 @@ import IcExpand from "~/assets/icons/ic-expand.svg";
 import IcFilter from "~/assets/icons/ic-filter.svg";
 import IcShrink from "~/assets/icons/ic-shrink.svg";
 import IcSort from "~/assets/icons/ic-sort.svg";
+
 const store = useTableData();
 const { toggleTable, toggleFullscreen } = store;
 
-const selected = ref([]);
 const selectedIds = ref<string[]>([]);
 const highlightedIds = ref<string[]>([]);
-const page = ref(1);
 
 const { data: headerData, refetch: refetchHeader } = useQuery({
   queryKey: [`/panel/fields/${store.activeCollection}`],
@@ -29,18 +28,14 @@ const columns = computed<
   }[]
 >(() => {
   if (headerData.value) {
-    const currentColumns = headerData.value.map((el: any) => {
-      return {
+    return headerData.value
+      .map((el: any) => ({
         key: el.field,
         label: capitalizeEachWords(el.field),
         is_primary_key: el.schema.is_primary_key,
         type: el.type,
-      };
-    });
-
-    return currentColumns.filter(
-      (el: any) => !el.is_primary_key && el.type !== "geometry"
-    );
+      }))
+      .filter((el: any) => !el.is_primary_key && el.type !== "geometry");
   } else return [];
 });
 
@@ -58,6 +53,10 @@ const {
       limit: "25",
       page: pageParam.toString(),
       meta: "filter_count",
+      fields: headerData.value
+        .filter((el: any) => el.type !== "geometry")
+        .map((el: any) => el.field)
+        .join(","),
     };
     if (pageParam) {
       delete queryParams.meta;
@@ -74,11 +73,25 @@ const {
 
 const isAllChecked = ref(false);
 
-const onRowSelect = (fid: string | number, _: boolean) => {
+const onRowClick = (fid: string) => {
+  if (highlightedIds.value.includes(fid as string))
+    highlightedIds.value = highlightedIds.value.filter((e) => e !== fid);
+  else highlightedIds.value = [...highlightedIds.value, fid as string];
+};
+
+const onRowSelect = (fid: string) => {
   if (selectedIds.value.includes(fid as string))
     selectedIds.value = selectedIds.value.filter((e) => e !== fid);
-  else selectedIds.value = [...selectedIds.value, fid as string];
+  else {
+    selectedIds.value = [...selectedIds.value, fid as string];
+    if (!highlightedIds.value.includes(fid as string))
+      highlightedIds.value = [...highlightedIds.value, fid as string];
+  }
 };
+
+// watchEffect(() => {
+//   console.log(tableData.value);
+// });
 </script>
 
 <template>
@@ -149,58 +162,6 @@ const onRowSelect = (fid: string | number, _: boolean) => {
         </button>
       </div>
     </div>
-    <!-- Old Table -->
-    <!-- <section class="h-[calc(100%-5.5rem)] flex flex-col gap-2">
-      <UTable
-        v-model="selected"
-        :rows="tableData?.data"
-        :columns="columns"
-        class="overflow-scroll"
-        :ui="{
-          wrapper: 'bg-transparent rounded-xxs border border-grey-700 ',
-          divide: 'divide-y divide-grey-700 dark:divide-grey-700',
-          thead: 'sticky top-0 bg-grey-800 z-10',
-          tbody: 'divide-y divide-grey-700 dark:divide-grey-700',
-          tr: {
-            selected: 'bg-grey-800',
-          },
-          th: {
-            base: 'text-left rtl:text-right',
-            padding: 'px-3 py-3.5',
-            color: 'text-grey-50 dark:text-grey-50',
-            font: 'font-semibold',
-            size: 'text-sm',
-          },
-          checkbox: {
-            padding: 'ps-4',
-          },
-        }"
-      >
-      </UTable>
-      <UPagination
-        class="flex justify-end py-3"
-        v-model="page"
-        :page-count="25"
-        :total="tableData?.meta.filter_count"
-        :active-button="{ variant: 'paginationActive' }"
-        :inactive-button="{ variant: 'paginationInactive' }"
-        :prev-button="{ variant: 'paginationInactive' }"
-        :next-button="{ variant: 'paginationInactive' }"
-        :first-button="{
-          variant: 'paginationInactive',
-        }"
-        :last-button="{
-          variant: 'paginationInactive',
-        }"
-        show-first
-        show-last
-        :ui="{
-          wrapper: 'gap-2',
-          rounded: 'first:rounded-s-xxs last:rounded-e-xxs',
-        }"
-      />
-    </section> -->
-
     <!-- New Table -->
     <section
       class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-grey-700 w-full overflow-scroll"
@@ -212,9 +173,10 @@ const onRowSelect = (fid: string | number, _: boolean) => {
             :index="0"
             :is-checked="isAllChecked"
             :forHeader="true"
-            @on-change="
-              (_, newValue) => {
-                isAllChecked = newValue;
+            @click="
+              () => {
+                isAllChecked = !isAllChecked;
+                selectedIds = [];
               }
             "
           />
@@ -222,19 +184,27 @@ const onRowSelect = (fid: string | number, _: boolean) => {
         <div
           v-for="column in columns"
           :key="column.key"
-          class="bg-grey-800 h-14 flex-1 min-w-[10rem] text-grey-50 flex items-center text-xs font-medium px-3 py-4"
+          class="bg-grey-800 h-14 flex-1 min-w-[12rem] text-grey-50 flex items-center text-xs font-medium px-3 py-4"
         >
           <p class="line-clamp-2">{{ column.label }}</p>
         </div>
       </header>
-      <section v-if="tableData?.pages.length">
-        <div v-for="tableRows in tableData.pages">
-          <div
-            class="flex w-full"
+
+      <template v-if="tableData?.pages.length">
+        <template v-for="tableRows in tableData.pages">
+          <main
+            role="button"
+            @click="() => onRowClick(rowData.ogc_fid)"
+            class="flex w-full group"
             v-for="rowData in tableRows.data"
             :key="rowData.ogc_fid"
           >
-            <div class="h-[4.5rem] w-14 flex items-center justify-center">
+            <div
+              :class="
+                'h-[4.5rem] w-14 flex items-center justify-center group-hover:bg-grey-700 ' +
+                (highlightedIds.includes(rowData.ogc_fid) ? 'bg-red-950 ' : ' ')
+              "
+            >
               <CoreCheckbox
                 id="id-checkbox"
                 :index="rowData.ogc_fid"
@@ -242,18 +212,30 @@ const onRowSelect = (fid: string | number, _: boolean) => {
                   isAllChecked || selectedIds.includes(rowData.ogc_fid)
                 "
                 :forHeader="true"
-                @on-change="onRowSelect"
+                @click="
+                  (event : Event) => {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    onRowSelect(rowData.ogc_fid);
+                  }
+                "
               />
             </div>
             <div
               v-for="column in columns"
               :key="column.key"
-              class="h-[4.5rem] flex-1 min-w-[10rem] text-grey-400 flex items-center text-xs font-normal px-3 py-4"
+              :class="
+                'first-letter:h-[4.5rem] flex-1 min-w-[12rem] flex items-center text-xs font-normal px-3 py-4 group-hover:bg-grey-700 ' +
+                (highlightedIds.includes(rowData.ogc_fid)
+                  ? 'text-brand-500 '
+                  : 'text-grey-400 ') +
+                (highlightedIds.includes(rowData.ogc_fid) ? 'bg-red-950 ' : ' ')
+              "
             >
               <p class="line-clamp-2">{{ rowData[column.key] }}</p>
             </div>
-          </div>
-        </div>
+          </main>
+        </template>
 
         <div class="flex w-full justify-center items-center mb-2">
           <button
@@ -263,11 +245,12 @@ const onRowSelect = (fid: string | number, _: boolean) => {
             Load More
           </button>
         </div>
-      </section>
+      </template>
       <span
         class="absolute rounded-xxs border border-grey-600 bottom-8 left-8 w-1/4 bg-grey-800 h-9 text-grey-400 flex justify-center items-center text-xs"
-        >0 row selected</span
-      >
+        >{{ selectedIds.length }} row
+        {{ (isAllChecked ? "un" : "") + "selected" }}
+      </span>
       <span
         class="absolute rounded-xxs border border-grey-600 bottom-8 right-8 w-1/4 bg-grey-800 h-9 text-grey-400 flex justify-center items-center text-xs"
         >from {{ tableData?.pages[0].meta.filter_count }} rows</span
