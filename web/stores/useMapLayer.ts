@@ -195,7 +195,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             source: "raster_tiles",
             opacity: 1,
             layer_style: {
-              layout_visibility: "none",
+              layout_visibility: item.visible ? "visible" : "none",
             },
             geometry_type: item.terrain_rgb ? geomTypeTerrain : geomTypeRaster,
             dimension: "2D",

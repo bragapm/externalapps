@@ -227,6 +227,7 @@ export type RasterTilesConfig = {
   terrain_rgb: boolean;
   layer_alias: string;
   active: boolean;
+  visible: boolean;
   category?: { category_name?: string };
 };
 
