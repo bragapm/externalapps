@@ -201,7 +201,15 @@ watch(highlightedIds, debouncedMapHighlight, {
             class="w-[14px] h-[14px] text-grey-400"
             :fontControlled="false"
           />
-          Filter
+          Filter</button
+        ><button
+          class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
+        >
+          <IcDownload
+            class="w-[14px] h-[14px] text-grey-400"
+            :fontControlled="false"
+          />
+          Download {{ selectedIds.length ? "Selected" : "All" }}
         </button>
       </div>
       <div class="flex items-center gap-3">
@@ -210,12 +218,6 @@ watch(highlightedIds, debouncedMapHighlight, {
           class="p-2 border border-grey-600 rounded-xxs bg-grey-800"
         >
           <IcExpand
-            class="w-[14px] h-[14px] text-grey-400"
-            :fontControlled="false"
-          />
-        </button>
-        <button class="p-2 border border-grey-600 rounded-xxs bg-grey-800">
-          <IcDownload
             class="w-[14px] h-[14px] text-grey-400"
             :fontControlled="false"
           />
@@ -298,12 +300,12 @@ watch(highlightedIds, debouncedMapHighlight, {
         </template>
 
         <div class="flex w-full justify-center items-center mb-2">
-          <button
+          <UButton
             @click="() => (hasNextPage ? fetchNextPage() : null)"
-            class="w-1/3 bg-brand-600 mt-2 h-9 text-white text-center rounded-xxs text-xs border border-grey-50"
+            class="w-1/3 mt-2 h-9 rounded-xxs flex justify-center items-center"
+            :label="hasNextPage ? 'Load More' : 'End of Data'"
           >
-            {{ hasNextPage ? "Load More" : "End of Data" }}
-          </button>
+          </UButton>
         </div>
       </template>
       <span
