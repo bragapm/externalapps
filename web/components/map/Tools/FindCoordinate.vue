@@ -20,6 +20,18 @@ const findCoordinate = () => {
       zoom: 6,
     });
     if (!map?.getSource("find-coordinate-point")) {
+      map?.addImage(
+        "pulsing-point",
+        createPulsingDot({
+          map: map!,
+          size: 90,
+          strokeStyle: getBrandColor("500"),
+          fillStyle: getBrandColor("500"),
+        }),
+        {
+          pixelRatio: 2,
+        }
+      );
       map?.addSource("find-coordinate-point", {
         type: "geojson",
         data: {
@@ -43,7 +55,7 @@ const findCoordinate = () => {
         source: "find-coordinate-point",
         id: "find-coordinate-point-pulsing",
         layout: {
-          "icon-image": "pulsing-dot",
+          "icon-image": "pulsing-point",
         },
       });
     } else {
@@ -75,6 +87,7 @@ const findCoordinate = () => {
 
 onUnmounted(() => {
   if (map?.getSource("find-coordinate-point")) {
+    map?.removeImage("pulsing-point");
     map.removeLayer("find-coordinate-point-pulsing");
     map.removeSource("find-coordinate-point");
   }
