@@ -233,6 +233,8 @@ export type RasterTilesConfig = {
 export type ThreeDTiles = {
   source: "three_d_tiles";
   opacity: number;
+  point_size?: number;
+  point_color?: string;
   layer_style: { layout_visibility: string };
   geometry_type: string;
   layer_alias: string;
@@ -249,6 +251,8 @@ export type ThreeDTilesConfig = {
   layer_alias: string;
   layer_id: string;
   opacity: number;
+  point_size?: number;
+  point_color?: string;
   visible: boolean;
 };
 

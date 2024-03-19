@@ -205,6 +205,8 @@ export const useMapLayer = defineStore("maplayer", () => {
           ThreeDTilesItem = {
             source: "three_d_tiles",
             opacity: item.opacity,
+            point_size: item.point_size,
+            point_color: item.point_color,
             layer_style: {
               layout_visibility: item.visible ? "visible" : "none",
             },

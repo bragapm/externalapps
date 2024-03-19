@@ -27,9 +27,10 @@ const updateBounds = (id: string, center: [number, number], zoom: number) => {
             id: layer.layer_id,
             data: '/panel/3d-tiles/' + layer.layer_id + '/tileset.json',
             opacity: layer.opacity,
+            pointSize: layer.point_size || 1,
             visible: layer.layer_style.layout_visibility === 'visible',
             loader: Tiles3DLoader,
-            getPointColor: [200, 200, 200, 100],
+            getPointColor: layer.point_color ? [hexToRgb(layer.point_color).r, hexToRgb(layer.point_color).g, hexToRgb(layer.point_color).b ,100] :[200, 200, 200, 100],
             onTilesetLoad: (tileset: any) => {
                 const { cartographicCenter, zoom } = tileset;
                 updateBounds(layer.layer_id, [cartographicCenter[0],cartographicCenter[1]] , zoom)
