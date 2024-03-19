@@ -115,7 +115,7 @@ const handleChangeOpacity = (e: Event) => {
           </div>
         </div>
       </div>
-      <div class="p-2 space-y-2">
+      <!-- <div class="p-2 space-y-2">
         <div class="flex justify-between items-center text-2xs">
           <p class="text-grey-200">Fill Color</p>
           <p class="text-grey-400">Styling</p>
@@ -180,8 +180,8 @@ const handleChangeOpacity = (e: Event) => {
             </teleport>
           </transition>
         </Menu>
-      </div>
-      <div class="p-2 space-y-2">
+      </div> -->
+      <!-- <div class="p-2 space-y-2">
         <div class="flex justify-between items-center text-2xs">
           <p class="text-grey-200">Stroke</p>
           <p class="text-grey-400">Styling</p>
@@ -203,7 +203,7 @@ const handleChangeOpacity = (e: Event) => {
               /> </template
           ></UInput>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
