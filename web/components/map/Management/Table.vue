@@ -15,7 +15,25 @@ const { toggleTable, toggleFullscreen } = store;
 const selectedIds = ref<string[]>([]);
 const highlightedIds = ref<string[]>([]);
 
-const { data: headerData, refetch: refetchHeader } = useQuery({
+const {
+  data: countData,
+  error: countError,
+  isFetching: isCountFetching,
+  isError: isCountError,
+} = useQuery({
+  queryKey: [`/panel/items/${store.activeCollection}?aggregate[count]=*`],
+  queryFn: ({ queryKey }) =>
+    $fetch<{ data: { count: number }[] }>(queryKey[0]).then(
+      (r) => r.data[0].count
+    ),
+});
+
+const {
+  data: headerData,
+  error: headerError,
+  isFetching: isHeaderFetching,
+  isError: isHeaderError,
+} = useQuery({
   queryKey: [`/panel/fields/${store.activeCollection}`],
   queryFn: ({ queryKey }) =>
     $fetch<{ data: any }>(queryKey[0]).then((r) => r.data),
@@ -43,34 +61,36 @@ const columns = computed<
 
 const {
   data: tableData,
-  error,
+  error: tableError,
   fetchNextPage,
+  hasNextPage,
   isLoading,
   isError,
   isFetching,
 } = useInfiniteQuery({
   queryKey: [`/panel/items/${store.activeCollection}?`],
-  queryFn: async ({ pageParam = 0 }) => {
+  queryFn: async ({ pageParam = 1 }) => {
     const queryParams: Record<string, string> = {
       limit: "25",
       page: pageParam.toString(),
-      meta: "filter_count",
       fields: headerData.value
         .filter((el: any) => el.type !== "geometry")
         .map((el: any) => el.field)
         .join(","),
     };
-    if (pageParam) {
-      delete queryParams.meta;
-    }
-
-    return $fetch<{ data: any; meta: any }>(
+    const r = await $fetch<{ data: any[] }>(
       `/panel/items/${store.activeCollection}?` +
         new URLSearchParams(queryParams)
     );
+    return r.data;
   },
-  initialPageParam: 0,
-  getNextPageParam: (_, pages) => pages.length + 1,
+  initialPageParam: 1,
+  getNextPageParam: (_, allPages, lastPageParam) => {
+    if (allPages.length * 25 >= countData.value!) {
+      return undefined;
+    }
+    return lastPageParam + 1;
+  },
 });
 
 const isAllChecked = ref(false);
@@ -86,55 +106,52 @@ const onRowSelect = (fid: string) => {
     selectedIds.value = selectedIds.value.filter((e) => e !== fid);
   else {
     selectedIds.value = [...selectedIds.value, fid as string];
-    if (!highlightedIds.value.includes(fid as string))
+    if (!isAllChecked.value && !highlightedIds.value.includes(fid as string))
       highlightedIds.value = [...highlightedIds.value, fid as string];
   }
 };
 
 const mapRefStore = useMapRef();
-watch(
-  highlightedIds,
-  async (newValue, oldValue) => {
-    if (!newValue.length) {
-      if (mapRefStore.map?.getSource("highlight")) {
-        (mapRefStore.map.getSource("highlight") as GeoJSONSource).setData({
-          type: "FeatureCollection",
-          features: [],
-        } as any);
-      }
-    } else {
-      const queryParams: Record<string, string> = {
-        fields: "geom",
-        "filter[ogc_fid][_in]": newValue.join(","),
-      };
-      const { data } = await $fetch<{ data: any }>(
-        `/panel/items/${store.activeCollection}?` +
-          new URLSearchParams(queryParams)
-      );
-      showHighlightLayer(mapRefStore.map!, data, store.activeCollection!, true);
-      mapRefStore.map!.fitBounds(
-        bbox({
-          type: "FeatureCollection",
-          features: data.map(({ geom }: { geom: GeoJSON.Geometry }) => ({
-            type: "Feature",
-            geometry: geom,
-          })),
-        } as GeoJSON.FeatureCollection) as LngLatBoundsLike,
-        {
-          padding: {
-            top: 80,
-            bottom: 20,
-            left: window.innerWidth * 0.49,
-            right: 20,
-          },
-        }
-      );
+const debouncedMapHighlight = debounce(async (newValue: string[]) => {
+  if (!newValue.length) {
+    if (mapRefStore.map?.getSource("highlight")) {
+      (mapRefStore.map.getSource("highlight") as GeoJSONSource).setData({
+        type: "FeatureCollection",
+        features: [],
+      } as any);
     }
-  },
-  {
-    immediate: true,
+  } else {
+    const queryParams: Record<string, string> = {
+      fields: "geom",
+      "filter[ogc_fid][_in]": newValue.join(","),
+    };
+    const { data } = await $fetch<{ data: any }>(
+      `/panel/items/${store.activeCollection}?` +
+        new URLSearchParams(queryParams)
+    );
+    showHighlightLayer(mapRefStore.map!, data, store.activeCollection!, true);
+    mapRefStore.map!.fitBounds(
+      bbox({
+        type: "FeatureCollection",
+        features: data.map(({ geom }: { geom: GeoJSON.Geometry }) => ({
+          type: "Feature",
+          geometry: geom,
+        })),
+      } as GeoJSON.FeatureCollection) as LngLatBoundsLike,
+      {
+        padding: {
+          top: 80,
+          bottom: 20,
+          left: window.innerWidth * 0.49,
+          right: 20,
+        },
+      }
+    );
   }
-);
+}, 750);
+watch(highlightedIds, debouncedMapHighlight, {
+  immediate: true,
+});
 </script>
 
 <template>
@@ -239,7 +256,7 @@ watch(
             role="button"
             @click="() => onRowClick(rowData.ogc_fid)"
             class="flex w-full group"
-            v-for="rowData in tableRows.data"
+            v-for="rowData in tableRows"
             :key="rowData.ogc_fid"
           >
             <div
@@ -282,10 +299,10 @@ watch(
 
         <div class="flex w-full justify-center items-center mb-2">
           <button
-            @click="() => fetchNextPage()"
+            @click="() => (hasNextPage ? fetchNextPage() : null)"
             class="w-1/3 bg-brand-600 mt-2 h-9 text-white text-center rounded-xxs text-xs border border-grey-50"
           >
-            Load More
+            {{ hasNextPage ? "Load More" : "End of Data" }}
           </button>
         </div>
       </template>
@@ -296,7 +313,7 @@ watch(
       </span>
       <span
         class="absolute rounded-xxs border border-grey-600 bottom-8 right-8 w-1/4 bg-grey-800 h-9 text-grey-400 flex justify-center items-center text-xs"
-        >from {{ tableData?.pages[0].meta.filter_count }} rows</span
+        >from {{ countData }} rows</span
       >
     </section>
   </div>
