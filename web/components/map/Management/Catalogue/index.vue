@@ -213,7 +213,7 @@ watch(searchRef, (newValue) => {
           <MapManagementCatalogueFileUploadInput ref="fileUploadInput" />
           <UButton
             :ui="{ rounded: 'rounded-xxs' }"
-            :label="!uploadMode ? 'Upload Data' : 'Back to Catalogue'"
+            :label="!uploadMode ? 'Load Local Data' : 'Back to Catalogue'"
             variant="outline"
             color="brand"
             class="w-full justify-between text-sm"
