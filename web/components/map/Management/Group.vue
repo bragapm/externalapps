@@ -73,7 +73,13 @@ const handleChangeOrder = () => {
   <Disclosure v-slot="{ open }">
     <DisclosureButton
       @click="() => (isPanelOpen = !isPanelOpen)"
-      :draggable="label === geomTypeThreeD ? false : filtered ? false : true"
+      :draggable="
+        label === geomTypeThreeD || label === 'Terrain'
+          ? false
+          : filtered
+          ? false
+          : true
+      "
       @dragstart="
         (e) => {
           emit('updateDragGroup', order);
@@ -81,21 +87,27 @@ const handleChangeOrder = () => {
       "
       @dragenter="
         () => {
-          if (label !== geomTypeThreeD) {
+          if (label !== geomTypeThreeD && label !== 'Terrain') {
             emit('updateDragOverGroup', order);
           }
         }
       "
       @drop="
         () => {
-          if (label !== geomTypeThreeD) {
+          if (label !== geomTypeThreeD && label !== 'Terrain') {
             emit('handleChangeGroupOrder');
           }
         }
       "
-      @dragover="(e) => e.preventDefault()"
+      @dragover="
+        (e) => {
+          e.preventDefault();
+        }
+      "
       :class="[
-        filtered ? 'cursor-pointer' : 'cursor-grab',
+        filtered || label === geomTypeThreeD || label === 'Terrain'
+          ? 'cursor-pointer'
+          : 'cursor-grab',
         'text-sm text-grey-200 flex items-center justify-between w-full py-2',
       ]"
     >
@@ -127,7 +139,9 @@ const handleChangeOrder = () => {
           :key="item.layer_id"
         >
           <MapManagementLayerVector
-            v-if="item.source === 'vector_tiles' || item.source === 'loaded_geojson'"
+            v-if="
+              item.source === 'vector_tiles' || item.source === 'loaded_geojson'
+            "
             :filtered="filtered"
             :order="index"
             :groupOrder="order"
