@@ -31,6 +31,7 @@ const getGeomTypeAndStyle = (
       layerStyle: {
         paint_circle_color: randomColor,
         paint_circle_radius: 5,
+        paint_circle_stroke_width: 1,
         layout_visibility: "visible"
       },
     };
@@ -54,6 +55,7 @@ const getGeomTypeAndStyle = (
       geomType: geomTypePolygon,
       layerStyle: {
         paint_fill_color: randomColor,
+        paint_fill_outline_color: "#000000",
         layout_visibility: "visible"
       },
     };
