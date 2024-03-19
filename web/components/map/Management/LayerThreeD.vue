@@ -137,11 +137,9 @@ const updateOpacity = (value: number) => {
       leaveTo="transform max-h-0 opacity-0"
       class="transition-all duration-500 ease-in-out"
     >
-      <MapManagementStyling
-        :source="layerItem.source"
-        :opacity="layerItem.opacity"
-        :layerId="layerItem.layer_id"
-        @update-opacity="updateOpacity"
+      <MapManagementStylingThreeD
+    
+        :layerItem="layerItem"
       />
     </TransitionRoot>
   </div>

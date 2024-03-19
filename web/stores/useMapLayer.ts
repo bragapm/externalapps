@@ -77,7 +77,7 @@ export const useMapLayer = defineStore("maplayer", () => {
   const updateLayerProperty = (
     groupIndex: number,
     layerIndex: number,
-    propType: "paint" | "layout",
+    propType: "paint" | "layout" | "3d",
     propName: string,
     propValue: string | number | boolean,
     layerId: string
@@ -92,9 +92,13 @@ export const useMapLayer = defineStore("maplayer", () => {
       }
       const prev = groupedActiveLayers.value;
       const selected = prev[groupIndex].layerLists[layerIndex];
-      (selected.layer_style as Record<string, any>)[
-        `${propType}_` + propName.replace(/-/g, "_")
-      ] = propValue;
+      if (propType !== "3d") {
+        (selected.layer_style as Record<string, any>)[
+          `${propType}_` + propName.replace(/-/g, "_")
+        ] = propValue;
+      } else {
+        (selected as Record<string, any>)[propName] = propValue;
+      }
 
       groupedActiveLayers.value = prev;
       if (mapRefStore.map) {
