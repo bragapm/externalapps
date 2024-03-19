@@ -4,7 +4,7 @@ import IcFileSort from "~/assets/icons/ic-file-sort.svg";
 import IcCloudUpload from "~/assets/icons/ic-cloud-upload.svg";
 import IcArrow from "~/assets/icons/ic-arrow-square.svg";
 import { layerTypeFilterOptions, dimensionFilterOptions } from "~/constants";
-import FileUploadInput from "./FileUploadInput.vue";
+import LoadFileInput from "./LoadFileInput.vue";
 
 const catalogueStore = useCatalogue();
 const { toggleCatalogue } = catalogueStore;
@@ -12,7 +12,7 @@ const mapLayerStore = useMapLayer();
 const { fetchListedLayers } = mapLayerStore;
 const fetchingListedLayers = ref(true);
 const uploadMode = ref(false);
-const fileUploadInput = ref<InstanceType<typeof FileUploadInput> | null>(null);
+const loadFileInput = ref<InstanceType<typeof LoadFileInput> | null>(null);
 
 let timeoutId: NodeJS.Timeout;
 function debounce(func: Function, delay: number) {
@@ -210,7 +210,7 @@ watch(searchRef, (newValue) => {
         <div class="flex flex-col p-2 gap-2">
           <div class="border-t border-grey-700" />
           <!-- TODO UI flow for file upload -->
-          <MapManagementCatalogueFileUploadInput ref="fileUploadInput" />
+          <MapManagementCatalogueLoadFileInput ref="loadFileInput" />
           <UButton
             :ui="{ rounded: 'rounded-xxs' }"
             :label="!uploadMode ? 'Load Local Data' : 'Back to Catalogue'"
@@ -221,7 +221,7 @@ watch(searchRef, (newValue) => {
               () => {
                 // TODO alter uploadMode logic and UI (multiple files)
                 // uploadMode = !uploadMode;
-                fileUploadInput?.input?.click();
+                loadFileInput?.input?.click();
               }
             "
           >
