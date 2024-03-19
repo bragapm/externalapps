@@ -103,15 +103,6 @@ const updateOpacity = (value: number) => {
 
 <template>
   <div
-    :draggable="filtered ? false : true"
-    @dragstart="
-      (ev) => {
-        emit('updateDragItem', {
-          groupOrder,
-          itemOrder: order,
-        });
-      }
-    "
     @dragenter="
       () => {
         emit('updateDragOverItem', {
@@ -128,6 +119,15 @@ const updateOpacity = (value: number) => {
     @dragover="(e) => e.preventDefault()"
   >
     <div
+      :draggable="filtered ? false : true"
+      @dragstart="
+        (ev) => {
+          emit('updateDragItem', {
+            groupOrder,
+            itemOrder: order,
+          });
+        }
+      "
       :class="[
         isShowStyling
           ? 'bg-grey-700'
