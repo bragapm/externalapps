@@ -267,9 +267,47 @@ watch(searchRef, (newValue) => {
             </template>
           </UInput>
         </div>
-        <div v-if="fetchingListedLayers">
-          <!-- TODO UI for loading state -->
-          Loading...
+        <div
+          v-if="fetchingListedLayers"
+          class="flex flex-col w-full h-full border border-grey-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y divide-grey-700"
+        >
+          <div v-for="i of [0, 1]" :key="i" class="flex flex-col p-3 gap-1">
+            <USkeleton :ui="{ background: 'bg-gray-800' }" class="h-6 w-1/12" />
+            <USkeleton :ui="{ background: 'bg-gray-800' }" class="h-4 w-3/12" />
+            <USkeleton :ui="{ background: 'bg-gray-800' }" class="h-4 w-5/12" />
+            <div
+              class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-3 gap-3"
+            >
+              <div
+                v-for="i of [0, 1, 2, 3, 4]"
+                :key="i"
+                class="flex flex-col gap-2 border border-grey-700 rounded-xs p-2"
+              >
+                <USkeleton
+                  :ui="{ background: 'bg-gray-800', rounded: 'rounded-xxs' }"
+                  class="h-6 w-1/4"
+                />
+                <USkeleton
+                  :ui="{ background: 'bg-gray-800', rounded: 'rounded-xxs' }"
+                  class="h-24 w-full"
+                />
+                <div class="flex flex-col gap-2">
+                  <USkeleton
+                    :ui="{ background: 'bg-gray-800' }"
+                    class="h-3 w-1/3"
+                  />
+                  <USkeleton
+                    :ui="{ background: 'bg-gray-800' }"
+                    class="h-3 w-2/3"
+                  />
+                </div>
+                <USkeleton
+                  :ui="{ background: 'bg-gray-800', rounded: 'rounded-xxs' }"
+                  class="w-full h-9"
+                />
+              </div>
+            </div>
+          </div>
         </div>
         <MapManagementCatalogueData
           v-else
