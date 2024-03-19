@@ -68,9 +68,17 @@ onMounted(async () => {
   setGeolocateRef(geolocate.value);
   map.value.on("load", () => {
     setMapLoad(true);
-    map.value!.addImage("pulsing-dot", createPulsingDot(map.value!, 90), {
-      pixelRatio: 2,
-    });
+    map.value!.addImage(
+      "pulsing-dot",
+      createPulsingDot({
+        map: map.value!,
+        size: 90,
+        strokeStyle: getBrandColor("200"),
+      }),
+      {
+        pixelRatio: 2,
+      }
+    );
   });
 });
 onUnmounted(() => {

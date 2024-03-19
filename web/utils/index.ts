@@ -188,7 +188,17 @@ export const showHighlightLayer = (
   // console.log(featureList[0].geom.type);
 };
 
-export const createPulsingDot = (map: Map, size: number) => ({
+export const createPulsingDot = ({
+  map,
+  size,
+  strokeStyle,
+  fillStyle,
+}: {
+  map: Map;
+  size: number;
+  strokeStyle: string;
+  fillStyle?: string;
+}) => ({
   width: size,
   height: size,
   data: new Uint8Array(size * size * 4),
@@ -223,7 +233,10 @@ export const createPulsingDot = (map: Map, size: number) => ({
     context!.beginPath();
     context!.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2);
     // context!.fillStyle = "rgba(255, 100, 100, 1)";
-    context!.strokeStyle = getBrandColor("200");
+    if (fillStyle) {
+      context!.fillStyle = fillStyle;
+    }
+    context!.strokeStyle = strokeStyle;
     context!.lineWidth = 2 + 4 * (1 - t);
     context!.fill();
     context!.stroke();
