@@ -13,8 +13,6 @@ const props = defineProps<{
   groupOrder: number;
   filtered: boolean;
   layerItem: RasterTiles;
-  dragItem: any;
-  dragOverItem: any;
 }>();
 
 const emit = defineEmits<{

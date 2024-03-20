@@ -91,8 +91,8 @@ const updateIconTitle = (title: string) => {
         <URange
           v-model="iconOpacity"
           @input="
-            (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'icon-opacity');
+            (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string)/100, 'icon-opacity');
             }
           "
           name="range"
@@ -117,8 +117,8 @@ const updateIconTitle = (title: string) => {
         <UInput
           v-model="iconOpacity"
           @blur="
-             (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'icon-opacity');
+             (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string)/100, 'icon-opacity');
             }
           "
           type="number"

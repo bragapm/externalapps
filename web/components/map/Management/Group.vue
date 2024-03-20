@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LayerLists, RasterTiles, VectorTiles } from "~/utils/types";
+import type { LayerGroupedByCategory, LayerLists } from "~/utils/types";
 import {
   Disclosure,
   DisclosureButton,
@@ -14,14 +14,12 @@ const props = defineProps<{
   filtered: boolean;
   defaultOpen: boolean;
   label: string;
-  layerLists: LayerLists;
-  dragGroup?: any;
-  dragOverGroup?: any;
+  layerLists: LayerLists[];
 }>();
 
 const emit = defineEmits<{
-  updateDragGroup: [order: any];
-  updateDragOverGroup: [order: any];
+  updateDragGroup: [order: number];
+  updateDragOverGroup: [order: number];
   handleChangeGroupOrder: [];
 }>();
 
@@ -44,7 +42,7 @@ const updateDragOverItem = (order: {
   dragOverItem.value = order;
 };
 const handleChangeOrder = () => {
-  const copiedGroupedActiveLayers: any[] = JSON.parse(
+  const copiedGroupedActiveLayers: LayerGroupedByCategory[] = JSON.parse(
     JSON.stringify(store.groupedActiveLayers)
   );
   const movedItem =
@@ -146,9 +144,7 @@ const handleChangeOrder = () => {
             :order="index"
             :groupOrder="order"
             :layerItem="item"
-            :dragItem="dragItem"
             @update-drag-item="updateDragItem"
-            :dragOverItem="dragOverItem"
             @update-drag-over-item="updateDragOverItem"
             @handle-change-order="handleChangeOrder"
           />
@@ -158,9 +154,7 @@ const handleChangeOrder = () => {
             :order="index"
             :groupOrder="order"
             :layerItem="item"
-            :dragItem="dragItem"
             @update-drag-item="updateDragItem"
-            :dragOverItem="dragOverItem"
             @update-drag-over-item="updateDragOverItem"
             @handle-change-order="handleChangeOrder"
           />

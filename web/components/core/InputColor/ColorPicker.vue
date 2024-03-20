@@ -22,8 +22,10 @@ const parsedColor = computed(() => parseColor(selectedColor.value));
 const satCoords = computed(() => getSaturationCoordinates(parsedColor.value));
 const hueCoords = computed(() => getHueCoordinates(parsedColor.value));
 
-const onSaturationChange = (event: any) => {
-  const { width, height, left, top } = event.target.getBoundingClientRect();
+const onSaturationChange = (event: MouseEvent) => {
+  const { width, height, left, top } = (
+    event.target as HTMLInputElement
+  ).getBoundingClientRect();
   const x = clamp(event.clientX - left, 0, width);
   const y = clamp(event.clientY - top, 0, height);
 
@@ -47,7 +49,7 @@ const handleEyedropper = () => {
         selectedColor.value = color;
         props.updateColor(selectedColor.value);
       })
-      .catch((e: any) => {
+      .catch((e: ErrorEvent) => {
         console.error(e);
       });
   }

@@ -24,8 +24,6 @@ const props = defineProps<{
   groupOrder: number;
   filtered: boolean;
   layerItem: VectorTiles | LoadedGeoJson;
-  dragItem: any;
-  dragOverItem: any;
 }>();
 
 const emit = defineEmits<{

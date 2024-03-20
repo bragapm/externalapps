@@ -64,8 +64,8 @@ const handleChangeProperty = (
         <UInput
           v-model="circleRadius"
           @blur="
-            (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string), 'circle-radius');
+            (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string), 'circle-radius');
             }
           "
           type="number"
@@ -93,8 +93,8 @@ const handleChangeProperty = (
         <UInput
           v-model="circleStrokeWidth"
           @blur="
-            (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string), 'circle-stroke-width');
+            (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string), 'circle-stroke-width');
             }
           "
           type="number"
@@ -114,8 +114,8 @@ const handleChangeProperty = (
         <URange
           v-model="strokeOpacity"
           @input="
-            (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'circle-stroke-opacity');
+            (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string)/100, 'circle-stroke-opacity');
             }
           "
           name="range"
@@ -140,8 +140,8 @@ const handleChangeProperty = (
         <UInput
           v-model="strokeOpacity"
           @blur="
-             (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'circle-opacity');
+             (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string)/100, 'circle-opacity');
             }
           "
           type="number"
@@ -173,8 +173,8 @@ const handleChangeProperty = (
         <URange
           v-model="fillOpacity"
           @input="
-            (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'circle-opacity');
+            (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string)/100, 'circle-opacity');
             }
           "
           name="range"
@@ -199,8 +199,8 @@ const handleChangeProperty = (
         <UInput
           v-model="fillOpacity"
           @blur="
-             (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'circle-opacity');
+             (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string)/100, 'circle-opacity');
             }
           "
           type="number"

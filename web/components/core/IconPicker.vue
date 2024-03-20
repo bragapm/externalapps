@@ -47,17 +47,6 @@ const { floatingStyles } = useFloating(reference, floating, {
 });
 
 const filterRef = ref("");
-let timeoutId: NodeJS.Timeout;
-function debounce(func: Function, delay: number) {
-  return function (...args: any[]) {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    timeoutId = setTimeout(() => {
-      func.apply(null, args);
-    }, delay);
-  };
-}
 
 const handleFilter = (input: string) => {
   if (input) {
@@ -69,9 +58,7 @@ const handleFilter = (input: string) => {
   }
 };
 
-watch(filterRef, (newVal) => {
-  debounce(handleFilter, 500)(newVal);
-});
+watch(filterRef, debounce(handleFilter, 500));
 </script>
 
 <template>

@@ -5,7 +5,7 @@ import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 
 defineProps<{
   modelValue: string | null;
-  updateLineDash: (value: any) => void;
+  updateLineDash: (value: null | number[]) => void;
   disabled?: boolean;
 }>();
 const emit = defineEmits(["update:modelValue"]);

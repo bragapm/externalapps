@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import IcFileSort from "~/assets/icons/ic-file-sort.svg";
-import type { LayerGroupedByCategory } from "~/utils/types";
+import type { LayerGroupedByCategory, LayerLists } from "~/utils/types";
 const store = useMapLayer();
 const storeCatalogue = useCatalogue();
 const mapRefStore = useMapRef();
@@ -10,18 +10,6 @@ const filteredLayers = ref<null | LayerGroupedByCategory[]>(null);
 
 const filterRef = ref("");
 
-let timeoutId: NodeJS.Timeout;
-function debounce(func: Function, delay: number) {
-  return function (...args: any[]) {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    timeoutId = setTimeout(() => {
-      func.apply(null, args);
-    }, delay);
-  };
-}
-
 const handleFilter = (input: string) => {
   if (input) {
     if (store.groupedActiveLayers) {
@@ -30,7 +18,7 @@ const handleFilter = (input: string) => {
           return {
             ...item,
             defaultOpen: true,
-            layerLists: item.layerLists.filter((el: any) => {
+            layerLists: item.layerLists.filter((el: LayerLists) => {
               if (el.layer_alias) {
                 return el.layer_alias
                   ?.toLowerCase()
@@ -46,26 +34,24 @@ const handleFilter = (input: string) => {
   }
 };
 
-watch(filterRef, (newVal) => {
-  debounce(handleFilter, 500)(newVal);
-});
+watch(filterRef, debounce(handleFilter, 500));
 
 //drag&drop
 const dragGroup = ref<null | number>(null);
-const updateDragGroup = (order: any) => {
+const updateDragGroup = (order: number) => {
   dragGroup.value = order;
 };
 const dragOverGroup = ref<null | number>(null);
-const updateDragOverGroup = (order: any) => {
+const updateDragOverGroup = (order: number) => {
   dragOverGroup.value = order;
 };
 
 const handleChangeGroupOrder = () => {
-  const copiedGroupedActiveLayers: any[] = JSON.parse(
+  const copiedGroupedActiveLayers: LayerGroupedByCategory[] = JSON.parse(
     JSON.stringify(store.groupedActiveLayers)
   );
   const movedGroup = copiedGroupedActiveLayers[dragGroup.value!];
-  movedGroup.layerLists.forEach((el: any) => {
+  movedGroup.layerLists.forEach((el: LayerLists) => {
     if (mapRefStore.map?.getLayer(el.layer_id)) {
       mapRefStore.map?.removeLayer(el.layer_id);
     }
@@ -131,9 +117,7 @@ const handleChangeGroupOrder = () => {
           :defaultOpen="item.defaultOpen"
           :layerLists="item.layerLists"
           :label="item.label"
-          :dragGroup="dragGroup"
           @update-drag-group="updateDragGroup"
-          :dragOverGroup="dragOverGroup"
           @update-drag-over-group="updateDragOverGroup"
           @handle-change-group-order="handleChangeGroupOrder"
         />

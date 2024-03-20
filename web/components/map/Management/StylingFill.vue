@@ -47,8 +47,8 @@ const handleChangeProperty = (
         <URange
           v-model="fillOpacity"
           @input="
-            (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'fill-opacity');
+            (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string)/100, 'fill-opacity');
             }
           "
           name="range"
@@ -73,8 +73,8 @@ const handleChangeProperty = (
         <UInput
           v-model="fillOpacity"
           @blur="
-             (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'fill-opacity');
+             (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string)/100, 'fill-opacity');
             }
           "
           type="number"

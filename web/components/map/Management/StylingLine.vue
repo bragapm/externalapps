@@ -28,7 +28,7 @@ const { updateLayerProperty } = store;
 
 const handleChangeProperty = (
   propType: "paint" | "layout",
-  value: string | number | boolean,
+  value: string | number | boolean | null,
   propName: string
 ) => {
   updateLayerProperty(
@@ -80,8 +80,8 @@ const handleChangeProperty = (
         <UInput
           v-model="lineWidth"
           @blur="
-            (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string), 'line-width');
+            (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string), 'line-width');
             }
           "
           type="number"
@@ -150,8 +150,8 @@ const handleChangeProperty = (
         <URange
           v-model="lineOpacity"
           @input="
-            (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'line-opacity');
+            (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string)/100, 'line-opacity');
             }
           "
           name="range"
@@ -176,8 +176,8 @@ const handleChangeProperty = (
         <UInput
           v-model="lineOpacity"
           @blur="
-             (e:any) => {
-              handleChangeProperty('paint',parseFloat(e.target.value as string)/100, 'line-opacity');
+             (e:Event) => {
+              handleChangeProperty('paint',parseFloat((e.target as HTMLInputElement).value as string)/100, 'line-opacity');
             }
           "
           type="number"

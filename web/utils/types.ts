@@ -65,7 +65,7 @@ export type SymbolStyles = {
     | "top-right"
     | "bottom-left"
     | "bottom-right";
-  layout_text_field?: any;
+  layout_text_field?: string;
   layout_text_font?: string[];
   layout_text_ignore_placement?: boolean;
   layout_text_justify?: "auto" | "left" | "center" | "right";
@@ -282,11 +282,11 @@ export type LayerLists = (
   | RasterTiles
   | ThreeDTiles
   | LoadedGeoJson
-)[];
+);
 
 export type LayerGroupedByCategory = {
   label: string;
-  layerLists: LayerLists;
+  layerLists: LayerLists[];
   defaultOpen: boolean;
 };
 
@@ -323,4 +323,12 @@ export type AuthPayload = {
   access_token: string;
   refresh_token: string;
   expires: number;
+};
+
+export type ToolItem = {
+  id: string;
+  label: string;
+  labelCard?: string;
+  icon?: string;
+  action?: (item?: ToolItem) => void;
 };

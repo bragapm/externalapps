@@ -17,11 +17,16 @@ import type {
   LoadedGeoJson,
 } from "~/utils/types";
 
+type StyleObject = Record<
+  string,
+  string | number | boolean | any[] | undefined
+>;
+
 const store = useMapRef();
 const { map } = storeToRefs(store);
 
 const props = defineProps<{
-  renderedLayers: LayerLists;
+  renderedLayers: LayerLists[];
   item: VectorTiles | LoadedGeoJson;
   order: number;
 }>();
@@ -73,8 +78,8 @@ watchEffect(async (onInvalidate) => {
       }
 
       if (props.item.geometry_type === geomTypeCircle) {
-        let paint: any = {},
-          layout: any = {};
+        let paint: StyleObject = {},
+          layout: StyleObject = {};
 
         Object.keys(props.item.layer_style).forEach((key) => {
           const [category, ...nameStrings] = key.split("_");
@@ -129,8 +134,8 @@ watchEffect(async (onInvalidate) => {
         }
         map.value.addLayer(layer, beforeId || undefined);
       } else if (props.item.geometry_type === geomTypeSymbol) {
-        let paint: any = {},
-          layout: any = {};
+        let paint: StyleObject = {},
+          layout: StyleObject = {};
 
         Object.keys(props.item.layer_style).forEach((key) => {
           const [category, ...nameStrings] = key.split("_");
@@ -138,17 +143,11 @@ watchEffect(async (onInvalidate) => {
             category === "paint" &&
             props.item.layer_style?.[key as keyof typeof props.item.layer_style]
           ) {
-            paint[nameStrings.join("-")] = nameStrings.includes("opacity")
-              ? parseFloat(
-                  (props.item.layer_style as SymbolStyles)[
-                    key as keyof SymbolStyles
-                  ]
-                )
-              : isString(
-                  (props.item.layer_style as SymbolStyles)[
-                    key as keyof SymbolStyles
-                  ]
-                )
+            paint[nameStrings.join("-")] = isString(
+              (props.item.layer_style as SymbolStyles)[
+                key as keyof SymbolStyles
+              ]
+            )
               ? parseString(
                   (props.item.layer_style as SymbolStyles)[
                     key as keyof SymbolStyles
@@ -191,8 +190,8 @@ watchEffect(async (onInvalidate) => {
           beforeId || undefined
         );
       } else if (props.item.geometry_type === geomTypePolygon) {
-        let paint: any = {},
-          layout: any = {};
+        let paint: StyleObject = {},
+          layout: StyleObject = {};
 
         Object.keys(props.item.layer_style as FillStyles).forEach((key) => {
           const [category, ...nameStrings] = key.split("_");
@@ -231,8 +230,8 @@ watchEffect(async (onInvalidate) => {
         }
         map.value.addLayer(layer, beforeId || undefined);
       } else if (props.item.geometry_type === geomTypeLine) {
-        let paint: any = {},
-          layout: any = {};
+        let paint: StyleObject = {},
+          layout: StyleObject = {};
 
         Object.keys(props.item.layer_style as LineStyles).forEach((key) => {
           const [category, ...nameStrings] = key.split("_");

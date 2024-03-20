@@ -11,14 +11,7 @@ import IcRulerCorner from "~/assets/icons/ic-ruler-corner.svg";
 import IcSearch from "~/assets/icons/ic-search.svg";
 import IcTools from "~/assets/icons/ic-tools.svg";
 import { storeToRefs } from "pinia";
-
-type toolItem = {
-  id: string;
-  label: string;
-  labelCard?: string;
-  icon?: string;
-  action?: (item?: any) => void;
-};
+import type { ToolItem } from "~/utils/types";
 
 const showTools = ref(true);
 const showIsochroneCard = ref(false);
@@ -30,9 +23,9 @@ const { toggleExpandTools } = toolsStore;
 const { expandTools } = storeToRefs(toolsStore);
 
 const showCard = ref(false);
-const activeTools = ref<toolItem | null>(null);
+const activeTools = ref<ToolItem | null>(null);
 
-const handleOpenToolsCard = (item: toolItem) => {
+const handleOpenToolsCard = (item: ToolItem) => {
   showCard.value = true;
   showTools.value = false;
   activeTools.value = item;
@@ -103,7 +96,7 @@ const handleCloseToolsCard = () => {
             label: 'Find Coordinate',
             icon: IcDrawFree,
             action: (item) => {
-              handleOpenToolsCard(item);
+              handleOpenToolsCard(item!);
             },
           },
           {
@@ -130,7 +123,7 @@ const handleCloseToolsCard = () => {
             labelCard: 'Length Measurement Tool',
             icon: IcRuler,
             action: (item) => {
-              handleOpenToolsCard(item);
+              handleOpenToolsCard(item!);
             },
           },
           {
@@ -139,7 +132,7 @@ const handleCloseToolsCard = () => {
             labelCard: 'Area Measurement Tool',
             icon: IcRulerCorner,
             action: (item) => {
-              handleOpenToolsCard(item);
+              handleOpenToolsCard(item!);
             },
           },
         ]"

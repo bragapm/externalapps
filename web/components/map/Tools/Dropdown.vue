@@ -2,19 +2,14 @@
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { storeToRefs } from "pinia";
 import IcArrow from "~/assets/icons/ic-arrow-reg.svg";
+import type { ToolItem } from "~/utils/types";
 
 const props = defineProps<{
   triggerLabel?: string;
   triggerIcon?: any;
   itemLabel?: string;
   itemDescription?: string;
-  items?: {
-    id: string;
-    label: string;
-    labelCard?: string;
-    icon?: string;
-    action?: (item?: any) => void;
-  }[];
+  items?: ToolItem[];
 }>();
 
 const toolsStore = useMapTools();

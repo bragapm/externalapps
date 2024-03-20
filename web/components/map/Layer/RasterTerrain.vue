@@ -6,7 +6,7 @@ const store = useMapRef();
 const { map } = storeToRefs(store);
 
 const props = defineProps<{
-  renderedLayers: LayerLists;
+  renderedLayers: LayerLists[];
   item: RasterTiles;
   order: number;
 }>();

@@ -79,7 +79,7 @@ export const useMapLayer = defineStore("maplayer", () => {
     layerIndex: number,
     propType: "paint" | "layout" | "3d",
     propName: string,
-    propValue: string | number | boolean,
+    propValue: string | number | boolean | null,
     layerId: string
   ) => {
     if (groupedActiveLayers.value) {
@@ -122,7 +122,7 @@ export const useMapLayer = defineStore("maplayer", () => {
       data: LayerConfigLists;
     };
   }) => {
-    const layersArr: LayerLists = [];
+    const layersArr: LayerLists[] = [];
     for (const [key, value] of Object.entries(layers)) {
       value.data.forEach((el) => {
         if (key === "vectorTiles") {
@@ -243,7 +243,7 @@ export const useMapLayer = defineStore("maplayer", () => {
     return layersArr;
   };
 
-  const groupLayerByCategory = (layerLists: LayerLists) => {
+  const groupLayerByCategory = (layerLists: LayerLists[]) => {
     const layerGroupedByCategory = layerLists.reduce(
       (group: LayerGroupedByCategory[], item) => {
         const existingCategory = group.find((group: LayerGroupedByCategory) => {
@@ -360,7 +360,7 @@ export const useMapLayer = defineStore("maplayer", () => {
         }
       );
 
-      const allLayerData: LayerLists = [];
+      const allLayerData: LayerLists[] = [];
 
       if (layers.value) {
         allLayerData.push(...getLayersArr(layers.value));
