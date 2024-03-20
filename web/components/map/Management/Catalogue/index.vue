@@ -14,24 +14,13 @@ const fetchingListedLayers = ref(true);
 const uploadMode = ref(false);
 const loadFileInput = ref<InstanceType<typeof LoadFileInput> | null>(null);
 
-let timeoutId: NodeJS.Timeout;
-function debounce(func: Function, delay: number) {
-  return function (...args: any[]) {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    timeoutId = setTimeout(() => {
-      func.apply(null, args);
-    }, delay);
-  };
-}
-
 // get listed layer list
 onMounted(async () => {
   await fetchListedLayers();
   fetchingListedLayers.value = false;
 });
 const filteredLayers = ref<LayerGroupedByCategory[]>([]);
+const filteredLocalLayers = ref<LayerGroupedByCategory[]>([]);
 
 const formatLists = ref(layerTypeFilterOptions);
 const handleChangeFormatList = (index: number, value: boolean) => {
@@ -83,24 +72,42 @@ const handleChangeDimensionList = (index: number, value: boolean) => {
     }
   }
 };
+
+const sortOrder = ref<{ id: "asc" | "desc"; name: string }>({
+  id: "asc",
+  name: "Sort - Alphabetical (A-Z)",
+});
+
 const searchFilter = ref("");
 
 const searchRef = ref("");
 
-const applyFilter = () => {
-  let current = mapLayerStore.groupedLayerList;
+const updateSortOrder = (order: { id: "asc" | "desc"; name: string }) => {
+  sortOrder.value = order;
+};
 
+const updateFilteredLayers = (newValue: LayerGroupedByCategory[]) => {
+  filteredLayers.value = newValue;
+};
+const updateFilteredLocalLayers = (newValue: LayerGroupedByCategory[]) => {
+  filteredLocalLayers.value = newValue;
+};
+
+const applyFilter = (
+  data: LayerGroupedByCategory[],
+  updateFunc: (newValue: LayerGroupedByCategory[]) => void
+) => {
   //filter by format
   if (formatLists.value.length) {
     const filteredFormat = formatLists.value
       .filter((el) => el.checked === true && el.type !== "all")
       .map((el) => el.type);
 
-    const filteredByFormat = current
+    const filteredByFormat = data
       .map((item: LayerGroupedByCategory) => {
         return {
           ...item,
-          layerLists: item.layerLists.filter((el: any) => {
+          layerLists: item.layerLists.filter((el: LayerLists) => {
             if (filteredFormat.length > 0) {
               return filteredFormat.includes(el.geometry_type);
             } else {
@@ -109,9 +116,9 @@ const applyFilter = () => {
           }),
         };
       })
-      .filter((item: any) => item.layerLists.length > 0);
+      .filter((item: LayerGroupedByCategory) => item.layerLists.length > 0);
 
-    current = filteredByFormat;
+    data = filteredByFormat;
   }
   //filter by format
 
@@ -121,11 +128,11 @@ const applyFilter = () => {
       .filter((el) => el.checked === true && el.type !== "all")
       .map((el) => el.type);
 
-    const filteredByDimension = current
+    const filteredByDimension = data
       ?.map((item: LayerGroupedByCategory) => {
         return {
           ...item,
-          layerLists: item.layerLists.filter((el: any) => {
+          layerLists: item.layerLists.filter((el: LayerLists) => {
             if (dimensionFormat.length > 0) {
               return dimensionFormat.includes(el.dimension);
             } else {
@@ -134,15 +141,15 @@ const applyFilter = () => {
           }),
         };
       })
-      .filter((item: any) => item.layerLists.length > 0);
+      .filter((item: LayerGroupedByCategory) => item.layerLists.length > 0);
 
-    current = filteredByDimension;
+    data = filteredByDimension;
   }
   //filter by dimension
 
   //filter by search
   if (searchFilter.value !== "") {
-    const filteredBySearch = current
+    const filteredBySearch = data
       ?.map((item: LayerGroupedByCategory) => {
         return {
           ...item,
@@ -160,24 +167,22 @@ const applyFilter = () => {
           }),
         };
       })
-      .filter((item: any) => item.layerLists.length > 0);
+      .filter((item: LayerGroupedByCategory) => item.layerLists.length > 0);
 
-    current = filteredBySearch;
+    data = filteredBySearch;
   }
-
-  filteredLayers.value = current;
+  updateFunc(data);
 };
 
 watchEffect(() => {
-  applyFilter();
+  applyFilter(mapLayerStore.groupedLayerList, updateFilteredLayers);
+  applyFilter(mapLayerStore.groupedLocalLayers, updateFilteredLocalLayers);
 });
 
 const updateSearchFilter = (input: string) => {
   searchFilter.value = input;
 };
-watch(searchRef, (newValue) => {
-  debounce(updateSearchFilter, 500)(newValue);
-});
+watch(searchRef, debounce(updateSearchFilter, 750));
 </script>
 
 <template>
@@ -228,7 +233,10 @@ watch(searchRef, (newValue) => {
         <div class="flex flex-col p-2 gap-2">
           <div class="border-t border-grey-700" />
           <!-- TODO UI flow for file upload -->
-          <MapManagementCatalogueLoadFileInput ref="loadFileInput" />
+          <MapManagementCatalogueLoadFileInput
+            ref="loadFileInput"
+            :sortOrder="sortOrder"
+          />
           <UButton
             :ui="{ rounded: 'rounded-xxs' }"
             :label="!uploadMode ? 'Load Local Data' : 'Back to Catalogue'"
@@ -259,7 +267,10 @@ watch(searchRef, (newValue) => {
           class="flex border border-grey-700 border-l-0 rounded-tr-xs p-3 items-center justify-between"
         >
           <div class="flex gap-2 items-center">
-            <MapManagementCatalogueSort />
+            <MapManagementCatalogueSort
+              :sortOrder="sortOrder"
+              @update-sort-order="updateSortOrder"
+            />
             <MapManagementCatalogueFormatFilter
               :list="formatLists"
               :handleChange="handleChangeFormatList"
@@ -331,6 +342,7 @@ watch(searchRef, (newValue) => {
           v-else
           :uploadMode="uploadMode"
           :filteredLayers="filteredLayers"
+          :filteredLocalLayers="filteredLocalLayers"
         />
       </div>
     </div>

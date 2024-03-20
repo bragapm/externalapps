@@ -7,42 +7,66 @@ import {
 } from "@headlessui/vue";
 import IcCheck from "~/assets/icons/ic-check.svg";
 
+const props = defineProps<{
+  sortOrder: { id: "asc" | "desc"; name: string };
+}>();
+const emit = defineEmits<{
+  updateSortOrder: [order: { id: "asc" | "desc"; name: string }];
+}>();
+
 const mapLayerStore = useMapLayer();
-const sortOption = [
+const sortOption: { id: "asc" | "desc"; name: string }[] = [
   { id: "asc", name: "Sort - Alphabetical (A-Z)" },
   { id: "desc", name: "Sort - Alphabetical (Z-A)" },
 ];
-const sortAlphabetical = ref(sortOption[0]);
 
-watch(sortAlphabetical, async () => {
-  const current = mapLayerStore.groupedLayerList
-    .map(({ layerLists }) => layerLists)
-    .flat();
-  current.sort((a, b) => {
+const updateLayers = (newValue: LayerGroupedByCategory[]) => {
+  mapLayerStore.groupedLayerList = newValue;
+};
+const updateLocalLayers = (newValue: LayerGroupedByCategory[]) => {
+  mapLayerStore.groupedLocalLayers = newValue;
+};
+
+const handleSort = async (
+  data: LayerLists[],
+  updateFunc: (newValue: LayerGroupedByCategory[]) => void
+) => {
+  data.sort((a, b) => {
     let nameA: string;
     let nameB: string;
     if (a.source === "vector_tiles") {
-      nameA = a.layer_alias?.toUpperCase() ?? a.layer_name.toUpperCase()
+      nameA = a.layer_alias?.toUpperCase() ?? a.layer_name.toUpperCase();
     } else {
-      nameA = a.layer_alias.toUpperCase()
+      nameA = a.layer_alias.toUpperCase();
     }
     if (b.source === "vector_tiles") {
-      nameB = b.layer_alias?.toUpperCase() ?? b.layer_name.toUpperCase()
+      nameB = b.layer_alias?.toUpperCase() ?? b.layer_name.toUpperCase();
     } else {
-      nameB = b.layer_alias.toUpperCase()
+      nameB = b.layer_alias.toUpperCase();
     }
-    if (sortAlphabetical.value.id === "asc") {
+    if (props.sortOrder.id === "asc") {
       return nameA.localeCompare(nameB);
     } else {
       return nameB.localeCompare(nameA);
     }
   });
-  mapLayerStore.groupedLayerList = mapLayerStore.groupLayerByCategory(current);
+  updateFunc(mapLayerStore.groupLayerByCategory(data));
+};
+
+watchEffect(() => {
+  handleSort(
+    mapLayerStore.groupedLayerList.map(({ layerLists }) => layerLists).flat(),
+    updateLayers
+  );
+  handleSort(
+    mapLayerStore.groupedLocalLayers.map(({ layerLists }) => layerLists).flat(),
+    updateLocalLayers
+  );
 });
 </script>
 
 <template>
-  <Listbox v-model="sortAlphabetical" v-slot="{ open }">
+  <Listbox :value="sortOrder" v-slot="{ open }">
     <div class="relative">
       <ListboxButton
         :class="[
@@ -52,7 +76,7 @@ watch(sortAlphabetical, async () => {
             : 'bg-transparent text-grey-200 border-grey-600',
         ]"
       >
-        <span class="block truncate">{{ sortAlphabetical.name }}</span>
+        <span class="block truncate">{{ sortOrder.name }}</span>
       </ListboxButton>
 
       <transition
@@ -66,6 +90,11 @@ watch(sortAlphabetical, async () => {
           <ListboxOption
             v-slot="{ active, selected }"
             v-for="item in sortOption"
+            @click="
+              () => {
+                emit('updateSortOrder', item);
+              }
+            "
             :key="item.name"
             :value="item"
             as="template"
@@ -73,20 +102,20 @@ watch(sortAlphabetical, async () => {
             <li
               :class="[
                 active ? 'bg-brand-950 text-amber-900' : 'text-gray-900',
-                selected ? 'bg-brand-950' : '',
+                sortOrder.id === item.id ? 'bg-brand-950' : '',
                 'relative p-2 select-none rounded-xxs text-grey-200 flex items-center gap-5 cursor-pointer',
               ]"
             >
               <p
                 :class="[
-                  selected ? 'font-medium' : 'font-normal',
+                  sortOrder.id === item.id ? 'font-medium' : 'font-normal',
                   'block truncate text-xs',
                 ]"
               >
                 {{ item.name }}
               </p>
               <IcCheck
-                v-if="selected"
+                v-if="sortOrder.id === item.id"
                 class="w-4 h-4 text-brand-500"
                 :fontControlled="false"
               />

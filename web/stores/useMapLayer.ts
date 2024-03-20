@@ -30,6 +30,7 @@ export const useMapLayer = defineStore("maplayer", () => {
   const mapRefStore = useMapRef();
   const groupedActiveLayers = ref<LayerGroupedByCategory[]>([]);
   const groupedLayerList = ref<LayerGroupedByCategory[]>([]);
+  const groupedLocalLayers = ref<LayerGroupedByCategory[]>([]);
 
   const handleVisibility = (
     groupIndex: number,
@@ -109,6 +110,27 @@ export const useMapLayer = defineStore("maplayer", () => {
         }
       }
     }
+  };
+
+  const sortLayer = (layers: LayerLists[], order: "asc" | "desc" = "asc") => {
+    return layers.sort((a, b) => {
+      let nameA: string, nameB: string;
+      if (a.source === "vector_tiles") {
+        nameA = a.layer_alias?.toUpperCase() || a.layer_name.toUpperCase();
+      } else {
+        nameA = a.layer_alias.toUpperCase();
+      }
+      if (b.source === "vector_tiles") {
+        nameB = b.layer_alias?.toUpperCase() || b.layer_name.toUpperCase();
+      } else {
+        nameB = b.layer_alias.toUpperCase();
+      }
+      if (order === "asc") {
+        return nameA.localeCompare(nameB);
+      } else {
+        return nameB.localeCompare(nameA);
+      }
+    });
   };
 
   const getLayersArr = (layers: {
@@ -225,21 +247,9 @@ export const useMapLayer = defineStore("maplayer", () => {
       });
     }
 
-    //sort by layer_alias is ascending order
-    layersArr.sort((a, b) => {
-      let nameA: string, nameB: string;
-      if (a.source === "vector_tiles") {
-        nameA = a.layer_alias?.toUpperCase() || a.layer_name.toUpperCase();
-      } else {
-        nameA = a.layer_alias.toUpperCase();
-      }
-      if (b.source === "vector_tiles") {
-        nameB = b.layer_alias?.toUpperCase() || b.layer_name.toUpperCase();
-      } else {
-        nameB = b.layer_alias.toUpperCase();
-      }
-      return nameA.localeCompare(nameB);
-    });
+    //sort by layer_alias in ascending order
+    sortLayer(layersArr);
+
     return layersArr;
   };
 
@@ -310,12 +320,15 @@ export const useMapLayer = defineStore("maplayer", () => {
           iDB.loadedGeoJsonData.toArray(),
         ]);
 
-      const allLayerData = groupLayerByCategory(
+      const layerData = groupLayerByCategory(
         getLayersArr({
           vectorTiles,
           rasterTiles,
           threeDTiles,
-        }).concat(
+        })
+      );
+      const localLayerData = groupLayerByCategory(
+        sortLayer(
           loadedGeoJsonData.map((el) => {
             return {
               source: el.source,
@@ -331,7 +344,8 @@ export const useMapLayer = defineStore("maplayer", () => {
         )
       );
 
-      groupedLayerList.value = allLayerData;
+      groupedLayerList.value = layerData;
+      groupedLocalLayers.value = localLayerData;
     } catch (error) {
       return [];
     }
@@ -417,10 +431,12 @@ export const useMapLayer = defineStore("maplayer", () => {
     handleVisibility,
     groupedLayerList,
     groupedActiveLayers,
+    groupedLocalLayers,
     updateLayerOpacity,
     groupLayerByCategory,
     threeDLayerCenter,
     removeLayer,
     updateLayerProperty,
+    sortLayer,
   };
 });

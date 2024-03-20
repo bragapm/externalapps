@@ -41,7 +41,20 @@ const handleScroll = (id: string) => {
         <p class="text-2xs text-grey-500">
           Dataset Folder/Project Uploaded by User
         </p>
-        <!-- TODO separation for loaded_geojson source -->
+        <UButton
+          v-for="category of mapLayerStore.groupedLocalLayers"
+          :key="category.label"
+          :ui="{ rounded: 'rounded-xxs' }"
+          :label="category.label"
+          variant="ghost"
+          color="grey"
+          @click="
+            () => {
+              handleScroll(category.label.split(' ').join(''));
+            }
+          "
+          class="text-xs"
+        />
       </span>
     </div>
   </div>

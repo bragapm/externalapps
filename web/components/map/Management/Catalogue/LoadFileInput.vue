@@ -11,6 +11,10 @@ import {
 import iDB from "~/utils/iDB";
 import type { LoadedGeoJson } from "~/utils/types";
 
+const props = defineProps<{
+  sortOrder: { id: "asc" | "desc"; name: string };
+}>();
+
 const mapStore = useMapRef();
 const mapLayerStore = useMapLayer();
 const input = ref<HTMLInputElement | null>(null);
@@ -32,7 +36,7 @@ const getGeomTypeAndStyle = (
         paint_circle_color: randomColor,
         paint_circle_radius: 5,
         paint_circle_stroke_width: 1,
-        layout_visibility: "visible"
+        layout_visibility: "visible",
       },
     };
   } else if (
@@ -44,7 +48,7 @@ const getGeomTypeAndStyle = (
       layerStyle: {
         paint_line_color: randomColor,
         paint_line_width: 2,
-        layout_visibility: "visible"
+        layout_visibility: "visible",
       },
     };
   } else if (
@@ -56,7 +60,7 @@ const getGeomTypeAndStyle = (
       layerStyle: {
         paint_fill_color: randomColor,
         paint_fill_outline_color: "#000000",
-        layout_visibility: "visible"
+        layout_visibility: "visible",
       },
     };
   } else {
@@ -144,15 +148,21 @@ const handleFileUploadChange = async (e: Event) => {
   };
   await iDB.loadedGeoJsonData.add(newLayerWithData);
 
-  const loadedDataGroupIdx = mapLayerStore.groupedLayerList.findIndex(
+  const loadedDataGroupIdx = mapLayerStore.groupedLocalLayers.findIndex(
     (el) => el.label === uncategorizedLoadedData
   );
   if (loadedDataGroupIdx > -1) {
-    mapLayerStore.groupedLayerList[loadedDataGroupIdx].layerLists.push(
+    mapLayerStore.groupedLocalLayers[loadedDataGroupIdx].layerLists.push(
       newLayer
     );
+    const currentLayers = mapLayerStore.groupedLocalLayers
+      .map(({ layerLists }) => layerLists)
+      .flat();
+    mapLayerStore.groupedLocalLayers = mapLayerStore.groupLayerByCategory(
+      mapLayerStore.sortLayer(currentLayers, props.sortOrder.id)
+    );
   } else {
-    mapLayerStore.groupedLayerList.push({
+    mapLayerStore.groupedLocalLayers.push({
       label: uncategorizedLoadedData,
       layerLists: [newLayer],
       defaultOpen: false,
