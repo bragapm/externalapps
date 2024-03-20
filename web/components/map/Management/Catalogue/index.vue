@@ -203,7 +203,7 @@ watch(searchRef, (newValue) => {
       <div
         class="flex flex-col text-white border border-grey-700 rounded-l-xs gap-2 overflow-hidden w-60"
       >
-        <div v-if="fetchingListedLayers" class="flex-1">
+        <div v-if="fetchingListedLayers" class="flex-1 overflow-scroll">
           <template v-for="i of [0, 1]" :key="i">
             <div v-if="i !== 0" class="border-t border-grey-700 mx-2" />
             <div class="flex flex-col gap-2 p-2">
