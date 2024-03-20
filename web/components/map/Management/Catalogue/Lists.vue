@@ -1,6 +1,5 @@
 <script setup lang="ts">
 defineProps<{
-  fetchingListedLayers: boolean;
   uploadMode: boolean;
 }>();
 
@@ -20,15 +19,7 @@ const handleScroll = (id: string) => {
           Dataset Folder/Project Provided by Default
         </p>
       </span>
-      <USkeleton
-        v-if="fetchingListedLayers"
-        v-for="i of [0, 1, 2, 3, 4]"
-        :key="i"
-        :ui="{ rounded: 'rounded-xxs', background: 'bg-gray-800' }"
-        class="w-full h-7"
-      />
       <UButton
-        v-else
         v-for="category of mapLayerStore.groupedLayerList"
         :key="category.label"
         :ui="{ rounded: 'rounded-xxs' }"

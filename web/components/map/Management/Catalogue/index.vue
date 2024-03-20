@@ -203,10 +203,28 @@ watch(searchRef, (newValue) => {
       <div
         class="flex flex-col text-white border border-grey-700 rounded-l-xs gap-2 overflow-hidden w-60"
       >
-        <MapManagementCatalogueLists
-          :fetchingListedLayers="fetchingListedLayers"
-          :uploadMode="uploadMode"
-        />
+        <div v-if="fetchingListedLayers" class="flex-1">
+          <template v-for="i of [0, 1]" :key="i">
+            <div v-if="i !== 0" class="border-t border-grey-700 mx-2" />
+            <div class="flex flex-col gap-2 p-2">
+              <USkeleton
+                :ui="{ background: 'bg-gray-800' }"
+                class="h-3 w-1/2"
+              />
+              <USkeleton
+                :ui="{ background: 'bg-gray-800' }"
+                class="h-3 w-full"
+              />
+              <USkeleton
+                v-for="i of [0, 1, 2, 3, 4]"
+                :key="i"
+                :ui="{ rounded: 'rounded-xxs', background: 'bg-gray-800' }"
+                class="w-full h-7"
+              />
+            </div>
+          </template>
+        </div>
+        <MapManagementCatalogueLists v-else :uploadMode="uploadMode" />
         <div class="flex flex-col p-2 gap-2">
           <div class="border-t border-grey-700" />
           <!-- TODO UI flow for file upload -->
