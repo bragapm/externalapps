@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { TransitionRoot } from "@headlessui/vue";
+
 import IcHelp from "~/assets/icons/ic-help.svg";
 import IcSpinner from "~/assets/icons/ic-spinner.svg";
 import IcCheck from "~/assets/icons/ic-check.svg";
 import IcMapLayerA from "~/assets/icons/ic-map-layer-a.svg";
+import IcCross from "~/assets/icons/ic-cross.svg";
+
+import iDB from "~/utils/iDB";
 import type {
   VectorTiles,
   RasterTiles,
@@ -25,6 +29,7 @@ const emit = defineEmits<{
 const mapLayerStore = useMapLayer();
 
 const isLoad = ref(false);
+const hover = ref(false);
 
 const addLayer = (
   item: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
@@ -45,39 +50,70 @@ const removeLayer = (
     mapLayerStore.removeLayer(item);
   }, 750);
 };
+
+const removeLoadedData = async (item: LoadedGeoJson) => {
+  const loadedDataGroupIdx = mapLayerStore.groupedLocalLayers.findIndex(
+    (el) => el.label === item.category.category_name
+  );
+  if (loadedDataGroupIdx < 0) return;
+  if (
+    mapLayerStore.groupedLocalLayers[loadedDataGroupIdx].layerLists.length > 1
+  ) {
+    const layerIdx = mapLayerStore.groupedLocalLayers[
+      loadedDataGroupIdx
+    ].layerLists.findIndex((el) => el.layer_id === item.layer_id);
+    if (layerIdx < 0) return;
+    mapLayerStore.groupedLocalLayers[loadedDataGroupIdx].layerLists.splice(
+      layerIdx,
+      1
+    );
+  } else {
+    mapLayerStore.groupedLocalLayers = [];
+  }
+  await iDB.loadedGeoJsonData.delete(item.layer_id);
+};
 </script>
 
 <template>
-  <div class="flex flex-col gap-2 border border-grey-700 rounded-xs p-2">
-    <div class="flex items-center gap-1">
-      <UBadge
-        :ui="{ rounded: 'rounded-xxs' }"
-        variant="outline"
-        class="flex items-center gap-1 bg-grey-800 text-grey-50 mt-[1px]"
-        color="grey"
-      >
-        <IcMapLayerA></IcMapLayerA>
-        <p>{{ item.geometry_type }}</p>
-      </UBadge>
-      <TransitionRoot
-        :show="isActive"
-        enter="transition-all duration-1000 ease-in-out"
-        enterFrom="transform opacity-0"
-        enterTo="transform opacity-100"
-        leave="transition-all duration-1000 ease-in-out"
-        leaveFrom="transform opacity-100"
-        leaveTo="transform opacity-0"
-      >
+  <div
+    class="flex flex-col gap-2 border border-grey-700 rounded-xs p-2"
+    @mouseover="hover = true"
+    @mouseleave="hover = false"
+  >
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-1">
         <UBadge
           :ui="{ rounded: 'rounded-xxs' }"
           variant="outline"
-          color="green"
-          class="gap-1 bg-grey-800"
+          class="flex items-center gap-1 bg-grey-800 text-grey-50 mt-[1px]"
+          color="grey"
         >
-          <IcCheck></IcCheck>
-          <p>In Map</p>
+          <IcMapLayerA></IcMapLayerA>
+          <p>{{ item.geometry_type }}</p>
         </UBadge>
-      </TransitionRoot>
+        <TransitionRoot
+          :show="isActive"
+          enter="transition-all duration-1000 ease-in-out"
+          enterFrom="transform opacity-0"
+          enterTo="transform opacity-100"
+          leave="transition-all duration-1000 ease-in-out"
+          leaveFrom="transform opacity-100"
+          leaveTo="transform opacity-0"
+        >
+          <UBadge
+            :ui="{ rounded: 'rounded-xxs' }"
+            variant="outline"
+            color="green"
+            class="gap-1 bg-grey-800"
+          >
+            <IcCheck></IcCheck>
+            <p>In Map</p>
+          </UBadge>
+        </TransitionRoot>
+      </div>
+      <button v-if="item.source === 'loaded_geojson' && hover">
+        <IcCross class="text-grey-50" @click="removeLoadedData(item)" />
+      </button>
     </div>
     <img
       src="~/assets/images/catalogue-item.jpeg"
