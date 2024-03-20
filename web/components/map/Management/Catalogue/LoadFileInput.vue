@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import bbox from "@turf/bbox";
-import geojsonhint from "@mapbox/geojsonhint/lib/object";
+import GeojsonWorker from "~/utils/worker/geojson?worker";
 
 import {
   geomTypeCircle,
@@ -11,12 +10,23 @@ import {
 import iDB from "~/utils/iDB";
 import type { LoadedGeoJson } from "~/utils/types";
 
+interface IWorkerMessageSuccess {
+  status: "success";
+  data: { geojsonObj: GeoJSON.GeoJSON; bounds: GeoJSON.Polygon };
+}
+interface IWorkerMessageError {
+  status: "error";
+  message: ErrorEvent["message"];
+  data?: ErrorEvent["error"];
+}
+
 const props = defineProps<{
   sortOrder: { id: "asc" | "desc"; name: string };
 }>();
 
 const mapStore = useMapRef();
 const mapLayerStore = useMapLayer();
+const toast = useToast();
 const input = ref<HTMLInputElement | null>(null);
 
 const getGeomTypeAndStyle = (
@@ -78,96 +88,108 @@ const handleFileUploadChange = async (e: Event) => {
   )
     return;
   const file = target.files[0];
-  let geojsonObj: GeoJSON.GeoJSON;
-  let bounds: GeoJSON.Polygon;
-  try {
-    geojsonObj = JSON.parse(await file.text());
-    const geojsonError = geojsonhint.hint(geojsonObj);
-    if (geojsonError.length) {
-      // TODO UI for error
-      console.error(geojsonError);
-      return;
-    }
-    const [xmin, ymin, xmax, ymax] = bbox(geojsonObj);
-    bounds = {
-      type: "Polygon",
-      coordinates: [
-        [
-          [xmin, ymin],
-          [xmin, ymax],
-          [xmax, ymax],
-          [xmax, ymin],
-          [xmin, ymin],
-        ],
-      ],
-    };
-  } catch (error) {
-    // TODO UI for error
-    console.error(error);
-    return;
-  }
-  if (geojsonObj.type === "GeometryCollection") {
-    // TODO UI for error
-    console.error("GeoJSON with GeometryCollection is not supported");
-    return;
-  }
-
-  let geojsonGeomType: GeoJSON.GeoJsonGeometryTypes;
-  if (geojsonObj.type === "Feature") {
-    geojsonGeomType = geojsonObj.geometry.type;
-  } else if (geojsonObj.type === "FeatureCollection") {
-    if (!geojsonObj.features.length) {
-      // TODO UI for error
-      console.error("Data has no feature");
-      return;
-    }
-    geojsonGeomType = geojsonObj.features[0].geometry.type;
-  } else {
-    geojsonGeomType = geojsonObj.type;
-  }
-  const typeAndStyle = getGeomTypeAndStyle(geojsonGeomType);
-  if (!typeAndStyle) {
-    // TODO UI for error
-    console.error("GeoJSON with GeometryCollection is not supported");
-    return;
-  }
-
-  const newLayer: LoadedGeoJson = {
-    source: "loaded_geojson",
-    layer_id: `__local_${crypto.randomUUID()}`,
-    layer_alias: file.name,
-    category: { category_name: uncategorizedLoadedData },
-    bounds,
-    layer_style: typeAndStyle.layerStyle,
-    geometry_type: typeAndStyle.geomType,
-    dimension: "2D",
-  };
-  const newLayerWithData = {
-    ...newLayer,
-    data: geojsonObj,
-  };
-  await iDB.loadedGeoJsonData.add(newLayerWithData);
-
-  const loadedDataGroupIdx = mapLayerStore.groupedLocalLayers.findIndex(
-    (el) => el.label === uncategorizedLoadedData
-  );
-  if (loadedDataGroupIdx > -1) {
-    mapLayerStore.groupedLocalLayers[loadedDataGroupIdx].layerLists.push(
-      newLayer
-    );
-    const currentLayers = mapLayerStore.groupedLocalLayers
-      .map(({ layerLists }) => layerLists)
-      .flat();
-    mapLayerStore.groupedLocalLayers = mapLayerStore.groupLayerByCategory(
-      mapLayerStore.sortLayer(currentLayers, props.sortOrder.id)
-    );
-  } else {
-    mapLayerStore.groupedLocalLayers.push({
-      label: uncategorizedLoadedData,
-      layerLists: [newLayer],
-      defaultOpen: false,
+  if (!window.Worker) {
+    toast.add({
+      title: "Feature not supported in this browser",
+      description: "Please use browser that supports Web Worker",
+      icon: "i-heroicons-x-mark",
     });
+    return;
   }
+
+  const worker = new GeojsonWorker();
+  worker.addEventListener("error", (e) => {
+    toast.add({
+      title: e.message,
+      icon: "i-heroicons-x-mark",
+    });
+    console.error(e.error);
+    worker.terminate();
+  });
+  worker.addEventListener(
+    "message",
+    async (e: MessageEvent<IWorkerMessageSuccess | IWorkerMessageError>) => {
+      if (e.data.status === "error") {
+        toast.add({
+          title: e.data.message,
+          icon: "i-heroicons-x-mark",
+        });
+        if (e.data.data) {
+          console.error(e.data.data);
+        }
+      } else {
+        const { geojsonObj, bounds } = e.data.data;
+
+        let geojsonGeomType: GeoJSON.GeoJsonGeometryTypes;
+        if (geojsonObj.type === "Feature") {
+          geojsonGeomType = geojsonObj.geometry.type;
+        } else if (geojsonObj.type === "FeatureCollection") {
+          if (!geojsonObj.features.length) {
+            toast.add({
+              title: "Data has no feature",
+              icon: "i-heroicons-x-mark",
+            });
+            return;
+          }
+          geojsonGeomType = geojsonObj.features[0].geometry.type;
+        } else {
+          geojsonGeomType = geojsonObj.type;
+        }
+        const typeAndStyle = getGeomTypeAndStyle(geojsonGeomType);
+        if (!typeAndStyle) {
+          toast.add({
+            title: "Data with mixed geometry per feature is not supported",
+            icon: "i-heroicons-x-mark",
+          });
+          return;
+        }
+
+        const newLayer: LoadedGeoJson = {
+          source: "loaded_geojson",
+          layer_id: `__local_${crypto.randomUUID()}`,
+          layer_alias: file.name,
+          category: { category_name: uncategorizedLoadedData },
+          bounds,
+          layer_style: typeAndStyle.layerStyle,
+          geometry_type: typeAndStyle.geomType,
+          dimension: "2D",
+        };
+        const newLayerWithData = {
+          ...newLayer,
+          data: geojsonObj,
+        };
+        await iDB.loadedGeoJsonData.add(newLayerWithData);
+
+        const loadedDataGroupIdx = mapLayerStore.groupedLocalLayers.findIndex(
+          (el) => el.label === uncategorizedLoadedData
+        );
+        if (loadedDataGroupIdx > -1) {
+          mapLayerStore.groupedLocalLayers[loadedDataGroupIdx].layerLists.push(
+            newLayer
+          );
+          const currentLayers = mapLayerStore.groupedLocalLayers
+            .map(({ layerLists }) => layerLists)
+            .flat();
+          mapLayerStore.groupedLocalLayers = mapLayerStore.groupLayerByCategory(
+            mapLayerStore.sortLayer(currentLayers, props.sortOrder.id)
+          );
+        } else {
+          mapLayerStore.groupedLocalLayers.push({
+            label: uncategorizedLoadedData,
+            layerLists: [newLayer],
+            defaultOpen: false,
+          });
+        }
+      }
+      worker.terminate();
+      toast.add({
+        title: "File has been processed successfully",
+        icon: "i-heroicons-check-circle",
+      });
+    }
+  );
+
+  worker.postMessage(file);
 };
 
 defineExpose({ input });
