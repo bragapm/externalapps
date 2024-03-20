@@ -64,9 +64,8 @@ const {
   error: tableError,
   fetchNextPage,
   hasNextPage,
-  isLoading,
-  isError,
-  isFetching,
+  isError: isTableError,
+  isFetching: isTableFetching,
 } = useInfiniteQuery({
   queryKey: [`/panel/items/${store.activeCollection}?`],
   queryFn: async ({ pageParam = 1 }) => {
@@ -152,6 +151,17 @@ const debouncedMapHighlight = debounce(async (newValue: string[]) => {
 watch(highlightedIds, debouncedMapHighlight, {
   immediate: true,
 });
+
+const toast = useToast();
+watchEffect(() => {
+  if (isHeaderError.value || isCountError.value || isTableError.value) {
+    toast.add({
+      title: "Error on fetching table data",
+      description: "Something went wrong, please contact data administrator",
+      icon: "i-heroicons-information-circle",
+    });
+  }
+});
 </script>
 
 <template>
@@ -163,6 +173,8 @@ watch(highlightedIds, debouncedMapHighlight, {
           () => {
             toggleTable();
             store.fullscreen && toggleFullscreen();
+            highlightedIds = [];
+            selectedIds = [];
           }
         "
       >
@@ -301,21 +313,20 @@ watch(highlightedIds, debouncedMapHighlight, {
 
         <div class="flex w-full justify-center items-center mb-2">
           <UButton
-            @click="() => (hasNextPage ? fetchNextPage() : null)"
+            :disabled="!hasNextPage"
+            @click="() => fetchNextPage()"
             class="w-1/3 mt-2 h-9 rounded-xxs flex justify-center items-center"
             :label="hasNextPage ? 'Load More' : 'End of Data'"
           >
           </UButton>
         </div>
       </template>
+
       <span
-        class="absolute rounded-xxs border border-grey-600 bottom-8 left-8 w-1/4 bg-grey-800 h-9 text-grey-400 flex justify-center items-center text-xs"
-        >{{ selectedIds.length }} row
-        {{ (isAllChecked ? "un" : "") + "selected" }}
-      </span>
-      <span
-        class="absolute rounded-xxs border border-grey-600 bottom-8 right-8 w-1/4 bg-grey-800 h-9 text-grey-400 flex justify-center items-center text-xs"
-        >from {{ countData }} rows</span
+        class="absolute rounded-xxs border border-grey-600 bottom-8 right-8 px-3 bg-grey-800 h-9 text-grey-200 flex justify-center items-center text-xs"
+        >{{ selectedIds.length }}
+        {{ (isAllChecked ? "un" : "") + "selected" }} from
+        {{ countData }} rows</span
       >
     </section>
   </div>
