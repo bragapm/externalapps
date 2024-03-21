@@ -7,7 +7,6 @@ import IcCheck from "~/assets/icons/ic-check.svg";
 import IcMapLayerA from "~/assets/icons/ic-map-layer-a.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
 
-import iDB from "~/utils/iDB";
 import type {
   VectorTiles,
   RasterTiles,
@@ -27,6 +26,7 @@ const emit = defineEmits<{
 }>();
 
 const mapLayerStore = useMapLayer();
+const { deleteLoadedGeoJsonData } = useIDB();
 
 const isLoad = ref(false);
 const hover = ref(false);
@@ -70,7 +70,7 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
   } else {
     mapLayerStore.groupedLocalLayers = [];
   }
-  await iDB.loadedGeoJsonData.delete(item.layer_id);
+  await deleteLoadedGeoJsonData(item.layer_id);
 };
 </script>
 

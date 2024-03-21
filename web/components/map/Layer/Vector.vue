@@ -24,6 +24,7 @@ type StyleObject = Record<
 
 const store = useMapRef();
 const { map } = storeToRefs(store);
+const { getLoadedGeoJsonData } = useIDB();
 
 const props = defineProps<{
   renderedLayers: LayerLists[];
@@ -55,9 +56,7 @@ watchEffect(async (onInvalidate) => {
         });
       } else {
         try {
-          const loadedGeoJson = await iDB.loadedGeoJsonData.get(
-            props.item.layer_id
-          );
+          const loadedGeoJson = await getLoadedGeoJsonData(props.item.layer_id);
           if (loadedGeoJson) {
             map.value.addSource(props.item.layer_id, {
               type: "geojson",

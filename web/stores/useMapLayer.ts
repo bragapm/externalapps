@@ -25,10 +25,10 @@ import {
   uncategorizedAlias,
 } from "~/constants";
 import { isString, parseString } from "~/utils";
-import iDB from "~/utils/iDB";
 
 export const useMapLayer = defineStore("maplayer", () => {
   const mapRefStore = useMapRef();
+  const { getAllLoadedGeoJsonData } = useIDB();
   const groupedActiveLayers = ref<LayerGroupedByCategory[]>([]);
   const groupedLayerList = ref<LayerGroupedByCategory[]>([]);
   const groupedLocalLayers = ref<LayerGroupedByCategory[]>([]);
@@ -318,7 +318,7 @@ export const useMapLayer = defineStore("maplayer", () => {
           $fetch<{
             data: LayerConfigLists;
           }>("/panel/items/three_d_tiles?fields=*.*&sort=layer_alias"),
-          iDB.loadedGeoJsonData.toArray(),
+          getAllLoadedGeoJsonData(),
         ]);
 
       const layerData = groupLayerByCategory(

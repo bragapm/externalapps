@@ -38,7 +38,6 @@
     "@turf/helpers": "^6.5.0",
     "@turf/length": "^6.5.0",
     "deck.gl": "^8.8.27",
-    "dexie": "^3.2.6",
     "keen-slider": "^6.8.6",
     "maplibre-gl": "^3.6.2",
     "markdown-it": "^14.0.0",

@@ -7,7 +7,6 @@ import {
   geomTypePolygon,
   uncategorizedLoadedData,
 } from "~/constants";
-import iDB from "~/utils/iDB";
 import type { LoadedGeoJson } from "~/utils/types";
 
 interface IParseResult {
@@ -23,6 +22,7 @@ const props = defineProps<{
 }>();
 
 const mapLayerStore = useMapLayer();
+const { addLoadedGeoJsonData } = useIDB();
 const toast = useToast();
 const input = ref<HTMLInputElement | null>(null);
 
@@ -133,7 +133,7 @@ const addToIDBAndLayerList = async (
     ...newLayer,
     data: geojsonObj,
   };
-  await iDB.loadedGeoJsonData.add(newLayerWithData);
+  await addLoadedGeoJsonData(newLayerWithData);
 
   const loadedDataGroupIdx = mapLayerStore.groupedLocalLayers.findIndex(
     (el) => el.label === uncategorizedLoadedData
