@@ -23,54 +23,57 @@ const filteredLayers = ref<LayerGroupedByCategory[]>([]);
 const filteredLocalLayers = ref<LayerGroupedByCategory[]>([]);
 
 const formatLists = ref(layerTypeFilterOptions);
-const handleChangeFormatList = (index: number, value: boolean) => {
-  if (index === 0 && value === true) {
-    for (const el of formatLists.value) {
-      if (el.type === "all") {
-        el.checked = true;
+const handleChangeFormatList = (index: string | number, value: boolean) => {
+  if (typeof index === "number")
+    if (index === 0 && value === true) {
+      for (const el of formatLists.value) {
+        if (el.type === "all") {
+          el.checked = true;
+        } else {
+          el.checked = false;
+        }
+      }
+    } else {
+      if (
+        value === false &&
+        formatLists.value.filter(
+          (el) => el.type !== "all" && el.checked === true
+        ).length === 1
+      ) {
+        formatLists.value[0].checked = true;
+        formatLists.value[index].checked = value;
       } else {
-        el.checked = false;
+        formatLists.value[0].checked = false;
+        formatLists.value[index].checked = value;
       }
     }
-  } else {
-    if (
-      value === false &&
-      formatLists.value.filter((el) => el.type !== "all" && el.checked === true)
-        .length === 1
-    ) {
-      formatLists.value[0].checked = true;
-      formatLists.value[index].checked = value;
-    } else {
-      formatLists.value[0].checked = false;
-      formatLists.value[index].checked = value;
-    }
-  }
 };
 
 const dimensionLists = ref(dimensionFilterOptions);
-const handleChangeDimensionList = (index: number, value: boolean) => {
-  if (index === 0 && value === true) {
-    for (const el of dimensionLists.value) {
-      if (el.type === "all") {
-        el.checked = true;
+const handleChangeDimensionList = (index: string | number, value: boolean) => {
+  if (typeof index === "number")
+    if (index === 0 && value === true) {
+      for (const el of dimensionLists.value) {
+        if (el.type === "all") {
+          el.checked = true;
+        } else {
+          el.checked = false;
+        }
+      }
+    } else {
+      if (
+        value === false &&
+        dimensionLists.value.filter(
+          (el) => el.type !== "all" && el.checked === true
+        ).length === 1
+      ) {
+        dimensionLists.value[0].checked = true;
+        dimensionLists.value[index].checked = value;
       } else {
-        el.checked = false;
+        dimensionLists.value[0].checked = false;
+        dimensionLists.value[index].checked = value;
       }
     }
-  } else {
-    if (
-      value === false &&
-      dimensionLists.value.filter(
-        (el) => el.type !== "all" && el.checked === true
-      ).length === 1
-    ) {
-      dimensionLists.value[0].checked = true;
-      dimensionLists.value[index].checked = value;
-    } else {
-      dimensionLists.value[0].checked = false;
-      dimensionLists.value[index].checked = value;
-    }
-  }
 };
 
 const sortOrder = ref<{ id: "asc" | "desc"; name: string }>({

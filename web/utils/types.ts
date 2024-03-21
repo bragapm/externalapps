@@ -277,12 +277,11 @@ export type LoadedGeoJson = {
   dimension: "2D";
 };
 
-export type LayerLists = (
+export type LayerLists =
   | VectorTiles
   | RasterTiles
   | ThreeDTiles
-  | LoadedGeoJson
-);
+  | LoadedGeoJson;
 
 export type LayerGroupedByCategory = {
   label: string;
@@ -331,4 +330,10 @@ export type ToolItem = {
   labelCard?: string;
   icon?: string;
   action?: (item?: ToolItem) => void;
+};
+
+export type ThreeDLayerCenter = {
+  id: string;
+  center: [number, number];
+  zoom: number;
 };

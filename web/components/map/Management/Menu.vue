@@ -55,7 +55,9 @@ const { floatingStyles } = useFloating(reference, floating, {
               @click="
                 () => {
                   if(item.source ==='three_d_tiles'){
-                    map?.flyTo({ center : (mapLayerStore.threeDLayerCenter?.value as any)[item.layer_id].center , zoom : (mapLayerStore.threeDLayerCenter.value as any)[item.layer_id].zoom })
+                    const data = mapLayerStore.threeDLayerCenter
+                    const current = data[data.findIndex(el => el.id === item.layer_id)]
+                    map?.flyTo({ center : current.center , zoom : current.zoom })
                   }else{
                     if((item as VectorTiles|RasterTiles).bounds){
                       map?.fitBounds(bbox(item.bounds) as LngLatBoundsLike, { padding: {top: 100, bottom:150, left: 300, right: 50} });

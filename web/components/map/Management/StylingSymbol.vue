@@ -46,7 +46,7 @@ const updateIconTitle = (title: string) => {
     const prev = store.groupedActiveLayers;
     const selected =
       prev[groupIndex as number].layerLists[layerIndex as number];
-    (selected.layer_style as Record<string, any>)["icon_image_title"] = title;
+    (selected.layer_style as Record<string, string>)["icon_image_title"] = title;
 
     store.groupedActiveLayers = prev;
   }

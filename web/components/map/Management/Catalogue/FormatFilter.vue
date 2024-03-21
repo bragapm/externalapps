@@ -2,14 +2,21 @@
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import IcMapLayerB from "~/assets/icons/ic-map-layer-b.svg";
 
+type LayerTypeFilterOptions = {
+  type: string;
+  label: string;
+  checked: boolean;
+  icon: string;
+};
+
 const props = defineProps<{
-  list: any;
-  handleChange: any;
+  list: LayerTypeFilterOptions[];
+  handleChange: (index: string | number, value: boolean) => void;
 }>();
 const activeFilter = computed(() =>
   props.list
-    .filter((el: any) => el.checked === true)
-    .map((item: any) => item.type)
+    .filter((el: LayerTypeFilterOptions) => el.checked === true)
+    .map((item: LayerTypeFilterOptions) => item.type)
 );
 </script>
 

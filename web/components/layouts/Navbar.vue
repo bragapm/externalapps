@@ -27,12 +27,12 @@ const isDark = computed({
 import { useMapData } from "~/utils";
 const { isLoading, data: mapData } = await useMapData();
 
-const myInterval = ref<any>(null);
+const myInterval = ref<NodeJS.Timeout>();
 
 const startScroll = () => {
   myInterval.value = setInterval(
     () =>
-      document.getElementById("test-auto-scroll")?.scrollBy({
+      document.getElementById("auto-scroll")?.scrollBy({
         left: 5,
         behavior: "smooth",
       }),
@@ -41,7 +41,7 @@ const startScroll = () => {
 };
 const refreshScroll = () => {
   clearInterval(myInterval.value);
-  document.getElementById("test-auto-scroll")?.scrollTo({
+  document.getElementById("auto-scroll")?.scrollTo({
     left: 0,
     behavior: "smooth",
   });
@@ -170,7 +170,7 @@ const authStore = useAuth();
         <div class="flex items-center">
           <p class="whitespace-nowrap">{{ mapData?.data.title ?? "" }}</p>
           <p
-            id="test-auto-scroll"
+            id="auto-scroll"
             @mouseover="startScroll"
             @mouseout="refreshScroll"
             class="hide-scrollbar whitespace-nowrap ml-3 text-sm w-64 overflow-scroll select-none"

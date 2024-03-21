@@ -12,9 +12,9 @@ const props = defineProps<{
 
 const mapLayerStore = useMapLayer();
 const updateBounds = (id: string, center: [number, number], zoom: number) => {
-  const prev: any = { ...mapLayerStore.threeDLayerCenter.value };
-  prev[id] = { center, zoom };
-  mapLayerStore.threeDLayerCenter.value = prev;
+  const prev: ThreeDLayerCenter[] = [...mapLayerStore.threeDLayerCenter];
+  prev.push({ id, center, zoom });
+  mapLayerStore.threeDLayerCenter = prev;
 };
 </script>
 

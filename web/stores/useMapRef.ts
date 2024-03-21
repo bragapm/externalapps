@@ -15,7 +15,7 @@ export const useMapRef = defineStore("mapref", () => {
   function setMapRef(value: null | Raw<Map>) {
     map.value = value;
   }
-  function setCtrlRef(value: null | any) {
+  function setCtrlRef(value: null | Raw<MapboxOverlay>) {
     ctrl.value = value;
   }
   function setGeolocateRef(value: null | Raw<GeolocateControl>) {

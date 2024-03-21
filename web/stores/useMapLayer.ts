@@ -12,6 +12,7 @@ import type {
   VectorTilesConfig,
   LoadedGeoJson,
   LayerConfigLists,
+  ThreeDLayerCenter,
 } from "~/utils/types";
 import {
   geomTypeCircle,
@@ -388,12 +389,7 @@ export const useMapLayer = defineStore("maplayer", () => {
     }
   };
 
-  const threeDLayerCenter = ref<{
-    [key: string]: {
-      center: [number, number];
-      zoom: number;
-    };
-  }>({});
+  const threeDLayerCenter = ref<ThreeDLayerCenter[]>([]);
 
   //remove item from groupedActiveLayer
   const removeLayer = (
