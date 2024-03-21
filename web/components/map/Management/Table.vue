@@ -147,7 +147,7 @@ const debouncedMapHighlight = debounce(async (newValue: string[]) => {
       }
     );
   }
-}, 750);
+}, 2000);
 watch(highlightedIds, debouncedMapHighlight, {
   immediate: true,
 });
@@ -162,6 +162,18 @@ watchEffect(() => {
     });
   }
 });
+
+const floatVisibility = ref(false);
+const handleScroll = (event: Event) => {
+  const element = event.target as HTMLDivElement;
+  // const scrollPercentage =
+  //   element.scrollTop / (element.scrollHeight - element.clientHeight);
+  const willVisible =
+    element.scrollHeight - element.clientHeight - element.scrollTop < 24;
+
+  if (willVisible) floatVisibility.value = true;
+  else floatVisibility.value = false;
+};
 </script>
 
 <template>
@@ -239,6 +251,7 @@ watchEffect(() => {
     <!-- New Table -->
     <section
       class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-grey-700 w-full overflow-scroll pb-12 relative"
+      @scroll="handleScroll"
     >
       <header class="flex w-full sticky top-0">
         <div class="bg-grey-800 h-14 w-14 flex items-center justify-center">
@@ -312,20 +325,27 @@ watchEffect(() => {
         </template>
       </template>
     </section>
-    <UButton
-      :disabled="!hasNextPage"
-      :loading="isCountFetching || isHeaderFetching || isTableFetching"
-      @click="() => fetchNextPage()"
-      class="absolute bottom-8 right-8 w-1/4 px-3 min-w-fit mt-2 h-9 rounded-xxs flex justify-center items-center"
-      :label="
-        isCountFetching || isHeaderFetching || isTableFetching
-          ? 'Loading'
-          : hasNextPage
-          ? 'Load More'
-          : 'End of Data'
-      "
+
+    <template v-if="floatVisibility">
+      <UButton
+        v-if="hasNextPage"
+        variant="outline"
+        :loading="isCountFetching || isHeaderFetching || isTableFetching"
+        @click="() => fetchNextPage()"
+        class="absolute bottom-8 right-8 w-1/4 px-3 min-w-fit h-9 rounded-xxs flex justify-center items-center bg-grey-800"
+        :label="
+          isCountFetching || isHeaderFetching || isTableFetching
+            ? 'Loading'
+            : 'Load More'
+        "
+      >
+      </UButton
+      ><span
+        v-else
+        class="absolute rounded-xxs border border-grey-600 bottom-8 right-8 w-1/4 px-3 min-w-fit bg-grey-800 h-9 text-grey-200 flex justify-center items-center text-xs"
+        >End of Data</span
+      ></template
     >
-    </UButton>
 
     <span
       class="absolute rounded-xxs border border-grey-600 bottom-8 left-8 w-1/4 px-3 min-w-fit bg-grey-800 h-9 text-grey-200 flex justify-center items-center text-xs"
