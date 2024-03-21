@@ -22,7 +22,6 @@ const props = defineProps<{
   sortOrder: { id: "asc" | "desc"; name: string };
 }>();
 
-const mapStore = useMapRef();
 const mapLayerStore = useMapLayer();
 const toast = useToast();
 const input = ref<HTMLInputElement | null>(null);
@@ -160,13 +159,7 @@ const addToIDBAndLayerList = async (
 
 const handleFileUploadChange = async (e: Event) => {
   const target = e.target as HTMLInputElement;
-  if (
-    !target.files ||
-    !target.files.length ||
-    !mapStore.map ||
-    !mapStore.mapLoad
-  )
-    return;
+  if (!target.files || !target.files.length) return;
   const file = target.files[0];
   if (!window.Worker) {
     toast.add({
