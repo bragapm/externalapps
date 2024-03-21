@@ -89,8 +89,7 @@ onUnmounted(() => {
 
 // get active layer list
 const layerStore = useMapLayer();
-const { fetchActiveLayers, fetchCategories } = layerStore;
-fetchCategories();
+const { fetchActiveLayers } = layerStore;
 fetchActiveLayers();
 </script>
 
