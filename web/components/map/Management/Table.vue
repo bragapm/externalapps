@@ -238,7 +238,7 @@ watchEffect(() => {
     </div>
     <!-- New Table -->
     <section
-      class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-grey-700 w-full overflow-scroll"
+      class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-grey-700 w-full overflow-scroll pb-12"
     >
       <header class="flex w-full">
         <div class="bg-grey-800 h-14 w-14 flex items-center justify-center">
@@ -310,20 +310,25 @@ watchEffect(() => {
             </div>
           </main>
         </template>
-
-        <div class="flex w-full justify-center items-center mb-2">
-          <UButton
-            :disabled="!hasNextPage"
-            @click="() => fetchNextPage()"
-            class="w-1/3 mt-2 h-9 rounded-xxs flex justify-center items-center"
-            :label="hasNextPage ? 'Load More' : 'End of Data'"
-          >
-          </UButton>
-        </div>
       </template>
 
+      <UButton
+        :disabled="!hasNextPage"
+        :loading="isCountFetching || isHeaderFetching || isTableFetching"
+        @click="() => fetchNextPage()"
+        class="absolute bottom-8 right-8 w-1/4 px-3 min-w-fit mt-2 h-9 rounded-xxs flex justify-center items-center"
+        :label="
+          isCountFetching || isHeaderFetching || isTableFetching
+            ? 'Loading'
+            : hasNextPage
+            ? 'Load More'
+            : 'End of Data'
+        "
+      >
+      </UButton>
+
       <span
-        class="absolute rounded-xxs border border-grey-600 bottom-8 right-8 px-3 bg-grey-800 h-9 text-grey-200 flex justify-center items-center text-xs"
+        class="absolute rounded-xxs border border-grey-600 bottom-8 left-8 w-1/4 px-3 min-w-fit bg-grey-800 h-9 text-grey-200 flex justify-center items-center text-xs"
         >{{ selectedIds.length }}
         {{ (isAllChecked ? "un" : "") + "selected" }} from
         {{ countData }} rows</span

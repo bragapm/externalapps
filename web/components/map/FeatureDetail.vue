@@ -16,6 +16,13 @@ import {
   DialogTitle,
 } from "@headlessui/vue";
 import type { GeoJSONSource } from "maplibre-gl";
+import { useQuery } from "@tanstack/vue-query";
+
+type DetailData = {
+  markdown: string | null;
+  attachments: Attachment[];
+  gallery: string[];
+};
 
 const mapRefStore = useMapRef();
 const ResizePlugin: KeenSliderPlugin = (slider) => {
@@ -82,37 +89,24 @@ function openModal(idx: number) {
 }
 
 const featureStore = useFeature();
-
-const isLoading = ref(false);
-const detail = ref<{
-  markdown: string;
-  attachments: Attachment[];
-  gallery: string[];
-}>({
-  markdown: "",
-  attachments: [],
-  gallery: [],
-});
-const errorMessage = ref("");
-
-watchEffect(async () => {
-  if (featureStore.feature)
-    try {
-      isLoading.value = true;
-      const res: any = await $fetch(
-        `/panel/feature-detail/${featureStore.feature.tableName}/${featureStore.feature.rowId}`
-      );
-
-      if (Object.values(res).filter((e) => e !== null).length) {
-        detail.value = res;
-      } else {
-        throw new Error("No content");
-      }
-    } catch (error) {
-      errorMessage.value = "Error happened";
-    } finally {
-      isLoading.value = false;
-    }
+const { feature } = storeToRefs(featureStore);
+const {
+  data: detailData,
+  error: detailError,
+  isFetching: isDetailFetching,
+  isError: isDetailError,
+} = useQuery({
+  queryKey: [
+    `/panel/feature-detail`,
+    feature.value?.tableName,
+    feature.value?.rowId,
+  ],
+  queryFn: async ({ queryKey }) => {
+    const res = await $fetch<DetailData>(queryKey.join("/"));
+    // console.log(res);
+    return res;
+  },
+  placeholderData: { markdown: null, attachments: [], gallery: [] },
 });
 
 const clearSelection = () => {
@@ -156,7 +150,10 @@ const clearSelection = () => {
       </p>
     </div>
 
-    <div v-else-if="isLoading" class="h-full animate-pulse space-y-3">
+    <div
+      v-else-if="!detailData && isDetailFetching"
+      class="h-full animate-pulse space-y-3"
+    >
       <div class="w-full h-8 bg-grey-700 rounded-xs"></div>
       <div class="w-full h-8 bg-grey-700 rounded-xs"></div>
       <div class="w-full h-44 bg-grey-700 rounded-xs"></div>
@@ -169,7 +166,13 @@ const clearSelection = () => {
     </div>
 
     <div
-      v-else-if="Boolean(errorMessage)"
+      v-else-if="
+        !detailData ||
+        (detailData.markdown === null &&
+          detailData.attachments.length === 0 &&
+          detailData.gallery.length === 0) ||
+        isDetailError
+      "
       class="h-full flex flex-col justify-center items-center text-white text-center gap-3"
     >
       <IcRectangleList
@@ -183,17 +186,20 @@ const clearSelection = () => {
       </p>
     </div>
 
-    <template v-else-if="detail">
-      <MapMarkdownRenderer v-if="detail.markdown" :source="detail.markdown" />
+    <template v-else-if="detailData">
+      <MapMarkdownRenderer
+        v-if="detailData.markdown"
+        :source="detailData.markdown"
+      />
 
-      <div v-if="detail.gallery?.length">
+      <div v-if="detailData.gallery?.length">
         <p class="text-white text-sm my-3">Image Gallery</p>
         <ul class="flex space-x-1 relative">
           <img
             role="button"
             @click="() => openModal(idx)"
             class="rounded-[4px] w-16 h-16 object-cover"
-            v-for="(source, idx) of detail.gallery
+            v-for="(source, idx) of detailData.gallery
               .map((src, idx) =>
                 idx > 3 ? [] : src.includes(',') ? src.split(',') : src
               )
@@ -203,7 +209,7 @@ const clearSelection = () => {
           />
           <button
             v-if="
-              detail.gallery
+              detailData.gallery
                 .map((src) => (src.includes(',') ? src.split(',') : src))
                 .flat().length > 4
             "
@@ -215,10 +221,10 @@ const clearSelection = () => {
         </ul>
       </div>
 
-      <ul class="mt-3 space-y-3" v-if="detail.attachments?.length">
+      <ul class="mt-3 space-y-3" v-if="detailData.attachments?.length">
         <p class="text-white text-sm">Attachment</p>
         <MapAttachmentLink
-          v-for="attachment in detail.attachments"
+          v-for="attachment in detailData.attachments"
           :title="attachment.title"
           :description="attachment.description"
           :url="attachment.url"
@@ -228,7 +234,7 @@ const clearSelection = () => {
     </template>
   </div>
   <UButton
-    v-if="featureStore.feature && detail"
+    v-if="featureStore.feature && detailData"
     :ui="{ rounded: 'rounded-xxs' }"
     label="Clear Feature Selection"
     variant="outline"
@@ -238,7 +244,7 @@ const clearSelection = () => {
   >
   </UButton>
 
-  <TransitionRoot appear :show="isOpen" as="template">
+  <TransitionRoot v-if="detailData" appear :show="isOpen" as="template">
     <Dialog as="div" @close="closeModal" class="relative z-10">
       <TransitionChild
         as="template"
@@ -285,7 +291,7 @@ const clearSelection = () => {
                 >
                   <img
                     class="keen-slider__slide object-cover min-w-full max-w-full"
-                    v-for="(source, idx) of detail.gallery
+                    v-for="(source, idx) of detailData.gallery
                       .map((src) => (src.includes(',') ? src.split(',') : src))
                       .flat()"
                     :key="idx"
@@ -294,7 +300,7 @@ const clearSelection = () => {
                 </div>
 
                 <button
-                  v-if="detail.gallery.length"
+                  v-if="detailData.gallery.length"
                   @click="prevImage"
                   class="absolute left-8 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
                 >
@@ -305,7 +311,7 @@ const clearSelection = () => {
                 </button>
 
                 <button
-                  v-if="detail.gallery.length"
+                  v-if="detailData.gallery.length"
                   @click="nextImage"
                   class="absolute right-8 top-1/2 -translate-y-1/2 flex justify-center items-center border rounded-xs bg-black opacity-40"
                 >
@@ -322,7 +328,7 @@ const clearSelection = () => {
                   :class="`rounded-[4px] w-16 h-16 object-cover ${
                     idx === current && 'border-4 border-brand-500'
                   }`"
-                  v-for="(source, idx) of detail.gallery
+                  v-for="(source, idx) of detailData.gallery
                     .map((src, idx) =>
                       idx > 3 ? [] : src.includes(',') ? src.split(',') : src
                     )
