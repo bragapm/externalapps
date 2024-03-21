@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { MenuItem } from "@headlessui/vue";
 import type { RasterTileSource, StyleSpecification } from "maplibre-gl";
-import { mapApiKey } from "~/constants";
 
 type Basemap = {
   name: string;
@@ -27,9 +26,9 @@ function isImgUrl(url: string) {
 watchEffect(async () => {
   const basemaps = [
     {
-      name: "Maptiler Satellite",
-      url: `https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${mapApiKey}`,
-      thumbnailUrl: `https://api.maptiler.com/tiles/satellite-v2/0/0/0.jpg?key=${mapApiKey}`,
+      name: "World Imagery",
+      url: `https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+      thumbnailUrl: `https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/0/0/0`,
       type: "raster",
     },
   ];
@@ -83,7 +82,7 @@ const handleChangeBasemap = async (name: string, url: string, type: string) => {
       map.setStyle({
         version: 8,
         sprite: window.location.origin + "/panel/sprites/sprite",
-        glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${mapApiKey}`,
+        // glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${mapApiKey}`,
         sources: {
           "basemap-sources": {
             type: "raster",
@@ -107,7 +106,7 @@ const handleChangeBasemap = async (name: string, url: string, type: string) => {
       const style: StyleSpecification = {
         version: 8,
         sprite: window.location.origin + "/panel/sprites/sprite",
-        glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${mapApiKey}`,
+        // glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${mapApiKey}`,
         sources: {
           "basemap-sources": {
             type: "raster",

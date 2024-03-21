@@ -5,7 +5,6 @@ import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
 import { useMapData } from "~/utils";
 import bbox from "@turf/bbox";
-import { mapApiKey } from "~/constants";
 
 const { isLoading, data: mapData } = await useMapData();
 
@@ -21,12 +20,12 @@ onMounted(async () => {
   const style: StyleSpecification = {
     version: 8,
     sprite: window.location.origin + "/panel/sprites/sprite",
-    glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${mapApiKey}`,
+    // glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${mapApiKey}`,
     sources: {
       "basemap-sources": {
         type: "raster",
         tiles: [
-          `https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=${mapApiKey}`,
+          "https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         ],
         tileSize: 256,
       },
@@ -90,7 +89,8 @@ onUnmounted(() => {
 
 // get active layer list
 const layerStore = useMapLayer();
-const { fetchActiveLayers } = layerStore;
+const { fetchActiveLayers, fetchCategories } = layerStore;
+fetchCategories();
 fetchActiveLayers();
 </script>
 
