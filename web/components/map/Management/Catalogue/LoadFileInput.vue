@@ -9,8 +9,14 @@ import {
 } from "~/constants";
 import iDB from "~/utils/iDB";
 import type { LoadedGeoJson } from "~/utils/types";
-import type { IGeojsonWorker } from "~/utils/worker/geojson";
-import type { IShapefileWorker } from "~/utils/worker/shapefile";
+
+interface IParseResult {
+  geojsonObj: GeoJSON.GeoJSON;
+  bounds: GeoJSON.Polygon;
+}
+interface IParseResultWithFileName extends IParseResult {
+  fileName: string;
+}
 
 const props = defineProps<{
   sortOrder: { id: "asc" | "desc"; name: string };
@@ -21,7 +27,7 @@ const mapLayerStore = useMapLayer();
 const toast = useToast();
 const input = ref<HTMLInputElement | null>(null);
 
-const getWorker = (file: File): IGeojsonWorker | IShapefileWorker | null => {
+const getWorker = (file: File) => {
   if (file.type === "application/geo+json" || file.name.endsWith(".geojson")) {
     return new GeojsonWorker();
   } else if (
@@ -180,15 +186,20 @@ const handleFileUploadChange = async (e: Event) => {
     return;
   }
 
-  worker.addEventListener("error", (e) => {
+  worker.onerror = (e) => {
     toast.add({
       title: e.message,
       icon: "i-heroicons-x-mark",
     });
     console.error(e.error);
     worker.terminate();
-  });
-  worker.addEventListener("message", async (e) => {
+  };
+  worker.onmessage = async (
+    e: MessageEvent<
+      | { status: "error"; message: string; data?: any }
+      | { status: "success"; data: IParseResult | IParseResultWithFileName[] }
+    >
+  ) => {
     if (e.data.status === "error") {
       toast.add({
         title: e.data.message,
@@ -217,8 +228,7 @@ const handleFileUploadChange = async (e: Event) => {
       title: "File has been processed successfully",
       icon: "i-heroicons-check-circle",
     });
-  });
-
+  };
   worker.postMessage(file);
 };
 
