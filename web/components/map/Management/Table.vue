@@ -165,7 +165,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 p-6 h-full max-h-full">
+  <div class="flex flex-col gap-3 p-6 h-full max-h-full relative">
     <div class="flex justify-between">
       <h1 class="text-gray-400">Data Table</h1>
       <button
@@ -238,9 +238,9 @@ watchEffect(() => {
     </div>
     <!-- New Table -->
     <section
-      class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-grey-700 w-full overflow-scroll pb-12"
+      class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-grey-700 w-full overflow-scroll pb-12 relative"
     >
-      <header class="flex w-full">
+      <header class="flex w-full sticky top-0">
         <div class="bg-grey-800 h-14 w-14 flex items-center justify-center">
           <CoreCheckbox
             id="all-checkbox"
@@ -311,28 +311,27 @@ watchEffect(() => {
           </main>
         </template>
       </template>
-
-      <UButton
-        :disabled="!hasNextPage"
-        :loading="isCountFetching || isHeaderFetching || isTableFetching"
-        @click="() => fetchNextPage()"
-        class="absolute bottom-8 right-8 w-1/4 px-3 min-w-fit mt-2 h-9 rounded-xxs flex justify-center items-center"
-        :label="
-          isCountFetching || isHeaderFetching || isTableFetching
-            ? 'Loading'
-            : hasNextPage
-            ? 'Load More'
-            : 'End of Data'
-        "
-      >
-      </UButton>
-
-      <span
-        class="absolute rounded-xxs border border-grey-600 bottom-8 left-8 w-1/4 px-3 min-w-fit bg-grey-800 h-9 text-grey-200 flex justify-center items-center text-xs"
-        >{{ selectedIds.length }}
-        {{ (isAllChecked ? "un" : "") + "selected" }} from
-        {{ countData }} rows</span
-      >
     </section>
+    <UButton
+      :disabled="!hasNextPage"
+      :loading="isCountFetching || isHeaderFetching || isTableFetching"
+      @click="() => fetchNextPage()"
+      class="absolute bottom-8 right-8 w-1/4 px-3 min-w-fit mt-2 h-9 rounded-xxs flex justify-center items-center"
+      :label="
+        isCountFetching || isHeaderFetching || isTableFetching
+          ? 'Loading'
+          : hasNextPage
+          ? 'Load More'
+          : 'End of Data'
+      "
+    >
+    </UButton>
+
+    <span
+      class="absolute rounded-xxs border border-grey-600 bottom-8 left-8 w-1/4 px-3 min-w-fit bg-grey-800 h-9 text-grey-200 flex justify-center items-center text-xs"
+      >{{ selectedIds.length }}
+      {{ (isAllChecked ? "un" : "") + "selected" }} from
+      {{ countData }} rows</span
+    >
   </div>
 </template>
