@@ -51,7 +51,7 @@ const authStore = useAuth();
 </script>
 
 <template>
-  <div class="sticky top-0 z-50 p-6 flex">
+  <div :class="[isExpand && 'sticky top-0', 'z-50 p-6 flex']">
     <!-- <Presence>
       <Motion
         v-show="isExpand && route.path === '/map'"
