@@ -10,12 +10,32 @@ defineProps<{
   <div
     class="flex flex-col w-full h-full border border-grey-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y divide-grey-700"
   >
-    <template v-if="!uploadMode" v-for="category of filteredLayers">
-      <MapManagementCatalogueGroup :groupItem="category" />
-    </template>
-    <template v-if="!uploadMode" v-for="category of filteredLocalLayers">
-      <MapManagementCatalogueGroup :groupItem="category" />
-    </template>
+    <div class="divide-y divide-grey-700">
+      <div class="py-4 px-3">
+        <p class="text-grey-400">Default Catalogue</p>
+        <p class="text-grey-500 text-2xs">
+          Dataset Folder/Project Provided by Default
+        </p>
+      </div>
+      <div class="px-3 pb-3 divide-y divide-grey-700">
+        <template v-if="!uploadMode" v-for="category of filteredLayers">
+          <MapManagementCatalogueGroup :groupItem="category" />
+        </template>
+      </div>
+    </div>
+    <div class="divide-y divide-grey-700">
+      <div class="py-4 px-3">
+        <p class="text-grey-400">User’s Catalogue</p>
+        <p class="text-grey-500 text-2xs">
+          Dataset Folder/Project Uploaded by User
+        </p>
+      </div>
+      <div class="px-3 pb-3 divide-y divide-grey-700">
+        <template v-if="!uploadMode" v-for="category of filteredLocalLayers">
+          <MapManagementCatalogueGroup :groupItem="category" />
+        </template>
+      </div>
+    </div>
     <!-- <template v-if="uploadMode" v-for="category of filteredLayers">
       <div
         class="flex flex-col p-3 gap-1"

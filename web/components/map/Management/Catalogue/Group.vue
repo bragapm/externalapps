@@ -89,7 +89,7 @@ const addLayer = (
 
 <template>
   <div
-    class="flex flex-col p-3 gap-1"
+    class="flex flex-col py-3 gap-1"
     :id="groupItem.label.split(' ').join('')"
   >
     <h3 class="text-grey-50">
