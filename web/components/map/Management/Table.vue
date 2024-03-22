@@ -114,10 +114,10 @@ const mapRefStore = useMapRef();
 const debouncedMapHighlight = debounce(async (newValue: string[]) => {
   if (!newValue.length) {
     if (mapRefStore.map?.getSource("highlight")) {
-      (mapRefStore.map.getSource("highlight") as GeoJSONSource).setData({
-        type: "FeatureCollection",
-        features: [],
-      } as any);
+      (mapRefStore.map.getSource("highlight") as GeoJSONSource).setData(
+        emptyFeatureCollection
+      );
+      pauseAllAnimation();
     }
   } else {
     const queryParams: Record<string, string> = {

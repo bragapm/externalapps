@@ -36,6 +36,95 @@ export const moveHighlightLayer = (map: Map, layerName: string) => {
   map.moveLayer("highlight-fill-outline", layerAboveTarget);
 };
 
+// === Animate polyline ===
+// technique based on https://jsfiddle.net/2mws8y3q/
+const dashArraySequence = [
+  [0, 4, 3],
+  [0.5, 4, 2.5],
+  [1, 4, 2],
+  [1.5, 4, 1.5],
+  [2, 4, 1],
+  [2.5, 4, 0.5],
+  [3, 4, 0],
+  [0, 0.5, 3, 3.5],
+  [0, 1, 3, 3],
+  [0, 1.5, 3, 2.5],
+  [0, 2, 3, 2],
+  [0, 2.5, 3, 1.5],
+  [0, 3, 3, 1],
+  [0, 3.5, 3, 0.5],
+];
+let frameId: number | null = null; // To keep track of the animation frame request
+let step = 0;
+
+function startPolylineAnimation(map: Map) {
+  // Function to perform the animation
+  function animateDashArray(timestamp: DOMHighResTimeStamp) {
+    const newStep = Math.floor((timestamp / 60) % dashArraySequence.length);
+
+    if (newStep !== step) {
+      map.setPaintProperty(
+        "highlight-line-dashed",
+        "line-dasharray",
+        dashArraySequence[newStep]
+      );
+      step = newStep;
+    }
+
+    // Continue requesting the next frame
+    frameId = requestAnimationFrame(animateDashArray);
+  }
+
+  if (frameId === null) {
+    // Prevent multiple animations from being started
+    frameId = requestAnimationFrame(animateDashArray);
+  }
+}
+
+// === Animate polygon ===
+let opacityInterval: NodeJS.Timeout | null = null;
+
+const startPolygonAnimation = (map: Map) => {
+  // Prevent multiple intervals from being created
+  if (opacityInterval !== null) return;
+
+  opacityInterval = setInterval(() => {
+    const currentOpacity = map.getPaintProperty(
+      "highlight-fill-background",
+      "fill-opacity"
+    );
+    const newOpacity = currentOpacity === 0.6 ? 0 : 0.6; // Toggle between 0 and 0.6
+    map.setPaintProperty(
+      "highlight-fill-background",
+      "fill-opacity",
+      newOpacity
+    );
+  }, 900);
+};
+
+export const startAllAnimation = (map: Map) => {
+  startPolygonAnimation(map);
+  startPolylineAnimation(map);
+};
+
+function pausePolylineAnimation() {
+  if (frameId !== null) {
+    cancelAnimationFrame(frameId);
+    frameId = null; // Reset the frameId to indicate the animation is not running
+  }
+}
+const pausePolygonAnimation = () => {
+  if (opacityInterval !== null) {
+    clearInterval(opacityInterval);
+    opacityInterval = null; // Reset the interval variable
+  }
+};
+
+export const pauseAllAnimation = () => {
+  pausePolylineAnimation();
+  pausePolygonAnimation();
+};
+
 export const addHighlightLayer = (map: Map) => {
   map.addSource("highlight", {
     type: "geojson",
@@ -67,24 +156,6 @@ export const addHighlightLayer = (map: Map) => {
     },
     filter: ["==", "$type", "LineString"],
   });
-
-  // technique based on https://jsfiddle.net/2mws8y3q/
-  const dashArraySequence = [
-    [0, 4, 3],
-    [0.5, 4, 2.5],
-    [1, 4, 2],
-    [1.5, 4, 1.5],
-    [2, 4, 1],
-    [2.5, 4, 0.5],
-    [3, 4, 0],
-    [0, 0.5, 3, 3.5],
-    [0, 1, 3, 3],
-    [0, 1.5, 3, 2.5],
-    [0, 2, 3, 2],
-    [0, 2.5, 3, 1.5],
-    [0, 3, 3, 1],
-    [0, 3.5, 3, 0.5],
-  ];
 
   map.addLayer({
     type: "line",
@@ -126,41 +197,6 @@ export const addHighlightLayer = (map: Map) => {
     },
     filter: ["==", "$type", "Polygon"],
   });
-
-  // Animate polyline
-  let step = 0;
-  function animateDashArray(timestamp: DOMHighResTimeStamp) {
-    // Update line-dasharray using the next value in dashArraySequence. The
-    // divisor in the expression `timestamp / 50` controls the animation speed.
-    const newStep = parseInt(
-      ((timestamp / 60) % dashArraySequence.length).toString()
-    );
-
-    if (newStep !== step) {
-      map.setPaintProperty(
-        "highlight-line-dashed",
-        "line-dasharray",
-        dashArraySequence[step]
-      );
-      step = newStep;
-    }
-
-    // Request the next frame of the animation.
-    requestAnimationFrame(animateDashArray);
-  }
-
-  animateDashArray(0);
-
-  // Animate polygon
-  setInterval(() => {
-    const prevVal = map.getPaintProperty(
-      "highlight-fill-background",
-      "fill-opacity"
-    );
-    if (prevVal === 0.6)
-      map.setPaintProperty("highlight-fill-background", "fill-opacity", 0);
-    else map.setPaintProperty("highlight-fill-background", "fill-opacity", 0.6);
-  }, 900);
 };
 
 export const showHighlightLayer = (
@@ -185,6 +221,7 @@ export const showHighlightLayer = (
 
   (map.getSource("highlight") as GeoJSONSource).setData(newData);
   moveHighlightLayer(map, layerName);
+  if (frameId === null && opacityInterval === null) startAllAnimation(map);
   // console.log(featureList[0].geom.type);
 };
 
@@ -324,3 +361,8 @@ export function debounce(func: Function, wait: number) {
     timeout = setTimeout(later, wait);
   };
 }
+
+export const emptyFeatureCollection: GeoJSON.FeatureCollection = {
+  type: "FeatureCollection",
+  features: [],
+};

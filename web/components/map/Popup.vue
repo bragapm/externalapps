@@ -80,7 +80,7 @@ watchEffect(() => {
     });
 
     const featureList = features.map((feature: MapGeoJSONFeature) => {
-      const foundLayer  = filterLayers?.find(
+      const foundLayer = filterLayers?.find(
         (layer) => layer.layer_id === feature.layer.id
       )!;
       return {
@@ -197,12 +197,11 @@ const prevFeature = () => {
 
 const removePopup = () => {
   popupRef.value!.remove();
-  (map.value!.getSource("highlight") as GeoJSONSource).setData({
-    type: "FeatureCollection",
-    features: [],
-  } as any);
+  (map.value!.getSource("highlight") as GeoJSONSource).setData(
+    emptyFeatureCollection
+  );
+  pauseAllAnimation();
 };
-
 </script>
 
 <template>

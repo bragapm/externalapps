@@ -110,13 +110,10 @@ const {
 });
 
 const clearSelection = () => {
-  const emptyData: GeoJSON.FeatureCollection = {
-    type: "FeatureCollection",
-    features: [],
-  };
   (mapRefStore.map!.getSource("highlight") as GeoJSONSource)?.setData(
-    emptyData
+    emptyFeatureCollection
   );
+  pauseAllAnimation();
   featureStore.setRightSidebar("");
   setTimeout(() => {
     featureStore.setFeature(undefined);
