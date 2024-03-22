@@ -1,11 +1,48 @@
 <script lang="ts" setup>
-import { uncategorizedAlias } from '~/constants';
+import { useQuery } from "@tanstack/vue-query";
+import { uncategorizedAlias } from "~/constants";
 
-defineProps<{
+type Category = {
+  category_name: string;
+  description: string;
+  contributor: string;
+  date_created: string;
+};
+
+const props = defineProps<{
   groupItem: LayerGroupedByCategory;
 }>();
 
 const mapLayerStore = useMapLayer();
+
+const {
+  data: categoriesData,
+  error: mapError,
+  isFetching: isMapFetching,
+  isError: isMapError,
+} = useQuery({
+  queryKey: [
+    `/panel/items/categories?fields=category_name,description,contributor,date_created`,
+  ],
+  queryFn: ({ queryKey }) =>
+    $fetch<{
+      data: Category[];
+    }>(queryKey[0]).then((r) => r.data),
+});
+
+const categoryData = ref<Category | null>(null);
+watchEffect(() => {
+  if (
+    categoriesData.value &&
+    categoriesData.value.findIndex(
+      (el) => el.category_name === props.groupItem.label
+    ) > -1
+  ) {
+    categoryData.value = categoriesData.value.filter(
+      (el) => el.category_name === props.groupItem.label
+    )[0];
+  }
+});
 
 const activeLayers = computed(() => {
   return mapLayerStore.groupedActiveLayers
@@ -58,11 +95,22 @@ const addLayer = (
     <h3 class="text-grey-50">
       {{ groupItem.label }}
     </h3>
-    <p class="text-xs text-grey-50">description</p>
+    <p v-if="categoryData" class="text-xs text-grey-50">
+      {{ categoryData.description }}
+    </p>
     <span class="flex items-center gap-3 text-grey-400 text-xs">
-      <!-- <p>Folder by: {{ folder.created_by }}</p>
-    <p>Made at: {{ folder.created_at }}</p> -->
-      <p>No. of Datasets : {{ groupItem.layerLists.length }}</p>
+      <p v-if="categoryData">Folder by: {{ categoryData.contributor }}</p>
+      <p v-if="categoryData">
+        Created at:
+        {{
+          new Date(categoryData.date_created).toLocaleDateString("id-ID", {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+          })
+        }}
+      </p>
+      <p>Number of Datasets : {{ groupItem.layerLists.length }}</p>
     </span>
     <div
       class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-3 gap-3"
