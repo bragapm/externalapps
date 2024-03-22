@@ -78,7 +78,8 @@ const findCoordinate = () => {
     }
   } else {
     toast.add({
-      title: "Invalid Input",
+      title: "Invalid Input Coordinate",
+      description: "Please provide correct input coordinate",
       icon: "i-heroicons-information-circle",
       timeout: 1500,
     });
