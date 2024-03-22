@@ -163,16 +163,17 @@ watchEffect(() => {
   }
 });
 
-const floatVisibility = ref(false);
+const floatVisibility = ref(0);
 const handleScroll = (event: Event) => {
   const element = event.target as HTMLDivElement;
   // const scrollPercentage =
   //   element.scrollTop / (element.scrollHeight - element.clientHeight);
   const willVisible =
-    element.scrollHeight - element.clientHeight - element.scrollTop < 24;
+    (24 - (element.scrollHeight - element.clientHeight - element.scrollTop)) /
+    24;
 
-  if (willVisible) floatVisibility.value = true;
-  else floatVisibility.value = false;
+  if (willVisible) floatVisibility.value = willVisible;
+  else floatVisibility.value = willVisible;
 };
 </script>
 
@@ -326,7 +327,7 @@ const handleScroll = (event: Event) => {
       </template>
     </section>
 
-    <template v-if="floatVisibility">
+    <template v-if="floatVisibility >= 0">
       <UButton
         v-if="hasNextPage"
         variant="outline"
@@ -338,11 +339,13 @@ const handleScroll = (event: Event) => {
             ? 'Loading'
             : 'Load More'
         "
+        :style="{ opacity: floatVisibility }"
       >
       </UButton
       ><span
         v-else
         class="absolute rounded-xxs border border-grey-600 bottom-8 right-8 w-1/4 px-3 min-w-fit bg-grey-800 h-9 text-grey-200 flex justify-center items-center text-xs"
+        :style="{ opacity: floatVisibility }"
         >End of Data</span
       ></template
     >
