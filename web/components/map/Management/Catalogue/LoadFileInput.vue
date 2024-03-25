@@ -215,12 +215,12 @@ const handleFileUploadChange = async (e: Event) => {
       } else {
         await addToIDBAndLayerList(file.name, result.geojsonObj, result.bounds);
       }
+      toast.add({
+        title: "File has been processed successfully",
+        icon: "i-heroicons-check-circle",
+      });
     }
     worker.terminate();
-    toast.add({
-      title: "File has been processed successfully",
-      icon: "i-heroicons-check-circle",
-    });
   };
   worker.postMessage(file);
 };
