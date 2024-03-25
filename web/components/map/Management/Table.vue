@@ -175,6 +175,40 @@ const handleScroll = (event: Event) => {
   if (willVisible) floatVisibility.value = willVisible;
   else floatVisibility.value = willVisible;
 };
+
+const downloadData = async () => {
+  const queryString = new URLSearchParams({
+    ...(selectedIds.value.length > 0 && {
+      filter: JSON.stringify({
+        ogc_fid: { [!isAllChecked.value ? "_in" : "_nin"]: selectedIds.value },
+      }),
+    }),
+    export: "csv",
+  });
+
+  try {
+    const response = await fetch(
+      `/panel/items/${store.activeCollection}?${queryString}`,
+      {
+        method: "GET",
+      }
+    );
+    const resData = await response.blob();
+    let anchor = document.createElement("a");
+    const href = window.URL.createObjectURL(resData);
+    anchor.download = store.activeCollection!;
+    anchor.href = href;
+    anchor.click();
+    window.URL.revokeObjectURL(href);
+    anchor.remove();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    toast.add({
+      title: "Error on downloading table data",
+      description: message,
+    });
+  }
+};
 </script>
 
 <template>
@@ -228,6 +262,7 @@ const handleScroll = (event: Event) => {
           />
           Filter</button
         ><button
+          @click="downloadData"
           class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
         >
           <IcDownload
