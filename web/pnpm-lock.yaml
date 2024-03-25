@@ -62,6 +62,9 @@ dependencies:
   shpjs:
     specifier: ^4.0.4
     version: 4.0.4
+  xlsx:
+    specifier: https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz
+    version: '@cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz'
 
 devDependencies:
   '@nuxt/devtools':
@@ -9057,6 +9060,14 @@ packages:
       archiver-utils: 4.0.1
       compress-commons: 5.0.1
       readable-stream: 3.6.2
+
+  '@cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz':
+    resolution: {tarball: https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz}
+    name: xlsx
+    version: 0.20.1
+    engines: {node: '>=0.8'}
+    hasBin: true
+    dev: false
 
   github.com/gerhobbelt/nomnom/559dfcd9436b3beeeccdc0a4f28f0e3f988379ca:
     resolution: {tarball: https://codeload.github.com/gerhobbelt/nomnom/tar.gz/559dfcd9436b3beeeccdc0a4f28f0e3f988379ca}
