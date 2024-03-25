@@ -9,6 +9,13 @@ import IcShrink from "~/assets/icons/ic-shrink.svg";
 import IcSort from "~/assets/icons/ic-sort.svg";
 import bbox from "@turf/bbox";
 
+type HeaderData = {
+  field: string;
+  type: string;
+};
+
+type Columns = { key: string; label: string; type: string };
+
 const store = useTableData();
 const { toggleTable, toggleFullscreen } = store;
 
@@ -34,28 +41,30 @@ const {
   isFetching: isHeaderFetching,
   isError: isHeaderError,
 } = useQuery({
-  queryKey: [`/panel/fields/${store.activeCollection}`],
+  queryKey: [
+    `/panel/vector-tiles-attribute-table-header/${store.activeCollection}`,
+  ],
   queryFn: ({ queryKey }) =>
-    $fetch<{ data: any }>(queryKey[0]).then((r) => r.data),
+    $fetch<{
+      data: HeaderData[];
+    }>(queryKey[0]).then((r) => r.data),
 });
 
 const columns = computed<
   {
     key: string;
     label: string;
-    is_primary_key: boolean;
     type: string;
   }[]
 >(() => {
   if (headerData.value) {
     return headerData.value
-      .map((el: any) => ({
+      .map((el: HeaderData) => ({
         key: el.field,
         label: capitalizeEachWords(el.field),
-        is_primary_key: el.schema.is_primary_key,
         type: el.type,
       }))
-      .filter((el: any) => !el.is_primary_key && el.type !== "geometry");
+      .filter((el: Columns) => el.type !== "geometry");
   } else return [];
 });
 
@@ -72,10 +81,13 @@ const {
     const queryParams: Record<string, string> = {
       limit: "25",
       page: pageParam.toString(),
-      fields: headerData.value
-        .filter((el: any) => el.type !== "geometry")
-        .map((el: any) => el.field)
-        .join(","),
+      ...(headerData.value && {
+        fields: headerData.value
+          .filter((el: HeaderData) => el.type !== "geometry")
+          .map((el: HeaderData) => el.field)
+          .concat("ogc_fid")
+          .join(","),
+      }),
     };
     const r = await $fetch<{ data: any[] }>(
       `/panel/items/${store.activeCollection}?` +
