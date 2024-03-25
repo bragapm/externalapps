@@ -6,8 +6,7 @@ import IcDrawSquare from "~/assets/icons/ic-draw-square.svg";
 export interface Props {
   active?: boolean;
   label?: string;
-  labelCard?: string;
-  icon?: string;
+  icon?: string | Component;
   onClose?: () => void;
 }
 const props = withDefaults(defineProps<Props>(), {
@@ -36,9 +35,9 @@ const props = withDefaults(defineProps<Props>(), {
         :fontControlled="false"
       ></component>
       <p class="flex-1 text-grey-200 text-2xs">{{ label }}</p>
-      <UButton @click="onClose" size="sm" color="transparent" class="p-0">
+      <button @click="onClose">
         <IcCross class="w-2 h-2 text-grey-400 m-2" :fontControlled="false" />
-      </UButton>
+      </button>
     </div>
     <slot />
   </TransitionRoot>

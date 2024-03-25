@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { storeToRefs } from "pinia";
+import type { Component } from "vue";
 import IcArrow from "~/assets/icons/ic-arrow-reg.svg";
 import type { ToolItem } from "~/utils/types";
 
 const props = defineProps<{
   triggerLabel?: string;
-  triggerIcon?: any;
+  triggerIcon?: string | Component;
   itemLabel?: string;
   itemDescription?: string;
   items?: ToolItem[];

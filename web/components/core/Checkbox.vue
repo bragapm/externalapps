@@ -8,7 +8,7 @@ const props = defineProps<{
   id: string;
   index: number | string;
   label?: string;
-  icon?: string;
+  icon?: string | Component;
   isChecked: boolean;
   forHeader?: boolean;
 }>();

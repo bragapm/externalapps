@@ -94,17 +94,17 @@ const handleChangeOpacity = (e: Event) => {
             @change="handleChangeOpacity"
             name="range"
             size="sm"
-            color="primary"
             :ui="{
               background: 'bg-grey-800',
+              progress: { background: 'bg-grey-500 dark:bg-grey-400' },
               thumb: {
                 background:
-                  '[&::-webkit-slider-thumb]:bg-grey-400 [&::-webkit-slider-thumb]:dark:bg-gray-400',
+                  '[&::-webkit-slider-thumb]:bg-grey-400 [&::-webkit-slider-thumb]:dark:bg-grey-400',
                 ring: '[&::-webkit-slider-thumb]:ring-0 [&::-webkit-slider-thumb]:ring-current',
               },
               track: {
                 background:
-                  '[&::-webkit-slider-runnable-track]:bg-gray-700 [&::-moz-range-track]:bg-gray-700 [&::-webkit-slider-runnable-track]:dark:bg-gray-700 [&::-moz-range-track]:dark:bg-gray-700',
+                  '[&::-webkit-slider-runnable-track]:bg-grey-700 [&::-moz-range-track]:bg-grey-700 [&::-webkit-slider-runnable-track]:dark:bg-grey-700 [&::-moz-range-track]:dark:bg-grey-700',
               },
             }"
           />

@@ -23,7 +23,7 @@ const { toggleExpandTools } = toolsStore;
 const { expandTools } = storeToRefs(toolsStore);
 
 const showCard = ref(false);
-const activeTools = ref<ToolItem | null>(null);
+const activeTools = shallowRef<ToolItem | null>(null);
 
 const handleOpenToolsCard = (item: ToolItem) => {
   showCard.value = true;

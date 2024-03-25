@@ -22,7 +22,7 @@ onMounted(async () => {
 const filteredLayers = ref<LayerGroupedByCategory[]>([]);
 const filteredLocalLayers = ref<LayerGroupedByCategory[]>([]);
 
-const formatLists = ref(layerTypeFilterOptions);
+const formatLists = shallowRef(layerTypeFilterOptions);
 const handleChangeFormatList = (index: string | number, value: boolean) => {
   if (typeof index === "number")
     if (index === 0 && value === true) {
@@ -49,7 +49,7 @@ const handleChangeFormatList = (index: string | number, value: boolean) => {
     }
 };
 
-const dimensionLists = ref(dimensionFilterOptions);
+const dimensionLists = shallowRef(dimensionFilterOptions);
 const handleChangeDimensionList = (index: string | number, value: boolean) => {
   if (typeof index === "number")
     if (index === 0 && value === true) {
