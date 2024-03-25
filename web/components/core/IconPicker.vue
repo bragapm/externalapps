@@ -12,7 +12,7 @@ const emit = defineEmits(["update:modelValue"]);
 
 const filterByTitle = ref("");
 
-const fetcher = async (url: string, searchParams?: any): Promise<any> =>
+const fetcher = async (url: string, searchParams?: URLSearchParams) =>
   await fetch(`${url}${searchParams ? "?" + searchParams : ""}`).then(
     (response) => response.json()
   );

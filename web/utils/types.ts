@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    EyeDropper: any;
+  }
+}
+
 import type {
   geomTypeCircle,
   geomTypeLine,

@@ -38,10 +38,10 @@ const onSaturationChange = (event: MouseEvent) => {
 };
 
 const handleEyedropper = () => {
-  if (!(window as any).EyeDropper) {
+  if (!window.EyeDropper) {
     console.log("browser not supported");
   } else {
-    const eyeDropper = new (window as any).EyeDropper();
+    const eyeDropper = new window.EyeDropper();
     eyeDropper
       .open()
       .then((result: { sRGBHex: string }) => {
