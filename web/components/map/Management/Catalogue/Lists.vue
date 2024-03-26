@@ -53,7 +53,7 @@ const handleScroll = (id: string) => {
               handleScroll(category.label.split(' ').join(''));
             }
           "
-          class="text-xs"
+          class="text-xs w-full"
         />
       </span>
     </div>
