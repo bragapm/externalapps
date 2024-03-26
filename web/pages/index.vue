@@ -2,7 +2,7 @@
 import { TransitionRoot } from "@headlessui/vue";
 import IcBasemap from "~/assets/icons/ic-basemap.svg";
 import IcInfo from "~/assets/icons/ic-info.svg";
-// import IcChart from "~/assets/icons/ic-chart.svg";
+import IcChart from "~/assets/icons/ic-chart.svg";
 import IcRectangleList from "~/assets/icons/ic-rectangle-list.svg";
 import IcLocation from "~/assets/icons/ic-location.svg";
 import IcMapExtent from "~/assets/icons/ic-map-instance.svg";
@@ -146,7 +146,7 @@ watchEffect((onCleanup) => {
     <!-- right sidebar -->
     <TransitionRoot
       as="div"
-      :show="featureStore.isShowMapInfo"
+      :show="featureStore.mapInfo === 'info'"
       enter="transition-all duration-300"
       enter-from="-mr-8 opacity-0"
       enter-to="mr-0 opacity-1"
@@ -157,6 +157,19 @@ watchEffect((onCleanup) => {
     >
       <MapInformation />
     </TransitionRoot>
+    <!-- <TransitionRoot
+      as="div"
+      :show="featureStore.mapInfo === 'analytic'"
+      enter="transition-all duration-300"
+      enter-from="-mr-8 opacity-0"
+      enter-to="mr-0 opacity-1"
+      leave="transition-all duration-300"
+      leave-from="mr-0 opacity-1"
+      leave-to="-mr-8 opacity-0"
+      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+    >
+      <MapAnalytic />
+    </TransitionRoot> -->
     <TransitionRoot
       as="div"
       :show="featureStore.rightSidebar === 'feature'"
@@ -166,7 +179,11 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-300"
       leave-from="mr-0 opacity-1"
       leave-to="-mr-8 opacity-0"
-      :class="featureStore.isShowMapInfo ? 'right-[20.5rem]' : 'right-[1.5rem]'"
+      :class="
+        featureStore.mapInfo === 'info' || featureStore.mapInfo === 'analytic'
+          ? 'right-[20.5rem]'
+          : 'right-[1.5rem]'
+      "
       class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col transition-all ease-in-out duration-300"
     >
       <MapFeatureDetail />
@@ -180,7 +197,11 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-300"
       leave-from="mr-0 opacity-1"
       leave-to="-mr-8 opacity-0"
-      :class="featureStore.isShowMapInfo ? 'right-[20.5rem]' : 'right-[1.5rem]'"
+      :class="
+        featureStore.mapInfo === 'info' || featureStore.mapInfo === 'analytic'
+          ? 'right-[20.5rem]'
+          : 'right-[1.5rem]'
+      "
       class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <Map3DFeatureDetail />
@@ -189,11 +210,11 @@ watchEffect((onCleanup) => {
     <!-- top right button controller -->
     <div
       :class="
-        featureStore.isShowMapInfo &&
+        (featureStore.mapInfo === 'info' || featureStore.mapInfo === 'analytic') &&
         (featureStore.rightSidebar === 'feature' ||
           featureStore.rightSidebar === '3d-feature')
           ? 'right-[39.5rem]'
-          : featureStore.isShowMapInfo
+          : featureStore.mapInfo === 'info' || featureStore.mapInfo === 'analytic'
           ? 'right-[20.5rem]'
           : featureStore.rightSidebar === 'feature' ||
             featureStore.rightSidebar === '3d-feature'
@@ -204,12 +225,28 @@ watchEffect((onCleanup) => {
     >
       <MapButtonControl
         :onClick="
-          () => (featureStore.isShowMapInfo = !featureStore.isShowMapInfo)
+          () => {
+            featureStore.setMapInfo(
+              featureStore.mapInfo === 'info' ? '' : 'info'
+            );
+          }
         "
-        :active="featureStore.isShowMapInfo"
+        :active="featureStore.mapInfo === 'info'"
       >
         <IcInfo class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>
+      <!-- <MapButtonControl
+        :onClick="
+          () => {
+            featureStore.setMapInfo(
+              featureStore.mapInfo === 'analytic' ? '' : 'analytic'
+            );
+          }
+        "
+        :active="featureStore.mapInfo === 'analytic'"
+      >
+        <IcChart class="w-5 h-5" :fontControlled="false" />
+      </MapButtonControl> -->
       <MapButtonControl
         :onClick="
           () => {

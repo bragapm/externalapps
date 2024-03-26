@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import type { PopupItem } from "@/components/map/Popup.vue";
 
 export type rightSidebarEnum = "mapinfo" | "feature" | "3d-feature" | "";
+export type mapInfoEnum = "info" | "analytic" | "";
 
 export const useFeature = defineStore("feature", () => {
   const feature = ref<PopupItem>();
@@ -14,7 +15,10 @@ export const useFeature = defineStore("feature", () => {
   ) {
     threeDfeature.value = newFeature;
   }
-  const isShowMapInfo = ref(false);
+  const mapInfo = ref<mapInfoEnum>("");
+  function setMapInfo(newValue: mapInfoEnum) {
+    mapInfo.value = newValue;
+  }
   const rightSidebar = ref<rightSidebarEnum>("");
   function setRightSidebar(newValue: rightSidebarEnum) {
     rightSidebar.value = newValue;
@@ -26,6 +30,7 @@ export const useFeature = defineStore("feature", () => {
     set3DFeature,
     rightSidebar,
     setRightSidebar,
-    isShowMapInfo,
+    mapInfo,
+    setMapInfo,
   };
 });

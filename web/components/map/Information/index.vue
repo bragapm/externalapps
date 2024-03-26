@@ -15,7 +15,7 @@ const {
 const featureStore = useFeature();
 
 const closeMapInfo = () => {
-  featureStore.isShowMapInfo = false;
+  featureStore.setMapInfo("");
 };
 </script>
 
