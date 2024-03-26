@@ -3,10 +3,12 @@ import { Map, GeolocateControl } from "maplibre-gl";
 import type { LngLatBoundsLike, StyleSpecification } from "maplibre-gl";
 import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
-import { useMapData } from "~/utils";
+import { useMapData, useSharedMap } from "~/utils";
 import bbox from "@turf/bbox";
 
 const { isLoading, data: mapData } = await useMapData();
+
+const sharedMap = await useSharedMap();
 
 const mapContainer = shallowRef<null | HTMLElement>(null);
 const map = shallowRef<null | Raw<Map>>(null);
@@ -45,12 +47,14 @@ onMounted(async () => {
     new Map({
       container: mapContainer.value!,
       style,
-      bounds: bbox(
-        mapData?.value?.data.initial_map_view || [
-          [95.01, -11.01], // Southwest coordinates (longitude, latitude)
-          [141.02, 6.08], // Northeast coordinates (longitude, latitude)
-        ] // Indonesia Bounds
-      ) as LngLatBoundsLike,
+      bounds:
+        sharedMap?.value?.data.map_state.boundArray ||
+        (bbox(
+          mapData?.value?.data.initial_map_view || [
+            [95.01, -11.01], // Southwest coordinates (longitude, latitude)
+            [141.02, 6.08], // Northeast coordinates (longitude, latitude)
+          ] // Indonesia Bounds
+        ) as LngLatBoundsLike),
     })
   );
 

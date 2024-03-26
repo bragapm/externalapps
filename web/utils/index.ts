@@ -13,6 +13,17 @@ export const useMapData = async () => {
   return { data, isLoading: pending };
 };
 
+export const useSharedMap = async () => {
+  const route = useRoute();
+  if (route.query.share_id) {
+    const { data } = await useFetch<{ data: { map_state: any } }>(
+      `/panel/items/shared_map/${route.query.share_id}`,
+      { key: "sharedMap" }
+    );
+    return data;
+  }
+};
+
 export const useGeneralSettings = async () => {
   const { pending, data } = await useFetch<GeneralSettings>("/panel/settings", {
     key: "settings",
