@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TransitionRoot } from "@headlessui/vue";
 import IcBasemap from "~/assets/icons/ic-basemap.svg";
-import IcBookmark from "~/assets/icons/ic-bookmark.svg";
+import IcInfo from "~/assets/icons/ic-info.svg";
 // import IcChart from "~/assets/icons/ic-chart.svg";
 import IcRectangleList from "~/assets/icons/ic-rectangle-list.svg";
 import IcLocation from "~/assets/icons/ic-location.svg";
@@ -208,7 +208,7 @@ watchEffect((onCleanup) => {
         "
         :active="featureStore.isShowMapInfo"
       >
-        <IcBookmark class="w-5 h-5" :fontControlled="false" />
+        <IcInfo class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>
       <MapButtonControl
         :onClick="

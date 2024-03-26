@@ -5,7 +5,6 @@ import KeenSlider, {
   type KeenSliderPlugin,
 } from "keen-slider";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
-import IcArrowLeft from "~/assets/icons/ic-arrow-left.svg";
 import IcCross from "~/assets/icons/ic-cross.svg";
 import IcRectangleList from "~/assets/icons/ic-rectangle-list.svg";
 import {
@@ -124,7 +123,7 @@ const clearSelection = () => {
 <template>
   <div class="flex justify-between items-center m-3">
     <h2 class="text-white">Feature Detail</h2>
-    <IcArrowLeft
+    <IcCross
       role="button"
       @click="featureStore.setRightSidebar('')"
       :fontControlled="false"
