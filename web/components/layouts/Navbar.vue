@@ -147,7 +147,6 @@ const authStore = useAuth();
               } else authStore.mutateAuthModal(true);
             }
           "
-          label="Share Map"
           class="h-9 w-9 rounded-full flex items-center justify-center"
         >
           <IcLogout v-if="authStore.isSignedIn" />
@@ -195,12 +194,7 @@ const authStore = useAuth();
         </template>
       </UInput>
 
-      <UButton :ui="{ rounded: 'rounded-xxs' }" label="Share Map">
-        <template #trailing>
-          <IcLink class="text-base" />
-        </template>
-      </UButton>
-
+      <LayoutsNavbarShare />
       <LayoutsNavbarAuth />
     </div>
   </div>

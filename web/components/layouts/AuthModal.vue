@@ -62,12 +62,12 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
     setTimeout(() => {
       tryRefresh(data.refresh_token, signin, signout);
     }, data.expires - 1000);
+    authStore.mutateAuthModal(false);
   } catch (error) {
     generalErrorMessage.value =
       "Signin information is incorrect. Make sure the email and password is correct and try again.";
   } finally {
     isLoading.value = false;
-    authStore.mutateAuthModal(false);
   }
 };
 </script>
@@ -117,9 +117,9 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               >
                 <div class="w-1/2 p-8">
                   <div
-                    class="flex flex-col bg-grey-800 rounded-lg h-full px-16 py-8 overflow-scroll justify-center"
+                    class="bg-grey-800 rounded-lg h-full px-16 overflow-scroll"
                   >
-                    <div class="flex flex-col text-center space-y-3 mb-16">
+                    <div class="flex flex-col text-center space-y-3 mb-16 mt-8">
                       <IcLogoGeodashboardFull
                         class="h-5 w-full text-grey-50 mb-4"
                         :fontControlled="false"
@@ -218,7 +218,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
                         />
                       </template>
                     </UButton>
-                    <p class="text-center text-grey-500 text-sm">
+                    <p class="text-center text-grey-500 text-sm mb-8">
                       ©{{ new Date().getFullYear() }} Braga Technologies
                     </p>
                   </div>
