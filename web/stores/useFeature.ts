@@ -14,6 +14,7 @@ export const useFeature = defineStore("feature", () => {
   ) {
     threeDfeature.value = newFeature;
   }
+  const isShowMapInfo = ref(false);
   const rightSidebar = ref<rightSidebarEnum>("");
   function setRightSidebar(newValue: rightSidebarEnum) {
     rightSidebar.value = newValue;
@@ -25,5 +26,6 @@ export const useFeature = defineStore("feature", () => {
     set3DFeature,
     rightSidebar,
     setRightSidebar,
+    isShowMapInfo,
   };
 });

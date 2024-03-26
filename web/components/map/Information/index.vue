@@ -13,6 +13,10 @@ const {
 });
 
 const featureStore = useFeature();
+
+const closeMapInfo = () => {
+  featureStore.isShowMapInfo = false;
+};
 </script>
 
 <template>
@@ -20,7 +24,7 @@ const featureStore = useFeature();
     <h2 class="text-white">Map Information</h2>
     <IcArrowLeft
       role="button"
-      @click="featureStore.setRightSidebar('')"
+      @click="closeMapInfo"
       :fontControlled="false"
       class="w-3 h-3 rotate-180 text-grey-50"
     />

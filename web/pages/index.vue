@@ -146,7 +146,7 @@ watchEffect((onCleanup) => {
     <!-- right sidebar -->
     <TransitionRoot
       as="div"
-      :show="featureStore.rightSidebar === 'mapinfo'"
+      :show="featureStore.isShowMapInfo"
       enter="transition-all duration-300"
       enter-from="-mr-8 opacity-0"
       enter-to="mr-0 opacity-1"
@@ -166,7 +166,8 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-300"
       leave-from="mr-0 opacity-1"
       leave-to="-mr-8 opacity-0"
-      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      :class="featureStore.isShowMapInfo ? 'right-[20.5rem]' : 'right-[1.5rem]'"
+      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col transition-all ease-in-out duration-300"
     >
       <MapFeatureDetail />
     </TransitionRoot>
@@ -179,6 +180,7 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-300"
       leave-from="mr-0 opacity-1"
       leave-to="-mr-8 opacity-0"
+      :class="featureStore.isShowMapInfo ? 'right-[20.5rem]' : 'right-[1.5rem]'"
       class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <Map3DFeatureDetail />
@@ -187,7 +189,14 @@ watchEffect((onCleanup) => {
     <!-- top right button controller -->
     <div
       :class="
-        Boolean(featureStore.rightSidebar)
+        featureStore.isShowMapInfo &&
+        (featureStore.rightSidebar === 'feature' ||
+          featureStore.rightSidebar === '3d-feature')
+          ? 'right-[39.5rem]'
+          : featureStore.isShowMapInfo
+          ? 'right-[20.5rem]'
+          : featureStore.rightSidebar === 'feature' ||
+            featureStore.rightSidebar === '3d-feature'
           ? 'right-[20.5rem]'
           : 'right-[1.5rem]'
       "
@@ -195,23 +204,27 @@ watchEffect((onCleanup) => {
     >
       <MapButtonControl
         :onClick="
-          () =>
-            featureStore.setRightSidebar(
-              featureStore.rightSidebar === 'mapinfo' ? '' : 'mapinfo'
-            )
+          () => (featureStore.isShowMapInfo = !featureStore.isShowMapInfo)
         "
-        :active="featureStore.rightSidebar === 'mapinfo'"
+        :active="featureStore.isShowMapInfo"
       >
         <IcBookmark class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>
       <MapButtonControl
         :onClick="
-          () =>
+          () => {
             featureStore.setRightSidebar(
-              featureStore.rightSidebar === 'feature' ? '' : 'feature'
-            )
+              featureStore.rightSidebar === 'feature' ||
+                featureStore.rightSidebar === '3d-feature'
+                ? ''
+                : 'feature'
+            );
+          }
         "
-        :active="featureStore.rightSidebar === 'feature'"
+        :active="
+          featureStore.rightSidebar === 'feature' ||
+          featureStore.rightSidebar === '3d-feature'
+        "
       >
         <IcRectangleList class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>
