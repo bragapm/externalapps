@@ -377,10 +377,9 @@ const downloadData = async () => {
     <template v-if="floatVisibility >= 0">
       <UButton
         v-if="hasNextPage"
-        variant="outline"
         :loading="isCountFetching || isHeaderFetching || isTableFetching"
         @click="() => fetchNextPage()"
-        class="absolute bottom-8 right-8 w-1/4 px-3 min-w-fit h-9 rounded-xxs flex justify-center items-center bg-grey-800"
+        class="absolute bottom-8 right-8 w-1/4 px-3 min-w-fit h-9 rounded-xxs flex justify-center items-center"
         :label="
           isCountFetching || isHeaderFetching || isTableFetching
             ? 'Loading'
