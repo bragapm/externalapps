@@ -12,11 +12,15 @@ import IcSearch from "~/assets/icons/ic-search.svg";
 import IcTools from "~/assets/icons/ic-tools.svg";
 import { storeToRefs } from "pinia";
 import type { ToolItem } from "~/utils/types";
+import type { GeoJSONSource } from "maplibre-gl";
 
 const showTools = ref(true);
 const showIsochroneCard = ref(false);
 const store = useTableData();
 const { showTable } = storeToRefs(store);
+
+const mapRefStore = useMapRef();
+const { map } = storeToRefs(mapRefStore);
 
 const toolsStore = useMapTools();
 const { toggleExpandTools } = toolsStore;
@@ -38,6 +42,16 @@ const handleCloseToolsCard = () => {
     activeTools.value = null;
   }, 400);
 };
+
+const removeAllAnimation = () => {
+  if (map.value?.getSource("highlight")) {
+    (map.value?.getSource("highlight") as GeoJSONSource).setData(
+      emptyFeatureCollection
+    );
+  }
+  pauseAllAnimation();
+};
+
 </script>
 
 <template>
@@ -123,6 +137,7 @@ const handleCloseToolsCard = () => {
             labelCard: 'Length Measurement Tool',
             icon: IcRuler,
             action: (item) => {
+              removeAllAnimation();
               handleOpenToolsCard(item!);
             },
           },
@@ -132,6 +147,7 @@ const handleCloseToolsCard = () => {
             labelCard: 'Area Measurement Tool',
             icon: IcRulerCorner,
             action: (item) => {
+              removeAllAnimation();
               handleOpenToolsCard(item!);
             },
           },
