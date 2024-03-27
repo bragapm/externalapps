@@ -35,7 +35,7 @@ onmessage = async (event: MessageEvent<File>) => {
     }
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Error parsing Shapefile";
+      error instanceof Error ? error.message : "Error parsing file";
     postMessage({ status: "error", message, data: error });
     return;
   }
