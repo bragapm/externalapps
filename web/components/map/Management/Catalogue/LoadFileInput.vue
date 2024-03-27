@@ -2,6 +2,7 @@
 import GeojsonWorker from "~/utils/worker/geojson?worker";
 import ShapefileWorker from "~/utils/worker/shapefile?worker";
 import SheetsWorker from "~/utils/worker/sheets?worker";
+import KmlWorker from "~/utils/worker/kml?worker";
 import {
   geomTypeCircle,
   geomTypeLine,
@@ -44,6 +45,11 @@ const getWorker = (file: File) => {
     [".csv", ".xls", ".xlsx"].some((el) => file.name.endsWith(el))
   ) {
     return new SheetsWorker();
+  } else if (
+    file.type === "application/vnd.google-earth.kml+xml" ||
+    file.name.endsWith(".kml")
+  ) {
+    return new KmlWorker();
   } else {
     return null;
   }
@@ -242,7 +248,7 @@ defineExpose({ input });
   <input
     ref="input"
     type="file"
-    accept=".geojson,application/geo+json,.zip,application/zip,application/x-zip-compressed,.csv,text/csv,.xls,application/vnd.ms-excel,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    accept=".geojson,application/geo+json,.zip,application/zip,application/x-zip-compressed,.csv,text/csv,.xls,application/vnd.ms-excel,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.kml,application/vnd.google-earth.kml+xml"
     hidden
     @change="handleFileUploadChange"
   />

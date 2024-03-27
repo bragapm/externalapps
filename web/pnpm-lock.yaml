@@ -14,6 +14,9 @@ dependencies:
   '@floating-ui/vue':
     specifier: ^1.0.3
     version: 1.0.3(vue@3.3.11)
+  '@loaders.gl/kml':
+    specifier: ^4.1.4
+    version: 4.1.4
   '@mapbox/geojsonhint':
     specifier: ^3.3.0
     version: 3.3.0
@@ -1459,6 +1462,16 @@ packages:
       pbf: 3.2.1
     dev: false
 
+  /@loaders.gl/gis@4.1.4:
+    resolution: {integrity: sha512-z9lMrxHB/6uUxAfPrzMAE988yc0tP58DGQZYTMUdfmIvx1DIjzOGpHJIYWZnEbPsWpHkgGz/Sl+qcWkeFDkM3w==}
+    dependencies:
+      '@loaders.gl/loader-utils': 4.1.4
+      '@loaders.gl/schema': 4.1.4
+      '@mapbox/vector-tile': 1.3.1
+      '@math.gl/polygon': 4.0.1
+      pbf: 3.2.1
+    dev: false
+
   /@loaders.gl/gltf@3.4.14:
     resolution: {integrity: sha512-jv+B5S/taiwzXAOu5D9nk1jjU9+JCCr/6/nGguCE2Ya3IX7CI1Nlnp20eKKhW8ZCEokZavMNT0bNbiJ5ahEFjA==}
     dependencies:
@@ -1475,11 +1488,29 @@ packages:
       '@loaders.gl/loader-utils': 3.4.14
     dev: false
 
+  /@loaders.gl/kml@4.1.4:
+    resolution: {integrity: sha512-iizSnYB8o6U/Z00UBiDmmkOh1A/w4WmVaDT5dlvx+z1bpzba8H2SLIeG2ASlnoVRhAv1v/1T3X+dYsvFvwdtBQ==}
+    dependencies:
+      '@loaders.gl/gis': 4.1.4
+      '@loaders.gl/loader-utils': 4.1.4
+      '@loaders.gl/schema': 4.1.4
+      '@tmcw/togeojson': 4.7.0
+      '@xmldom/xmldom': 0.7.13
+    dev: false
+
   /@loaders.gl/loader-utils@3.4.14:
     resolution: {integrity: sha512-HCTY2/F83RLbZWcTvWLVJ1vke3dl6Bye20HU1AqkA37J2vzHwOZ8kj6eee8eeSkIkf7VIFwjyhVJxe0flQE/Bw==}
     dependencies:
       '@babel/runtime': 7.23.9
       '@loaders.gl/worker-utils': 3.4.14
+      '@probe.gl/stats': 4.0.5
+    dev: false
+
+  /@loaders.gl/loader-utils@4.1.4:
+    resolution: {integrity: sha512-H4JefiK3plFqQxENWx/Mzlx6WtkIvQ21if4VV+UQ/OB3bbq6QuLFHrWBHUx2z4z9QSBj1johiF1KGplgi/unWA==}
+    dependencies:
+      '@babel/runtime': 7.23.9
+      '@loaders.gl/worker-utils': 4.1.4
       '@probe.gl/stats': 4.0.5
     dev: false
 
@@ -1503,6 +1534,12 @@ packages:
 
   /@loaders.gl/schema@3.4.14:
     resolution: {integrity: sha512-r6BEDfUvbvzgUnh/MtkR5RzrkIwo1x1jtPFRTSJVsIZO7arXXlu3blffuv5ppEkKpNZ1Xzd9WtHp/JIkuctsmw==}
+    dependencies:
+      '@types/geojson': 7946.0.13
+    dev: false
+
+  /@loaders.gl/schema@4.1.4:
+    resolution: {integrity: sha512-Y9FoM/HdBvAVrGi213Z7+dvSBEvDEc9va38RFzXA5HtTcUqOz1Rsu2wStNmY7oL7xjnNF856Wyq0Nty7I24V4g==}
     dependencies:
       '@types/geojson': 7946.0.13
     dev: false
@@ -1545,6 +1582,12 @@ packages:
 
   /@loaders.gl/worker-utils@3.4.14:
     resolution: {integrity: sha512-PUSwxoAYbskisXd0KfYEQ902b0igBA2UAWdP6PzPvY+tJmobfh74dTNwrrBQ1rGXQxxmGx6zc6/ksX6mlIzIrg==}
+    dependencies:
+      '@babel/runtime': 7.23.9
+    dev: false
+
+  /@loaders.gl/worker-utils@4.1.4:
+    resolution: {integrity: sha512-6SsOcS+aoI7/f/ak1vlpwlhzDXMbO8ivUIyDmCazPpRMnpFP7ig/H2yctvlGnUTUhsv1oJCRt4vPnhKefhCFvg==}
     dependencies:
       '@babel/runtime': 7.23.9
     dev: false
@@ -1769,6 +1812,12 @@ packages:
       gl-matrix: 3.4.3
     dev: false
 
+  /@math.gl/core@4.0.1:
+    resolution: {integrity: sha512-9IewNjR9V66o+gYIIq5agFoHy6ZT6DRpRGQBfsUpZz4glAqOjVt64he8GGzjpmqfT+kKT4qwQ7nQl/hZLF15qA==}
+    dependencies:
+      '@math.gl/types': 4.0.1
+    dev: false
+
   /@math.gl/culling@3.6.3:
     resolution: {integrity: sha512-3UERXHbaPlM6pnTk2MI7LeQ5CoelDZzDzghTTcv+HdQCZsT/EOEuEdYimETHtSxiyiOmsX2Un65UBLYT/rbKZg==}
     dependencies:
@@ -1791,6 +1840,12 @@ packages:
       '@math.gl/core': 3.6.3
     dev: false
 
+  /@math.gl/polygon@4.0.1:
+    resolution: {integrity: sha512-pwtEbwW3N5qy09K/1FwRYW7M2u9XMPBfIe8BNpkbJh8uH3DPXQdT4uCNFiwrQPPQUQTDdlQyLu/0mRHm2R/fbg==}
+    dependencies:
+      '@math.gl/core': 4.0.1
+    dev: false
+
   /@math.gl/sun@3.6.3:
     resolution: {integrity: sha512-mrx6CGYYeTNSQttvcw0KVUy+35YDmnjMqpO/o0t06Vcghrt0HNruB/ScRgUSbJrgkbOg1Vcqm23HBd++clzQzw==}
     dependencies:
@@ -1799,6 +1854,10 @@ packages:
 
   /@math.gl/types@3.6.3:
     resolution: {integrity: sha512-3uWLVXHY3jQxsXCr/UCNPSc2BG0hNUljhmOBt9l+lNFDp7zHgm0cK2Tw4kj2XfkJy4TgwZTBGwRDQgWEbLbdTA==}
+    dev: false
+
+  /@math.gl/types@4.0.1:
+    resolution: {integrity: sha512-E9qBKAjVBiZD8Is7TbygiLGtYBP3GSLus6RUJSuzFQegdYXeVagvrs4UkBJxhrRAxw4crfH0Tq7IhTMKuuJNQw==}
     dev: false
 
   /@math.gl/web-mercator@3.6.3:
@@ -2956,6 +3015,10 @@ packages:
       vue-demi: 0.14.6(vue@3.3.11)
     dev: false
 
+  /@tmcw/togeojson@4.7.0:
+    resolution: {integrity: sha512-edAPymgIEIY/jrEmATYe56a46XHvPVm7SXhf29h7jSAUrRhLOIFIlbHPCsic/gGDSvWODTSioRFpXgou47ZLYg==}
+    dev: false
+
   /@trysound/sax@0.2.0:
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
@@ -3430,6 +3493,11 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+    dev: false
+
+  /@xmldom/xmldom@0.7.13:
+    resolution: {integrity: sha512-lm2GW5PkosIzccsaZIz7tp8cPADSIlIHWDFTR1N0SzfinhhYgeIQjFMz4rYzanCScr3DqQLeomUDArp6MWKm+g==}
+    engines: {node: '>=10.0.0'}
     dev: false
 
   /JSV@4.0.2:
