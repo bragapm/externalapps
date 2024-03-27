@@ -226,7 +226,7 @@ const downloadData = async () => {
 <template>
   <div class="flex flex-col gap-3 p-6 h-full max-h-full relative">
     <div class="flex justify-between">
-      <h1 class="text-gray-400">Data Table</h1>
+      <h1 class="text-neutral-400">Data Table</h1>
       <button
         @click="
           () => {

@@ -216,17 +216,17 @@ watch(searchRef, debounce(updateSearchFilter, 750));
             <div v-if="i !== 0" class="border-t border-neutral-700 mx-2" />
             <div class="flex flex-col gap-2 p-2">
               <USkeleton
-                :ui="{ background: 'bg-gray-800' }"
+                :ui="{ background: 'bg-neutral-800' }"
                 class="h-3 w-1/2"
               />
               <USkeleton
-                :ui="{ background: 'bg-gray-800' }"
+                :ui="{ background: 'bg-neutral-800' }"
                 class="h-3 w-full"
               />
               <USkeleton
                 v-for="i of [0, 1, 2, 3, 4]"
                 :key="i"
-                :ui="{ rounded: 'rounded-xxs', background: 'bg-gray-800' }"
+                :ui="{ rounded: 'rounded-xxs', background: 'bg-neutral-800' }"
                 class="w-full h-7"
               />
             </div>
@@ -304,9 +304,18 @@ watch(searchRef, debounce(updateSearchFilter, 750));
           class="flex flex-col w-full h-full border border-neutral-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y divide-neutral-700"
         >
           <div v-for="i of [0, 1]" :key="i" class="flex flex-col p-3 gap-1">
-            <USkeleton :ui="{ background: 'bg-gray-800' }" class="h-6 w-1/12" />
-            <USkeleton :ui="{ background: 'bg-gray-800' }" class="h-4 w-3/12" />
-            <USkeleton :ui="{ background: 'bg-gray-800' }" class="h-4 w-5/12" />
+            <USkeleton
+              :ui="{ background: 'bg-neutral-800' }"
+              class="h-6 w-1/12"
+            />
+            <USkeleton
+              :ui="{ background: 'bg-neutral-800' }"
+              class="h-4 w-3/12"
+            />
+            <USkeleton
+              :ui="{ background: 'bg-neutral-800' }"
+              class="h-4 w-5/12"
+            />
             <div
               class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-3 gap-3"
             >
@@ -316,25 +325,25 @@ watch(searchRef, debounce(updateSearchFilter, 750));
                 class="flex flex-col gap-2 border border-neutral-700 rounded-xs p-2"
               >
                 <USkeleton
-                  :ui="{ background: 'bg-gray-800', rounded: 'rounded-xxs' }"
+                  :ui="{ background: 'bg-neutral-800', rounded: 'rounded-xxs' }"
                   class="h-6 w-1/4"
                 />
                 <USkeleton
-                  :ui="{ background: 'bg-gray-800', rounded: 'rounded-xxs' }"
+                  :ui="{ background: 'bg-neutral-800', rounded: 'rounded-xxs' }"
                   class="h-24 w-full"
                 />
                 <div class="flex flex-col gap-2">
                   <USkeleton
-                    :ui="{ background: 'bg-gray-800' }"
+                    :ui="{ background: 'bg-neutral-800' }"
                     class="h-3 w-1/3"
                   />
                   <USkeleton
-                    :ui="{ background: 'bg-gray-800' }"
+                    :ui="{ background: 'bg-neutral-800' }"
                     class="h-3 w-2/3"
                   />
                 </div>
                 <USkeleton
-                  :ui="{ background: 'bg-gray-800', rounded: 'rounded-xxs' }"
+                  :ui="{ background: 'bg-neutral-800', rounded: 'rounded-xxs' }"
                   class="w-full h-9"
                 />
               </div>

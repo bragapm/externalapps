@@ -9,7 +9,7 @@ defineProps<Attachment>();
 <template>
   <a
     :href="$props.url"
-    class="text-white flex items-center border border-gray-600 rounded-xs p-2"
+    class="text-white flex items-center border border-neutral-600 rounded-xs p-2"
     target="_blank"
   >
     <div class="grow text-xs">
@@ -18,12 +18,12 @@ defineProps<Attachment>();
     </div>
     <IcForm
       v-if="$props.icon === 'form'"
-      class="text-gray-400 w-6"
+      class="text-neutral-400 w-6"
       :fontControlled="false"
     />
     <IcLink
       v-if="$props.icon === 'link'"
-      class="text-gray-400 w-6"
+      class="text-neutral-400 w-6"
       :fontControlled="false"
     />
   </a>

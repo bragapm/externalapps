@@ -125,12 +125,12 @@ const handleChangeProperty = (
             background: 'bg-neutral-800',
             thumb: {
               background:
-                '[&::-webkit-slider-thumb]:bg-neutral-400 [&::-webkit-slider-thumb]:dark:bg-gray-400',
+                '[&::-webkit-slider-thumb]:bg-neutral-400 [&::-webkit-slider-thumb]:dark:bg-neutral-400',
               ring: '[&::-webkit-slider-thumb]:ring-0 [&::-webkit-slider-thumb]:ring-current',
             },
             track: {
               background:
-                '[&::-webkit-slider-runnable-track]:bg-gray-700 [&::-moz-range-track]:bg-gray-700 [&::-webkit-slider-runnable-track]:dark:bg-gray-700 [&::-moz-range-track]:dark:bg-gray-700',
+                '[&::-webkit-slider-runnable-track]:bg-neutral-700 [&::-moz-range-track]:bg-neutral-700 [&::-webkit-slider-runnable-track]:dark:bg-neutral-700 [&::-moz-range-track]:dark:bg-neutral-700',
             },
           }"
           :min="0"

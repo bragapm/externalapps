@@ -32,7 +32,7 @@ const { floatingStyles } = useFloating(reference, floating, {
             'w-full border-t border-white',
           ]"
         ></div>
-        <p class="text-gray-400 text-2xs">
+        <p class="text-neutral-400 text-2xs">
           {{ modelValue ? "Dashed" : "Solid" }}
         </p>
       </div>

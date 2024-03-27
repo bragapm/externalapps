@@ -101,7 +101,7 @@ watchEffect(() => {
           >
             <li
               :class="[
-                active ? 'bg-brand-950 text-amber-900' : 'text-gray-900',
+                active ? 'bg-brand-950 text-amber-900' : 'text-neutral-900',
                 sortOrder.id === item.id ? 'bg-brand-950' : '',
                 'relative p-2 select-none rounded-xxs text-neutral-200 flex items-center gap-5 cursor-pointer',
               ]"

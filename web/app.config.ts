@@ -44,8 +44,8 @@ export default defineAppConfig({
       background: "bg-neutral-900",
       rounded: "rounded-xs",
       title: "text-sm font-medium text-neutral-50",
-      description: "text-sm font-normal text-gray-400",
-      ring: "ring-1 ring-gray-800",
+      description: "text-sm font-normal text-neutral-400",
+      ring: "ring-1 ring-neutral-800",
       padding: "p-4",
       icon: {
         color: "text-brand-500",

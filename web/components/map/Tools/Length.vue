@@ -48,7 +48,7 @@ const handleReset = () => {
         size="2xs"
       >
         <template #trailing>
-          <span class="text-gray-500 dark:text-gray-400 text-xs"
+          <span class="text-neutral-500 dark:text-neutral-400 text-xs"
             >Distance Result ({{ lengthUnit }})</span
           >
         </template>
