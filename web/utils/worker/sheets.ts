@@ -52,13 +52,18 @@ onmessage = async (event: MessageEvent<File>) => {
     }>
   ) => {
     const { data } = e.data;
-    const results = parsed.map((el, i) => {
-      return {
-        fileName: el.fileName,
-        geojsonObj: el.geojsonObj,
-        bounds: data[i],
-      };
-    });
+    let results;
+    if (parsed.length === 1) {
+      results = { geojsonObj: parsed[0].geojsonObj, bounds: data[0] };
+    } else {
+      results = parsed.map((el, i) => {
+        return {
+          fileName: el.fileName,
+          geojsonObj: el.geojsonObj,
+          bounds: data[i],
+        };
+      });
+    }
     postMessage({
       status: "success",
       data: results,
