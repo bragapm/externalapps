@@ -38,7 +38,7 @@ const bgImgUrl = computed(
       :class="[
         'flex flex-col gap-3 p-6',
         item.variant === 'image_bg_text_card' &&
-          'bg-grey-800 text-white rounded-lg',
+          'bg-neutral-800 text-white rounded-lg',
       ]"
     >
       <p class="font-medium text-lg">{{ item.subtitle }}</p>

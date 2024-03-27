@@ -34,11 +34,13 @@ const creditsWithReplacedYear = computed(() => {
 </script>
 
 <template>
-  <div class="grid grid-cols-4 gap-x-6 bg-grey-800 rounded-lg p-11 text-white">
+  <div
+    class="grid grid-cols-4 gap-x-6 bg-neutral-800 rounded-lg p-11 text-white"
+  >
     <div class="flex flex-col justify-between gap-y-3.5 col-span-2">
       <div class="space-y-3">
         <h1 class="font-medium text-4xl">{{ item.title }}</h1>
-        <p class="text-grey-400">{{ item.body }}</p>
+        <p class="text-neutral-400">{{ item.body }}</p>
       </div>
       <div class="flex gap-3 mt-24">
         <a
@@ -51,23 +53,23 @@ const creditsWithReplacedYear = computed(() => {
     </div>
     <div class="flex flex-col justify-between">
       <div class="flex flex-col gap-y-3.5">
-        <p class="font-semibold text-lg text-grey-500">
+        <p class="font-semibold text-lg text-neutral-500">
           {{ item.sites_label }}
         </p>
         <a v-for="site of item.sites" :href="site.url">{{ site.text }}</a>
       </div>
-      <p class="text-grey-500 mt-24">{{ item.rights_label }}</p>
+      <p class="text-neutral-500 mt-24">{{ item.rights_label }}</p>
     </div>
     <div class="flex flex-col justify-between">
       <div class="flex flex-col gap-y-3.5">
-        <p class="font-semibold text-lg text-grey-500">
+        <p class="font-semibold text-lg text-neutral-500">
           {{ item.contacts_label }}
         </p>
         <p>{{ item.contacts_content }}</p>
         <p>{{ item.contacts_phone }}</p>
         <a :href="`mailto:${item.contacts_email}`">{{ item.contacts_email }}</a>
       </div>
-      <p class="text-grey-500 mt-24">
+      <p class="text-neutral-500 mt-24">
         {{ creditsWithReplacedYear }}
       </p>
     </div>

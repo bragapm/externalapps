@@ -27,11 +27,11 @@ const activeFilter = computed(() =>
         :class="[
           'p-2 text-xs border rounded-xxs flex gap-2 items-center',
           open
-            ? 'bg-grey-700 text-grey-50 border-grey-500'
-            : 'bg-transparent text-grey-200 border-grey-600',
+            ? 'bg-neutral-700 text-neutral-50 border-neutral-500'
+            : 'bg-transparent text-neutral-200 border-neutral-600',
         ]"
       >
-        <IcMapLayerB class="text-grey-200 w-4 h-4" :fontControlled="false" />
+        <IcMapLayerB class="text-neutral-200 w-4 h-4" :fontControlled="false" />
         {{
           activeFilter.length === 1 && activeFilter[0] === "all"
             ? "All Format"
@@ -49,7 +49,7 @@ const activeFilter = computed(() =>
       leave-to-class="transform scale-95 opacity-0"
     >
       <MenuItems
-        class="p-2 absolute mt-1 max-h-60 min-w-full overflow-auto rounded-xxs border border-grey-700 bg-grey-800 space-y-2"
+        class="p-2 absolute mt-1 max-h-60 min-w-full overflow-auto rounded-xxs border border-neutral-700 bg-neutral-800 space-y-2"
       >
         <template v-for="(item, index) in list" :key="item.type">
           <MenuItem as="div" v-slot="{ active }">

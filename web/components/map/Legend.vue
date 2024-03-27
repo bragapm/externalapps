@@ -14,7 +14,7 @@ const legendLists = computed(() => {
 </script>
 
 <template>
-  <h2 class="p-3 text-xs text-grey-50">Legend</h2>
+  <h2 class="p-3 text-xs text-neutral-50">Legend</h2>
 
   <hr class="mx-3" />
   <div
@@ -36,10 +36,10 @@ const legendLists = computed(() => {
           class="transition-all duration-500 ease-in-out"
         >
           <div class="pb-2">
-            <p class="text-xs text-grey-50">
+            <p class="text-xs text-neutral-50">
               {{ item.layer_alias || item.layer_name }}
             </p>
-            <p class="text-2xs text-grey-400">{{ item.geometry_type }}</p>
+            <p class="text-2xs text-neutral-400">{{ item.geometry_type }}</p>
             <div
               v-if="item.geometry_type === geomTypeCircle"
               class="h-4 w-4 rounded-full mt-1"

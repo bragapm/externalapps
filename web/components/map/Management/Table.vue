@@ -237,17 +237,17 @@ const downloadData = async () => {
           }
         "
       >
-        <IcCross class="w-4 h-4 text-grey-400" :fontControlled="false" />
+        <IcCross class="w-4 h-4 text-neutral-400" :fontControlled="false" />
       </button>
     </div>
-    <hr class="border-b border-grey-700" />
+    <hr class="border-b border-neutral-700" />
     <div class="flex justify-between items-center gap-3">
       <div class="flex items-center gap-3">
         <button
-          class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
+          class="flex items-center gap-3 p-2 border border-neutral-600 rounded-xxs bg-neutral-800 text-xs text-neutral-200"
         >
           <IcShrink
-            class="w-[14px] h-[14px] text-grey-400"
+            class="w-[14px] h-[14px] text-neutral-400"
             :fontControlled="false"
           />
           {{
@@ -255,30 +255,30 @@ const downloadData = async () => {
             capitalizeEachWords(store.activeCollection)
           }}
         </button>
-        <div class="border-l border-grey-700 h-8"></div>
+        <div class="border-l border-neutral-700 h-8"></div>
         <button
-          class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
+          class="flex items-center gap-3 p-2 border border-neutral-600 rounded-xxs bg-neutral-800 text-xs text-neutral-200"
         >
           <IcSort
-            class="w-[14px] h-[14px] text-grey-400"
+            class="w-[14px] h-[14px] text-neutral-400"
             :fontControlled="false"
           />
           Show All Field
         </button>
         <button
-          class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
+          class="flex items-center gap-3 p-2 border border-neutral-600 rounded-xxs bg-neutral-800 text-xs text-neutral-200"
         >
           <IcFilter
-            class="w-[14px] h-[14px] text-grey-400"
+            class="w-[14px] h-[14px] text-neutral-400"
             :fontControlled="false"
           />
           Filter</button
         ><button
           @click="downloadData"
-          class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
+          class="flex items-center gap-3 p-2 border border-neutral-600 rounded-xxs bg-neutral-800 text-xs text-neutral-200"
         >
           <IcDownload
-            class="w-[14px] h-[14px] text-grey-400"
+            class="w-[14px] h-[14px] text-neutral-400"
             :fontControlled="false"
           />
           Download {{ selectedIds.length ? "Selected" : "All" }}
@@ -287,10 +287,10 @@ const downloadData = async () => {
       <div class="flex items-center gap-3">
         <button
           @click="toggleFullscreen"
-          class="p-2 border border-grey-600 rounded-xxs bg-grey-800"
+          class="p-2 border border-neutral-600 rounded-xxs bg-neutral-800"
         >
           <IcExpand
-            class="w-[14px] h-[14px] text-grey-400"
+            class="w-[14px] h-[14px] text-neutral-400"
             :fontControlled="false"
           />
         </button>
@@ -298,11 +298,11 @@ const downloadData = async () => {
     </div>
     <!-- New Table -->
     <section
-      class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-grey-700 w-full overflow-scroll pb-12 relative"
+      class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-neutral-700 w-full overflow-scroll pb-12 relative"
       @scroll="handleScroll"
     >
       <header class="flex w-full sticky top-0">
-        <div class="bg-grey-800 h-14 w-14 flex items-center justify-center">
+        <div class="bg-neutral-800 h-14 w-14 flex items-center justify-center">
           <CoreCheckbox
             id="all-checkbox"
             :index="0"
@@ -319,7 +319,7 @@ const downloadData = async () => {
         <div
           v-for="column in columns"
           :key="column.key"
-          class="bg-grey-800 h-14 flex-1 min-w-[12rem] text-grey-50 flex items-center text-xs font-medium px-3 py-4"
+          class="bg-neutral-800 h-14 flex-1 min-w-[12rem] text-neutral-50 flex items-center text-xs font-medium px-3 py-4"
         >
           <p class="line-clamp-2">{{ column.label }}</p>
         </div>
@@ -336,7 +336,7 @@ const downloadData = async () => {
           >
             <div
               :class="
-                'h-[4.5rem] w-14 flex items-center justify-center group-hover:bg-grey-700 ' +
+                'h-[4.5rem] w-14 flex items-center justify-center group-hover:bg-neutral-700 ' +
                 (highlightedIds.includes(rowData.ogc_fid) ? 'bg-red-950 ' : ' ')
               "
             >
@@ -360,10 +360,10 @@ const downloadData = async () => {
               v-for="column in columns"
               :key="column.key"
               :class="
-                'first-letter:h-[4.5rem] flex-1 min-w-[12rem] flex items-center text-xs font-normal px-3 py-4 group-hover:bg-grey-700 ' +
+                'first-letter:h-[4.5rem] flex-1 min-w-[12rem] flex items-center text-xs font-normal px-3 py-4 group-hover:bg-neutral-700 ' +
                 (highlightedIds.includes(rowData.ogc_fid)
                   ? 'text-brand-500 '
-                  : 'text-grey-400 ') +
+                  : 'text-neutral-400 ') +
                 (highlightedIds.includes(rowData.ogc_fid) ? 'bg-red-950 ' : ' ')
               "
             >
@@ -390,14 +390,14 @@ const downloadData = async () => {
       </UButton
       ><span
         v-else
-        class="absolute rounded-xxs border border-grey-600 bottom-8 right-8 w-1/4 px-3 min-w-fit bg-grey-800 h-9 text-grey-200 flex justify-center items-center text-xs"
+        class="absolute rounded-xxs border border-neutral-600 bottom-8 right-8 w-1/4 px-3 min-w-fit bg-neutral-800 h-9 text-neutral-200 flex justify-center items-center text-xs"
         :style="{ opacity: floatVisibility }"
         >End of Data</span
       ></template
     >
 
     <span
-      class="absolute rounded-xxs border border-grey-600 bottom-8 left-8 w-1/4 px-3 min-w-fit bg-grey-800 h-9 text-grey-200 flex justify-center items-center text-xs"
+      class="absolute rounded-xxs border border-neutral-600 bottom-8 left-8 w-1/4 px-3 min-w-fit bg-neutral-800 h-9 text-neutral-200 flex justify-center items-center text-xs"
       >{{ selectedIds.length }}
       {{ (isAllChecked ? "un" : "") + "selected" }} from
       {{ countData }} rows</span

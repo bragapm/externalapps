@@ -97,7 +97,7 @@ onUnmounted(() => {
 
 <template>
   <div class="p-2 flex flex-col gap-2">
-    <p class="text-2xs text-grey-400">
+    <p class="text-2xs text-neutral-400">
       <span class="font-bold"
         >Input coordinates (Decimal Degrees/DD Format)</span
       >
@@ -126,7 +126,7 @@ onUnmounted(() => {
     <UButton
       :disabled="!longitudeRef || !latitudeRef"
       @click="findCoordinate"
-      color="grey"
+      color="neutral"
       variant="outline"
       :ui="{ rounded: 'rounded-[4px]' }"
       class="w-full justify-center text-sm"

@@ -30,7 +30,7 @@ export default <Partial<Config>>{
         900: "#663121",
         950: "#412820",
       },
-      grey: {
+      neutral: {
         50: "#F9F8F7",
         100: "#F4F3F1",
         200: "#E2E1DF",

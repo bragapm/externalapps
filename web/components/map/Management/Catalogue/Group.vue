@@ -92,13 +92,13 @@ const addLayer = (
     class="flex flex-col py-3 gap-1"
     :id="groupItem.label.split(' ').join('')"
   >
-    <h3 class="text-grey-50">
+    <h3 class="text-neutral-50">
       {{ groupItem.label }}
     </h3>
-    <p v-if="categoryData" class="text-xs text-grey-50">
+    <p v-if="categoryData" class="text-xs text-neutral-50">
       {{ categoryData.description }}
     </p>
-    <span class="flex items-center gap-3 text-grey-400 text-xs">
+    <span class="flex items-center gap-3 text-neutral-400 text-xs">
       <p v-if="categoryData">Folder by: {{ categoryData.contributor }}</p>
       <p v-if="categoryData">
         Created at:

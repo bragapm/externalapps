@@ -203,7 +203,7 @@ const thumbSlide = (e: MouseEvent) => {
       />
     </div>
     <div class="grid gap-2">
-      <p class="text-grey-400 text-2xs">Color</p>
+      <p class="text-neutral-400 text-2xs">Color</p>
       <div class="flex items-center gap-2">
         <div class="relative w-full">
           <div
@@ -235,7 +235,7 @@ const thumbSlide = (e: MouseEvent) => {
                 }
               "
               id="thumb"
-              class="absolute w-3 h-3 -translate-y-[4px] rounded-full bg-grey-400"
+              class="absolute w-3 h-3 -translate-y-[4px] rounded-full bg-neutral-400"
               :style="{
                 left: (hueCoords ?? 0) + '%',
               }"
@@ -251,7 +251,7 @@ const thumbSlide = (e: MouseEvent) => {
           ></div> -->
         </div>
         <button
-          class="flex gap-2 items-center bg-grey-700 p-2 border rounded-xxs border-grey-600"
+          class="flex gap-2 items-center bg-neutral-700 p-2 border rounded-xxs border-neutral-600"
           @click="handleEyedropper"
         >
           <div
@@ -260,7 +260,10 @@ const thumbSlide = (e: MouseEvent) => {
               backgroundColor: parsedColor.hex,
             }"
           />
-          <IcEyeDropper :fontControlled="false" class="w-4 h-4 text-grey-400" />
+          <IcEyeDropper
+            :fontControlled="false"
+            class="w-4 h-4 text-neutral-400"
+          />
         </button>
       </div>
     </div>
@@ -364,11 +367,11 @@ const thumbSlide = (e: MouseEvent) => {
       </template>
       <UButton
         @click="handleChangeInputMode"
-        :ui="{ base: 'border border-grey-600', rounded: 'rounded-[4px]' }"
+        :ui="{ base: 'border border-neutral-600', rounded: 'rounded-[4px]' }"
         size="2xs"
-        color="grey"
+        color="neutral"
         variant="solid"
-        class="bg-grey-700 justify-between"
+        class="bg-neutral-700 justify-between"
       >
         <p class="text-xs">
           {{ inputMode === 0 ? "RGB" : inputMode === 1 ? "HSV" : "HEX" }}
@@ -376,7 +379,7 @@ const thumbSlide = (e: MouseEvent) => {
         <template #trailing>
           <IcArrowSquare
             :fontControlled="false"
-            class="w-4 h-4 rotate-180 text-grey-50"
+            class="w-4 h-4 rotate-180 text-neutral-50"
         /></template>
       </UButton>
     </div>

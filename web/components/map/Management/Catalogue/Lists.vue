@@ -14,8 +14,8 @@ const handleScroll = (id: string) => {
   <div class="flex-1 overflow-scroll">
     <div v-if="!uploadMode" class="flex flex-col gap-2 p-2">
       <span>
-        <h2 class="text-xs text-grey-400">Default Catalogue</h2>
-        <p class="text-2xs text-grey-500">
+        <h2 class="text-xs text-neutral-400">Default Catalogue</h2>
+        <p class="text-2xs text-neutral-500">
           Dataset Folder/Project Provided by Default
         </p>
       </span>
@@ -25,7 +25,7 @@ const handleScroll = (id: string) => {
         :ui="{ rounded: 'rounded-xxs' }"
         :label="category.label"
         variant="ghost"
-        color="grey"
+        color="neutral"
         @click="
           () => {
             handleScroll(category.label.split(' ').join(''));
@@ -34,11 +34,11 @@ const handleScroll = (id: string) => {
         class="text-xs"
       />
     </div>
-    <div v-if="!uploadMode" class="border-t border-grey-700 mx-2" />
+    <div v-if="!uploadMode" class="border-t border-neutral-700 mx-2" />
     <div class="flex flex-col gap-2 p-2">
       <span>
-        <h2 class="text-xs text-grey-400">User’s Catalogue</h2>
-        <p class="text-2xs text-grey-500">
+        <h2 class="text-xs text-neutral-400">User’s Catalogue</h2>
+        <p class="text-2xs text-neutral-500">
           Dataset Folder/Project Uploaded by User
         </p>
         <UButton
@@ -47,7 +47,7 @@ const handleScroll = (id: string) => {
           :ui="{ rounded: 'rounded-xxs' }"
           :label="category.label"
           variant="ghost"
-          color="grey"
+          color="neutral"
           @click="
             () => {
               handleScroll(category.label.split(' ').join(''));

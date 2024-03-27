@@ -15,7 +15,7 @@ const closeAnalytic = () => {
       role="button"
       @click="closeAnalytic"
       :fontControlled="false"
-      class="w-3 h-3 rotate-180 text-grey-50"
+      class="w-3 h-3 rotate-180 text-neutral-50"
     />
   </div>
   <hr class="mx-3" />

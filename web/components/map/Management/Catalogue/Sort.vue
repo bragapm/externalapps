@@ -72,8 +72,8 @@ watchEffect(() => {
         :class="[
           'p-2 text-xs border rounded-xxs',
           open
-            ? 'bg-grey-700 text-grey-50 border-grey-500'
-            : 'bg-transparent text-grey-200 border-grey-600',
+            ? 'bg-neutral-700 text-neutral-50 border-neutral-500'
+            : 'bg-transparent text-neutral-200 border-neutral-600',
         ]"
       >
         <span class="block truncate">{{ sortOrder.name }}</span>
@@ -85,7 +85,7 @@ watchEffect(() => {
         leave-to-class="opacity-0"
       >
         <ListboxOptions
-          class="p-2 absolute mt-1 max-h-60 min-w-full overflow-auto rounded-xxs border border-grey-700 bg-grey-800 space-y-2"
+          class="p-2 absolute mt-1 max-h-60 min-w-full overflow-auto rounded-xxs border border-neutral-700 bg-neutral-800 space-y-2"
         >
           <ListboxOption
             v-slot="{ active, selected }"
@@ -103,7 +103,7 @@ watchEffect(() => {
               :class="[
                 active ? 'bg-brand-950 text-amber-900' : 'text-gray-900',
                 sortOrder.id === item.id ? 'bg-brand-950' : '',
-                'relative p-2 select-none rounded-xxs text-grey-200 flex items-center gap-5 cursor-pointer',
+                'relative p-2 select-none rounded-xxs text-neutral-200 flex items-center gap-5 cursor-pointer',
               ]"
             >
               <p

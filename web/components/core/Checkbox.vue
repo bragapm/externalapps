@@ -44,7 +44,7 @@ watchEffect(() => {
       >
         <div
           :class="[
-            checked ? 'border-brand-500' : 'border-grey-600',
+            checked ? 'border-brand-500' : 'border-neutral-600',
             'h-4 w-4 border rounded-xxs flex items-center justify-center p-[2px]',
           ]"
         >
@@ -58,14 +58,14 @@ watchEffect(() => {
         <component
           v-if="icon"
           :is="icon"
-          :class="['w-4 h-4', checked ? 'text-brand-500' : 'text-grey-400']"
+          :class="['w-4 h-4', checked ? 'text-brand-500' : 'text-neutral-400']"
           :fontControlled="false"
         ></component>
         <p
           v-if="label"
           :class="[
             'text-xs select-none whitespace-nowrap',
-            checked ? 'text-grey-50' : 'text-grey-200',
+            checked ? 'text-neutral-50' : 'text-neutral-200',
           ]"
         >
           {{ label }}

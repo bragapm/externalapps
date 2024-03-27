@@ -63,7 +63,7 @@ const genWidthClass = (totalCol: number) => {
     <div
       :class="
         item.variant === 'border' &&
-        'border border-grey-500 rounded-lg overflow-hidden'
+        'border border-neutral-500 rounded-lg overflow-hidden'
       "
     >
       <table class="w-full">
@@ -72,7 +72,7 @@ const genWidthClass = (totalCol: number) => {
             v-for="iconRow of iconArr"
             :class="
               item.variant === 'border' &&
-              'border-t border-grey-500 first:border-0'
+              'border-t border-neutral-500 first:border-0'
             "
           >
             <td
@@ -80,7 +80,7 @@ const genWidthClass = (totalCol: number) => {
               :class="[
                 genWidthClass(iconRow.length),
                 item.variant === 'border' &&
-                  'border-l border-grey-500 first:border-0',
+                  'border-l border-neutral-500 first:border-0',
               ]"
               :colspan="12 / iconRow.length"
             >

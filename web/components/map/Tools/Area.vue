@@ -35,7 +35,7 @@ const handleReset = () => {
 
 <template>
   <div class="p-2 flex flex-col gap-2">
-    <p class="text-2xs text-grey-400">
+    <p class="text-2xs text-neutral-400">
       Click on the map to start measuring area and Double click to finish.
     </p>
     <div class="flex gap-1">
@@ -64,7 +64,7 @@ const handleReset = () => {
             }
           }
         "
-        :color="areaUnit === 'm' ? 'brand' : 'grey'"
+        :color="areaUnit === 'm' ? 'brand' : 'neutral'"
         variant="outline"
         :ui="{ rounded: 'rounded-[4px]' }"
         class="text-2xs p-1 gap-0"
@@ -80,7 +80,7 @@ const handleReset = () => {
             }
           }
         "
-        :color="areaUnit === 'km' ? 'brand' : 'grey'"
+        :color="areaUnit === 'km' ? 'brand' : 'neutral'"
         variant="outline"
         :ui="{ rounded: 'rounded-[4px]' }"
         class="text-2xs p-1 gap-0"
@@ -92,7 +92,7 @@ const handleReset = () => {
     <UButton
       :disabled="areaCount === 0"
       @click="handleReset"
-      color="grey"
+      color="neutral"
       variant="outline"
       :ui="{ rounded: 'rounded-[4px]' }"
       class="w-full justify-center text-sm"

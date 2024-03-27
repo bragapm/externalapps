@@ -82,11 +82,11 @@ const handleChangeOpacity = (e: Event) => {
 
 <template>
   <div>
-    <div class="bg-grey-800 rounded-xxs">
+    <div class="bg-neutral-800 rounded-xxs">
       <div class="p-2 space-y-2">
         <div class="flex justify-between items-center text-2xs">
-          <p class="text-grey-200">Opacity</p>
-          <p class="text-grey-400">Styling</p>
+          <p class="text-neutral-200">Opacity</p>
+          <p class="text-neutral-400">Styling</p>
         </div>
         <div class="flex items-center justify-between gap-2">
           <URange
@@ -95,21 +95,21 @@ const handleChangeOpacity = (e: Event) => {
             name="range"
             size="sm"
             :ui="{
-              background: 'bg-grey-800',
-              progress: { background: 'bg-grey-500 dark:bg-grey-400' },
+              background: 'bg-neutral-800',
+              progress: { background: 'bg-neutral-500 dark:bg-neutral-400' },
               thumb: {
                 background:
-                  '[&::-webkit-slider-thumb]:bg-grey-400 [&::-webkit-slider-thumb]:dark:bg-grey-400',
+                  '[&::-webkit-slider-thumb]:bg-neutral-400 [&::-webkit-slider-thumb]:dark:bg-neutral-400',
                 ring: '[&::-webkit-slider-thumb]:ring-0 [&::-webkit-slider-thumb]:ring-current',
               },
               track: {
                 background:
-                  '[&::-webkit-slider-runnable-track]:bg-grey-700 [&::-moz-range-track]:bg-grey-700 [&::-webkit-slider-runnable-track]:dark:bg-grey-700 [&::-moz-range-track]:dark:bg-grey-700',
+                  '[&::-webkit-slider-runnable-track]:bg-neutral-700 [&::-moz-range-track]:bg-neutral-700 [&::-webkit-slider-runnable-track]:dark:bg-neutral-700 [&::-moz-range-track]:dark:bg-neutral-700',
               },
             }"
           />
           <div
-            class="w-10 text-center p-1 text-2xs text-grey-200 font-medium rounded-xxs border border-grey-600 bg-grey-700"
+            class="w-10 text-center p-1 text-2xs text-neutral-200 font-medium rounded-xxs border border-neutral-600 bg-neutral-700"
           >
             {{ rangeValue }}%
           </div>
@@ -117,13 +117,13 @@ const handleChangeOpacity = (e: Event) => {
       </div>
       <!-- <div class="p-2 space-y-2">
         <div class="flex justify-between items-center text-2xs">
-          <p class="text-grey-200">Fill Color</p>
-          <p class="text-grey-400">Styling</p>
+          <p class="text-neutral-200">Fill Color</p>
+          <p class="text-neutral-400">Styling</p>
         </div>
         <Menu as="div" class="relative inline-block w-full">
           <MenuButton
             ref="reference"
-            class="w-full p-2 bg-grey-700 text-2xs flex items-center justify-between rounded-xxs"
+            class="w-full p-2 bg-neutral-700 text-2xs flex items-center justify-between rounded-xxs"
           >
             Selection
             <IcArrow class="w-4 h-4 rotate-180" :fontControlled="false" />
@@ -141,13 +141,13 @@ const handleChangeOpacity = (e: Event) => {
               <MenuItems
                 ref="floating"
                 :style="floatingStyles"
-                class="absolute overflow-scroll p-2 flex flex-col gap-2 rounded-xxs bg-grey-900 shadow-lg ring-1 ring-grey-700 focus:outline-none"
+                class="absolute overflow-scroll p-2 flex flex-col gap-2 rounded-xxs bg-neutral-900 shadow-lg ring-1 ring-neutral-700 focus:outline-none"
               >
                 <MenuItem v-slot="{ active }">
                   <button
                     @click="() => {}"
                     :class="[
-                      active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
+                      active ? 'bg-neutral-700' : 'bg-transparent text-neutral-200',
                       'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
                     ]"
                   >
@@ -158,7 +158,7 @@ const handleChangeOpacity = (e: Event) => {
                   <button
                     @click="() => {}"
                     :class="[
-                      active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
+                      active ? 'bg-neutral-700' : 'bg-transparent text-neutral-200',
                       'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
                     ]"
                   >
@@ -169,7 +169,7 @@ const handleChangeOpacity = (e: Event) => {
                   <button
                     @click="() => {}"
                     :class="[
-                      active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
+                      active ? 'bg-neutral-700' : 'bg-transparent text-neutral-200',
                       'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
                     ]"
                   >
@@ -183,18 +183,18 @@ const handleChangeOpacity = (e: Event) => {
       </div> -->
       <!-- <div class="p-2 space-y-2">
         <div class="flex justify-between items-center text-2xs">
-          <p class="text-grey-200">Stroke</p>
-          <p class="text-grey-400">Styling</p>
+          <p class="text-neutral-200">Stroke</p>
+          <p class="text-neutral-400">Styling</p>
         </div>
         <div class="flex justify-between items-center text-2xs">
-          <p class="text-grey-200">Color</p>
+          <p class="text-neutral-200">Color</p>
           <UInput
             v-model="colorValue"
             type="color"
             variant="none"
             :padded="false"
             :ui="{ rounded: 'rounded-xxs' }"
-            inputClass="cursor-pointer [&::-webkit-color-swatch]:rounded-[2px] [&::-webkit-color-swatch]:border-0 bg-grey-700 w-28 focus:ring-0 focus:border-none border-none pl-2 py-1"
+            inputClass="cursor-pointer [&::-webkit-color-swatch]:rounded-[2px] [&::-webkit-color-swatch]:border-0 bg-neutral-700 w-28 focus:ring-0 focus:border-none border-none pl-2 py-1"
           >
             <template #trailing>
               <IcArrow

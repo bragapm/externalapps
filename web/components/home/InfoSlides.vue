@@ -64,7 +64,7 @@ const [container, slider] = useKeenSlider({
             class="h-2 w-full rounded-full"
             :class="{
               'bg-black': current === i,
-              'bg-grey-800/20': current !== i,
+              'bg-neutral-800/20': current !== i,
             }"
             @click="slider.moveToIdx(i)"
             :key="i"

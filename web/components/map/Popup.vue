@@ -208,17 +208,17 @@ const removePopup = () => {
   <div class="hidden">
     <div ref="contentRef">
       <section
-        class="flex w-72 flex-col items-center justify-center gap-3 p-3 overflow-hidden bg-grey-800 rounded-xs text-grey-100"
+        class="flex w-72 flex-col items-center justify-center gap-3 p-3 overflow-hidden bg-neutral-800 rounded-xs text-neutral-100"
       >
         <header
-          class="flex justify-between items-center w-full border-b pb-1 border-grey-700"
+          class="flex justify-between items-center w-full border-b pb-1 border-neutral-700"
         >
           <h4 class="text-xs font-medium">Detail Popup</h4>
           <IcCross
             role="button"
             :fontControlled="false"
             @click="removePopup"
-            class="-mr-1 w-5 h-4 px-1 py-0.5 text-grey-400"
+            class="-mr-1 w-5 h-4 px-1 py-0.5 text-neutral-400"
           ></IcCross>
         </header>
 
@@ -263,7 +263,7 @@ const removePopup = () => {
           >
             <IcArrowReg
               :fontControlled="false"
-              class="w-5 h-5 m-1 -rotate-90 text-grey-50"
+              class="w-5 h-5 m-1 -rotate-90 text-neutral-50"
             />
           </button>
 
@@ -278,7 +278,7 @@ const removePopup = () => {
           >
             <IcArrowReg
               :fontControlled="false"
-              class="w-5 h-5 m-1 rotate-90 text-grey-50"
+              class="w-5 h-5 m-1 rotate-90 text-neutral-50"
             />
           </button>
         </div>
@@ -288,11 +288,11 @@ const removePopup = () => {
           v-if="popupItems?.length"
         >
           <h5 class="text-xs font-medium">Layer</h5>
-          <div class="flex text-grey-400 space-x-2">
+          <div class="flex text-neutral-400 space-x-2">
             <p class="text-2xs w-1/4">Name</p>
             <p class="text-xs">: {{ popupItems[featureIndex].tableName }}</p>
           </div>
-          <div class="flex text-grey-400 space-x-2">
+          <div class="flex text-neutral-400 space-x-2">
             <p class="text-2xs w-1/4">Type</p>
             <p class="text-xs">: {{ popupItems[featureIndex].layerType }}</p>
           </div>
@@ -304,8 +304,8 @@ const removePopup = () => {
               :key="idx"
               class="flex space-x-2 animate-pulse"
             >
-              <div class="w-1/4 h-4 bg-grey-700 rounded-xs"></div>
-              <div class="grow h-4 bg-grey-700 rounded-xs"></div>
+              <div class="w-1/4 h-4 bg-neutral-700 rounded-xs"></div>
+              <div class="grow h-4 bg-neutral-700 rounded-xs"></div>
             </div>
           </template>
           <template v-else>
@@ -314,7 +314,7 @@ const removePopup = () => {
                 (k) => popupItems[featureIndex].clickPopupColumns?.includes(k)
               )"
               :key="key"
-              class="flex text-grey-400 space-x-2"
+              class="flex text-neutral-400 space-x-2"
             >
               <p class="text-2xs w-1/4">{{ key }}</p>
               <p class="text-xs">: {{ features[featureIndex][key] }}</p>
@@ -326,7 +326,7 @@ const removePopup = () => {
           <button
             :disabled="popupItems?.length < 2 || featureIndex === 0"
             @click="prevFeature"
-            class="rounded-xs border w-9 h-9 flex justify-center items-center -rotate-90 text-grey-400 border-grey-400 disabled:text-grey-600 disabled:border-grey-600"
+            class="rounded-xs border w-9 h-9 flex justify-center items-center -rotate-90 text-neutral-400 border-neutral-400 disabled:text-neutral-600 disabled:border-neutral-600"
           >
             <IcArrowReg :fontControlled="false" />
           </button>
@@ -346,7 +346,7 @@ const removePopup = () => {
               popupItems?.length < 2 || featureIndex === features.length - 1
             "
             @click="nextFeature"
-            class="rounded-xs border w-9 h-9 flex justify-center items-center rotate-90 text-grey-400 border-grey-400 disabled:text-grey-600 disabled:border-grey-600"
+            class="rounded-xs border w-9 h-9 flex justify-center items-center rotate-90 text-neutral-400 border-neutral-400 disabled:text-neutral-600 disabled:border-neutral-600"
           >
             <IcArrowReg :fontControlled="false" />
           </button>

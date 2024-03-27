@@ -28,8 +28,8 @@ const { expandTools } = storeToRefs(toolsStore);
         :class="[
           open
             ? 'bg-brand-950 text-brand-500'
-            : 'bg-transparent enabled:hover:bg-grey-800 text-grey-200 disabled:hover:bg-transparent',
-          'inline-flex w-full items-center h-9 gap-3 rounded-xxs px-2 py-2 text-sm font-normal focus:outline-none disabled:text-grey-200 transition-all duration-500 ease-in-out',
+            : 'bg-transparent enabled:hover:bg-neutral-800 text-neutral-200 disabled:hover:bg-transparent',
+          'inline-flex w-full items-center h-9 gap-3 rounded-xxs px-2 py-2 text-sm font-normal focus:outline-none disabled:text-neutral-200 transition-all duration-500 ease-in-out',
         ]"
       >
         <component
@@ -58,11 +58,11 @@ const { expandTools } = storeToRefs(toolsStore);
       leave-to-class="transform scale-95 opacity-0"
     >
       <MenuItems
-        class="absolute right-0 bottom-12 mt-2 p-2 flex flex-col gap-2 w-56 origin-top-right rounded-xxs bg-grey-900 shadow-lg ring-1 ring-grey-800 focus:outline-none"
+        class="absolute right-0 bottom-12 mt-2 p-2 flex flex-col gap-2 w-56 origin-top-right rounded-xxs bg-neutral-900 shadow-lg ring-1 ring-neutral-800 focus:outline-none"
       >
         <div v-show="itemLabel || itemDescription" class="text-white">
-          <p class="text-xs text-grey-400">{{ itemLabel }}</p>
-          <p class="text-2xs text-grey-500">{{ itemDescription }}</p>
+          <p class="text-xs text-neutral-400">{{ itemLabel }}</p>
+          <p class="text-2xs text-neutral-500">{{ itemDescription }}</p>
         </div>
         <slot name="custom-item" />
         <template v-for="item in items" :key="item.id">
@@ -76,7 +76,7 @@ const { expandTools } = storeToRefs(toolsStore);
                 }
               "
               :class="[
-                active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
+                active ? 'bg-neutral-700' : 'bg-transparent text-neutral-200',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
               ]"
             >

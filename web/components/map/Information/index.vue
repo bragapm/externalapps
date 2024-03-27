@@ -26,23 +26,23 @@ const closeMapInfo = () => {
       role="button"
       @click="closeMapInfo"
       :fontControlled="false"
-      class="w-3 h-3 rotate-180 text-grey-50"
+      class="w-3 h-3 rotate-180 text-neutral-50"
     />
   </div>
   <hr class="mx-3" />
   <div class="flex-1 overflow-scroll px-3 my-3">
     <div v-if="!mapData" class="animate-pulse space-y-3">
-      <div class="w-full h-8 bg-grey-700 rounded-xs"></div>
-      <div class="w-full h-8 bg-grey-700 rounded-xs"></div>
-      <div class="w-full h-44 bg-grey-700 rounded-xs"></div>
-      <div class="w-full h-6 bg-grey-700 rounded-xs"></div>
-      <div class="w-full h-6 bg-grey-700 rounded-xs"></div>
-      <div class="w-full h-6 bg-grey-700 rounded-xs"></div>
-      <div class="w-full h-6 bg-grey-700 rounded-xs"></div>
-      <div class="w-full h-6 bg-grey-700 rounded-xs"></div>
-      <div class="w-full h-6 bg-grey-700 rounded-xs"></div>
-      <div class="w-full h-12 bg-grey-700 rounded-xs"></div>
-      <div class="w-full h-12 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-8 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-8 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-44 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-6 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-6 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-6 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-6 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-6 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-6 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-12 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-12 bg-neutral-700 rounded-xs"></div>
     </div>
     <template v-else>
       <MapMarkdownRenderer :source="mapData?.information" />

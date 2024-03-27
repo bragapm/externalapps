@@ -14,15 +14,17 @@ const creditsWithReplacedYear = computed(() => {
 </script>
 
 <template>
-  <div class="grid grid-cols-4 gap-x-6 bg-grey-800 rounded-lg p-11 text-white">
+  <div
+    class="grid grid-cols-4 gap-x-6 bg-neutral-800 rounded-lg p-11 text-white"
+  >
     <h1 class="font-medium text-3xl">{{ item.title }}</h1>
-    <p class="text-grey-400">{{ item.body }}</p>
+    <p class="text-neutral-400">{{ item.body }}</p>
     <div class="flex flex-col justify-between">
       <div class="flex flex-col gap-3">
         <p>{{ item.contacts_phone }}</p>
         <a :href="`mailto:${item.contacts_email}`">{{ item.contacts_email }}</a>
       </div>
-      <p class="text-grey-500 mt-24">
+      <p class="text-neutral-500 mt-24">
         {{ creditsWithReplacedYear }}
       </p>
     </div>
@@ -35,7 +37,7 @@ const creditsWithReplacedYear = computed(() => {
           >{{ link.text }}</a
         >
       </div>
-      <p class="text-grey-500 mt-24">{{ item.rights_label }}</p>
+      <p class="text-neutral-500 mt-24">{{ item.rights_label }}</p>
     </div>
   </div>
 </template>

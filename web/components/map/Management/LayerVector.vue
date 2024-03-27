@@ -65,7 +65,9 @@ const layerIndex = computed(() => {
 provide("layerIndexProvider", layerIndex.value);
 
 const isShowStyling = ref(false);
-const visibility = ref<string>(props.layerItem.layer_style.layout_visibility ?? "visible");
+const visibility = ref<string>(
+  props.layerItem.layer_style.layout_visibility ?? "visible"
+);
 const opacity = ref<string>(
   props.layerItem.geometry_type === geomTypeCircle
     ? (props.layerItem.layer_style as CircleStyles).paint_circle_opacity ?? "1"
@@ -129,8 +131,8 @@ const toggleVisibility = () => {
       "
       :class="[
         isShowStyling
-          ? 'bg-grey-700'
-          : 'bg-transparent hover:ring-1 hover:ring-grey-500',
+          ? 'bg-neutral-700'
+          : 'bg-transparent hover:ring-1 hover:ring-neutral-500',
         filtered ? 'cursor-pointer' : 'cursor-grab',
         'rounded-xxs p-2 flex justify-between items-center gap-2 w-full transition-all duration-500 ease',
       ]"
@@ -138,7 +140,7 @@ const toggleVisibility = () => {
       <div class="w-8/12">
         <p
           :class="[
-            visibility === 'visible' ? 'text-grey-200' : 'text-grey-500',
+            visibility === 'visible' ? 'text-neutral-200' : 'text-neutral-500',
             'truncate',
           ]"
         >
@@ -146,7 +148,7 @@ const toggleVisibility = () => {
         </p>
         <p
           :class="[
-            visibility === 'visible' ? 'text-grey-400' : 'text-grey-500',
+            visibility === 'visible' ? 'text-neutral-400' : 'text-neutral-500',
             'truncate',
           ]"
         >
@@ -163,8 +165,8 @@ const toggleVisibility = () => {
               visibility === 'visible'
                 ? isShowStyling
                   ? 'text-brand-500'
-                  : 'text-grey-400'
-                : 'text-grey-500',
+                  : 'text-neutral-400'
+                : 'text-neutral-500',
               ,
               'w-3 h-3',
             ]"
@@ -174,7 +176,7 @@ const toggleVisibility = () => {
         <button
           :disabled="isShowStyling"
           @click="toggleVisibility"
-          :class="isShowStyling ? 'text-grey-600' : 'text-grey-400'"
+          :class="isShowStyling ? 'text-neutral-600' : 'text-neutral-400'"
         >
           <IcEyeCrossed
             v-if="visibility === 'none'"

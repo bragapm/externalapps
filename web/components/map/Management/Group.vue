@@ -106,17 +106,17 @@ const handleChangeOrder = () => {
         filtered || label === geomTypeThreeD || label === 'Terrain'
           ? 'cursor-pointer'
           : 'cursor-grab',
-        'text-sm text-grey-200 flex items-center justify-between w-full py-2',
+        'text-sm text-neutral-200 flex items-center justify-between w-full py-2',
       ]"
     >
       <span>{{ label }}</span>
       <div
         :class="[
           isPanelOpen ? '' : 'rotate-180',
-          'text-grey-50 transition-all duration-300',
+          'text-neutral-50 transition-all duration-300',
         ]"
       >
-        <IcArrowReg :fontControlled="false" class="w-4 h-4 text-grey-400" />
+        <IcArrowReg :fontControlled="false" class="w-4 h-4 text-neutral-400" />
       </div>
     </DisclosureButton>
     <TransitionRoot
