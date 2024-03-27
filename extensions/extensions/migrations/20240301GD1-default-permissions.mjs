@@ -35,7 +35,8 @@ export async function up(knex) {
       ('block_media_icons_block_media_icons_contents','read','{}','{}','*'),
       ('block_cta','read','{}','{}','*'),
       ('block_footer','read','{}','{}','*'),
-      ('map','read','{}','{}','lang,information,information_attachments,title,subtitle,initial_map_view');
+      ('map','read','{}','{}','lang,information,information_attachments,title,subtitle,initial_map_view'),
+      ('shared_map','read','{}','{}');
 
     CREATE OR REPLACE FUNCTION handle_non_admin_non_app_directus_roles_insert()
       RETURNS trigger
@@ -55,7 +56,8 @@ export async function up(knex) {
           (NEW.id,'external_tiles','read','{"_and":[{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,tile_type,is_tilejson,tilejson_url,tile_url,layer_style_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category,active,visible'),
           (NEW.id,'circle','read','{}','{}','*'),
           (NEW.id,'categories','read','{}','{}','*'),
-          (NEW.id,'three_d_tiles','read','{"_and":[{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,layer_alias,active,visible,opacity,point_size,point_color');
+          (NEW.id,'three_d_tiles','read','{"_and":[{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,layer_alias,active,visible,opacity,point_size,point_color'),
+          (NEW.id,'shared_map','create','{}','{}','*');
         RETURN NULL;
       END;
     $BODY$;
@@ -73,6 +75,6 @@ export async function down(knex) {
     DROP TRIGGER IF EXISTS on_non_admin_non_app_directus_roles_insert ON directus_roles;
     DROP FUNCTION IF EXISTS handle_non_admin_non_app_directus_roles_insert();
 
-    DELETE FROM directus_permissions WHERE collection IN ('directus_settings','directus_files','vector_tiles','symbol','raster_tiles','raster_overlays','line','fill','external_tiles','circle','categories','three_d_tiles','block_hero_slides','block_hero_slides_contents','block_hero_slides_block_hero_slides_contents','home','home_blocks','block_hero_single','block_info_single','block_info_slides','block_info_slides_contents','block_info_slides_block_info_slides_contents','block_info_accordion','block_info_accordion_contents','block_info_accordion_block_info_accordion_contents','block_media_video','block_media_icons','block_media_icons_contents','block_media_icons_block_media_icons_contents','block_cta','block_footer','map') AND role IS NULL AND action = 'read';
+    DELETE FROM directus_permissions WHERE collection IN ('directus_settings','directus_files','vector_tiles','symbol','raster_tiles','raster_overlays','line','fill','external_tiles','circle','categories','three_d_tiles','block_hero_slides','block_hero_slides_contents','block_hero_slides_block_hero_slides_contents','home','home_blocks','block_hero_single','block_info_single','block_info_slides','block_info_slides_contents','block_info_slides_block_info_slides_contents','block_info_accordion','block_info_accordion_contents','block_info_accordion_block_info_accordion_contents','block_media_video','block_media_icons','block_media_icons_contents','block_media_icons_block_media_icons_contents','block_cta','block_footer','map','shared_map') AND role IS NULL AND action = 'read';
   `);
 }
