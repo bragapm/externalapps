@@ -19,7 +19,7 @@ import type {
 
 type StyleObject = Record<
   string,
-  string | number | boolean | any[] | undefined
+  string | number | boolean | any[] | undefined | Record<string, string>
 >;
 
 const store = useMapRef();
@@ -157,6 +157,7 @@ watchEffect(async (onInvalidate) => {
                 ];
           } else if (
             category === "layout" &&
+            key !== "layout_icon_image" &&
             (props.item.layer_style as SymbolStyles)?.[
               key as keyof SymbolStyles
             ]
@@ -174,6 +175,16 @@ watchEffect(async (onInvalidate) => {
               : (props.item.layer_style as SymbolStyles)[
                   key as keyof SymbolStyles
                 ];
+          } else if (
+            category === "icon" &&
+            key === "icon_image_id" &&
+            (props.item.layer_style as SymbolStyles)?.[
+              key as keyof SymbolStyles
+            ]
+          ) {
+            layout["icon-image"] = (props.item.layer_style as SymbolStyles)[
+              key as keyof SymbolStyles
+            ];
           }
         });
 

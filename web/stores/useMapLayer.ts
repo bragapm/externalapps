@@ -93,11 +93,23 @@ export const useMapLayer = defineStore("maplayer", () => {
         newValue = propValue;
       }
       const prev = groupedActiveLayers.value;
-      const selected = prev[groupIndex].layerLists[layerIndex];
+      const selected: LayerLists = prev[groupIndex].layerLists[layerIndex];
       if (propType !== "3d") {
-        (selected.layer_style as Record<string, any>)[
-          `${propType}_` + propName.replace(/-/g, "_")
-        ] = propValue;
+        if (propName !== "icon-image") {
+          (
+            selected.layer_style as Record<
+              string,
+              string | number | boolean | null
+            >
+          )[`${propType}_` + propName.replace(/-/g, "_")] = propValue;
+        } else {
+          (
+            selected.layer_style as Record<
+              string,
+              string | number | boolean | null
+            >
+          )["icon_image_id"] = propValue;
+        }
       } else {
         (selected as Record<string, any>)[propName] = propValue;
       }
@@ -173,10 +185,10 @@ export const useMapLayer = defineStore("maplayer", () => {
               layer_alias: item.layer_alias || item.layer_name,
               layer_style: {
                 ...((el as VectorTilesConfig).symbol_style as SymbolStyles),
-                layout_icon_image: (el as any).symbol_style?.layout_icon_image
-                  .id,
-                icon_image_title: (el as any).symbol_style?.layout_icon_image
-                  .title,
+                icon_image_id: (el as VectorTilesConfig)?.symbol_style
+                  ?.layout_icon_image?.id,
+                icon_image_title: (el as VectorTilesConfig)?.symbol_style
+                  ?.layout_icon_image?.title,
               },
               source: "vector_tiles",
               geometry_type: geomTypeSymbol,

@@ -20,7 +20,7 @@ const iconSize = ref(
   (props.layerItem.layer_style as SymbolStyles).layout_icon_size ?? 1
 );
 const iconImage = ref({
-  id: (props.layerItem.layer_style as SymbolStyles).layout_icon_image ?? "",
+  id: (props.layerItem.layer_style as SymbolStyles).icon_image_id ?? "",
   title: (props.layerItem.layer_style as SymbolStyles).icon_image_title ?? "",
 });
 

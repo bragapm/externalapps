@@ -10,7 +10,7 @@ import type {
   geomTypePolygon,
 } from "~/constants";
 
-export type CircleStyles = {
+export type CircleStylesConfig = {
   layout_visibility?: string;
   layout_circle_sort_key?: number;
   paint_circle_blur?: number;
@@ -24,12 +24,12 @@ export type CircleStyles = {
   paint_circle_stroke_width?: number;
 };
 
-export interface CircleStylesConfig extends CircleStyles {
+export interface CircleStyles extends CircleStylesConfig {
   id: string;
   name: string;
 }
 
-export type SymbolStyles = {
+export type SymbolStylesConfig = {
   layout_icon_allow_overlap?: boolean;
   layout_icon_anchor?:
     | "center"
@@ -42,8 +42,7 @@ export type SymbolStyles = {
     | "bottom-left"
     | "bottom-right";
   layout_icon_ignore_placement?: boolean;
-  layout_icon_image?: string;
-  icon_image_title?: string;
+  layout_icon_image?: { id: string; title: string };
   layout_icon_keep_upright?: boolean;
   layout_icon_offset?: number[];
   layout_icon_optional?: boolean;
@@ -123,12 +122,14 @@ export type SymbolStyles = {
   paint_text_translate_anchor?: "map" | "viewport";
 };
 
-export interface SymbolStylesConfig extends SymbolStyles {
+export interface SymbolStyles extends SymbolStylesConfig {
   id: string;
   name: string;
+  icon_image_title?: string;
+  icon_image_id?: string;
 }
 
-export type FillStyles = {
+export type FillStylesConfig = {
   layout_visibility?: string;
   layout_circle_sort_key?: number;
   paint_fill_antialias?: boolean;
@@ -140,12 +141,12 @@ export type FillStyles = {
   paint_fill_translate_anchor?: string;
 };
 
-export interface FillStylesConfig extends FillStyles {
+export interface FillStyles extends FillStylesConfig {
   id: string;
   name: string;
 }
 
-export type LineStyles = {
+export type LineStylesConfig = {
   layout_visibility?: string;
   layout_line_cap?: string;
   layout_line_join?: string;
@@ -165,7 +166,7 @@ export type LineStyles = {
   paint_line_opacity?: string;
 };
 
-export interface LineStylesConfig extends LineStyles {
+export interface LineStyles extends LineStylesConfig {
   id: string;
   name: string;
 }
