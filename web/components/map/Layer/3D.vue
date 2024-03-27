@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Tile3DLayer } from "@deck.gl/geo-layers";
-import type { Tile3DLayerProps } from "@deck.gl/geo-layers/tile-3d-layer/tile-3d-layer";
+import type { Tile3DLayerProps } from "@deck.gl/geo-layers";
 import { Tiles3DLoader } from "@loaders.gl/3d-tiles";
 
 const mapStore = useMapRef();

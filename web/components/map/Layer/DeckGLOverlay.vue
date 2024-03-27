@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { MapboxOverlay, type MapboxOverlayProps } from "@deck.gl/mapbox/src";
+import { MapboxOverlay } from "@deck.gl/mapbox";
 const store = useMapRef();
 const { map } = storeToRefs(store);
 
 const props = defineProps<{
-  layers: MapboxOverlayProps;
+  layers: any;
 }>();
 
 const ctrl = computed(() => markRaw(new MapboxOverlay(props)));

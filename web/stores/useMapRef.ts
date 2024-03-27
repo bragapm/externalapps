@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { Raw } from "vue";
 import { Map, GeolocateControl } from "maplibre-gl";
-import type { MapboxOverlay } from "@deck.gl/mapbox/src";
+import type { MapboxOverlay } from "@deck.gl/mapbox";
 
 export const useMapRef = defineStore("mapref", () => {
   const mapLoad = ref<boolean>(false);
