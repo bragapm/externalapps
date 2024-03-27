@@ -11,9 +11,6 @@ export async function up(knex) {
   INSERT INTO directus_folders(id,name,parent)
   VALUES ('${LAYER_ICONS_FOLDER_ID}','Layer Icons','${PUBLIC_FOLDER_ID}');
 
-  INSERT INTO directus_permissions(collection,action,permissions,validation,fields)
-  VALUES ('directus_files','read','{"_or":[{"folder":{"_eq":"${PUBLIC_FOLDER_ID}"}},{"folder":{"parent":{"_eq":"${PUBLIC_FOLDER_ID}"}}}]}','{}','*');
-
   CREATE TABLE public.symbol (
     id serial4 NOT NULL,
     "name" varchar(255) NULL,
@@ -219,8 +216,6 @@ export async function down(knex) {
     DELETE FROM directus_collections WHERE collection = 'symbol';
 
     DROP TABLE IF EXISTS public.symbol;
-
-    DELETE FROM directus_permissions WHERE collection = 'directus_files' AND role IS NULL AND action = 'read';
 
     DELETE FROM directus_folders WHERE id = '${LAYER_ICONS_FOLDER_ID}';
     DELETE FROM directus_folders WHERE id = '${PUBLIC_FOLDER_ID}';

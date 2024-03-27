@@ -328,34 +328,11 @@ export async function up(knex) {
       ('block_media_icons_block_media_icons_contents','block_media_icons_contents_id','block_media_icons_contents',NULL,NULL,NULL,'block_media_icons_id',NULL,'nullify'),
       ('block_media_icons_block_media_icons_contents','block_media_icons_id','block_media_icons','contents',NULL,NULL,'block_media_icons_contents_id','sort','delete'),
       ('block_cta','image','directus_files',NULL,NULL,NULL,NULL,NULL,'nullify');
-
-    INSERT INTO directus_permissions(collection,action,fields)
-    VALUES
-      ('block_hero_slides','read','*'),
-      ('block_hero_slides_contents','read','*'),
-      ('block_hero_slides_block_hero_slides_contents','read','*'),
-      ('home','read','*'),
-      ('home_blocks','read','*'),
-      ('block_hero_single','read','*'),
-      ('block_info_single','read','*'),
-      ('block_info_slides','read','*'),
-      ('block_info_slides_contents','read','*'),
-      ('block_info_slides_block_info_slides_contents','read','*'),
-      ('block_info_accordion','read','*'),
-      ('block_info_accordion_contents','read','*'),
-      ('block_info_accordion_block_info_accordion_contents','read','*'),
-      ('block_media_video','read','*'),
-      ('block_media_icons','read','*'),
-      ('block_media_icons_contents','read','*'),
-      ('block_media_icons_block_media_icons_contents','read','*'),
-      ('block_cta','read','*'),
-      ('block_footer','read','*');
   `);
 }
 
 export async function down(knex) {
   await knex.raw(`
-    DELETE FROM directus_permissions WHERE role IS NULL AND collection IN ('block_hero_slides','block_hero_slides_contents','block_hero_slides_block_hero_slides_contents','home','home_blocks','block_hero_single','block_info_single','block_info_slides','block_info_slides_contents','block_info_slides_block_info_slides_contents','block_info_accordion','block_info_accordion_contents','block_info_accordion_block_info_accordion_contents','block_media_video','block_media_icons','block_media_icons_contents','block_media_icons_block_media_icons_contents','block_cta','block_footer');
     DELETE FROM directus_relations WHERE many_collection IN ('block_hero_slides_contents','block_hero_slides_block_hero_slides_contents','home_blocks','block_hero_single','block_info_single','block_info_slides_contents','block_info_slides_block_info_slides_contents','block_info_accordion_contents','block_info_accordion_block_info_accordion_contents','block_media_icons_contents','block_media_icons_block_media_icons_contents','block_cta');
     DELETE FROM directus_fields WHERE collection IN ('pages','blocks','block_hero_slides','block_hero_slides_contents','block_hero_slides_block_hero_slides_contents','home','home_blocks','block_hero_single','block_info_single','block_info_slides','block_info_slides_contents','block_info_slides_block_info_slides_contents','block_info_accordion','block_info_accordion_contents','block_info_accordion_block_info_accordion_contents','block_media_video','block_media_icons','block_media_icons_contents','block_media_icons_block_media_icons_contents','block_cta','block_footer');
     DELETE FROM directus_collections WHERE collection IN ('pages','blocks','block_hero_slides','block_hero_slides_contents','block_hero_slides_block_hero_slides_contents','home','home_blocks','block_hero_single','block_info_single','block_info_slides','block_info_slides_contents','block_info_slides_block_info_slides_contents','block_info_accordion','block_info_accordion_contents','block_info_accordion_block_info_accordion_contents','block_media_video','block_media_icons','block_media_icons_contents','block_media_icons_block_media_icons_contents','block_cta','block_footer');

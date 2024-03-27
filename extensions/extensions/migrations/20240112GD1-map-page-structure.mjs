@@ -25,16 +25,11 @@ export async function up(knex) {
       ('map','information_attachments','cast-json','list','{"fields":[{"field":"title","name":"title","type":"string","meta":{"field":"title","width":"half","type":"string","required":true,"interface":"input"}},{"field":"description","name":"description","type":"string","meta":{"field":"description","width":"half","type":"string","required":true,"interface":"input"}},{"field":"url","name":"url","type":"string","meta":{"field":"url","width":"half","type":"string","required":true,"interface":"input"}},{"field":"icon","name":"icon","type":"string","meta":{"field":"icon","width":"half","type":"string","required":true,"interface":"select-dropdown","options":{"choices":[{"text":"link","value":"link"},{"text":"form","value":"form"}]}}}]}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('map','title',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('map','initial_map_view','cast-json','map','{"defaultView":{"center":{"lng":118.10483551162508,"lat":-0.9964696394390842},"zoom":3.356805567596401,"bearing":0,"pitch":0},"geometryType":"Point"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL);
-
-    INSERT INTO directus_permissions(collection,action,fields) VALUES ('map','read','lang,information,information_attachments,title,subtitle,initial_map_view');
   `);
 }
 
 export async function down(knex) {
   await knex.raw(`
-  -- Remove permissions related to the 'map' collection
-  DELETE FROM directus_permissions WHERE collection = 'map';
-  
   -- Remove field definitions related to the 'map' collection
   DELETE FROM directus_fields WHERE collection = 'map';
   
