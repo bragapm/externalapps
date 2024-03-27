@@ -10,7 +10,7 @@ import type {
   geomTypePolygon,
 } from "~/constants";
 
-export type CircleStylesConfig = {
+export type CircleStyles = {
   layout_visibility?: string;
   layout_circle_sort_key?: number;
   paint_circle_blur?: number;
@@ -24,12 +24,12 @@ export type CircleStylesConfig = {
   paint_circle_stroke_width?: number;
 };
 
-export interface CircleStyles extends CircleStylesConfig {
+export interface CircleStylesConfig extends CircleStyles {
   id: string;
   name: string;
 }
 
-export type SymbolStylesConfig = {
+export type SymbolStyles = {
   layout_icon_allow_overlap?: boolean;
   layout_icon_anchor?:
     | "center"
@@ -122,14 +122,17 @@ export type SymbolStylesConfig = {
   paint_text_translate_anchor?: "map" | "viewport";
 };
 
-export interface SymbolStyles extends SymbolStylesConfig {
-  id: string;
-  name: string;
+export interface SymbolStylesAdjusted extends SymbolStyles {
   icon_image_title?: string;
   icon_image_id?: string;
 }
 
-export type FillStylesConfig = {
+export interface SymbolStylesConfig extends SymbolStyles {
+  id: string;
+  name: string;
+}
+
+export type FillStyles = {
   layout_visibility?: string;
   layout_circle_sort_key?: number;
   paint_fill_antialias?: boolean;
@@ -141,12 +144,12 @@ export type FillStylesConfig = {
   paint_fill_translate_anchor?: string;
 };
 
-export interface FillStyles extends FillStylesConfig {
+export interface FillStylesConfig extends FillStyles {
   id: string;
   name: string;
 }
 
-export type LineStylesConfig = {
+export type LineStyles = {
   layout_visibility?: string;
   layout_line_cap?: string;
   layout_line_join?: string;
@@ -166,7 +169,7 @@ export type LineStylesConfig = {
   paint_line_opacity?: string;
 };
 
-export interface LineStyles extends LineStylesConfig {
+export interface LineStylesConfig extends LineStyles {
   id: string;
   name: string;
 }
@@ -177,7 +180,7 @@ export type VectorTiles = {
   source: "vector_tiles";
   bounds: GeoJSON.Polygon;
   category?: { category_name?: string };
-  layer_style: CircleStyles | FillStyles | LineStyles | SymbolStyles;
+  layer_style: CircleStyles | FillStyles | LineStyles | SymbolStylesAdjusted;
   geometry_type: string;
   layer_alias?: string;
   layer_id: string;

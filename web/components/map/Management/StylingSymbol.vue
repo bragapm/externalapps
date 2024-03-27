@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { inject } from "vue";
+import type { SymbolStylesAdjusted } from "~/utils/types";
 
 const props = defineProps<{
   layerItem: VectorTiles;
@@ -10,18 +11,22 @@ const layerIndex = inject("layerIndexProvider");
 
 const iconOpacity = ref(
   parseFloat(
-    (props.layerItem.layer_style as SymbolStyles).paint_icon_opacity ?? "1"
+    (props.layerItem.layer_style as SymbolStylesAdjusted).paint_icon_opacity ??
+      "1"
   ) * 100
 );
 const iconColor = ref(
-  (props.layerItem.layer_style as SymbolStyles).paint_icon_color ?? "#000000"
+  (props.layerItem.layer_style as SymbolStylesAdjusted).paint_icon_color ??
+    "#000000"
 );
 const iconSize = ref(
-  (props.layerItem.layer_style as SymbolStyles).layout_icon_size ?? 1
+  (props.layerItem.layer_style as SymbolStylesAdjusted).layout_icon_size ?? 1
 );
 const iconImage = ref({
-  id: (props.layerItem.layer_style as SymbolStyles).icon_image_id ?? "",
-  title: (props.layerItem.layer_style as SymbolStyles).icon_image_title ?? "",
+  id: (props.layerItem.layer_style as SymbolStylesAdjusted).icon_image_id ?? "",
+  title:
+    (props.layerItem.layer_style as SymbolStylesAdjusted).icon_image_title ??
+    "",
 });
 
 const store = useMapLayer();

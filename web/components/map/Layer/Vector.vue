@@ -13,8 +13,8 @@ import type {
   FillStyles,
   LineStyles,
   LayerLists,
-  SymbolStyles,
   LoadedGeoJson,
+  SymbolStylesAdjusted,
 } from "~/utils/types";
 
 type StyleObject = Record<
@@ -143,48 +143,48 @@ watchEffect(async (onInvalidate) => {
             props.item.layer_style?.[key as keyof typeof props.item.layer_style]
           ) {
             paint[nameStrings.join("-")] = isString(
-              (props.item.layer_style as SymbolStyles)[
-                key as keyof SymbolStyles
+              (props.item.layer_style as SymbolStylesAdjusted)[
+                key as keyof SymbolStylesAdjusted
               ]
             )
               ? parseString(
-                  (props.item.layer_style as SymbolStyles)[
-                    key as keyof SymbolStyles
+                  (props.item.layer_style as SymbolStylesAdjusted)[
+                    key as keyof SymbolStylesAdjusted
                   ] as string
                 )
-              : (props.item.layer_style as SymbolStyles)[
-                  key as keyof SymbolStyles
+              : (props.item.layer_style as SymbolStylesAdjusted)[
+                  key as keyof SymbolStylesAdjusted
                 ];
           } else if (
             category === "layout" &&
             key !== "layout_icon_image" &&
-            (props.item.layer_style as SymbolStyles)?.[
-              key as keyof SymbolStyles
+            (props.item.layer_style as SymbolStylesAdjusted)?.[
+              key as keyof SymbolStylesAdjusted
             ]
           ) {
             layout[nameStrings.join("-")] = isString(
-              (props.item.layer_style as SymbolStyles)[
-                key as keyof SymbolStyles
+              (props.item.layer_style as SymbolStylesAdjusted)[
+                key as keyof SymbolStylesAdjusted
               ]
             )
               ? parseString(
-                  (props.item.layer_style as SymbolStyles)[
-                    key as keyof SymbolStyles
+                  (props.item.layer_style as SymbolStylesAdjusted)[
+                    key as keyof SymbolStylesAdjusted
                   ] as string
                 )
-              : (props.item.layer_style as SymbolStyles)[
-                  key as keyof SymbolStyles
+              : (props.item.layer_style as SymbolStylesAdjusted)[
+                  key as keyof SymbolStylesAdjusted
                 ];
           } else if (
             category === "icon" &&
             key === "icon_image_id" &&
-            (props.item.layer_style as SymbolStyles)?.[
-              key as keyof SymbolStyles
+            (props.item.layer_style as SymbolStylesAdjusted)?.[
+              key as keyof SymbolStylesAdjusted
             ]
           ) {
-            layout["icon-image"] = (props.item.layer_style as SymbolStyles)[
-              key as keyof SymbolStyles
-            ];
+            layout["icon-image"] = (
+              props.item.layer_style as SymbolStylesAdjusted
+            )[key as keyof SymbolStylesAdjusted];
           }
         });
 

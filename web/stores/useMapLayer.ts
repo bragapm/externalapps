@@ -13,6 +13,7 @@ import type {
   LoadedGeoJson,
   LayerConfigLists,
   ThreeDLayerCenter,
+  SymbolStylesConfig,
 } from "~/utils/types";
 import {
   geomTypeCircle,
@@ -172,7 +173,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               layer_id: item.layer_id + "_circle",
               layer_alias: item.layer_alias || item.layer_name,
               layer_style: (el as VectorTilesConfig)
-                .circle_style as CircleStyles,
+                .circle_style as CircleStylesConfig,
               source: "vector_tiles",
               geometry_type: geomTypeCircle,
               dimension: "2D",
@@ -184,7 +185,8 @@ export const useMapLayer = defineStore("maplayer", () => {
               layer_id: item.layer_id + "_symbol",
               layer_alias: item.layer_alias || item.layer_name,
               layer_style: {
-                ...((el as VectorTilesConfig).symbol_style as SymbolStyles),
+                ...((el as VectorTilesConfig)
+                  .symbol_style as SymbolStylesConfig),
                 icon_image_id: (el as VectorTilesConfig)?.symbol_style
                   ?.layout_icon_image?.id,
                 icon_image_title: (el as VectorTilesConfig)?.symbol_style
@@ -200,7 +202,8 @@ export const useMapLayer = defineStore("maplayer", () => {
               ...item,
               layer_id: item.layer_id + "_line",
               layer_alias: item.layer_alias || item.layer_name,
-              layer_style: (el as VectorTilesConfig).line_style as LineStyles,
+              layer_style: (el as VectorTilesConfig)
+                .line_style as LineStylesConfig,
               source: "vector_tiles",
               geometry_type: geomTypeLine,
               dimension: "2D",
@@ -211,7 +214,8 @@ export const useMapLayer = defineStore("maplayer", () => {
               ...item,
               layer_id: item.layer_id + "_fill",
               layer_alias: item.layer_alias || item.layer_name,
-              layer_style: (el as VectorTilesConfig).fill_style as FillStyles,
+              layer_style: (el as VectorTilesConfig)
+                .fill_style as FillStylesConfig,
               source: "vector_tiles",
               geometry_type: geomTypePolygon,
               dimension: "2D",
