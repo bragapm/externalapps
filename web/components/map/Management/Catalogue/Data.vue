@@ -1,42 +1,41 @@
 <script setup lang="ts">
 defineProps<{
-  uploadMode: boolean;
   filteredLayers: LayerGroupedByCategory[];
   filteredLocalLayers: LayerGroupedByCategory[];
 }>();
 </script>
 
 <template>
+  <div v-if="filteredLayers.length !== 0" class="divide-y divide-neutral-700">
+    <div class="py-4 px-3">
+      <p class="text-neutral-400">Default Catalogue</p>
+      <p class="text-neutral-500 text-2xs">
+        Dataset Folder/Project Provided by Default
+      </p>
+    </div>
+    <div class="px-3 pb-3 divide-y divide-neutral-700">
+      <template v-for="category of filteredLayers">
+        <MapManagementCatalogueGroup :groupItem="category" />
+      </template>
+    </div>
+  </div>
   <div
-    class="flex flex-col w-full h-full border border-neutral-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y divide-neutral-700"
+    v-if="filteredLocalLayers.length !== 0"
+    class="divide-y divide-neutral-700"
   >
-    <div class="divide-y divide-neutral-700">
-      <div class="py-4 px-3">
-        <p class="text-neutral-400">Default Catalogue</p>
-        <p class="text-neutral-500 text-2xs">
-          Dataset Folder/Project Provided by Default
-        </p>
-      </div>
-      <div class="px-3 pb-3 divide-y divide-neutral-700">
-        <template v-if="!uploadMode" v-for="category of filteredLayers">
-          <MapManagementCatalogueGroup :groupItem="category" />
-        </template>
-      </div>
+    <div class="py-4 px-3">
+      <p class="text-neutral-400">User’s Catalogue</p>
+      <p class="text-neutral-500 text-2xs">
+        Dataset Folder/Project Uploaded by User
+      </p>
     </div>
-    <div class="divide-y divide-neutral-700">
-      <div class="py-4 px-3">
-        <p class="text-neutral-400">User’s Catalogue</p>
-        <p class="text-neutral-500 text-2xs">
-          Dataset Folder/Project Uploaded by User
-        </p>
-      </div>
-      <div class="px-3 pb-3 divide-y divide-neutral-700">
-        <template v-if="!uploadMode" v-for="category of filteredLocalLayers">
-          <MapManagementCatalogueGroup :groupItem="category" />
-        </template>
-      </div>
+    <div class="px-3 pb-3 divide-y divide-neutral-700">
+      <template v-for="category of filteredLocalLayers">
+        <MapManagementCatalogueGroup :groupItem="category" />
+      </template>
     </div>
-    <!-- <template v-if="uploadMode" v-for="category of filteredLayers">
+  </div>
+  <!-- <template v-if="uploadMode" v-for="category of filteredLayers">
       <div
         class="flex flex-col p-3 gap-1"
         :id="category.label.split(' ').join('')"
@@ -71,15 +70,14 @@ defineProps<{
     <div v-if="uploadMode" class="p-3">
       <MapManagementCatalogueAddFolderCard />
     </div> -->
+  <div
+    v-if="filteredLayers.length === 0"
+    class="flex flex-col w-full h-full border border-neutral-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
+  >
     <div
-      v-if="filteredLayers.length === 0"
-      class="flex flex-col w-full h-full border border-neutral-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
+      class="flex items-center justify-center text-neutral-400 text-sm w-full h-full"
     >
-      <div
-        class="flex items-center justify-center text-neutral-400 text-sm w-full h-full"
-      >
-        No Data Layers Found
-      </div>
+      No Data Layers Found
     </div>
   </div>
 </template>

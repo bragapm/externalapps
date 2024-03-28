@@ -1,7 +1,4 @@
 <script setup lang="ts">
-defineProps<{
-  uploadMode: boolean;
-}>();
 
 const mapLayerStore = useMapLayer();
 
@@ -12,7 +9,7 @@ const handleScroll = (id: string) => {
 
 <template>
   <div class="flex-1 overflow-scroll">
-    <div v-if="!uploadMode" class="flex flex-col gap-2 p-2">
+    <div class="flex flex-col gap-2 p-2">
       <span>
         <h2 class="text-xs text-neutral-400">Default Catalogue</h2>
         <p class="text-2xs text-neutral-500">
@@ -34,7 +31,7 @@ const handleScroll = (id: string) => {
         class="text-xs"
       />
     </div>
-    <div v-if="!uploadMode" class="border-t border-neutral-700 mx-2" />
+    <div class="border-t border-neutral-700 mx-2" />
     <div class="flex flex-col gap-2 p-2">
       <span>
         <h2 class="text-xs text-neutral-400">User’s Catalogue</h2>

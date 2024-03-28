@@ -347,3 +347,5 @@ export type ThreeDLayerCenter = {
   center: [number, number];
   zoom: number;
 };
+
+export type UploadModeEnum = "loadlocal" | "upload" | "";

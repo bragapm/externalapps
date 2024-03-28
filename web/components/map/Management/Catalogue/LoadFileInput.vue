@@ -27,6 +27,10 @@ const props = defineProps<{
   sortOrder: { id: "asc" | "desc"; name: string };
 }>();
 
+const emit = defineEmits<{
+  (e: "handleSuccess"): void;
+}>();
+
 const mapLayerStore = useMapLayer();
 const { addLoadedGeoJsonData } = useIDB();
 const toast = useToast();
@@ -264,6 +268,7 @@ const handleFileUploadChange = async (e: Event) => {
           icon: "i-heroicons-x-mark",
         };
       }
+      emit("handleSuccess");
       toast.add(
         toastErr ?? {
           title: "File has been processed successfully",

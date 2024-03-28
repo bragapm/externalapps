@@ -4,15 +4,14 @@ import IcFileSort from "~/assets/icons/ic-file-sort.svg";
 import IcCloudUpload from "~/assets/icons/ic-cloud-upload.svg";
 import IcArrow from "~/assets/icons/ic-arrow-square.svg";
 import { layerTypeFilterOptions, dimensionFilterOptions } from "~/constants";
-import LoadFileInput from "./LoadFileInput.vue";
 
 const catalogueStore = useCatalogue();
 const { toggleCatalogue } = catalogueStore;
 const mapLayerStore = useMapLayer();
 const { fetchListedLayers } = mapLayerStore;
 const fetchingListedLayers = ref(true);
-const uploadMode = ref(false);
-const loadFileInput = ref<InstanceType<typeof LoadFileInput> | null>(null);
+const mode = ref<UploadModeEnum>("");
+const isOption = ref(false);
 
 // get listed layer list
 onMounted(async () => {
@@ -186,6 +185,10 @@ const updateSearchFilter = (input: string) => {
   searchFilter.value = input;
 };
 watch(searchRef, debounce(updateSearchFilter, 750));
+
+const changeMode = (value: UploadModeEnum) => {
+  mode.value = value;
+};
 </script>
 
 <template>
@@ -193,9 +196,7 @@ watch(searchRef, debounce(updateSearchFilter, 750));
     <div class="flex justify-between">
       <div class="flex items-center gap-3">
         <IcFileSort class="text-neutral-300 w-4 h-4" :fontControlled="false" />
-        <h1 class="text-neutral-50">
-          {{ !uploadMode ? "Data Catalogue" : "User's Catalogue" }}
-        </h1>
+        <h1 class="text-neutral-50">Data Catalogue</h1>
       </div>
       <button
         @click="
@@ -207,7 +208,7 @@ watch(searchRef, debounce(updateSearchFilter, 750));
         <IcCross class="w-4 h-4 text-neutral-400" :fontControlled="false" />
       </button>
     </div>
-    <div class="h-full flex max-h-[calc(100%-2.25rem)]">
+    <div v-if="!mode" class="h-full flex max-h-[calc(100%-2.25rem)]">
       <div
         class="flex flex-col text-white border border-neutral-700 rounded-l-xs gap-2 overflow-hidden w-60"
       >
@@ -232,31 +233,24 @@ watch(searchRef, debounce(updateSearchFilter, 750));
             </div>
           </template>
         </div>
-        <MapManagementCatalogueLists v-else :uploadMode="uploadMode" />
+        <MapManagementCatalogueLists v-else />
         <div class="flex flex-col p-2 gap-2">
           <div class="border-t border-neutral-700" />
-          <!-- TODO UI flow for file upload -->
-          <MapManagementCatalogueLoadFileInput
-            ref="loadFileInput"
-            :sortOrder="sortOrder"
-          />
           <UButton
             :ui="{ rounded: 'rounded-xxs' }"
-            :label="!uploadMode ? 'Load Local Data' : 'Back to Catalogue'"
+            :label="!isOption ? 'View Local/Upload Data' : 'Back to Catalogue'"
             variant="outline"
             color="brand"
-            class="w-full justify-between text-sm"
+            class="w-full justify-between text-xs"
             @click="
               () => {
-                // TODO alter uploadMode logic and UI (multiple files)
-                // uploadMode = !uploadMode;
-                loadFileInput?.input?.click();
+                isOption = !isOption;
               }
             "
           >
             <template #trailing>
               <IcCloudUpload
-                v-if="!uploadMode"
+                v-if="!isOption"
                 class="w-3 h-3"
                 :fontControlled="false"
               />
@@ -300,10 +294,14 @@ watch(searchRef, debounce(updateSearchFilter, 750));
           </UInput>
         </div>
         <div
-          v-if="fetchingListedLayers"
           class="flex flex-col w-full h-full border border-neutral-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y divide-neutral-700"
         >
-          <div v-for="i of [0, 1]" :key="i" class="flex flex-col p-3 gap-1">
+          <div
+            v-if="fetchingListedLayers"
+            v-for="i of [0, 1]"
+            :key="i"
+            class="flex flex-col p-3 gap-1"
+          >
             <USkeleton
               :ui="{ background: 'bg-neutral-800' }"
               class="h-6 w-1/12"
@@ -349,14 +347,39 @@ watch(searchRef, debounce(updateSearchFilter, 750));
               </div>
             </div>
           </div>
+          <MapManagementCatalogueData
+            v-else
+            v-if="!isOption"
+            :filteredLayers="filteredLayers"
+            :filteredLocalLayers="filteredLocalLayers"
+          />
+          <MapManagementCatalogueUploadOption
+            v-if="isOption"
+            :mode="mode"
+            @handle-cancel="isOption = false"
+            @handle-next="
+              (modeValue) => {
+                changeMode(modeValue);
+              }
+            "
+          />
         </div>
-        <MapManagementCatalogueData
-          v-else
-          :uploadMode="uploadMode"
-          :filteredLayers="filteredLayers"
-          :filteredLocalLayers="filteredLocalLayers"
-        />
       </div>
     </div>
+    <MapManagementCatalogueLoadLocalData
+      v-if="mode === 'loadlocal'"
+      :sortOrder="sortOrder"
+      @handle-success="
+        () => {
+          changeMode('');
+          isOption = false;
+        }
+      "
+      @handle-cancel="changeMode('')"
+    />
+    <MapManagementCatalogueUpload
+      v-if="mode === 'upload'"
+      @handle-cancel="changeMode('')"
+    />
   </div>
 </template>
