@@ -27,6 +27,7 @@
   "dependencies": {
     "@deck.gl/mapbox": "^9.0.1",
     "@floating-ui/vue": "^1.0.3",
+    "@loaders.gl/flatgeobuf": "^4.1.4",
     "@loaders.gl/geopackage": "^4.1.4",
     "@loaders.gl/kml": "^4.1.4",
     "@mapbox/geojsonhint": "^3.3.0",
