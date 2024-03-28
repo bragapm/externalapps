@@ -5,6 +5,7 @@ import SheetsWorker from "~/utils/worker/sheets?worker";
 import KmlWorker from "~/utils/worker/kml?worker";
 import GpxWorker from "~/utils/worker/gpx?worker";
 import TcxWorker from "~/utils/worker/tcx?worker";
+import GeopackageWorker from "~/utils/worker/geopackage?worker";
 import {
   geomTypeCircle,
   geomTypeLine,
@@ -62,6 +63,11 @@ const getWorker = (file: File) => {
     file.name.endsWith(".tcx")
   ) {
     return new TcxWorker();
+  } else if (
+    file.type === "application/geopackage+sqlite3" ||
+    file.name.endsWith(".gpkg")
+  ) {
+    return new GeopackageWorker();
   } else {
     return null;
   }
@@ -274,7 +280,7 @@ defineExpose({ input });
   <input
     ref="input"
     type="file"
-    accept=".geojson,application/geo+json,.zip,application/zip,application/x-zip-compressed,.csv,text/csv,.xls,application/vnd.ms-excel,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.kml,application/vnd.google-earth.kml+xml,.gpx,application/gpx+xml,.tcx,application/vnd.garmin.tcx+xml"
+    accept=".geojson,application/geo+json,.zip,application/zip,application/x-zip-compressed,.csv,text/csv,.xls,application/vnd.ms-excel,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.kml,application/vnd.google-earth.kml+xml,.gpx,application/gpx+xml,.tcx,application/vnd.garmin.tcx+xml,.gpkg,application/geopackage+sqlite3"
     hidden
     @change="handleFileUploadChange"
   />
