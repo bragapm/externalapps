@@ -10,7 +10,9 @@ onmessage = async (event: MessageEvent<File>) => {
     )) as GeoJSON.FeatureCollection;
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Error parsing TCX";
+      error instanceof Error
+        ? error.message || "Error parsing TCX"
+        : "Error parsing TCX";
     postMessage({ status: "error", message, data: error });
     return;
   }

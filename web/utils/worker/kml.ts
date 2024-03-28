@@ -10,7 +10,9 @@ onmessage = async (event: MessageEvent<File>) => {
     )) as GeoJSON.FeatureCollection;
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Error parsing KML";
+      error instanceof Error
+        ? error.message || "Error parsing KML"
+        : "Error parsing KML";
     postMessage({ status: "error", message, data: error });
     return;
   }

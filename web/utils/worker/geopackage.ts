@@ -13,7 +13,9 @@ onmessage = async (event: MessageEvent<File>) => {
     })) as GeoJSON.FeatureCollection;
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Error parsing Geopackage";
+      error instanceof Error
+        ? error.message || "Error parsing Geopackage"
+        : "Error parsing Geopackage";
     postMessage({ status: "error", message, data: error });
     return;
   }

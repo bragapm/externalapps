@@ -9,7 +9,9 @@ onmessage = async (event: MessageEvent<File>) => {
     parsed = await shp(buffer);
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Error parsing Shapefile";
+      error instanceof Error
+        ? error.message || "Error parsing Shapefile"
+        : "Error parsing Shapefile";
     postMessage({ status: "error", message, data: error });
     return;
   }

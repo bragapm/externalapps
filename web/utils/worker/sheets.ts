@@ -35,7 +35,9 @@ onmessage = async (event: MessageEvent<File>) => {
     }
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Error parsing file";
+      error instanceof Error
+        ? error.message || "Error parsing file"
+        : "Error parsing file";
     postMessage({ status: "error", message, data: error });
     return;
   }
