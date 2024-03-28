@@ -126,12 +126,11 @@ const addToIDBAndLayerList = async (
     geojsonGeomType = geojsonObj.geometry.type;
   } else if (geojsonObj.type === "FeatureCollection") {
     if (!geojsonObj.features.length) {
-      toast.add({
+      return {
         title: "Data has no feature",
         description: fileName,
         icon: "i-heroicons-x-mark",
-      });
-      return;
+      };
     }
     geojsonGeomType = geojsonObj.features[0].geometry.type;
   } else {
@@ -139,12 +138,11 @@ const addToIDBAndLayerList = async (
   }
   const typeAndStyle = getGeomTypeAndStyle(geojsonGeomType);
   if (!typeAndStyle) {
-    toast.add({
+    return {
       title: "Data with mixed geometry per feature is not supported",
       description: fileName,
       icon: "i-heroicons-x-mark",
-    });
-    return;
+    };
   }
 
   const newLayer: LoadedGeoJson = {
@@ -230,23 +228,39 @@ const handleFileUploadChange = async (e: Event) => {
         console.error(e.data.data);
       }
     } else {
-      const result = e.data.data;
-      if (Array.isArray(result)) {
-        for (let i = 0; i < result.length; i++) {
-          const data = result[i];
-          await addToIDBAndLayerList(
-            data.fileName || `${file.name}_${i}`,
-            data.geojsonObj,
-            data.bounds
+      let toastErr;
+      try {
+        const result = e.data.data;
+        if (Array.isArray(result)) {
+          for (let i = 0; i < result.length; i++) {
+            const data = result[i];
+            toastErr = await addToIDBAndLayerList(
+              data.fileName || `${file.name}_${i}`,
+              data.geojsonObj,
+              data.bounds
+            );
+            if (toastErr) break;
+          }
+        } else {
+          toastErr = await addToIDBAndLayerList(
+            file.name,
+            result.geojsonObj,
+            result.bounds
           );
         }
-      } else {
-        await addToIDBAndLayerList(file.name, result.geojsonObj, result.bounds);
+      } catch (error) {
+        console.error(error);
+        toastErr = {
+          title: "An error occurred when attempting to input processed file",
+          icon: "i-heroicons-x-mark",
+        };
       }
-      toast.add({
-        title: "File has been processed successfully",
-        icon: "i-heroicons-check-circle",
-      });
+      toast.add(
+        toastErr ?? {
+          title: "File has been processed successfully",
+          icon: "i-heroicons-check-circle",
+        }
+      );
     }
     worker.terminate();
   };
