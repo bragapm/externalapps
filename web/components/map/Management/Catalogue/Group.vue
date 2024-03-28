@@ -15,30 +15,21 @@ const props = defineProps<{
 
 const mapLayerStore = useMapLayer();
 
-const {
-  data: categoriesData,
-  error: mapError,
-  isFetching: isMapFetching,
-  isError: isMapError,
-} = useQuery({
-  queryKey: [
-    `/panel/items/categories?fields=category_name,description,contributor,date_created`,
-  ],
-  queryFn: ({ queryKey }) =>
-    $fetch<{
-      data: Category[];
-    }>(queryKey[0]).then((r) => r.data),
-});
+const { data: categoriesData } = useFetch<{
+  data: Category[];
+}>(
+  "/panel/items/categories?fields=category_name,description,contributor,date_created"
+);
 
 const categoryData = ref<Category | null>(null);
 watchEffect(() => {
   if (
     categoriesData.value &&
-    categoriesData.value.findIndex(
+    categoriesData.value.data.findIndex(
       (el) => el.category_name === props.groupItem.label
     ) > -1
   ) {
-    categoryData.value = categoriesData.value.filter(
+    categoryData.value = categoriesData.value.data.filter(
       (el) => el.category_name === props.groupItem.label
     )[0];
   }

@@ -1,17 +1,8 @@
 <script setup lang="ts">
 import IcArrowLeft from "~/assets/icons/ic-arrow-left.svg";
-import { useQuery } from "@tanstack/vue-query";
+import { useMapData } from "~/utils";
 
-const {
-  data: mapData,
-  error: mapError,
-  isFetching: isMapFetching,
-  isError: isMapError,
-} = useQuery({
-  queryKey: [`/panel/items/map/eng`],
-  queryFn: ({ queryKey }) => $fetch<MapData>(queryKey[0]).then((r) => r.data),
-});
-
+const { isLoading, data: mapData } = await useMapData();
 const featureStore = useFeature();
 
 const closeMapInfo = () => {
@@ -45,13 +36,13 @@ const closeMapInfo = () => {
       <div class="w-full h-12 bg-neutral-700 rounded-xs"></div>
     </div>
     <template v-else>
-      <MapMarkdownRenderer :source="mapData?.information" />
+      <MapMarkdownRenderer :source="mapData?.data.information" />
       <ul
         class="mt-3 space-y-3"
-        v-if="mapData?.information_attachments?.length"
+        v-if="mapData?.data.information_attachments?.length"
       >
         <MapAttachmentLink
-          v-for="attachment in mapData?.information_attachments"
+          v-for="attachment in mapData?.data.information_attachments"
           :title="attachment.title"
           :description="attachment.description"
           :url="attachment.url"
