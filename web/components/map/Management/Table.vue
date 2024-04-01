@@ -8,6 +8,7 @@ import IcFilter from "~/assets/icons/ic-filter.svg";
 import IcShrink from "~/assets/icons/ic-shrink.svg";
 import IcSort from "~/assets/icons/ic-sort.svg";
 import bbox from "@turf/bbox";
+import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 
 type HeaderData = {
   field: string;
@@ -68,6 +69,8 @@ const columns = computed<
   } else return [];
 });
 
+const sortBy = ref("");
+
 const {
   data: tableData,
   error: tableError,
@@ -76,8 +79,8 @@ const {
   isError: isTableError,
   isFetching: isTableFetching,
 } = useInfiniteQuery({
-  queryKey: [`/panel/items/${store.activeCollection}?`],
-  queryFn: async ({ pageParam = 1 }) => {
+  queryKey: [`/panel/items/${store.activeCollection}?`, sortBy],
+  queryFn: async ({ pageParam = 1, queryKey }) => {
     const queryParams: Record<string, string> = {
       limit: "25",
       page: pageParam.toString(),
@@ -88,10 +91,10 @@ const {
           .concat("ogc_fid")
           .join(","),
       }),
+      sort: queryKey[1],
     };
     const r = await $fetch<{ data: any[] }>(
-      `/panel/items/${store.activeCollection}?` +
-        new URLSearchParams(queryParams)
+      queryKey[0] + new URLSearchParams(queryParams)
     );
     return r.data;
   },
@@ -316,13 +319,77 @@ const downloadData = async () => {
             "
           />
         </div>
-        <div
+        <Menu
+          as="div"
+          class="relative"
           v-for="column in columns"
           :key="column.key"
-          class="bg-neutral-800 h-14 flex-1 min-w-[12rem] text-neutral-50 flex items-center text-xs font-medium px-3 py-4"
         >
-          <p class="line-clamp-2">{{ column.label }}</p>
-        </div>
+          <MenuButton
+            class="bg-neutral-800 hover:bg-neutral-700 h-14 flex-1 min-w-[12rem] text-neutral-50 flex items-center justify-between text-xs font-medium px-3 py-4 group"
+          >
+            <div class="flex gap-2">
+              <p class="line-clamp-2">{{ column.label }}</p>
+              <p class="hidden group-hover:block">&#8595;</p>
+            </div>
+            <UIcon
+              v-if="sortBy.includes(column.key)"
+              name="i-heroicons-bars-3-bottom-right"
+              :class="
+                'text-neutral-400 h-5 w-5 ' +
+                (sortBy[0] === '-' ? 'scale-x-[-1]' : 'rotate-180')
+              "
+              aria-hidden="true"
+            />
+          </MenuButton>
+          <transition
+            enter-active-class="transition duration-100 ease-out"
+            enter-from-class="transform scale-95 opacity-0"
+            enter-to-class="transform scale-100 opacity-100"
+            leave-active-class="transition duration-75 ease-in"
+            leave-from-class="transform scale-100 opacity-100"
+            leave-to-class="transform scale-95 opacity-0"
+          >
+            <MenuItems
+              class="absolute left-0 mt-2 w-full origin-top-left rounded-xxs bg-neutral-800 shadow-lg ring-1 ring-black/5 focus:outline-none overflow-hidden"
+            >
+              <MenuItem>
+                <button
+                  class="text-neutral-50 flex w-full items-center p-3 text-xs hover:bg-neutral-700"
+                  @click="
+                    () => {
+                      sortBy = column.key;
+                    }
+                  "
+                >
+                  <UIcon
+                    name="i-heroicons-bars-3-bottom-right"
+                    class="mr-2 h-4 w-4 rotate-180"
+                    aria-hidden="true"
+                  />
+                  Sort Ascending
+                </button>
+              </MenuItem>
+              <MenuItem>
+                <button
+                  class="text-neutral-50 flex w-full items-center p-3 text-xs hover:bg-neutral-700"
+                  @click="
+                    () => {
+                      sortBy = '-' + column.key;
+                    }
+                  "
+                >
+                  <UIcon
+                    name="i-heroicons-bars-3-bottom-right"
+                    class="mr-2 h-4 w-4 scale-x-[-1]"
+                    aria-hidden="true"
+                  />
+                  Sort Descending
+                </button>
+              </MenuItem>
+            </MenuItems>
+          </transition>
+        </Menu>
       </header>
 
       <template v-if="tableData?.pages.length">
