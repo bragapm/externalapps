@@ -36,19 +36,19 @@ const accordionHandler = (index: number) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 bg-black/5 rounded-lg p-11 min-h-[42rem]">
+  <div class="flex flex-col gap-3 bg-neutral-100 rounded-lg p-11 min-h-[42rem]">
     <p class="font-medium text-lg">{{ item.subtitle }}</p>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-7">
       <div class="space-y-3">
         <h1 class="font-medium text-4xl">{{ item.title }}</h1>
-        <p>{{ item.body }}</p>
+        <p class="text-neutral-700">{{ item.body }}</p>
       </div>
       <div class="flex flex-col">
         <div v-for="(content, index) of item.contents" :key="content.id">
           <button
             :class="[
               'flex justify-between p-4 w-full text-xl font-medium rounded-t-lg',
-              accordionStates[index] && 'bg-neutral-800 text-white',
+              accordionStates[index] && 'bg-neutral-800 text-neutral-50',
             ]"
             @click="accordionHandler(index)"
           >
@@ -57,7 +57,7 @@ const accordionHandler = (index: number) => {
           </button>
           <div
             v-if="accordionStates[index]"
-            class="bg-neutral-800 text-white rounded-b-lg overflow-hidden"
+            class="bg-neutral-800 text-neutral-50 rounded-b-lg overflow-hidden"
           >
             <div class="space-y-3 p-4">
               <NuxtImg

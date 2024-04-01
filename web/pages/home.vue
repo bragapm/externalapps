@@ -72,7 +72,7 @@ const { data: homeData, error: homeDataError } = await useFetch<IHomeData>(
 
 <template>
   <UContainer>
-    <div class="space-y-3 pb-6">
+    <div class="space-y-3 pb-6 text-neutral-800">
       <template
         v-if="!homeDataError && homeData"
         v-for="block in homeData.data.blocks"

@@ -54,12 +54,12 @@ const genWidthClass = (totalCol: number) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 bg-black/5 rounded-lg p-11">
+  <div class="flex flex-col gap-3 bg-neutral-100 rounded-lg p-11">
     <p v-if="item.subtitle" class="font-medium text-lg">
       {{ item.subtitle }}
     </p>
     <h1 v-if="item.title" class="font-medium text-4xl">{{ item.title }}</h1>
-    <p v-if="item.body">{{ item.body }}</p>
+    <p v-if="item.body" class="text-neutral-700">{{ item.body }}</p>
     <div
       :class="
         item.variant === 'border' &&
@@ -96,7 +96,7 @@ const genWidthClass = (totalCol: number) => {
                   v-if="
                     item.contents[iconIdx].block_media_icons_contents_id.label
                   "
-                  class="text-sm font-medium"
+                  class="text-sm font-medium text-neutral-900"
                 >
                   {{
                     item.contents[iconIdx].block_media_icons_contents_id.label
@@ -106,7 +106,7 @@ const genWidthClass = (totalCol: number) => {
                   v-if="
                     item.contents[iconIdx].block_media_icons_contents_id.label
                   "
-                  class="text-sm"
+                  class="text-neutral-700"
                 >
                   {{
                     item.contents[iconIdx].block_media_icons_contents_id.caption

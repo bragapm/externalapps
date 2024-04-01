@@ -103,7 +103,7 @@ function nextTimeout() {
             item.contents[current].block_hero_slides_contents_id
               .primary_button_url
           "
-          color="black"
+          color="brand"
           :ui="{ rounded: 'rounded-[4px]' }"
           class="p-3"
           :to="
@@ -124,7 +124,7 @@ function nextTimeout() {
             item.contents[current].block_hero_slides_contents_id
               .secondary_button_url
           "
-          color="black"
+          color="brand"
           variant="outline"
           :ui="{ rounded: 'rounded-[4px]' }"
           class="p-3"
@@ -140,7 +140,7 @@ function nextTimeout() {
           }}
         </UButton>
       </div>
-      <p>
+      <p class="text-neutral-600">
         {{ item.contents[current].block_hero_slides_contents_id.body }}
       </p>
     </div>
@@ -167,7 +167,7 @@ function nextTimeout() {
         v-for="(_slide, i) in item.contents"
         class="h-2 w-full rounded-full z-20"
         :class="{
-          'bg-black': current === i,
+          'bg-brand-500': current === i,
           'bg-neutral-800/20': current !== i,
         }"
         @click="slider.moveToIdx(i)"
