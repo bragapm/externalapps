@@ -6,14 +6,14 @@ defineProps<{
 </script>
 
 <template>
-  <div v-if="filteredLayers.length !== 0" class="divide-y divide-neutral-700">
+  <div v-if="filteredLayers.length !== 0" class="divide-y divide-grey-700">
     <div class="py-4 px-3">
-      <p class="text-neutral-400">Default Catalogue</p>
-      <p class="text-neutral-500 text-2xs">
+      <p class="text-grey-400">Default Catalogue</p>
+      <p class="text-grey-500 text-2xs">
         Dataset Folder/Project Provided by Default
       </p>
     </div>
-    <div class="px-3 pb-3 divide-y divide-neutral-700">
+    <div class="px-3 pb-3 divide-y divide-grey-700">
       <template v-for="category of filteredLayers">
         <MapManagementCatalogueGroup :groupItem="category" />
       </template>
@@ -21,15 +21,15 @@ defineProps<{
   </div>
   <div
     v-if="filteredLocalLayers.length !== 0"
-    class="divide-y divide-neutral-700"
+    class="divide-y divide-grey-700"
   >
     <div class="py-4 px-3">
-      <p class="text-neutral-400">User’s Catalogue</p>
-      <p class="text-neutral-500 text-2xs">
+      <p class="text-grey-400">User’s Catalogue</p>
+      <p class="text-grey-500 text-2xs">
         Dataset Folder/Project Uploaded by User
       </p>
     </div>
-    <div class="px-3 pb-3 divide-y divide-neutral-700">
+    <div class="px-3 pb-3 divide-y divide-grey-700">
       <template v-for="category of filteredLocalLayers">
         <MapManagementCatalogueGroup :groupItem="category" />
       </template>
@@ -40,11 +40,11 @@ defineProps<{
         class="flex flex-col p-3 gap-1"
         :id="category.label.split(' ').join('')"
       >
-        <h3 class="text-neutral-50">
+        <h3 class="text-grey-50">
           {{ category.label }}
         </h3>
-        <p class="text-xs text-neutral-50">description</p>
-        <span class="flex items-center gap-3 text-neutral-400 text-xs">
+        <p class="text-xs text-grey-50">description</p>
+        <span class="flex items-center gap-3 text-grey-400 text-xs">
           <p>No. of Datasets : {{ category.layerLists.length }}</p>
         </span>
         <div
@@ -72,10 +72,10 @@ defineProps<{
     </div> -->
   <div
     v-if="filteredLayers.length === 0"
-    class="flex flex-col w-full h-full border border-neutral-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
+    class="flex flex-col w-full h-full border border-grey-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y"
   >
     <div
-      class="flex items-center justify-center text-neutral-400 text-sm w-full h-full"
+      class="flex items-center justify-center text-grey-400 text-sm w-full h-full"
     >
       No Data Layers Found
     </div>

@@ -30,7 +30,7 @@ const bgImgUrl = computed(
     :class="[
       'grid grid-cols-1 md:grid-cols-2 gap-7 rounded-lg bg-cover bg-center',
       item.variant === 'image_bg_text_card' ? 'p-6' : 'p-11',
-      item.variant === 'image_card' && 'bg-neutral-100',
+      item.variant === 'image_card' && 'bg-grey-100',
     ]"
     :style="item.variant !== 'image_card' && `background-image: ${bgImgUrl}`"
   >
@@ -38,12 +38,12 @@ const bgImgUrl = computed(
       :class="[
         'flex flex-col gap-3 p-6',
         item.variant === 'image_bg_text_card' &&
-          'bg-neutral-800 text-neutral-50 rounded-lg',
+          'bg-grey-800 text-grey-50 rounded-lg',
       ]"
     >
       <p class="font-medium text-lg">{{ item.subtitle }}</p>
       <h1 class="font-medium text-4xl">{{ item.title }}</h1>
-      <p :class="item.variant !== 'image_bg_text_card' && 'text-neutral-700'">{{ item.body }}</p>
+      <p :class="item.variant !== 'image_bg_text_card' && 'text-grey-700'">{{ item.body }}</p>
       <div
         v-if="
           (item.primary_button_text && item.primary_button_url) ||

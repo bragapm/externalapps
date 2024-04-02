@@ -64,7 +64,7 @@ watchEffect((onCleanup) => {
       leave="transform transition-all duration-300"
       leave-from="ml-0 opacity-1"
       leave-to="-ml-8 opacity-0"
-      class="z-10 absolute top-[5.5rem] bg-neutral-900 w-[18.5rem] rounded-xs left-6 h-full max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="z-10 absolute top-[5.5rem] bg-grey-900 w-[18.5rem] rounded-xs left-6 h-full max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapManagement />
     </TransitionRoot>
@@ -78,7 +78,7 @@ watchEffect((onCleanup) => {
       leave-from="ml-0 opacity-1"
       leave-to="-ml-8 opacity-0"
       :class="isShowLayerManagement ? 'left-[20.5rem]' : 'left-[1.5rem]'"
-      class="z-10 absolute top-[5.5rem] bg-neutral-900 h-fit max-h-[calc(100%-12rem)] w-[15.5rem] rounded-xs transition-all ease-in-out duration-300 overflow-hidden flex flex-col"
+      class="z-10 absolute top-[5.5rem] bg-grey-900 h-fit max-h-[calc(100%-12rem)] w-[15.5rem] rounded-xs transition-all ease-in-out duration-300 overflow-hidden flex flex-col"
     >
       <MapLegend />
     </TransitionRoot>
@@ -95,7 +95,7 @@ watchEffect((onCleanup) => {
         !fullscreen
           ? 'w-[calc(50vw-3rem)] h-[calc(100vh-7.5rem)] top-[5.5rem]'
           : 'w-[calc(100vw-3rem)] h-[calc(100vh-3rem)] top-[1.5rem]',
-        'absolute z-20 left-[1.5rem] bg-neutral-900 rounded-xs transition-all ease-in-out duration-300',
+        'absolute z-20 left-[1.5rem] bg-grey-900 rounded-xs transition-all ease-in-out duration-300',
       ]"
     >
       <MapManagementTable />
@@ -109,7 +109,7 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-1000"
       leave-from="ml-0 opacity-1"
       leave-to="-ml-8 opacity-0"
-      class="w-[calc(100vw-3rem)] h-[calc(100vh-3rem)] top-[1.5rem] absolute z-[9999999] left-[1.5rem] bg-neutral-900 rounded-xs transition-all ease-in-out duration-300"
+      class="w-[calc(100vw-3rem)] h-[calc(100vh-3rem)] top-[1.5rem] absolute z-[9999999] left-[1.5rem] bg-grey-900 rounded-xs transition-all ease-in-out duration-300"
     >
       <MapManagementCatalogue />
     </TransitionRoot>
@@ -153,7 +153,7 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-300"
       leave-from="mr-0 opacity-1"
       leave-to="-mr-8 opacity-0"
-      class="z-10 absolute top-[5.5rem] right-6 bg-neutral-900 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs max-h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapInformation />
     </TransitionRoot>
@@ -166,7 +166,7 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-300"
       leave-from="mr-0 opacity-1"
       leave-to="-mr-8 opacity-0"
-      class="z-10 absolute top-[5.5rem] right-6 bg-neutral-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapAnalytic />
     </TransitionRoot> -->
@@ -184,7 +184,7 @@ watchEffect((onCleanup) => {
           ? 'right-[20.5rem]'
           : 'right-[1.5rem]'
       "
-      class="z-10 absolute top-[5.5rem] right-6 bg-neutral-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col transition-all ease-in-out duration-300"
+      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col transition-all ease-in-out duration-300"
     >
       <MapFeatureDetail />
     </TransitionRoot>
@@ -202,7 +202,7 @@ watchEffect((onCleanup) => {
           ? 'right-[20.5rem]'
           : 'right-[1.5rem]'
       "
-      class="z-10 absolute top-[5.5rem] right-6 bg-neutral-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <Map3DFeatureDetail />
     </TransitionRoot>
@@ -315,7 +315,7 @@ watchEffect((onCleanup) => {
           :value="currentZoom"
           disabled
           type="text"
-          class="text-xs text-center w-14 p-2 text-neutral-200 rounded-xxs bg-black/5 border border-neutral-600 focus:outline-none"
+          class="text-xs text-center w-14 p-2 text-grey-200 rounded-xxs bg-black/5 border border-grey-600 focus:outline-none"
         />
         <button
           @click="() => map && map.zoomIn()"

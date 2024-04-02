@@ -70,8 +70,8 @@ const updateOpacity = (value: number) => {
     <div
       :class="[
         isShowStyling
-          ? 'bg-neutral-700'
-          : 'bg-transparent hover:ring-1 hover:ring-neutral-500',
+          ? 'bg-grey-700'
+          : 'bg-transparent hover:ring-1 hover:ring-grey-500',
         filtered ? 'cursor-pointer' : 'cursor-grab',
         'rounded-xxs p-2 flex justify-between items-center gap-2 w-full ',
       ]"
@@ -79,7 +79,7 @@ const updateOpacity = (value: number) => {
       <div class="w-8/12">
         <p
           :class="[
-            visibility === 'visible' ? 'text-neutral-200' : 'text-neutral-500',
+            visibility === 'visible' ? 'text-grey-200' : 'text-grey-500',
             'truncate',
           ]"
         >
@@ -87,7 +87,7 @@ const updateOpacity = (value: number) => {
         </p>
         <p
           :class="[
-            visibility === 'visible' ? 'text-neutral-400' : 'text-neutral-500',
+            visibility === 'visible' ? 'text-grey-400' : 'text-grey-500',
             'truncate',
           ]"
         >
@@ -104,8 +104,8 @@ const updateOpacity = (value: number) => {
               visibility === 'visible'
                 ? isShowStyling
                   ? 'text-brand-500'
-                  : 'text-neutral-400'
-                : 'text-neutral-500',
+                  : 'text-grey-400'
+                : 'text-grey-500',
               ,
               'w-3 h-3',
             ]"
@@ -115,7 +115,7 @@ const updateOpacity = (value: number) => {
         <button
           :disabled="isShowStyling"
           @click="toggleVisibility"
-          :class="isShowStyling ? 'text-neutral-600' : 'text-neutral-400'"
+          :class="isShowStyling ? 'text-grey-600' : 'text-grey-400'"
         >
           <IcEyeCrossed
             v-if="visibility === 'none'"

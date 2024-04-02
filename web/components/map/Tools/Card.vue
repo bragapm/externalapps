@@ -26,17 +26,17 @@ const props = withDefaults(defineProps<Props>(), {
     leave="transition-all duration-300"
     leave-from="mb-0 opacity-1"
     leave-to="-mb-10 opacity-0"
-    class="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-xs bg-neutral-800 w-[20rem] divide-y divide-neutral-700"
+    class="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-xs bg-grey-800 w-[20rem] divide-y divide-grey-700"
   >
     <div class="flex items-center gap-[6px] p-2">
       <component
         :is="icon"
-        class="w-3 h-3 text-neutral-400"
+        class="w-3 h-3 text-grey-400"
         :fontControlled="false"
       ></component>
-      <p class="flex-1 text-neutral-200 text-2xs">{{ label }}</p>
+      <p class="flex-1 text-grey-200 text-2xs">{{ label }}</p>
       <button @click="onClose">
-        <IcCross class="w-2 h-2 text-neutral-400 m-2" :fontControlled="false" />
+        <IcCross class="w-2 h-2 text-grey-400 m-2" :fontControlled="false" />
       </button>
     </div>
     <slot />

@@ -76,7 +76,7 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
 
 <template>
   <div
-    class="flex flex-col gap-2 border border-neutral-700 rounded-xs p-2"
+    class="flex flex-col gap-2 border border-grey-700 rounded-xs p-2"
     @mouseover="hover = true"
     @mouseleave="hover = false"
   >
@@ -85,8 +85,8 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
         <UBadge
           :ui="{ rounded: 'rounded-xxs' }"
           variant="outline"
-          class="flex items-center gap-1 bg-neutral-800 text-neutral-50 mt-[1px]"
-          color="neutral"
+          class="flex items-center gap-1 bg-grey-800 text-grey-50 mt-[1px]"
+          color="grey"
         >
           <IcMapLayerA></IcMapLayerA>
           <p>{{ item.geometry_type }}</p>
@@ -104,7 +104,7 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
             :ui="{ rounded: 'rounded-xxs' }"
             variant="outline"
             color="green"
-            class="gap-1 bg-neutral-800"
+            class="gap-1 bg-grey-800"
           >
             <IcCheck></IcCheck>
             <p>In Map</p>
@@ -112,7 +112,7 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
         </TransitionRoot>
       </div>
       <button v-if="item.source === 'loaded_geojson' && hover">
-        <IcCross class="text-neutral-50" @click="removeLoadedData(item)" />
+        <IcCross class="text-grey-50" @click="removeLoadedData(item)" />
       </button>
     </div>
     <img
@@ -122,7 +122,7 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
     />
     <article>
       <div class="flex items-center justify-between gap-2">
-        <h5 class="text-xs text-neutral-50 truncate">
+        <h5 class="text-xs text-grey-50 truncate">
           {{
             item.source === "vector_tiles"
               ? item.layer_alias ?? item.layer_name
@@ -133,7 +133,7 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
           <IcHelp class="w-3 h-3 text-brand-500" :fontControlled="false" />
         </button>
       </div>
-      <p class="line-clamp-3 text-neutral-500 text-2xs">Description</p>
+      <p class="line-clamp-3 text-grey-500 text-2xs">Description</p>
     </article>
     <UButton
       :ui="{ rounded: 'rounded-xxs' }"
@@ -143,7 +143,7 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
         'w-full justify-center h-9',
       ]"
       :variant="isActive ? 'outline' : 'solid'"
-      :color="isActive ? 'brand' : 'neutral'"
+      :color="isActive ? 'brand' : 'grey'"
       @click="isActive ? removeLayer(item) : addLayer(item)"
     >
       <IcSpinner

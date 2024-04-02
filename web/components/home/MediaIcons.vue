@@ -54,16 +54,16 @@ const genWidthClass = (totalCol: number) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 bg-neutral-100 rounded-lg p-11">
+  <div class="flex flex-col gap-3 bg-grey-100 rounded-lg p-11">
     <p v-if="item.subtitle" class="font-medium text-lg">
       {{ item.subtitle }}
     </p>
     <h1 v-if="item.title" class="font-medium text-4xl">{{ item.title }}</h1>
-    <p v-if="item.body" class="text-neutral-700">{{ item.body }}</p>
+    <p v-if="item.body" class="text-grey-700">{{ item.body }}</p>
     <div
       :class="
         item.variant === 'border' &&
-        'border border-neutral-500 rounded-lg overflow-hidden'
+        'border border-grey-500 rounded-lg overflow-hidden'
       "
     >
       <table class="w-full">
@@ -72,7 +72,7 @@ const genWidthClass = (totalCol: number) => {
             v-for="iconRow of iconArr"
             :class="
               item.variant === 'border' &&
-              'border-t border-neutral-500 first:border-0'
+              'border-t border-grey-500 first:border-0'
             "
           >
             <td
@@ -80,7 +80,7 @@ const genWidthClass = (totalCol: number) => {
               :class="[
                 genWidthClass(iconRow.length),
                 item.variant === 'border' &&
-                  'border-l border-neutral-500 first:border-0',
+                  'border-l border-grey-500 first:border-0',
               ]"
               :colspan="12 / iconRow.length"
             >
@@ -96,7 +96,7 @@ const genWidthClass = (totalCol: number) => {
                   v-if="
                     item.contents[iconIdx].block_media_icons_contents_id.label
                   "
-                  class="text-sm font-medium text-neutral-900"
+                  class="text-sm font-medium text-grey-900"
                 >
                   {{
                     item.contents[iconIdx].block_media_icons_contents_id.label
@@ -106,7 +106,7 @@ const genWidthClass = (totalCol: number) => {
                   v-if="
                     item.contents[iconIdx].block_media_icons_contents_id.label
                   "
-                  class="text-neutral-700"
+                  class="text-grey-700"
                 >
                   {{
                     item.contents[iconIdx].block_media_icons_contents_id.caption

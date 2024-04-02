@@ -65,23 +65,23 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
     <div
       :class="[
         'flex justify-end w-full rounded-lg',
-        bgImgUrl ? 'bg-cover bg-center' : 'bg-neutral-900',
+        bgImgUrl ? 'bg-cover bg-center' : 'bg-grey-900',
       ]"
       :style="bgImgUrl && `background-image: ${bgImgUrl}`"
     >
       <div class="w-1/2 p-8">
         <div
-          class="flex flex-col bg-neutral-800 rounded-lg h-full px-16 py-8 overflow-scroll justify-center"
+          class="flex flex-col bg-grey-800 rounded-lg h-full px-16 py-8 overflow-scroll justify-center"
         >
           <div class="flex flex-col text-center space-y-3 mb-16">
             <IcLogoGeodashboardFull
-              class="h-5 w-full text-neutral-50 mb-4"
+              class="h-5 w-full text-grey-50 mb-4"
               :fontControlled="false"
             />
-            <h1 class="text-4xl font-medium text-neutral-50">
+            <h1 class="text-4xl font-medium text-grey-50">
               Welcome to {{ mapData?.data.title || "GeoDashboard" }}
             </h1>
-            <p class="text-neutral-500 text-sm">
+            <p class="text-grey-500 text-sm">
               Sign In to continue your mapping journey with us!
             </p>
           </div>
@@ -120,8 +120,8 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               >
                 <template #trailing>
                   <button type="button" @click="showPassword = !showPassword">
-                    <IcEye v-if="showPassword" class="text-neutral-400" />
-                    <IcEyeCrossed v-else class="text-neutral-400" />
+                    <IcEye v-if="showPassword" class="text-grey-400" />
+                    <IcEyeCrossed v-else class="text-grey-400" />
                   </button>
                 </template>
               </UInput>
@@ -146,7 +146,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               />
             </UButton>
           </UForm>
-          <div class="w-full border border-neutral-600 mb-7" />
+          <div class="w-full border border-grey-600 mb-7" />
           <UButton
             block
             variant="outline"
@@ -163,7 +163,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               />
             </template>
           </UButton>
-          <p class="text-center text-neutral-500 text-sm">
+          <p class="text-center text-grey-500 text-sm">
             ©{{ new Date().getFullYear() }} Braga Technologies
           </p>
         </div>

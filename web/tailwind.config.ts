@@ -16,7 +16,7 @@ const defaultColors = {
     900: "#663121",
     950: "#412820",
   },
-  neutral: {
+  grey: {
     50: "#F9F8F7",
     100: "#F4F3F1",
     200: "#E2E1DF",
@@ -86,7 +86,7 @@ const bnpbColors = {
     900: "#7B5E00",
     950: "#5C4C00",
   },
-  neutral: {
+  grey: {
     50: "#FFFBF7",
     100: "#F0EEE9",
     200: "#E2E1DB",
@@ -156,7 +156,7 @@ const test1Colors = {
     "900": "#5c257e",
     "950": "#3e0f5c",
   },
-  neutral: {
+  grey: {
     "50": "#eefdfd",
     "100": "#d4f9f8",
     "200": "#aff1f2",

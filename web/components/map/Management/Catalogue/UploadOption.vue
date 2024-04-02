@@ -20,12 +20,12 @@ const next = (modeValue: UploadModeEnum) => {
 
 <template>
   <div class="flex-1 px-10 py-6">
-    <p class="text-neutral-50">View Local Data/Upload Data</p>
-    <p class="text-neutral-500 text-2xs">
+    <p class="text-grey-50">View Local Data/Upload Data</p>
+    <p class="text-grey-500 text-2xs">
       Load from local storage to view data or upload and save data to the
       GeoDashboard
     </p>
-    <hr class="border-neutral-700 my-3" />
+    <hr class="border-grey-700 my-3" />
     <RadioGroup v-model="modeRef">
       <div class="grid grid-cols-2 gap-4">
         <MapManagementCatalogueUploadOptionCard

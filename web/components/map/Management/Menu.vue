@@ -31,7 +31,7 @@ const { floatingStyles } = useFloating(reference, floating, {
   <Menu as="div" class="relative inline-block">
     <MenuButton :disabled="disabled" ref="reference" class="align-middle">
       <IcMenuDots
-        :class="['w-3 h-3', disabled ? 'text-neutral-600' : 'text-neutral-400']"
+        :class="['w-3 h-3', disabled ? 'text-grey-600' : 'text-grey-400']"
         :fontControlled="false"
       />
     </MenuButton>
@@ -48,7 +48,7 @@ const { floatingStyles } = useFloating(reference, floating, {
         <MenuItems
           ref="floating"
           :style="floatingStyles"
-          class="absolute -right-2 translate-x-full translate-y-full bottom-5 w-56 h-fit p-2 flex flex-col gap-2 rounded-xxs bg-neutral-900 shadow-lg ring-1 ring-neutral-700 focus:outline-none"
+          class="absolute -right-2 translate-x-full translate-y-full bottom-5 w-56 h-fit p-2 flex flex-col gap-2 rounded-xxs bg-grey-900 shadow-lg ring-1 ring-grey-700 focus:outline-none"
         >
           <MenuItem v-slot="{ active }">
             <button
@@ -66,19 +66,19 @@ const { floatingStyles } = useFloating(reference, floating, {
                 }
               "
               :class="[
-                active ? 'bg-neutral-700' : 'bg-transparent text-neutral-200',
+                active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
               ]"
             >
               Zoom To Fit
             </button>
           </MenuItem>
-          <hr class="border-t-2 border-neutral-800" />
+          <hr class="border-t-2 border-grey-800" />
           <MenuItem v-slot="{ active }">
             <button
               @click="() => {}"
               :class="[
-                active ? 'bg-neutral-700' : 'bg-transparent text-neutral-200',
+                active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
               ]"
             >
@@ -89,7 +89,7 @@ const { floatingStyles } = useFloating(reference, floating, {
             <button
               @click="() => {}"
               :class="[
-                active ? 'bg-neutral-700' : 'bg-transparent text-neutral-200',
+                active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
               ]"
             >
@@ -100,7 +100,7 @@ const { floatingStyles } = useFloating(reference, floating, {
             <button
               @click="() => {}"
               :class="[
-                active ? 'bg-neutral-700' : 'bg-transparent text-neutral-200',
+                active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
               ]"
             >
@@ -119,10 +119,10 @@ const { floatingStyles } = useFloating(reference, floating, {
               "
               :class="[
                 active && item.source === 'vector_tiles'
-                  ? 'bg-neutral-700'
-                  : 'bg-transparent text-neutral-200',
+                  ? 'bg-grey-700'
+                  : 'bg-transparent text-grey-200',
                 item.source !== 'vector_tiles'
-                  ? 'text-neutral-500'
+                  ? 'text-grey-500'
                   : 'text-white',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs ',
               ]"
@@ -130,7 +130,7 @@ const { floatingStyles } = useFloating(reference, floating, {
               View Data Table
             </button>
           </MenuItem>
-          <hr class="border-t-2 border-neutral-800" />
+          <hr class="border-t-2 border-grey-800" />
           <MenuItem v-slot="{ active }">
             <button
               @click="
@@ -140,7 +140,7 @@ const { floatingStyles } = useFloating(reference, floating, {
               "
               :class="[
                 active
-                  ? 'bg-neutral-700 text-white'
+                  ? 'bg-grey-700 text-white'
                   : 'bg-transparent text-brand-600',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs',
               ]"

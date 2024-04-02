@@ -32,7 +32,7 @@ const [container, slider] = useKeenSlider({
 </script>
 
 <template v-if="item.contents.length">
-  <div class="grid grid-cols-2 gap-x-7 bg-neutral-100 rounded-lg p-11">
+  <div class="grid grid-cols-2 gap-x-7 bg-grey-100 rounded-lg p-11">
     <div class="flex flex-col justify-between">
       <div class="space-y-3">
         <p class="font-medium text-lg">
@@ -42,7 +42,7 @@ const [container, slider] = useKeenSlider({
           {{ item.contents[current].block_info_slides_contents_id.title }}
         </h1>
       </div>
-      <div class="space-y-3 text-neutral-700">
+      <div class="space-y-3 text-grey-700">
         <p>{{ item.contents[current].block_info_slides_contents_id.body }}</p>
         <UButton
           v-if="
@@ -64,7 +64,7 @@ const [container, slider] = useKeenSlider({
             class="h-2 w-full rounded-full"
             :class="{
               'bg-brand-500': current === i,
-              'bg-neutral-800/20': current !== i,
+              'bg-grey-800/20': current !== i,
             }"
             @click="slider.moveToIdx(i)"
             :key="i"

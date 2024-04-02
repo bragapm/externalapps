@@ -67,7 +67,7 @@ const authStore = useAuth();
     </Presence> -->
     <div
       :class="isExpand ? 'w-full py-3 px-0' : 'w-0 p-0'"
-      class="relative bg-neutral-900 rounded-xs flex items-center justify-between z-50 min-w-fit transition-all duration-300 ease-in-out"
+      class="relative bg-grey-900 rounded-xs flex items-center justify-between z-50 min-w-fit transition-all duration-300 ease-in-out"
     >
       <div class="flex items-center gap-2">
         <div class="relative flex items-center p-3 gap-3 h-12">
@@ -161,7 +161,7 @@ const authStore = useAuth();
         leave="transition-opacity duration-100"
         leave-from="opacity-1"
         leave-to="opacity-0"
-        class="absolute top-0 -right-5 translate-x-full bg-neutral-700/30 rounded-xs h-12 p-3 max-w-2xl text-white transition-opacity ease-in-out duration-100"
+        class="absolute top-0 -right-5 translate-x-full bg-grey-700/30 rounded-xs h-12 p-3 max-w-2xl text-white transition-opacity ease-in-out duration-100"
       >
         <div class="flex items-center">
           <p class="whitespace-nowrap">{{ mapData?.data.title ?? "" }}</p>
@@ -177,7 +177,7 @@ const authStore = useAuth();
       </TransitionRoot>
     </div>
     <div
-      class="absolute top-6 right-6 z-40 flex items-center gap-2 bg-neutral-900 p-[6px] h-12 rounded-xs"
+      class="absolute top-6 right-6 z-40 flex items-center gap-2 bg-grey-900 p-[6px] h-12 rounded-xs"
     >
       <UInput
         color="gray"
@@ -186,7 +186,7 @@ const authStore = useAuth();
       >
         <template #trailing>
           <UButton
-            color="neutral"
+            color="grey"
             variant="link"
             icon="i-heroicons-magnifying-glass-20-solid"
             :padded="false"

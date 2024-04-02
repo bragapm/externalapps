@@ -21,7 +21,7 @@ const { floatingStyles } = useFloating(reference, floating, {
   <Popover class="relative w-full flex items-center">
     <PopoverButton
       ref="reference"
-      class="w-full flex items-center gap-2 focus:outline-none p-2 border border-neutral-500 rounded-xxs"
+      class="w-full flex items-center gap-2 focus:outline-none p-2 border border-grey-500 rounded-xxs"
     >
       <div
         class="w-full h-3 rounded-xxs"
@@ -31,7 +31,7 @@ const { floatingStyles } = useFloating(reference, floating, {
       ></div>
       <IcArrowReg
         :fontControlled="false"
-        class="w-4 h-4 rotate-180 text-neutral-50"
+        class="w-4 h-4 rotate-180 text-grey-50"
       />
     </PopoverButton>
 
@@ -39,7 +39,7 @@ const { floatingStyles } = useFloating(reference, floating, {
       <PopoverPanel
         ref="floating"
         :style="floatingStyles"
-        class="absolute z-10 p-2 border border-neutral-500 rounded-xxs bg-neutral-900"
+        class="absolute z-10 p-2 border border-grey-500 rounded-xxs bg-grey-900"
       >
         <CoreInputColorPicker
           :color="modelValue"

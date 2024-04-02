@@ -8,14 +8,14 @@ defineProps<{
 
 <template>
   <div
-    class="grid grid-cols-1 md:grid-cols-2 gap-x-7 bg-neutral-100 rounded-lg p-11"
+    class="grid grid-cols-1 md:grid-cols-2 gap-x-7 bg-grey-100 rounded-lg p-11"
   >
     <div class="flex flex-col justify-between gap-y-3">
       <div class="space-y-3">
         <p class="font-medium text-lg">{{ item.subtitle }}</p>
         <h1 class="font-medium text-4xl">{{ item.title }}</h1>
       </div>
-      <div class="space-y-3 text-neutral-700">
+      <div class="space-y-3 text-grey-700">
         <p>{{ item.body }}</p>
         <UButton
           v-if="item.button_text && item.button_url"

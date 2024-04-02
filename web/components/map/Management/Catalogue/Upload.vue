@@ -40,7 +40,7 @@ const handleNext = () => {
 <template>
   <div class="h-full flex flex-col gap-4 max-h-[calc(100%-2.25rem)]">
     <div
-      class="w-full h-full border border-neutral-700 py-10 px-5 overflow-y-auto"
+      class="w-full h-full border border-grey-700 py-10 px-5 overflow-y-auto"
     >
       <div class="m-auto max-w-3xl">
         <TabGroup :selectedIndex="selectedTab" @change="changeTab">
@@ -51,13 +51,13 @@ const handleNext = () => {
                 { step: 2, title: 'Upload Data' },
               ]"
               v-slot="{ selected }"
-              class="flex flex-col flex-1 text-neutral-200"
+              class="flex flex-col flex-1 text-grey-200"
             >
               <p>{{ item.step }}</p>
               <p>{{ item.title }}</p>
               <div
                 :class="[
-                  selected ? 'bg-brand-500' : 'bg-neutral-400',
+                  selected ? 'bg-brand-500' : 'bg-grey-400',
                   'h-[2px] w-full rounded-lg mt-2',
                 ]"
               />
@@ -65,9 +65,9 @@ const handleNext = () => {
           </TabList>
           <TabPanels
             ><TabPanel class="space-y-3">
-              <p class="text-sm text-neutral-400">Upload To</p>
+              <p class="text-sm text-grey-400">Upload To</p>
               <div class="flex flex-col gap-3">
-                <p class="text-sm text-neutral-400">Data Format</p>
+                <p class="text-sm text-grey-400">Data Format</p>
                 <RadioGroup v-model="dataType">
                   <div class="grid grid-cols-3 gap-3">
                     <MapManagementCatalogueUploadTypeCard
@@ -85,7 +85,7 @@ const handleNext = () => {
               </div>
             </TabPanel>
             <TabPanel class="space-y-3">
-              <p class="text-sm text-neutral-400">Upload Data</p>
+              <p class="text-sm text-grey-400">Upload Data</p>
               <MapManagementCatalogueLoadFileInput
                 :selectedFile="selectedFile"
                 @set-selected-file="
@@ -120,7 +120,7 @@ const handleNext = () => {
           :ui="{ rounded: 'rounded-xs' }"
           label="Back"
           variant="outline"
-          :color="selectedTab === 0 ? 'neutral' : 'brand'"
+          :color="selectedTab === 0 ? 'grey' : 'brand'"
           class="w-44 text-sm justify-center"
         >
         </UButton>
@@ -129,7 +129,7 @@ const handleNext = () => {
           @click="handleNext"
           :ui="{ rounded: 'rounded-xs' }"
           label="Next"
-          :color="selectedTab === 1 ? 'neutral' : 'brand'"
+          :color="selectedTab === 1 ? 'grey' : 'brand'"
           class="w-44 text-sm justify-center"
         >
         </UButton>

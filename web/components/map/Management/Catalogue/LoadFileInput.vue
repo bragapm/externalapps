@@ -44,18 +44,18 @@ const handleDelete = (e: Event) => {
         }
       "
       :class="[
-        selectedFile ? 'border-brand-500 bg-brand-950' : 'border-neutral-600 bg-neutral-700',
+        selectedFile ? 'border-brand-500 bg-brand-950' : 'border-grey-600 bg-grey-700',
         'p-1 border rounded-xxs cursor-pointer',
       ]"
     >
-      <p class="text-2xs text-neutral-400 ml-2 mb-1 mt-2">Dataset File</p>
+      <p class="text-2xs text-grey-400 ml-2 mb-1 mt-2">Dataset File</p>
       <div
         class="flex items-center justify-between bg-black/30 rounded-xxs px-2 py-4"
       >
         <div>
           <p
             :class="[
-              selectedFile ? 'text-brand-500' : 'text-neutral-200',
+              selectedFile ? 'text-brand-500' : 'text-grey-200',
               'text-xs',
             ]"
           >
@@ -63,7 +63,7 @@ const handleDelete = (e: Event) => {
           </p>
           <p
             :class="[
-              selectedFile ? 'text-brand-400' : 'text-neutral-400',
+              selectedFile ? 'text-brand-400' : 'text-grey-400',
               'text-xs',
             ]"
           >
@@ -75,7 +75,7 @@ const handleDelete = (e: Event) => {
           <component
             :is="selectedFile ? IcTrash : IcCloudUpload"
             :class="[
-              selectedFile ? 'text-brand-500' : 'text-neutral-400',
+              selectedFile ? 'text-brand-500' : 'text-grey-400',
               'w-6 h-6',
             ]"
             :fontControlled="false"
@@ -83,7 +83,7 @@ const handleDelete = (e: Event) => {
         </button>
       </div>
     </div>
-    <p class="text-xs text-neutral-400">
+    <p class="text-xs text-grey-400">
       Supported File Type: GeoJSON, .GPX, .KML, CSV (.wkt), .XLSX (.wkt), and
       GeoPackage
     </p>

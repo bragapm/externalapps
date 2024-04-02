@@ -4,7 +4,7 @@ import IcMapLayer from "~/assets/icons/ic-map-layer.svg";
 
 <template>
   <div class="p-2">
-    <p class="text-2xs text-neutral-400">
+    <p class="text-2xs text-grey-400">
       Click on the map or input coordinate manually to begin isochrone analysis
       tool.
     </p>
@@ -30,7 +30,7 @@ import IcMapLayer from "~/assets/icons/ic-map-layer.svg";
       >
       </CoreButtonIcon>
       <div
-        class="flex items-center justify-center w-full h-full border border-neutral-700 py-1 px-2 rounded-xxs text-2xs text-neutral-400"
+        class="flex items-center justify-center w-full h-full border border-grey-700 py-1 px-2 rounded-xxs text-2xs text-grey-400"
       >
         3mph
       </div>

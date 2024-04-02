@@ -23,7 +23,7 @@ const { floatingStyles } = useFloating(reference, floating, {
     <MenuButton
       :disabled="disabled"
       ref="reference"
-      class="w-full h-6 flex items-center gap-2 focus:outline-none p-2 border border-neutral-500 rounded-xxs"
+      class="w-full h-6 flex items-center gap-2 focus:outline-none p-2 border border-grey-500 rounded-xxs"
     >
       <div class="w-full h-3 rounded-xxs flex gap-2 items-center">
         <div
@@ -32,13 +32,13 @@ const { floatingStyles } = useFloating(reference, floating, {
             'w-full border-t border-white',
           ]"
         ></div>
-        <p class="text-neutral-400 text-2xs">
+        <p class="text-grey-400 text-2xs">
           {{ modelValue ? "Dashed" : "Solid" }}
         </p>
       </div>
       <IcArrowReg
         :fontControlled="false"
-        class="w-4 h-4 rotate-180 text-neutral-50"
+        class="w-4 h-4 rotate-180 text-grey-50"
       />
     </MenuButton>
 
@@ -46,7 +46,7 @@ const { floatingStyles } = useFloating(reference, floating, {
       <MenuItems
         ref="floating"
         :style="floatingStyles"
-        class="absolute z-10 p-2 border border-neutral-500 rounded-xxs bg-neutral-900 flex flex-col gap-2 w-48"
+        class="absolute z-10 p-2 border border-grey-500 rounded-xxs bg-grey-900 flex flex-col gap-2 w-48"
       >
         <MenuItem :disabled="modelValue === null">
           <UButton

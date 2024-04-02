@@ -127,7 +127,7 @@ const clearSelection = () => {
       role="button"
       @click="featureStore.setRightSidebar('')"
       :fontControlled="false"
-      class="w-3 h-3 rotate-180 text-neutral-50"
+      class="w-3 h-3 rotate-180 text-grey-50"
     />
   </div>
   <hr class="mx-3" />
@@ -140,10 +140,10 @@ const clearSelection = () => {
         :fontControlled="false"
         class="w-12 h-12 text-brand-500"
       />
-      <h4 class="text-sm text-neutral-50">
+      <h4 class="text-sm text-grey-50">
         Feature Detail will be shown here.
       </h4>
-      <p class="text-xs text-neutral-400">
+      <p class="text-xs text-grey-400">
         Please click layer feature first to show the feature properties here.
       </p>
     </div>
@@ -152,15 +152,15 @@ const clearSelection = () => {
       v-else-if="!detailData && isDetailFetching"
       class="h-full animate-pulse space-y-3"
     >
-      <div class="w-full h-8 bg-neutral-700 rounded-xs"></div>
-      <div class="w-full h-8 bg-neutral-700 rounded-xs"></div>
-      <div class="w-full h-44 bg-neutral-700 rounded-xs"></div>
-      <div class="w-full h-4 bg-neutral-700 rounded-xs"></div>
-      <div class="w-full h-4 bg-neutral-700 rounded-xs"></div>
-      <div class="w-full h-4 bg-neutral-700 rounded-xs"></div>
-      <div class="w-full h-4 bg-neutral-700 rounded-xs"></div>
-      <div class="w-full h-4 bg-neutral-700 rounded-xs"></div>
-      <div class="w-full h-4 bg-neutral-700 rounded-xs"></div>
+      <div class="w-full h-8 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-8 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-44 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
+      <div class="w-full h-4 bg-grey-700 rounded-xs"></div>
     </div>
 
     <div
@@ -177,10 +177,10 @@ const clearSelection = () => {
         :fontControlled="false"
         class="w-12 h-12 text-brand-500"
       />
-      <h4 class="text-sm text-neutral-50">
+      <h4 class="text-sm text-grey-50">
         Content structure has not been set.
       </h4>
-      <p class="text-xs text-neutral-400">
+      <p class="text-xs text-grey-400">
         Please contact data owner to set content structure for this layer
         feature detail.
       </p>
@@ -214,7 +214,7 @@ const clearSelection = () => {
                 .flat().length > 4
             "
             @click="() => openModal(4)"
-            class="absolute top-0 right-1 w-16 h-16 bg-neutral-900 bg-opacity-30 flex justify-center items-center text-white text-2xs"
+            class="absolute top-0 right-1 w-16 h-16 bg-grey-900 bg-opacity-30 flex justify-center items-center text-white text-2xs"
           >
             More
           </button>
@@ -272,7 +272,7 @@ const clearSelection = () => {
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="w-full max-w-2xl transform overflow-hidden rounded-xs bg-neutral-900 p-3 text-left align-middle shadow-xl transition-all"
+              class="w-full max-w-2xl transform overflow-hidden rounded-xs bg-grey-900 p-3 text-left align-middle shadow-xl transition-all"
               ><DialogTitle
                 class="text-base font-medium leading-6 flex justify-between items-center"
               >
@@ -281,7 +281,7 @@ const clearSelection = () => {
                   role="button"
                   @click="closeModal"
                   :fontControlled="false"
-                  class="w-3 h-3 rotate-180 text-neutral-50"
+                  class="w-3 h-3 rotate-180 text-grey-50"
                 />
               </DialogTitle>
               <div class="relative w-full my-3">
@@ -306,7 +306,7 @@ const clearSelection = () => {
                 >
                   <IcArrowReg
                     :fontControlled="false"
-                    class="w-5 h-5 m-1 -rotate-90 text-neutral-50"
+                    class="w-5 h-5 m-1 -rotate-90 text-grey-50"
                   />
                 </button>
 
@@ -317,7 +317,7 @@ const clearSelection = () => {
                 >
                   <IcArrowReg
                     :fontControlled="false"
-                    class="w-5 h-5 m-1 rotate-90 text-neutral-50"
+                    class="w-5 h-5 m-1 rotate-90 text-grey-50"
                   />
                 </button>
               </div>

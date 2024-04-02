@@ -44,9 +44,9 @@ const handleChangeProperty = (
 
 <template>
   <div>
-    <div class="bg-neutral-800 rounded-xxs p-2 space-y-1">
-      <p class="text-neutral-50 text-2xs">Appearance</p>
-      <p class="text-neutral-400 text-2xs">Stroke</p>
+    <div class="bg-grey-800 rounded-xxs p-2 space-y-1">
+      <p class="text-grey-50 text-2xs">Appearance</p>
+      <p class="text-grey-400 text-2xs">Stroke</p>
       <div class="grid grid-cols-4 gap-1">
         <div class="col-span-3">
           <CoreInputDash
@@ -93,7 +93,7 @@ const handleChangeProperty = (
           max="100"
         >
           <template #trailing>
-            <span class="text-neutral-400 text-2xs">px</span>
+            <span class="text-grey-400 text-2xs">px</span>
           </template>
         </UInput>
       </div>
@@ -117,7 +117,7 @@ const handleChangeProperty = (
           max="100"
         >
           <template #trailing>
-            <span class="text-neutral-400 text-2xs">Dash</span>
+            <span class="text-grey-400 text-2xs">Dash</span>
           </template>
         </UInput>
         <UInput
@@ -138,14 +138,14 @@ const handleChangeProperty = (
           max="100"
         >
           <template #trailing>
-            <span class="text-neutral-400 text-2xs">Gap</span>
+            <span class="text-grey-400 text-2xs">Gap</span>
           </template>
         </UInput>
       </div>
     </div>
-    <div class="bg-neutral-800 rounded-xxs p-2 space-y-1">
-      <p class="text-neutral-50 text-2xs">Color</p>
-      <p class="text-neutral-400 text-2xs">Line Color Opacity</p>
+    <div class="bg-grey-800 rounded-xxs p-2 space-y-1">
+      <p class="text-grey-50 text-2xs">Color</p>
+      <p class="text-grey-400 text-2xs">Line Color Opacity</p>
       <div class="grid grid-cols-4 gap-1">
         <URange
           v-model="lineOpacity"
@@ -157,16 +157,16 @@ const handleChangeProperty = (
           name="range"
           size="sm"
           :ui="{
-            background: 'bg-neutral-800',
-            progress: { background: 'bg-neutral-500 dark:bg-neutral-400' },
+            background: 'bg-grey-800',
+            progress: { background: 'bg-grey-500 dark:bg-grey-400' },
             thumb: {
               background:
-                '[&::-webkit-slider-thumb]:bg-neutral-400 [&::-webkit-slider-thumb]:dark:bg-neutral-400',
+                '[&::-webkit-slider-thumb]:bg-grey-400 [&::-webkit-slider-thumb]:dark:bg-grey-400',
               ring: '[&::-webkit-slider-thumb]:ring-0 [&::-webkit-slider-thumb]:ring-current',
             },
             track: {
               background:
-                '[&::-webkit-slider-runnable-track]:bg-neutral-700 [&::-moz-range-track]:bg-neutral-700 [&::-webkit-slider-runnable-track]:dark:bg-neutral-700 [&::-moz-range-track]:dark:bg-neutral-700',
+                '[&::-webkit-slider-runnable-track]:bg-grey-700 [&::-moz-range-track]:bg-grey-700 [&::-webkit-slider-runnable-track]:dark:bg-grey-700 [&::-moz-range-track]:dark:bg-grey-700',
             },
           }"
           :min="0"
@@ -189,7 +189,7 @@ const handleChangeProperty = (
           max="100"
         >
           <template #trailing>
-            <span class="text-neutral-400 text-2xs">%</span>
+            <span class="text-grey-400 text-2xs">%</span>
           </template>
         </UInput>
       </div>

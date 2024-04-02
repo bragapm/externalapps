@@ -61,13 +61,13 @@ const updateIconTitle = (title: string) => {
 
 <template>
   <div>
-    <div class="bg-neutral-800 rounded-xxs p-2 space-y-1">
-      <p class="text-neutral-50 text-2xs">Appearance</p>
-      <p class="text-neutral-400 text-2xs">Size</p>
+    <div class="bg-grey-800 rounded-xxs p-2 space-y-1">
+      <p class="text-grey-50 text-2xs">Appearance</p>
+      <p class="text-grey-400 text-2xs">Size</p>
       <div class="grid grid-cols-4 gap-2">
         <UButton
           v-for="items in [1, 1.5, 2, 3]"
-          :color="items === iconSize ? 'brand' : 'neutral'"
+          :color="items === iconSize ? 'brand' : 'grey'"
           variant="outline"
           :ui="{ rounded: 'rounded-[4px]' }"
           :class="[items === iconSize ? 'bg-brand-950' : '', 'p-1']"
@@ -81,7 +81,7 @@ const updateIconTitle = (title: string) => {
           <template #leading>
             <div
               :class="[
-                items === iconSize ? 'bg-brand-500' : 'bg-neutral-400',
+                items === iconSize ? 'bg-brand-500' : 'bg-grey-400',
                 'w-3 h-3 rounded-full',
               ]"
             />
@@ -90,9 +90,9 @@ const updateIconTitle = (title: string) => {
         </UButton>
       </div>
     </div>
-    <div class="bg-neutral-800 rounded-xxs p-2 space-y-1">
-      <p class="text-neutral-50 text-2xs">Fill Color</p>
-      <p class="text-neutral-400 text-2xs">Fill Color Opacity</p>
+    <div class="bg-grey-800 rounded-xxs p-2 space-y-1">
+      <p class="text-grey-50 text-2xs">Fill Color</p>
+      <p class="text-grey-400 text-2xs">Fill Color Opacity</p>
       <div class="grid grid-cols-4 gap-1">
         <URange
           v-model="iconOpacity"
@@ -104,16 +104,16 @@ const updateIconTitle = (title: string) => {
           name="range"
           size="sm"
           :ui="{
-            background: 'bg-neutral-800',
-            progress: { background: 'bg-neutral-500 dark:bg-neutral-400' },
+            background: 'bg-grey-800',
+            progress: { background: 'bg-grey-500 dark:bg-grey-400' },
             thumb: {
               background:
-                '[&::-webkit-slider-thumb]:bg-neutral-400 [&::-webkit-slider-thumb]:dark:bg-neutral-400',
+                '[&::-webkit-slider-thumb]:bg-grey-400 [&::-webkit-slider-thumb]:dark:bg-grey-400',
               ring: '[&::-webkit-slider-thumb]:ring-0 [&::-webkit-slider-thumb]:ring-current',
             },
             track: {
               background:
-                '[&::-webkit-slider-runnable-track]:bg-neutral-700 [&::-moz-range-track]:bg-neutral-700 [&::-webkit-slider-runnable-track]:dark:bg-neutral-700 [&::-moz-range-track]:dark:bg-neutral-700',
+                '[&::-webkit-slider-runnable-track]:bg-grey-700 [&::-moz-range-track]:bg-grey-700 [&::-webkit-slider-runnable-track]:dark:bg-grey-700 [&::-moz-range-track]:dark:bg-grey-700',
             },
           }"
           :min="0"
@@ -136,7 +136,7 @@ const updateIconTitle = (title: string) => {
           max="100"
         >
           <template #trailing>
-            <span class="text-neutral-400 text-2xs">%</span>
+            <span class="text-grey-400 text-2xs">%</span>
           </template>
         </UInput>
       </div>
@@ -149,8 +149,8 @@ const updateIconTitle = (title: string) => {
         "
       />
     </div>
-    <div class="bg-neutral-800 rounded-xxs p-2 space-y-1">
-      <p class="text-neutral-50 text-2xs">Symbology Icons</p>
+    <div class="bg-grey-800 rounded-xxs p-2 space-y-1">
+      <p class="text-grey-50 text-2xs">Symbology Icons</p>
       <CoreIconPicker
         v-model="iconImage"
         :updateIconImage="

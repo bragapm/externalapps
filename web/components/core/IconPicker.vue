@@ -65,7 +65,7 @@ watch(filterRef, debounce(handleFilter, 500));
   <Popover class="relative w-full flex items-center">
     <PopoverButton
       ref="reference"
-      class="w-full flex gap-2 focus:outline-none p-2 border border-neutral-500 rounded-xxs items-center justify-between"
+      class="w-full flex gap-2 focus:outline-none p-2 border border-grey-500 rounded-xxs items-center justify-between"
     >
       <div class="flex gap-2 items-center">
         <img
@@ -73,11 +73,11 @@ watch(filterRef, debounce(handleFilter, 500));
           alt="test"
           class="filter-icon h-4 w-4"
         />
-        <p class="text-neutral-400 text-2xs">{{ modelValue.title || "-" }}</p>
+        <p class="text-grey-400 text-2xs">{{ modelValue.title || "-" }}</p>
       </div>
       <IcArrowReg
         :fontControlled="false"
-        class="w-4 h-4 rotate-180 text-neutral-50"
+        class="w-4 h-4 rotate-180 text-grey-50"
       />
     </PopoverButton>
 
@@ -85,11 +85,11 @@ watch(filterRef, debounce(handleFilter, 500));
       <PopoverPanel
         ref="floating"
         :style="floatingStyles"
-        class="absolute z-10 border border-neutral-500 rounded-xxs bg-neutral-900 w-[18.125rem] py-2 flex flex-col gap-2"
+        class="absolute z-10 border border-grey-500 rounded-xxs bg-grey-900 w-[18.125rem] py-2 flex flex-col gap-2"
       >
-        <p class="text-neutral-400 text-sm px-2">Icon</p>
+        <p class="text-grey-400 text-sm px-2">Icon</p>
         <div class="flex flex-col gap-2 px-2">
-          <p class="text-neutral-400 text-2xs">Find Icons</p>
+          <p class="text-grey-400 text-2xs">Find Icons</p>
           <UInput
             v-model="filterRef"
             color="gray"
@@ -98,7 +98,7 @@ watch(filterRef, debounce(handleFilter, 500));
             size="2xs"
           >
           </UInput>
-          <div class="border-b border-neutral-700" />
+          <div class="border-b border-grey-700" />
         </div>
         <div
           v-if="iconImageData?.data"
@@ -112,7 +112,7 @@ watch(filterRef, debounce(handleFilter, 500));
                 emit('update:modelValue', { id: item.id, title: item.title });
               }
             "
-            class="bg-neutral-800 rounded-xxs p-2"
+            class="bg-grey-800 rounded-xxs p-2"
           >
             <img
               :src="`/panel/assets/${item.id}`"

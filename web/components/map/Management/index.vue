@@ -64,7 +64,7 @@ const handleChangeGroupOrder = () => {
 </script>
 
 <template>
-  <h2 class="p-3 text-xs text-neutral-50">Layer Management</h2>
+  <h2 class="p-3 text-xs text-grey-50">Layer Management</h2>
 
   <hr class="mx-3" />
   <div class="p-3">

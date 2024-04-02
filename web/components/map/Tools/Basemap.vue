@@ -143,8 +143,8 @@ const handleChangeBasemap = async (name: string, url: string, type: string) => {
     >
       <button
         :class="[
-          active ? 'bg-neutral-700' : 'bg-transparent text-neutral-200',
-          currentBasemap === basemap.name && 'bg-neutral-700',
+          active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
+          currentBasemap === basemap.name && 'bg-grey-700',
           'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
         ]"
       >

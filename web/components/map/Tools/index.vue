@@ -66,7 +66,7 @@ const removeAllAnimation = () => {
     class="z-10 absolute bottom-8 left-1/2 -translate-x-1/2 rounded-xs transition-all duration-1000 ease-in-out"
   >
     <div
-      class="flex gap-2 bg-neutral-900 ring-1 ring-neutral-700 rounded-xs p-2 transition-all duration-1000 ease-in-out"
+      class="flex gap-2 bg-grey-900 ring-1 ring-grey-700 rounded-xs p-2 transition-all duration-1000 ease-in-out"
     >
       <MapToolsDropdown
         :triggerLabel="'Analytic Tools'"
@@ -124,7 +124,7 @@ const removeAllAnimation = () => {
           },
         ]"
       ></MapToolsDropdown>
-      <div class="border-l border-neutral-700 h-8"></div>
+      <div class="border-l border-grey-700 h-8"></div>
       <MapToolsDropdown
         :triggerIcon="IcRuler"
         :itemLabel="'Measurement'"
@@ -161,13 +161,13 @@ const removeAllAnimation = () => {
           <MapToolsBasemap />
         </template>
       </MapToolsDropdown>
-      <div class="border-l border-neutral-700 h-8"></div>
+      <div class="border-l border-grey-700 h-8"></div>
       <button
         @click="toggleExpandTools"
         :class="expandTools ? '' : 'rotate-180'"
         class="transition-all duration-500 ease-in-out"
       >
-        <IcArrowFat class="w-4 h-4 text-neutral-400" :fontControlled="false" />
+        <IcArrowFat class="w-4 h-4 text-grey-400" :fontControlled="false" />
       </button>
     </div>
   </TransitionRoot>

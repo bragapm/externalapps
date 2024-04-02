@@ -76,21 +76,21 @@ const { isPending, isError, data, error } = useQuery({
         class="absolute -right-1 z-10 mt-3 w-screen max-w-sm px-4 sm:px-0 lg:max-w-80"
       >
         <div
-          class="relative bg-neutral-900 p-2 rounded-xs shadow-lg ring-1 ring-neutral-800"
+          class="relative bg-grey-900 p-2 rounded-xs shadow-lg ring-1 ring-grey-800"
         >
           <div class="flex text-white justify-between w-full p-2">
             <article>
-              <h4 class="text-base font-medium text-neutral-50">
+              <h4 class="text-base font-medium text-grey-50">
                 {{
                   isSignedIn && data
                     ? data.first_name + " " + data.last_name
                     : "Guest"
                 }}
               </h4>
-              <h5 class="text-sm font-normal text-neutral-400">
+              <h5 class="text-sm font-normal text-grey-400">
                 {{ isSignedIn && data ? data.email : "Published Map" }}
               </h5>
-              <p class="text-sm font-normal text-neutral-500">
+              <p class="text-sm font-normal text-grey-500">
                 {{ isSignedIn && data ? data.role.name : "Public Access" }}
               </p>
             </article>
@@ -106,19 +106,19 @@ const { isPending, isError, data, error } = useQuery({
               class="h-9 w-9 rounded-full"
             />
           </div>
-          <div class="border-y w-full border-neutral-700 py-2 mb-2">
+          <div class="border-y w-full border-grey-700 py-2 mb-2">
             <button
               v-if="isSignedIn"
               class="flex items-center space-x-2 px-2 py-2 w-full"
             >
-              <IcSettings class="text-neutral-400" />
-              <p class="text-xs font-medium text-neutral-200">
+              <IcSettings class="text-grey-400" />
+              <p class="text-xs font-medium text-grey-200">
                 Account Setting
               </p>
             </button>
             <button class="flex items-center space-x-2 px-2 py-2 w-full">
-              <IcHelp class="text-neutral-400" />
-              <p class="text-xs font-medium text-neutral-200">Help</p>
+              <IcHelp class="text-grey-400" />
+              <p class="text-xs font-medium text-grey-200">Help</p>
             </button>
           </div>
           <PopoverButton
@@ -143,8 +143,8 @@ const { isPending, isError, data, error } = useQuery({
             class="flex items-center space-x-2 px-2 py-2 w-full"
             @click="() => authStore.mutateAuthModal()"
           >
-            <IcLogin class="text-neutral-400" />
-            <p class="text-xs font-medium text-neutral-200">Sign In</p>
+            <IcLogin class="text-grey-400" />
+            <p class="text-xs font-medium text-grey-200">Sign In</p>
           </PopoverButton>
         </div>
       </PopoverPanel>

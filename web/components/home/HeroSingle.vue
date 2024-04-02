@@ -17,7 +17,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 bg-neutral-100 rounded-lg p-11">
+  <div class="flex flex-col gap-3 bg-grey-100 rounded-lg p-11">
     <p class="font-semibold text-lg">{{ item.subtitle }}</p>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-7">
       <h1 class="text-6xl font-medium line-clamp-3 leading-tight">

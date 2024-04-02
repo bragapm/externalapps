@@ -12,12 +12,12 @@ defineProps<{
 
 <template>
   <div
-    class="flex flex-col gap-1 justify-between p-4 bg-neutral-800 border border-neutral-700 rounded-xs"
+    class="flex flex-col gap-1 justify-between p-4 bg-grey-800 border border-grey-700 rounded-xs"
   >
     <div class="flex flex-col items-center py-6">
       <IcAddFile class="w-6 h-6 text-brand-500" :fontControlled="false" />
-      <p class="text-neutral-50 mt-2">{{ title }}</p>
-      <p class="text-sm text-neutral-400 text-center">
+      <p class="text-grey-50 mt-2">{{ title }}</p>
+      <p class="text-sm text-grey-400 text-center">
         {{ desc }}
       </p>
     </div>
@@ -25,12 +25,12 @@ defineProps<{
       <div
         :class="[
           checked ? 'bg-red-950' : '',
-          'flex gap-2 hover:bg-red-950 p-2 rounded-xxs text-2xs text-neutral-50 cursor-pointer',
+          'flex gap-2 hover:bg-red-950 p-2 rounded-xxs text-2xs text-grey-50 cursor-pointer',
         ]"
       >
         <div
           :class="[
-            checked ? 'border-brand-500' : 'border-neutral-600 bg-neutral-700',
+            checked ? 'border-brand-500' : 'border-grey-600 bg-grey-700',
             ,
             'flex items-center justify-center w-4 h-4 border  rounded-full',
           ]"

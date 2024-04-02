@@ -75,9 +75,9 @@ function nextTimeout() {
     "
   >
     <div
-      class="flex flex-col justify-end h-full w-1/2 pt-12 pb-24 px-11 gap-y-3 backdrop-blur-sm bg-neutral-50/20 absolute left-0 z-10"
+      class="flex flex-col justify-end h-full w-1/2 pt-12 pb-24 px-11 gap-y-3 backdrop-blur-sm bg-grey-50/20 absolute left-0 z-10"
     >
-      <p class="text-lg font-semibold text-neutral-600">
+      <p class="text-lg font-semibold text-grey-600">
         {{ item.contents[current].block_hero_slides_contents_id.subtitle }}
       </p>
       <h1 class="text-6xl font-medium line-clamp-4 leading-tight">
@@ -140,7 +140,7 @@ function nextTimeout() {
           }}
         </UButton>
       </div>
-      <p class="text-neutral-600">
+      <p class="text-grey-600">
         {{ item.contents[current].block_hero_slides_contents_id.body }}
       </p>
     </div>
@@ -168,7 +168,7 @@ function nextTimeout() {
         class="h-2 w-full rounded-full z-20"
         :class="{
           'bg-brand-500': current === i,
-          'bg-neutral-800/20': current !== i,
+          'bg-grey-800/20': current !== i,
         }"
         @click="slider.moveToIdx(i)"
         :key="i"

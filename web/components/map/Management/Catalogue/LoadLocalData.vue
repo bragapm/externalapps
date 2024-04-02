@@ -311,7 +311,7 @@ const handleNext = () => {
 <template>
   <div class="h-full flex flex-col gap-4 max-h-[calc(100%-2.25rem)]">
     <div
-      class="w-full h-full border border-neutral-700 py-10 px-5 overflow-y-auto"
+      class="w-full h-full border border-grey-700 py-10 px-5 overflow-y-auto"
     >
       <div class="m-auto max-w-2xl">
         <TabGroup :selectedIndex="selectedTab" @change="changeTab">
@@ -323,13 +323,13 @@ const handleNext = () => {
                 { step: 2, title: 'Select Data' },
               ]"
               v-slot="{ selected }"
-              class="flex flex-col flex-1 text-neutral-200"
+              class="flex flex-col flex-1 text-grey-200"
             >
               <p>{{ item.step }}</p>
               <p>{{ item.title }}</p>
               <div
                 :class="[
-                  selected ? 'bg-brand-500' : 'bg-neutral-400',
+                  selected ? 'bg-brand-500' : 'bg-grey-400',
                   'h-[2px] w-full rounded-lg mt-2',
                 ]"
               />
@@ -337,18 +337,18 @@ const handleNext = () => {
           </TabList>
           <TabPanels>
             <TabPanel class="space-y-3">
-              <p class="text-sm text-neutral-400">Load To</p>
+              <p class="text-sm text-grey-400">Load To</p>
               <div class="py-2">
-                <p class="text-neutral-50">Loaded Data</p>
-                <p class="text-xs text-neutral-400">
+                <p class="text-grey-50">Loaded Data</p>
+                <p class="text-xs text-grey-400">
                   The dataset you load from your local storage will
                   automatically be displayed and categorized in the Loaded Data
                   Catalogue.
                 </p>
               </div>
               <div class="flex flex-col gap-3">
-                <p class="text-sm text-neutral-400">Data Format</p>
-                <div class="grid grid-cols-3 text-neutral-400">
+                <p class="text-sm text-grey-400">Data Format</p>
+                <div class="grid grid-cols-3 text-grey-400">
                   <button
                     v-for="item in [
                       { format: 'geojson' },
@@ -368,7 +368,7 @@ const handleNext = () => {
               </div>
             </TabPanel>
             <TabPanel class="space-y-3">
-              <p class="text-sm text-neutral-400">Select Data</p>
+              <p class="text-sm text-grey-400">Select Data</p>
               <MapManagementCatalogueLoadFileInput
                 :selectedFile="selectedFile"
                 @set-selected-file="
@@ -404,7 +404,7 @@ const handleNext = () => {
           :ui="{ rounded: 'rounded-xs' }"
           label="Back"
           variant="outline"
-          :color="selectedTab === 0 ? 'neutral' : 'brand'"
+          :color="selectedTab === 0 ? 'grey' : 'brand'"
           class="w-44 text-sm justify-center"
         >
         </UButton>
@@ -415,7 +415,7 @@ const handleNext = () => {
           label="Next"
           :color="
             (selectedTab === 1 && !selectedFile) || !formatType
-              ? 'neutral'
+              ? 'grey'
               : 'brand'
           "
           class="w-44 text-sm justify-center"
