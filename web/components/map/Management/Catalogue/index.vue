@@ -379,6 +379,13 @@ const changeMode = (value: UploadModeEnum) => {
     />
     <MapManagementCatalogueUpload
       v-if="mode === 'upload'"
+      :sortOrder="sortOrder"
+      @handle-success="
+        () => {
+          changeMode('');
+          isOption = false;
+        }
+      "
       @handle-cancel="changeMode('')"
     />
   </div>

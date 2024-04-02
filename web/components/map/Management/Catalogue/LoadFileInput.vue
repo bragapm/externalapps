@@ -4,7 +4,6 @@ import IcTrash from "~/assets/icons/ic-trash.svg";
 
 const props = defineProps<{
   selectedFile: File | null;
-  sortOrder: { id: "asc" | "desc"; name: string };
 }>();
 
 const emit = defineEmits<{

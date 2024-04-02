@@ -371,7 +371,6 @@ const handleNext = () => {
               <p class="text-sm text-neutral-400">Select Data</p>
               <MapManagementCatalogueLoadFileInput
                 :selectedFile="selectedFile"
-                :sortOrder="sortOrder"
                 @set-selected-file="
                   (value: File|null) => {
                     selectedFile = value;
