@@ -224,6 +224,8 @@ const downloadData = async () => {
     });
   }
 };
+
+const hiddenFields = ref<string[]>([]);
 </script>
 
 <template>
@@ -259,15 +261,55 @@ const downloadData = async () => {
           }}
         </button>
         <div class="border-l border-grey-700 h-8"></div>
-        <button
-          class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
-        >
-          <IcSort
-            class="w-[14px] h-[14px] text-grey-400"
-            :fontControlled="false"
-          />
-          Show All Field
-        </button>
+
+        <Menu as="div" class="relative z-10">
+          <MenuButton
+            class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
+          >
+            <IcSort
+              class="w-[14px] h-[14px] text-grey-400"
+              :fontControlled="false"
+            />
+            Show All Field
+          </MenuButton>
+          <transition
+            enter-active-class="transition duration-100 ease-out"
+            enter-from-class="transform scale-95 opacity-0"
+            enter-to-class="transform scale-100 opacity-100"
+            leave-active-class="transition duration-75 ease-in"
+            leave-from-class="transform scale-100 opacity-100"
+            leave-to-class="transform scale-95 opacity-0"
+          >
+            <MenuItems
+              class="absolute left-0 mt-2 w-52 max-h-52 overflow-y-scroll origin-top-left rounded-xxs bg-grey-800 shadow-lg ring-1 ring-black/5 focus:outline-none overflow-x-hidden"
+            >
+              <MenuItem v-for="column in columns" :key="column.key">
+                <div
+                  class="text-grey-50 flex w-full items-center p-2 gap-x-2 text-xs first:rounded-t-xxs last:rounded-b-xxs"
+                >
+                  <CoreCheckbox
+                    :id="column.key + '-checkbox'"
+                    :index="0"
+                    :is-checked="!hiddenFields.includes(column.key)"
+                    :forHeader="true"
+                    @click="
+                      (event:Event) => {
+                        event.preventDefault();
+                        if(hiddenFields.includes(column.key)){
+                          hiddenFields = hiddenFields.filter(c => c !== column.key)
+                        } else {
+                          hiddenFields = [...hiddenFields, column.key]
+                        }
+                      }
+                    "
+                  />
+                  {{ column.label }}
+                </div>
+              </MenuItem>
+            </MenuItems>
+          </transition>
+        </Menu>
+
         <button
           class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
         >
@@ -322,7 +364,7 @@ const downloadData = async () => {
         <Menu
           as="div"
           class="relative"
-          v-for="column in columns"
+          v-for="column in columns.filter((c) => !hiddenFields.includes(c.key))"
           :key="column.key"
         >
           <MenuButton
@@ -424,7 +466,9 @@ const downloadData = async () => {
               />
             </div>
             <div
-              v-for="column in columns"
+              v-for="column in columns.filter(
+                (c) => !hiddenFields.includes(c.key)
+              )"
               :key="column.key"
               :class="
                 'first-letter:h-[4.5rem] flex-1 min-w-[12rem] flex items-center text-xs font-normal px-3 py-4 group-hover:bg-grey-700 ' +
