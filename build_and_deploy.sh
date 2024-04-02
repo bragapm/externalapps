@@ -15,7 +15,7 @@ STATUS2=$?
 # Check if all builds were successful
 if [ $STATUS1 -eq 0 ] && [ $STATUS2 -eq 0 ]; then
     echo "All builds succeeded. Proceeding with deployment."
-    eb deploy
+    eb deploy dev-geo1-env
     echo "Build and deploy completed."
 else
     echo "Build failed. Deployment aborted."

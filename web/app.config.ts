@@ -25,7 +25,7 @@ export default defineAppConfig({
         },
         navActive: {
           solid:
-            "shadow-sm ring-1 ring-inset ring-grey-300 dark:ring-grey-700 text-[#DD5E28] dark:text-white bg-white hover:bg-white/90 disabled:bg-white dark:bg-grey-900 dark:hover:bg-grey-800/50 dark:disabled:bg-grey-900 focus-visible:ring-2 focus-visible:ring-primary-500 dark:focus-visible:ring-primary-400",
+            "shadow-sm ring-1 ring-inset ring-grey-300 dark:ring-grey-700 text-brand-500 dark:text-white bg-white hover:bg-white/90 disabled:bg-white dark:bg-grey-900 dark:hover:bg-grey-800/50 dark:disabled:bg-grey-900 focus-visible:ring-2 focus-visible:ring-primary-500 dark:focus-visible:ring-primary-400",
         },
       },
     },
