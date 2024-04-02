@@ -26,6 +26,32 @@ const handleDelete = (e: Event) => {
     emit("setSelectedFile", null);
   }
 };
+
+const onDragOver = ref(false);
+
+const handleDragOver = (e: Event) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (onDragOver.value) return;
+  onDragOver.value = true;
+};
+
+const handleDragLeave = (e: Event) => {
+  e.preventDefault();
+  e.stopPropagation();
+  onDragOver.value = false;
+};
+
+const handleDrop = (e: any) => {
+  e.preventDefault();
+  e.stopPropagation();
+  onDragOver.value = false;
+  const files: File[] = [...e.dataTransfer.files];
+
+  const file = files[0];
+  emit("setSelectedFile", file);
+};
 </script>
 
 <template>
@@ -36,7 +62,12 @@ const handleDelete = (e: Event) => {
     hidden
     @change="handleFileUploadChange"
   />
-  <div class="flex flex-col gap-1">
+  <div
+    class="flex flex-col gap-1"
+    @drop="handleDrop"
+    @dragleave="handleDragLeave"
+    @dragover="handleDragOver"
+  >
     <div
       @click="
         () => {
@@ -44,7 +75,8 @@ const handleDelete = (e: Event) => {
         }
       "
       :class="[
-        selectedFile ? 'border-brand-500 bg-brand-950' : 'border-grey-600 bg-grey-700',
+        onDragOver || selectedFile ? 'border-brand-500' : 'border-grey-600',
+        selectedFile ? 'bg-brand-950' : 'bg-grey-700',
         'p-1 border rounded-xxs cursor-pointer',
       ]"
     >
