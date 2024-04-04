@@ -36,7 +36,7 @@ export async function up(knex) {
       ('block_cta','read','{}','{}','*'),
       ('block_footer','read','{}','{}','*'),
       ('map','read','{}','{}','lang,information,information_attachments,title,subtitle,initial_map_view'),
-      ('shared_map','read','{}','{}');
+      ('shared_map','read','{}','{}','*');
 
     CREATE OR REPLACE FUNCTION handle_non_admin_non_app_directus_roles_insert()
       RETURNS trigger
