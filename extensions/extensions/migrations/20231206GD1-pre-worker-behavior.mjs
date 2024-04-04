@@ -18,8 +18,13 @@ export async function up(knex) {
       three_d_tiling_enabled boolean;
   BEGIN
       -- Get worker configuration
-      SELECT terrain_rgb_worker, three_d_tiling_worker INTO STRICT terrain_rgb_enabled, three_d_tiling_enabled
+      SELECT terrain_rgb_worker, three_d_tiling_worker INTO terrain_rgb_enabled, three_d_tiling_enabled
       FROM directus_settings;
+
+      IF NOT FOUND THEN
+          terrain_rgb_enabled := FALSE;
+          three_d_tiling_enabled := FALSE;
+      END IF;
 
       -- Generate a random UUID
       v_uuid := gen_random_uuid();
