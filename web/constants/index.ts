@@ -33,3 +33,8 @@ export const dimensionFilterOptions = [
   { type: "2D", label: "2D", checked: false, icon: IcGlobe },
   { type: "3D", label: "3D", checked: false, icon: Ic3d },
 ];
+
+export const logicalOperatorOptions = [
+  { label: "Contains", value: "_icontains" },
+  { label: "Equal", value: "_eq" },
+];

@@ -8,7 +8,17 @@ import IcFilter from "~/assets/icons/ic-filter.svg";
 import IcShrink from "~/assets/icons/ic-shrink.svg";
 import IcSort from "~/assets/icons/ic-sort.svg";
 import bbox from "@turf/bbox";
-import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
+import {
+  Menu,
+  MenuButton,
+  MenuItems,
+  MenuItem,
+  TransitionRoot,
+  TransitionChild,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/vue";
 
 type HeaderData = {
   field: string;
@@ -70,6 +80,7 @@ const columns = computed<
 });
 
 const sortBy = ref("");
+const queryFilter = ref([]);
 
 const {
   data: tableData,
@@ -79,7 +90,7 @@ const {
   isError: isTableError,
   isFetching: isTableFetching,
 } = useInfiniteQuery({
-  queryKey: [`/panel/items/${store.activeCollection}?`, sortBy],
+  queryKey: [`/panel/items/${store.activeCollection}?`, sortBy, queryFilter],
   queryFn: async ({ pageParam = 1, queryKey }) => {
     const queryParams: Record<string, string> = {
       limit: "25",
@@ -91,10 +102,15 @@ const {
           .concat("ogc_fid")
           .join(","),
       }),
-      sort: queryKey[1],
+      sort: queryKey[1] as string,
+      ...(queryKey[2] && {
+        filter: JSON.stringify({
+          _and: queryKey[2],
+        }),
+      }),
     };
     const r = await $fetch<{ data: any[] }>(
-      queryKey[0] + new URLSearchParams(queryParams)
+      (queryKey[0] as string) + new URLSearchParams(queryParams)
     );
     return r.data;
   },
@@ -226,6 +242,15 @@ const downloadData = async () => {
 };
 
 const hiddenFields = ref<string[]>([]);
+
+const isOpen = ref(false);
+
+function closeModal() {
+  isOpen.value = false;
+}
+function openModal() {
+  isOpen.value = true;
+}
 </script>
 
 <template>
@@ -317,8 +342,60 @@ const hiddenFields = ref<string[]>([]);
             class="w-[14px] h-[14px] text-grey-400"
             :fontControlled="false"
           />
-          Filter</button
-        ><button
+          Filter
+        </button>
+        <TransitionRoot appear :show="isOpen" as="template">
+          <Dialog as="div" @close="closeModal" class="relative z-10">
+            <TransitionChild
+              as="template"
+              enter="duration-300 ease-out"
+              enter-from="opacity-0"
+              enter-to="opacity-100"
+              leave="duration-200 ease-in"
+              leave-from="opacity-100"
+              leave-to="opacity-0"
+            >
+              <div class="fixed inset-0 bg-black/25" />
+            </TransitionChild>
+
+            <div class="fixed inset-0 overflow-y-auto">
+              <div
+                class="flex min-h-full items-center justify-center p-4 text-center"
+              >
+                <TransitionChild
+                  as="template"
+                  enter="duration-300 ease-out"
+                  enter-from="opacity-0 scale-95"
+                  enter-to="opacity-100 scale-100"
+                  leave="duration-200 ease-in"
+                  leave-from="opacity-100 scale-100"
+                  leave-to="opacity-0 scale-95"
+                >
+                  <DialogPanel
+                    class="flex flex-col w-full min-h-[20rem] max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+                  >
+                    <DialogTitle
+                      as="h3"
+                      class="text-lg font-medium leading-6 text-gray-900"
+                    >
+                      Filter
+                    </DialogTitle>
+                    <MapManagementTableFilter
+                      :columns="columns"
+                      @close-modal="closeModal"
+                      @update-query-filter="
+                        (value) => {
+                          queryFilter = value;
+                        }
+                      "
+                    />
+                  </DialogPanel>
+                </TransitionChild>
+              </div>
+            </div>
+          </Dialog>
+        </TransitionRoot>
+        <button
           @click="downloadData"
           class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
         >

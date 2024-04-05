@@ -349,3 +349,5 @@ export type ThreeDLayerCenter = {
 };
 
 export type UploadModeEnum = "loadlocal" | "upload" | "";
+
+export type TableColumn = { key: string; label: string; type: string };
