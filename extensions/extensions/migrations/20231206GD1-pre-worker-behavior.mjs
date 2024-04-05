@@ -31,7 +31,7 @@ export async function up(knex) {
 
       -- Get current timestamp
       v_now := NOW();
-          
+
       -- Convert the current timestamp to milliseconds
       v_timestamp := EXTRACT(EPOCH FROM v_now) * 1000;
 
@@ -48,6 +48,9 @@ export async function up(knex) {
           actor_name := 'three_d_tiling';
       ELSE
           actor_name := 'transform';
+          IF NEW.table_name IS NULL THEN
+              NEW.table_name := 'upload_' || REPLACE(gen_random_uuid()::text,'-','');
+          END IF;
       END IF;
 
       -- Perform the insertion
