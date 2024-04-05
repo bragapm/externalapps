@@ -76,14 +76,15 @@ export async function up(knex) {
                   'maxzoom', NEW.maxzoom,
                   'is_terrain', NEW.is_terrain,
                   'three_d_alias', NEW.three_d_alias,
-                  'has_color', NEW.has_color
+                  'has_color', NEW.has_color,
+                  'additional_config', NEW.additional_config
               ),
               'options', jsonb_build_object(),
               'actor_name', actor_name,
               'message_id', v_uuid::text,
               'queue_name', 'default',
               'message_timestamp', v_timestamp::text
-          ) 
+          )
       );
 
       RETURN NULL;
