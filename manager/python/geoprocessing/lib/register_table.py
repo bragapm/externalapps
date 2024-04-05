@@ -5,15 +5,64 @@ from uuid import uuid4
 from psycopg2.extras import Json
 
 from utils import logger, create_bbox_polygon
+from lib.get_header_info import HeaderInfo
 
 
 def register_table_to_directus(
-    conn, table_name, header_info, uploader, with_invalidate=True
+    conn,
+    table_name: str,
+    header_info: HeaderInfo,
+    uploader: str,
+    additional_config: dict | None,
+    with_invalidate=True,
 ):
     with conn:
         with conn.cursor() as cur:
+            layer_alias = None
+            listed = False
+            permission_type = "admin"
+            fill_style = None
+            line_style = None
+            circle_style = None
+
+            if additional_config is not None:
+                layer_alias = additional_config.get("layer_alias", None)
+                listed = additional_config.get("listed", False)
+                # TODO also get permission type from additional_config, but validate before use
+                # i.e. if uploader is not an admin, only allow "roles" or "roles+public"
+                permission_type = "roles+public"
+
+            if listed:
+                # get random style for auto listed layer
+                match header_info["geom_name"]:
+                    case "POLYGON" | "MULTIPOLYGON":
+                        cur.execute("SELECT id FROM fill LIMIT 1")
+                        style_id = cur.fetchone()
+                        if style_id is not None:
+                            fill_style = style_id[0]
+                        else:
+                            raise Exception("No fill style defined")
+                    case "LINESTRING" | "MULTILINESTRING":
+                        cur.execute("SELECT id FROM line LIMIT 1")
+                        style_id = cur.fetchone()
+                        if style_id is not None:
+                            line_style = style_id[0]
+                        else:
+                            raise Exception("No line style defined")
+                    case "POINT" | "MULTIPOINT":
+                        cur.execute("SELECT id FROM circle LIMIT 1")
+                        style_id = cur.fetchone()
+                        if style_id is not None:
+                            circle_style = style_id[0]
+                        else:
+                            raise Exception("No circle style defined")
+                    case _:
+                        raise Exception(
+                            f"Failed to define default style for geom_name: {header_info['geom_name']}"
+                        )
+
             cur.execute(
-                "INSERT INTO vector_tiles(layer_id, layer_name, geometry_type, user_created, bounds) VALUES(%s, %s, %s, %s, %s)",
+                "INSERT INTO vector_tiles(layer_id, layer_name, geometry_type, user_created, bounds, layer_alias, listed, fill_style, line_style, circle_style, permission_type) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 [
                     str(uuid4()),
                     table_name,
@@ -24,8 +73,24 @@ def register_table_to_directus(
                     ),
                     uploader,
                     Json(header_info["bbox"]),
+                    layer_alias,
+                    listed,
+                    fill_style,
+                    line_style,
+                    circle_style,
+                    permission_type,
                 ],
             )
+
+            # TODO do many-to-many insertion for allowed_roles
+
+            # handle public only, because permission for allowed roles are handled by junction table insertion trigger
+            if permission_type == "roles+public":
+                cur.execute(
+                    "INSERT INTO directus_permissions(collection, role, action, fields) VALUES(%s, NULL, 'read', '*')",
+                    [table_name],
+                )
+
     logger.info("Register to vector_tiles")
 
     if with_invalidate:

@@ -29,6 +29,7 @@ def transform(
     format_file: str,
     is_zipped: bool,
     table_name: str,
+    additional_config: dict | None,
     **kwargs
 ):
     try:
@@ -44,7 +45,7 @@ def transform(
         create_table_from_header_info(conn, header_info, table_name)
         fill_table_with_layer_feature(data_source, header_info, conn, table_name)
         register_table_to_directus(
-            conn, table_name, header_info, uploader, not is_dev_mode()
+            conn, table_name, header_info, uploader, additional_config, not is_dev_mode()
         )
         pool.putconn(conn)
         return header_info
