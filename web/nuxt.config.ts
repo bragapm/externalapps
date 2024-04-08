@@ -42,4 +42,8 @@ export default defineNuxtConfig({
   alias: {
     fs: require.resolve("rollup-plugin-node-builtins"),
   },
+  routeRules: {
+    "/3d": { ssr: false },
+    "/3d/**": { ssr: false },
+  },
 });
