@@ -35,8 +35,9 @@ const emit = defineEmits<{
 
 const toast = useToast();
 
-const formatType = ref<string | null>(null);
 const selectedFile = ref<File | null>(null);
+
+const datasetName = ref<HTMLInputElement | null>(null);
 
 const mapLayerStore = useMapLayer();
 const { addLoadedGeoJsonData } = useIDB();
@@ -176,7 +177,7 @@ const addToIDBAndLayerList = async (
   const newLayer: LoadedGeoJson = {
     source: "loaded_geojson",
     layer_id: `__local_${crypto.randomUUID()}`,
-    layer_alias: fileName,
+    layer_alias: datasetName.value?.value || fileName,
     category: { category_name: uncategorizedLoadedData },
     bounds,
     layer_style: typeAndStyle.layerStyle,
@@ -313,17 +314,18 @@ const handleNext = () => {
     <div
       class="w-full h-full border border-grey-700 py-10 px-5 overflow-y-auto"
     >
-      <div class="m-auto max-w-2xl">
+      <div class="m-auto max-w-2xl space-y-2">
+        <p class="text-grey-50">Load Local Data</p>
         <TabGroup :selectedIndex="selectedTab" @change="changeTab">
           <TabList class="flex gap-3 justify-evenly mb-3">
             <Tab
-              :disabled="!formatType"
+              :disabled="!selectedFile"
               v-for="(item, index) in [
-                { step: 1, title: 'Select Data Type' },
-                { step: 2, title: 'Select Data' },
+                { step: 1, title: 'Select File' },
+                { step: 2, title: 'Dataset Information' },
               ]"
               v-slot="{ selected }"
-              class="flex flex-col flex-1 text-grey-200"
+              class="flex flex-col flex-1 text-grey-200 text-2xs"
             >
               <p>{{ item.step }}</p>
               <p>{{ item.title }}</p>
@@ -335,9 +337,33 @@ const handleNext = () => {
               />
             </Tab>
           </TabList>
+          <hr class="border-grey-700" />
           <TabPanels>
             <TabPanel class="space-y-3">
-              <p class="text-sm text-grey-400">Load To</p>
+              <p class="text-sm text-grey-400">Select File</p>
+              <MapManagementCatalogueLoadFileInput
+                :selectedFile="selectedFile"
+                @set-selected-file="
+                  (value: File|null) => {
+                    selectedFile = value;
+                  }
+                "
+                @handle-success="
+                  () => {
+                    emit('handleSuccess');
+                  }
+                "
+              />
+              <hr class="border-grey-700" />
+              <div class="flex flex-col text-grey-400 pt-1 pl-2 gap-1">
+                <p class="text-sm">Load to Loaded Data</p>
+                <p class="text-xs">
+                  The file you choose from your storage will automatically be
+                  displayed and categorized as the Loaded Data on User’s
+                  Catalogue.
+                </p>
+              </div>
+              <!-- <p class="text-sm text-grey-400">Load To</p>
               <div class="py-2">
                 <p class="text-grey-50">Loaded Data</p>
                 <p class="text-xs text-grey-400">
@@ -365,23 +391,25 @@ const handleNext = () => {
                     {{ item.format }}
                   </button>
                 </div>
-              </div>
+              </div> -->
             </TabPanel>
             <TabPanel class="space-y-3">
-              <p class="text-sm text-grey-400">Select Data</p>
-              <MapManagementCatalogueLoadFileInput
-                :selectedFile="selectedFile"
-                @set-selected-file="
-                  (value: File|null) => {
-                    selectedFile = value;
-                  }
-                "
-                @handle-success="
-                  () => {
-                    emit('handleSuccess');
-                  }
-                "
-              />
+              <p class="text-sm text-grey-400">Dataset Information</p>
+              <div class="relative">
+                <input
+                  ref="datasetName"
+                  type="text"
+                  id="floating_filled"
+                  class="block rounded-xxs px-2.5 pb-2.5 pt-5 w-full text-sm text-grey-200 bg-grey-700 border border-grey-600 appearance-none focus:outline-none focus:ring-0 focus:border-grey-600 peer"
+                  placeholder=" "
+                />
+                <label
+                  for="floating_filled"
+                  class="absolute text-sm text-grey-200 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] start-2.5 peer-focus:text-grey-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+                >
+                  Dataset Name
+                </label>
+              </div>
             </TabPanel>
           </TabPanels>
         </TabGroup>
@@ -409,15 +437,11 @@ const handleNext = () => {
         >
         </UButton>
         <UButton
-          :disabled="(selectedTab === 1 && !selectedFile) || !formatType"
+          :disabled="selectedTab === 0 && !selectedFile"
           @click="handleNext"
           :ui="{ rounded: 'rounded-xs' }"
           label="Next"
-          :color="
-            (selectedTab === 1 && !selectedFile) || !formatType
-              ? 'grey'
-              : 'brand'
-          "
+          :color="selectedTab === 0 && !selectedFile ? 'grey' : 'brand'"
           class="w-44 text-sm justify-center"
         >
         </UButton>

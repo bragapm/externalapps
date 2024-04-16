@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import IcCloudUpload from "~/assets/icons/ic-cloud-upload.svg";
 import IcTrash from "~/assets/icons/ic-trash.svg";
+import IcInfo from "~/assets/icons/ic-info.svg";
 
 const props = defineProps<{
   selectedFile: File | null;
@@ -91,7 +92,7 @@ const handleDrop = (e: any) => {
               'text-xs',
             ]"
           >
-            {{ selectedFile?.name || "Upload Data" }}
+            {{ selectedFile?.name || "Select Dataset File" }}
           </p>
           <p
             :class="[
@@ -99,7 +100,7 @@ const handleDrop = (e: any) => {
               'text-xs',
             ]"
           >
-            Maximum File Size: 999 MB
+            Please select or drag file from your storage here
           </p>
         </div>
 
@@ -115,9 +116,9 @@ const handleDrop = (e: any) => {
         </button>
       </div>
     </div>
-    <p class="text-xs text-grey-400">
-      Supported File Type: GeoJSON, .GPX, .KML, CSV (.wkt), .XLSX (.wkt), and
-      GeoPackage
-    </p>
+    <div class="flex items-center gap-2 mt-2">
+      <IcInfo class="text-grey-400" />
+      <p class="text-xs text-grey-400">Maximum File Size: 999 MB</p>
+    </div>
   </div>
 </template>
