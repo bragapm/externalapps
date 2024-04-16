@@ -98,7 +98,7 @@ export async function up(knex) {
   END;
   $$ LANGUAGE plpgsql;
 
-  CREATE TRIGGER on_directus_files_layer_data_ready
+  CREATE OR REPLACE TRIGGER on_directus_files_layer_data_ready
   AFTER UPDATE ON directus_files
   FOR EACH ROW
   WHEN (OLD.* IS DISTINCT FROM NEW.* AND NEW.folder = '${LAYER_DATA_FOLDER_ID}' AND NEW.is_ready IS TRUE)
@@ -120,7 +120,7 @@ export async function up(knex) {
   END;
   $$ LANGUAGE plpgsql;
 
-  CREATE TRIGGER on_geoprocessing_queue_insert
+  CREATE OR REPLACE TRIGGER on_geoprocessing_queue_insert
   AFTER INSERT ON geoprocessing_queue
   FOR EACH ROW
   EXECUTE FUNCTION handle_geoprocessing_queue_insert();

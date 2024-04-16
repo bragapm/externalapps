@@ -26,7 +26,7 @@ export async function up(knex) {
     $$ LANGUAGE plpgsql;
 
 
-    CREATE TRIGGER on_vector_tiles_insert
+    CREATE OR REPLACE TRIGGER on_vector_tiles_insert
     AFTER INSERT ON vector_tiles
     FOR EACH ROW
     EXECUTE FUNCTION handle_vector_tiles_insert();
