@@ -58,7 +58,8 @@ export async function up(knex) {
           (NEW.id,'categories','read','{}','{}','*'),
           (NEW.id,'three_d_tiles','read','{"_and":[{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,layer_alias,active,visible,opacity,point_size,point_color'),
           (NEW.id,'shared_map','create','{}','{}','*'),
-          (NEW.id,'directus_files','create','{}','{"_and":[{"folder":{"_eq":"${LAYER_DATA_FOLDER_ID}"}}]}','*');
+          (NEW.id,'directus_files','create','{}','{"_and":[{"folder":{"_eq":"${LAYER_DATA_FOLDER_ID}"}}]}','*'),
+          (NEW.id,'geoprocessing_queue','read','{"_and":[{"uploader":{"_eq":"$CURRENT_USER"}}]}','{}','result,state,filename,status,mtime,result_ttl');
         RETURN NULL;
       END;
     $BODY$;

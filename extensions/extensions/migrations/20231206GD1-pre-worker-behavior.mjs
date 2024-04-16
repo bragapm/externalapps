@@ -59,7 +59,9 @@ export async function up(knex) {
           queue_name,
           state,
           mtime,
-          message
+          message,
+          uploader,
+          filename
       )
       VALUES (
           v_uuid,
@@ -87,7 +89,9 @@ export async function up(knex) {
               'message_id', v_uuid::text,
               'queue_name', 'default',
               'message_timestamp', v_timestamp::text
-          )
+          ),
+          NEW.uploaded_by,
+          NEW.filename_download
       );
 
       RETURN NULL;

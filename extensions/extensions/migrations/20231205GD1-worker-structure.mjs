@@ -62,7 +62,10 @@ export async function up(knex) {
     mtime timestamp with time zone DEFAULT (CURRENT_TIMESTAMP),
     message jsonb,
     result jsonb,
-    result_ttl timestamp with time zone
+    result_ttl timestamp with time zone,
+    uploader uuid REFERENCES directus_users (id) ON DELETE SET NULL,
+    filename character varying,
+    status character varying
   );
 
   CREATE INDEX ON geoprocessing_queue (state, mtime);
@@ -70,15 +73,18 @@ export async function up(knex) {
   INSERT INTO directus_collections(collection, "group", icon, color)
   VALUES ('geoprocessing_queue', 'internal', 'browse_gallery', '#E35169');
 
-  INSERT INTO directus_fields(collection, field)
+  INSERT INTO directus_fields(collection, field, special, interface, options, display)
   VALUES
-      ('geoprocessing_queue', 'message_id'),
-      ('geoprocessing_queue', 'queue_name'),
-      ('geoprocessing_queue', 'geoprocessing_state'),
-      ('geoprocessing_queue', 'mtime'),
-      ('geoprocessing_queue', 'message'),
-      ('geoprocessing_queue', 'result'),
-      ('geoprocessing_queue', 'result_ttl');
+      ('geoprocessing_queue', 'message_id', NULL, NULL, NULL, NULL),
+      ('geoprocessing_queue', 'queue_name', NULL, NULL, NULL, NULL),
+      ('geoprocessing_queue', 'geoprocessing_state', NULL, NULL, NULL, NULL),
+      ('geoprocessing_queue', 'mtime', NULL, NULL, NULL, NULL),
+      ('geoprocessing_queue', 'message', NULL, NULL, NULL, NULL),
+      ('geoprocessing_queue', 'result', NULL, NULL, NULL, NULL),
+      ('geoprocessing_queue', 'result_ttl', NULL, NULL, NULL, NULL),
+      ('geoprocessing_queue', 'uploader', 'm2o', 'select-dropdown-m2o', '{"template":"{{first_name}} {{last_name}}","enableCreate":false}', 'user'),
+      ('geoprocessing_queue', 'filename', NULL, NULL, NULL, NULL),
+      ('geoprocessing_queue', 'status', NULL, NULL, NULL, NULL);
 
   CREATE TABLE IF NOT EXISTS other_processing_queue (
     id uuid NOT NULL PRIMARY KEY,
