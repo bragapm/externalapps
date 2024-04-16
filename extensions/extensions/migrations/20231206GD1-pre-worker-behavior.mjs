@@ -101,7 +101,7 @@ export async function up(knex) {
   CREATE OR REPLACE TRIGGER on_directus_files_layer_data_ready
   AFTER UPDATE ON directus_files
   FOR EACH ROW
-  WHEN (OLD.* IS DISTINCT FROM NEW.* AND NEW.folder = '${LAYER_DATA_FOLDER_ID}' AND NEW.is_ready IS TRUE)
+  WHEN (NEW.folder = '${LAYER_DATA_FOLDER_ID}' AND NEW.is_ready IS TRUE)
   EXECUTE FUNCTION handle_directus_files_layer_data_ready();
 
   CREATE OR REPLACE FUNCTION handle_geoprocessing_queue_insert()
