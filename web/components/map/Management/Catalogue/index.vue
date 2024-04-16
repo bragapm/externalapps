@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import IcCross from "~/assets/icons/ic-cross.svg";
+import IcFileAdd from "~/assets/icons/ic-file-add.svg";
 import IcFileSort from "~/assets/icons/ic-file-sort.svg";
 import IcCloudUpload from "~/assets/icons/ic-cloud-upload.svg";
 import IcArrow from "~/assets/icons/ic-arrow-square.svg";
@@ -195,8 +196,27 @@ const changeMode = (value: UploadModeEnum) => {
   <div class="flex flex-col gap-3 p-5 h-full max-h-full">
     <div class="flex justify-between">
       <div class="flex items-center gap-3">
-        <IcFileSort class="text-grey-300 w-4 h-4" :fontControlled="false" />
-        <h1 class="text-grey-50">Data Catalogue</h1>
+        <IcFileSort
+          v-if="mode === ''"
+          class="text-grey-300 w-4 h-4"
+          :fontControlled="false"
+        />
+        <IcFileAdd
+          v-else
+          class="text-grey-300 w-4 h-4"
+          :fontControlled="false"
+        />
+        <h1 class="text-grey-50 text-xs">
+          {{
+            mode === "loadlocal"
+              ? "Load Local Data"
+              : mode === "upload"
+              ? "Upload Data"
+              : isOption
+              ? "Load Local Data/Upload Data"
+              : "Data Catalogue"
+          }}
+        </h1>
       </div>
       <button
         @click="
@@ -302,18 +322,9 @@ const changeMode = (value: UploadModeEnum) => {
             :key="i"
             class="flex flex-col p-3 gap-1"
           >
-            <USkeleton
-              :ui="{ background: 'bg-grey-800' }"
-              class="h-6 w-1/12"
-            />
-            <USkeleton
-              :ui="{ background: 'bg-grey-800' }"
-              class="h-4 w-3/12"
-            />
-            <USkeleton
-              :ui="{ background: 'bg-grey-800' }"
-              class="h-4 w-5/12"
-            />
+            <USkeleton :ui="{ background: 'bg-grey-800' }" class="h-6 w-1/12" />
+            <USkeleton :ui="{ background: 'bg-grey-800' }" class="h-4 w-3/12" />
+            <USkeleton :ui="{ background: 'bg-grey-800' }" class="h-4 w-5/12" />
             <div
               class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-3 gap-3"
             >

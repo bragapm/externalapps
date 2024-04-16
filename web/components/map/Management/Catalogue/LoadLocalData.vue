@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
+import IcSpinner from "~/assets/icons/ic-spinner.svg";
+import IcCheck from "~/assets/icons/ic-check.svg";
 import GeojsonWorker from "~/utils/worker/geojson?worker";
 import ShapefileWorker from "~/utils/worker/shapefile?worker";
 import SheetsWorker from "~/utils/worker/sheets?worker";
@@ -32,6 +34,9 @@ const emit = defineEmits<{
   (e: "handleCancel"): void;
   (e: "handleSuccess"): void;
 }>();
+
+const uploading = ref(false);
+const uploaded = ref(false);
 
 const toast = useToast();
 
@@ -221,13 +226,14 @@ const handleFileUpload = async () => {
     });
     return;
   }
-
+  uploading.value = true;
   const worker = getWorker(selectedFile.value!);
   if (!worker) {
     toast.add({
       title: "Unable to identify selected file",
       icon: "i-heroicons-x-mark",
     });
+    uploading.value = false;
     return;
   }
 
@@ -237,6 +243,7 @@ const handleFileUpload = async () => {
       icon: "i-heroicons-x-mark",
     });
     console.error(e.error);
+    uploading.value = false;
     worker.terminate();
   };
   worker.onmessage = async (
@@ -253,6 +260,7 @@ const handleFileUpload = async () => {
       if (e.data.data) {
         console.error(e.data.data);
       }
+      uploading.value = false;
     } else {
       let toastErr;
       try {
@@ -281,13 +289,20 @@ const handleFileUpload = async () => {
           icon: "i-heroicons-x-mark",
         };
       }
-      emit("handleSuccess");
-      toast.add(
-        toastErr ?? {
-          title: "File has been processed successfully",
-          icon: "i-heroicons-check-circle",
-        }
-      );
+      // emit("handleSuccess");
+      if (!toastErr) {
+        setTimeout(() => {
+          toast.add({
+            title: "File has been processed successfully",
+            icon: "i-heroicons-check-circle",
+          });
+          uploading.value = false;
+        }, 2000);
+        uploaded.value = true;
+      } else {
+        uploading.value = false;
+        toast.add(toastErr);
+      }
     }
     worker.terminate();
   };
@@ -314,7 +329,7 @@ const handleNext = () => {
     <div
       class="w-full h-full border border-grey-700 py-10 px-5 overflow-y-auto"
     >
-      <div class="m-auto max-w-2xl space-y-2">
+      <div v-if="!uploading && !uploaded" class="m-auto max-w-2xl space-y-2">
         <p class="text-grey-50">Load Local Data</p>
         <TabGroup :selectedIndex="selectedTab" @change="changeTab">
           <TabList class="flex gap-3 justify-evenly mb-3">
@@ -414,8 +429,39 @@ const handleNext = () => {
           </TabPanels>
         </TabGroup>
       </div>
+      <div
+        v-else-if="uploading"
+        class="w-full h-full flex flex-col justify-center items-center"
+      >
+        <IcSpinner
+          class="text-brand-500 animate-spin h-10 w-10 mb-3"
+          :fontControlled="false"
+        />
+        <p class="text-grey-50">Uploading Data</p>
+        <p class="text-grey-400 text-sm">
+          This might take a few seconds. Please Wait.
+        </p>
+      </div>
+      <div
+        v-else-if="uploaded"
+        class="w-full h-full flex flex-col justify-center items-center gap-3"
+      >
+        <IcCheck class="w-10 h-10 text-brand-500" :fontControlled="false" />
+        <div class="flex flex-col items-center">
+          <p class="text-grey-50">Data Loaded</p>
+          <p class="text-grey-400 text-sm">
+            Your Data is Successfully loaded to the catalogue.
+          </p>
+        </div>
+        <UButton
+          @click="() => emit('handleSuccess')"
+          :ui="{ rounded: 'rounded-[4px]' }"
+          color="brand"
+          >Go To Catalogue</UButton
+        >
+      </div>
     </div>
-    <div class="flex justify-between">
+    <div v-if="!uploading && !uploaded" class="flex justify-between">
       <UButton
         @click="cancel"
         :ui="{ rounded: 'rounded-xs' }"
