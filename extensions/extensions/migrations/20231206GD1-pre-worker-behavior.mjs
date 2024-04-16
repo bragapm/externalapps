@@ -125,6 +125,26 @@ export async function up(knex) {
   FOR EACH ROW
   EXECUTE FUNCTION handle_geoprocessing_queue_insert();
 
+  CREATE OR REPLACE FUNCTION handle_geoprocessing_queue_result_update()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+  AS $BODY$
+    BEGIN
+      IF NEW.result ? 'error' THEN
+        NEW.status = 'error';
+      ELSE
+        NEW.status = 'success';
+      END IF;
+      RETURN NEW;
+    END;
+  $BODY$;
+
+  CREATE OR REPLACE TRIGGER on_geoprocessing_queue_result_update
+  BEFORE UPDATE OF result ON geoprocessing_queue
+  FOR EACH ROW
+  WHEN (NEW.result IS NOT NULL)
+  EXECUTE FUNCTION handle_geoprocessing_queue_result_update();
+
   CREATE OR REPLACE FUNCTION handle_directus_files_layer_icons_upload()
     RETURNS trigger
     LANGUAGE 'plpgsql'
