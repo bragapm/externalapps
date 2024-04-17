@@ -258,7 +258,7 @@ const changeMode = (value: UploadModeEnum) => {
           <div class="border-t border-grey-700" />
           <UButton
             :ui="{ rounded: 'rounded-xxs' }"
-            :label="!isOption ? 'View Local/Upload Data' : 'Back to Catalogue'"
+            :label="!isOption ? 'Load Local/Upload Data' : 'Back to Catalogue'"
             variant="outline"
             color="brand"
             class="w-full justify-between text-xs"
@@ -367,8 +367,7 @@ const changeMode = (value: UploadModeEnum) => {
           <MapManagementCatalogueUploadOption
             v-if="isOption"
             :mode="mode"
-            @handle-cancel="isOption = false"
-            @handle-next="
+            @handle-change-mode="
               (modeValue) => {
                 changeMode(modeValue);
               }

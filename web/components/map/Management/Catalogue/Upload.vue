@@ -42,7 +42,8 @@ const handleNext = () => {
     <div
       class="w-full h-full border border-grey-700 py-10 px-5 overflow-y-auto"
     >
-      <div class="m-auto max-w-3xl">
+      <div class="m-auto max-w-3xl space-y-2">
+        <p class="text-grey-50">Upload Data</p>
         <TabGroup :selectedIndex="selectedTab" @change="changeTab">
           <TabList class="flex gap-3 justify-evenly mb-3">
             <Tab
@@ -51,7 +52,7 @@ const handleNext = () => {
                 { step: 2, title: 'Upload Data' },
               ]"
               v-slot="{ selected }"
-              class="flex flex-col flex-1 text-grey-200"
+              class="flex flex-col flex-1 text-grey-200 text-2xs"
             >
               <p>{{ item.step }}</p>
               <p>{{ item.title }}</p>
@@ -65,9 +66,18 @@ const handleNext = () => {
           </TabList>
           <TabPanels
             ><TabPanel class="space-y-3">
-              <p class="text-sm text-grey-400">Upload To</p>
+              <p class="text-sm text-grey-400">
+                Upoad to Default Data Catalogue
+              </p>
+              <p class="text-xs text-grey-400">
+                The file you choose from your storage will automatically be
+                displayed and categorized as Default Data Catalogue. You can
+                choose to manage the file's category either at the final stage
+                of the upload process or later through the data catalogue
+                settings.
+              </p>
               <div class="flex flex-col gap-3">
-                <p class="text-sm text-grey-400">Data Format</p>
+                <p class="text-sm text-grey-400">Data Type</p>
                 <RadioGroup v-model="dataType">
                   <div class="grid grid-cols-3 gap-3">
                     <MapManagementCatalogueUploadTypeCard
