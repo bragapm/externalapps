@@ -12,6 +12,7 @@ type LayerTypeFilterOptions = {
 const props = defineProps<{
   list: LayerTypeFilterOptions[];
   handleChange: (index: string | number, value: boolean) => void;
+  disabled: boolean;
 }>();
 const activeFilter = computed(() =>
   props.list
@@ -24,14 +25,22 @@ const activeFilter = computed(() =>
   <Menu as="div" class="relative inline-block text-left" v-slot="{ open }">
     <div>
       <MenuButton
+        :disabled="disabled"
         :class="[
           'p-2 text-xs border rounded-xxs flex gap-2 items-center',
+          disabled && 'text-grey-500 cursor-not-allowed',
           open
             ? 'bg-grey-700 text-grey-50 border-grey-500'
             : 'bg-transparent text-grey-200 border-grey-600',
         ]"
       >
-        <IcMapLayerA class="text-grey-200 w-4 h-4" :fontControlled="false" />
+        <IcMapLayerA
+          :class="[
+            'text-grey-200 w-4 h-4',
+            disabled && 'text-grey-500',
+          ]"
+          :fontControlled="false"
+        />
         {{
           activeFilter.length === 1 && activeFilter[0] === "all"
             ? "All Dimension"

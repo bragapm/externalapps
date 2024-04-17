@@ -1,4 +1,7 @@
 <script setup lang="ts">
+defineProps<{
+  disabled: boolean;
+}>();
 
 const mapLayerStore = useMapLayer();
 
@@ -17,6 +20,7 @@ const handleScroll = (id: string) => {
         </p>
       </span>
       <UButton
+        :disabled="disabled"
         v-for="category of mapLayerStore.groupedLayerList"
         :key="category.label"
         :ui="{ rounded: 'rounded-xxs' }"
@@ -39,6 +43,7 @@ const handleScroll = (id: string) => {
           Dataset Folder/Project Uploaded by User
         </p>
         <UButton
+          :disabled="disabled"
           v-for="category of mapLayerStore.groupedLocalLayers"
           :key="category.label"
           :ui="{ rounded: 'rounded-xxs' }"

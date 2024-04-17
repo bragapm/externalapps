@@ -253,7 +253,7 @@ const changeMode = (value: UploadModeEnum) => {
             </div>
           </template>
         </div>
-        <MapManagementCatalogueLists v-else />
+        <MapManagementCatalogueLists v-else :disabled="isOption" />
         <div class="flex flex-col p-2 gap-2">
           <div class="border-t border-grey-700" />
           <UButton
@@ -285,19 +285,23 @@ const changeMode = (value: UploadModeEnum) => {
         >
           <div class="flex gap-2 items-center">
             <MapManagementCatalogueSort
+              :disabled="isOption"
               :sortOrder="sortOrder"
               @update-sort-order="updateSortOrder"
             />
             <MapManagementCatalogueFormatFilter
+              :disabled="isOption"
               :list="formatLists"
               :handleChange="handleChangeFormatList"
             />
             <MapManagementCatalogueDimensionFilter
+              :disabled="isOption"
               :list="dimensionLists"
               :handleChange="handleChangeDimensionList"
             />
           </div>
           <UInput
+            :disabled="isOption"
             v-model="searchRef"
             color="gray"
             :ui="{ rounded: 'rounded-xxs' }"

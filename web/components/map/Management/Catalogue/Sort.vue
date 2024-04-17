@@ -9,6 +9,7 @@ import IcCheck from "~/assets/icons/ic-check.svg";
 
 const props = defineProps<{
   sortOrder: { id: "asc" | "desc"; name: string };
+  disabled: boolean;
 }>();
 const emit = defineEmits<{
   updateSortOrder: [order: { id: "asc" | "desc"; name: string }];
@@ -69,8 +70,10 @@ watchEffect(() => {
   <Listbox :value="sortOrder" v-slot="{ open }">
     <div class="relative">
       <ListboxButton
+        :disabled="disabled"
         :class="[
           'p-2 text-xs border rounded-xxs',
+          disabled && 'text-grey-500 cursor-not-allowed',
           open
             ? 'bg-grey-700 text-grey-50 border-grey-500'
             : 'bg-transparent text-grey-200 border-grey-600',
@@ -101,7 +104,7 @@ watchEffect(() => {
           >
             <li
               :class="[
-                active ? 'bg-brand-950 text-amber-900' : 'text-grey-900',
+                active ? 'bg-brand-950' : '',
                 sortOrder.id === item.id ? 'bg-brand-950' : '',
                 'relative p-2 select-none rounded-xxs text-grey-200 flex items-center gap-5 cursor-pointer',
               ]"
