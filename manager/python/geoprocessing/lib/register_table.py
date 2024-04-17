@@ -16,22 +16,22 @@ def register_table_to_directus(
     additional_config: dict | None,
     with_invalidate=True,
 ):
+    layer_alias = None
+    listed = False
+    permission_type = "admin"
+    fill_style = None
+    line_style = None
+    circle_style = None
+
+    if additional_config is not None:
+        layer_alias = additional_config.get("layer_alias", None)
+        listed = additional_config.get("listed", False)
+        # TODO also get permission type from additional_config, but validate before use
+        # i.e. if uploader is not an admin, only allow "roles" or "roles+public"
+        permission_type = "roles+public"
+
     with conn:
         with conn.cursor() as cur:
-            layer_alias = None
-            listed = False
-            permission_type = "admin"
-            fill_style = None
-            line_style = None
-            circle_style = None
-
-            if additional_config is not None:
-                layer_alias = additional_config.get("layer_alias", None)
-                listed = additional_config.get("listed", False)
-                # TODO also get permission type from additional_config, but validate before use
-                # i.e. if uploader is not an admin, only allow "roles" or "roles+public"
-                permission_type = "roles+public"
-
             if listed:
                 # get random style for auto listed layer
                 match header_info["geom_name"]:
