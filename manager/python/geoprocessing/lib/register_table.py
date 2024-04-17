@@ -113,12 +113,22 @@ def register_raster_tile(
     z_max: int,
     uploader: str,
     is_terrain: bool,
+    additional_config: dict | None,
 ):
+    listed = False
+    permission_type = "admin"
+
+    if additional_config is not None:
+        listed = additional_config.get("listed", False)
+        # TODO also get permission type from additional_config, but validate before use
+        # i.e. if uploader is not an admin, only allow "roles" or "roles+public"
+        permission_type = "roles+public"
+
     with conn:
         with conn.cursor() as cur:
             cur.execute(
-                """INSERT INTO raster_tiles(layer_id, layer_alias, bounds, minzoom, maxzoom, terrain_rgb, user_created)
-            VALUES(%s, %s, %s, %s, %s, %s, %s)""",
+                """INSERT INTO raster_tiles(layer_id, layer_alias, bounds, minzoom, maxzoom, terrain_rgb, user_created, listed, permission_type)
+            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 [
                     layer_id,
                     raster_alias,
@@ -127,6 +137,8 @@ def register_raster_tile(
                     z_max,
                     is_terrain,
                     uploader,
+                    listed,
+                    permission_type,
                 ],
             )
     logger.info("Register to raster tiles")

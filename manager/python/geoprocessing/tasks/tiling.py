@@ -21,6 +21,7 @@ def tiling(
     minzoom: int | None,
     maxzoom: int | None,
     is_terrain: bool,
+    additional_config: dict | None,
     **kwargs,
 ):
     try:
@@ -51,6 +52,7 @@ def tiling(
             maxzoom,
             uploader,
             is_terrain,
+            additional_config,
         )
         pool.putconn(conn)
         return {
