@@ -45,6 +45,7 @@ def three_d_tiling(
     uploader: str,
     three_d_alias: str,
     has_color: bool,
+    additional_config: dict | None,
     **kwargs,
 ):
     try:
@@ -70,12 +71,7 @@ def three_d_tiling(
         upload_3d_tiles(bucket, layer_id, temp_tiles_dir_path)
 
         conn = pool.getconn()
-        register_3d_tile(
-            conn,
-            layer_id,
-            three_d_alias,
-            uploader,
-        )
+        register_3d_tile(conn, layer_id, three_d_alias, uploader, additional_config)
         pool.putconn(conn)
 
         return {"layer_id": layer_id}
