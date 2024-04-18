@@ -62,18 +62,33 @@ const upload = async () => {
     form.append("format_file", formatData.value);
     form.append(
       "is_zipped",
-      formatData.value === "xls" ||
-        formatData.value === "xlsx" ||
-        formatData.value === "csv"
-        ? "true"
-        : "false"
+      selectedFile.value?.type === "application/zip" ? "true" : "false"
     );
-    form.append(
-      "additional_config",
-      `{"layer_alias":${JSON.stringify(
-        datasetName.value?.value || selectedFile.value?.name
-      )},"listed":true}`
-    );
+    dataType.value === "vector"
+      ? form.append(
+          "additional_config",
+          `{"layer_alias":${JSON.stringify(
+            datasetName.value?.value || selectedFile.value?.name
+          )},"listed":true}`
+        )
+      : form.append("additional_config", '{"listed":true}');
+      
+    dataType.value === "raster" &&
+      form.append(
+        "raster_alias",
+        JSON.stringify(datasetName.value?.value || selectedFile.value?.name)
+      );
+    dataType.value === "raster" &&
+      form.append("is_terrain", JSON.stringify(isTerrain.value));
+
+    dataType.value === "3d" &&
+      form.append(
+        "three_d_alias",
+        JSON.stringify(datasetName.value?.value || selectedFile.value?.name)
+      );
+    dataType.value === "3d" &&
+      form.append("has_color", JSON.stringify(hasColor.value));
+
     form.append("is_ready", "true");
     form.append("file", selectedFile.value as File);
 
@@ -112,19 +127,7 @@ const upload = async () => {
   }
 };
 
-const acceptFormat = [
-  { value: ".csv,.zip", format: "csv" },
-  { value: ".gdb", format: "gdb" },
-  { value: ".geojson", format: "geojson" },
-  { value: ".kml", format: "kml" },
-  { value: ".shapefile", format: "shapefile" },
-  { value: ".xls,.zip", format: "xls" },
-  { value: ".xlsx,.zip", format: "xlsx" },
-  { value: ".laz", format: "laz" },
-  { value: ".tiff", format: "tiff" },
-];
-
-const threedOptions = [{ value: "laz", label: "las/laz" }];
+const threedOptions = [{ value: "las/laz", label: "las/laz" }];
 
 const vectorOptions = [
   { value: "csv", label: "csv" },
@@ -136,7 +139,7 @@ const vectorOptions = [
   { value: "xlsx", label: "xlsx" },
 ];
 
-const rasterOptions = [{ value: "tiff", label: "tiff" }];
+const rasterOptions = [{ value: "tif", label: "tif" }];
 
 const nextDisabled = computed(() => {
   return (
@@ -221,7 +224,7 @@ watchEffect(() => {
                     />
                     <MapManagementCatalogueUploadTypeCard
                       :icon="IcMapLayerB"
-                      desc=".tiff"
+                      desc=".tif"
                       optLabel="Raster"
                       optValue="raster"
                     />
@@ -250,8 +253,15 @@ watchEffect(() => {
               <p class="text-sm text-grey-400">Upload Data</p>
               <MapManagementCatalogueLoadFileInput
                 :accept="
-                  acceptFormat &&
-                  acceptFormat.filter((el) => el.format === formatData)[0].value
+                  formatData
+                    ? formatData !== 'xls'
+                      ? formatData === 'tif'
+                        ? `.${formatData},.tiff,.zip`
+                        : formatData === 'las/laz'
+                        ? '.las,.laz,.zip'
+                        : `.${formatData},.zip`
+                      : `.${formatData}`
+                    : ''
                 "
                 :selectedFile="selectedFile"
                 @set-selected-file="
