@@ -1,3 +1,5 @@
+import { LAYER_PREVIEWS_FOLDER_ID } from "./const/FOLDER_IDS.mjs";
+
 export async function up(knex) {
   await knex.raw(`
     CREATE TABLE IF NOT EXISTS raster_tiles (
@@ -11,6 +13,9 @@ export async function up(knex) {
       maxzoom integer NOT NULL,
       terrain_rgb boolean NOT NULL,
       layer_alias character varying(255) NOT NULL,
+      preview uuid REFERENCES directus_files (id)
+        ON DELETE SET NULL,
+      description text,
       category uuid REFERENCES categories (category_id)
         ON DELETE SET NULL,
       listed boolean DEFAULT false NOT NULL,
@@ -46,6 +51,8 @@ export async function up(knex) {
       ('raster_tiles','maxzoom',NULL,'input',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_tiles','terrain_rgb','cast-boolean','boolean','{"label":"True"}',NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_tiles','layer_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
+      ('raster_tiles','preview','file','file-image','{"folder":"${LAYER_PREVIEWS_FOLDER_ID}"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('raster_tiles','description',NULL,'input-multiline',NULL,NULL,NULL,false,false,NULL,'full',NULL,NULL,NULL,false,NULL,NULL,NULL)
       ('raster_tiles','category','m2o','select-dropdown-m2o','{"template":"{{category_name}}"}','related-values','{"template":"{{category_name}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_tiles','listed','cast-boolean','boolean','{"label":"True"}',NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_tiles','active','cast-boolean','boolean','{"label":"True"}',NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
