@@ -71,13 +71,13 @@ function threeDQuery(state, accountability) {
   ), category_3d AS (
     SELECT category,to_jsonb(l2) layers
     FROM (
-      SELECT category,'three_d_tiles' source,layer_id,layer_alias,opacity,point_size,point_color,visible
+      SELECT category,'three_d_tiles' source,layer_id,layer_alias,opacity,point_size,point_color,visible,'3D' layer_type
       FROM three_d_tiles_list
       ORDER BY layer_alias
     )l,
     LATERAL (
-      VALUES (source,layer_id,layer_alias,opacity,point_size,point_color,visible)
-    ) AS l2(source,layer_id,layer_alias,opacity,point_size,point_color,visible)
+      VALUES (source,layer_id,layer_alias,opacity,point_size,point_color,visible,layer_type)
+    ) AS l2(source,layer_id,layer_alias,opacity,point_size,point_color,visible,layer_type)
   )
   SELECT json_object_agg(COALESCE(category::text,'uncategorized'),v) three_d
   FROM (
@@ -148,13 +148,13 @@ function twoDQuery(state, accountability) {
   ), category_raster AS (
     SELECT category,to_jsonb(l2) layers
     FROM (
-      SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible
+      SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,'Raster' layer_type
       FROM raster_tiles_list
       ORDER BY layer_alias
     )l,
     LATERAL (
-      VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible)
-    ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible)
+      VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,layer_type)
+    ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,layer_type)
   )
   SELECT json_object_agg(COALESCE(category::text,'uncategorized'),v) two_d
   FROM (
@@ -196,13 +196,13 @@ function terrainQuery(state, accountability) {
   ), category_terrain AS (
     SELECT category,to_jsonb(l2) layers
     FROM (
-      SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible
+      SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,'Terrain' layer_type
       FROM terrain_list
       ORDER BY layer_alias
     )l,
     LATERAL (
-      VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible)
-    ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible)
+      VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,layer_type)
+    ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,layer_type)
   )
   SELECT json_object_agg(COALESCE(category::text,'uncategorized'),v) terrain
   FROM (
