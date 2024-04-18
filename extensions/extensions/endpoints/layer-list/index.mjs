@@ -54,7 +54,7 @@ function threeDQuery(state, accountability) {
     permissionFilter = "AND permission_type = 'roles+public'";
   }
 
-  return `WITH active_3d_tiles AS (
+  return `WITH three_d_tiles_list AS (
     SELECT layer_id,layer_alias,category,opacity,point_size,point_color,visible
     FROM three_d_tiles
     ${allowedRoleJoin}
@@ -64,7 +64,7 @@ function threeDQuery(state, accountability) {
     SELECT category,to_jsonb(l2) layers
     FROM (
       SELECT category,'three_d_tiles' source,layer_id,layer_alias,opacity,point_size,point_color,visible
-      FROM active_3d_tiles
+      FROM three_d_tiles_list
       ORDER BY layer_alias
     )l,
     LATERAL (
@@ -97,7 +97,7 @@ function twoDQuery(state, accountability) {
     permissionFilter = "AND permission_type = 'roles+public'";
   }
 
-  return `WITH active_vector_tiles AS (
+  return `WITH vector_tiles_list AS (
     SELECT layer_id id,circle_style,symbol_style,fill_style,line_style
     FROM vector_tiles
     ${allowedRoleVectorJoin}
@@ -105,19 +105,19 @@ function twoDQuery(state, accountability) {
     ${permissionFilter}
   ), layer_styles AS (
     SELECT l.id,to_jsonb(circle.*) layer_style
-    FROM active_vector_tiles l,circle
+    FROM vector_tiles_list l,circle
     WHERE circle.id=circle_style
     UNION ALL
     SELECT l.id,to_jsonb(symbol.*) layer_style
-    FROM active_vector_tiles l,symbol
+    FROM vector_tiles_list l,symbol
     WHERE symbol.id=symbol_style
     UNION ALL
     SELECT l.id,to_jsonb(fill.*) layer_style
-    FROM active_vector_tiles l,fill
+    FROM vector_tiles_list l,fill
     WHERE fill.id=fill_style
     UNION ALL
     SELECT l.id,to_jsonb(line.*) layer_style
-    FROM active_vector_tiles l,line
+    FROM vector_tiles_list l,line
     WHERE line.id=line_style
   ), category_vector AS (
     SELECT category,to_jsonb(l2) layers
@@ -130,18 +130,18 @@ function twoDQuery(state, accountability) {
     LATERAL (
       VALUES (source,layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style)
     ) AS l2(source,layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style)
-  ), active_raster_tiles AS (
-    SELECT layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,category,visible
+  ), raster_tiles_list AS (
+    SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,category,visible
     FROM raster_tiles
     ${allowedRoleRasterJoin}
-    WHERE active IS TRUE
+    WHERE ${state} IS TRUE
     AND terrain_rgb IS FALSE
     ${permissionFilter}
   ), category_raster AS (
     SELECT category,to_jsonb(l2) layers
     FROM (
       SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible
-      FROM active_raster_tiles
+      FROM raster_tiles_list
       ORDER BY layer_alias
     )l,
     LATERAL (
@@ -178,8 +178,8 @@ function terrainQuery(state, accountability) {
     permissionFilter = "AND permission_type = 'roles+public'";
   }
 
-  return `WITH active_terrain AS (
-    SELECT layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,category,visible
+  return `WITH terrain_list AS (
+    SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,category,visible
     FROM raster_tiles
     ${allowedRoleJoin}
     WHERE ${state} IS TRUE
@@ -189,7 +189,7 @@ function terrainQuery(state, accountability) {
     SELECT category,to_jsonb(l2) layers
     FROM (
       SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible
-      FROM active_terrain
+      FROM terrain_list
       ORDER BY layer_alias
     )l,
     LATERAL (
