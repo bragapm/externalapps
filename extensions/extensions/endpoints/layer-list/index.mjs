@@ -23,7 +23,7 @@ export default (router, { database, logger }) => {
         const result = await database.raw(
           allByCategoriesQuery(state, accountability)
         );
-        return res.json(result.rows[0]?.all_by_categories || {});
+        return res.json({ data: result.rows[0]?.all_by_categories || {} });
       } else {
         const [threeDResult, twoDResult, terrainResult] = await Promise.all([
           database.raw(threeDQuery(state, accountability)),
@@ -32,9 +32,11 @@ export default (router, { database, logger }) => {
         ]);
 
         return res.json({
-          "3d": threeDResult.rows[0]?.three_d || {},
-          "2d": twoDResult.rows[0]?.two_d || {},
-          terrain: terrainResult.rows[0]?.terrain || {},
+          data: {
+            "3d": threeDResult.rows[0]?.three_d || {},
+            "2d": twoDResult.rows[0]?.two_d || {},
+            terrain: terrainResult.rows[0]?.terrain || {},
+          },
         });
       }
     } catch (error) {
