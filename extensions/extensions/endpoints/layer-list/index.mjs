@@ -63,7 +63,7 @@ function threeDQuery(state, accountability) {
   }
 
   return `WITH three_d_tiles_list AS (
-    SELECT layer_id,layer_alias,category,opacity,point_size,point_color,visible
+    SELECT layer_id,layer_alias,preview,description,category,opacity,point_size,point_color,visible
     FROM three_d_tiles
     ${allowedRoleJoin}
     WHERE ${state} IS TRUE
@@ -71,13 +71,13 @@ function threeDQuery(state, accountability) {
   ), category_3d AS (
     SELECT category,to_jsonb(l2) layers
     FROM (
-      SELECT category,'three_d_tiles' source,layer_id,layer_alias,opacity,point_size,point_color,visible,'3D' layer_type
+      SELECT category,'three_d_tiles' source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,'3D' layer_type
       FROM three_d_tiles_list
       ORDER BY layer_alias
     )l,
     LATERAL (
-      VALUES (source,layer_id,layer_alias,opacity,point_size,point_color,visible,layer_type)
-    ) AS l2(source,layer_id,layer_alias,opacity,point_size,point_color,visible,layer_type)
+      VALUES (source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
+    ) AS l2(source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
   )
   SELECT json_object_agg(COALESCE(category::text,'uncategorized'),v) three_d
   FROM (
@@ -130,16 +130,16 @@ function twoDQuery(state, accountability) {
   ), category_vector AS (
     SELECT category,to_jsonb(l2) layers
     FROM (
-      SELECT category,'vector_tiles' source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type
+      SELECT category,'vector_tiles' source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type
       FROM layer_styles
       INNER JOIN vector_tiles ON layer_id=id
       ORDER BY COALESCE(layer_alias,layer_name)
     ) l,
     LATERAL (
-      VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
-    ) AS l2(source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
+      VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
+    ) AS l2(source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
   ), raster_tiles_list AS (
-    SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,category,visible
+    SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,category,visible
     FROM raster_tiles
     ${allowedRoleRasterJoin}
     WHERE ${state} IS TRUE
@@ -148,13 +148,13 @@ function twoDQuery(state, accountability) {
   ), category_raster AS (
     SELECT category,to_jsonb(l2) layers
     FROM (
-      SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,'Raster' layer_type
+      SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,'Raster' layer_type
       FROM raster_tiles_list
       ORDER BY layer_alias
     )l,
     LATERAL (
-      VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,layer_type)
-    ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,layer_type)
+      VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
+    ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
   )
   SELECT json_object_agg(COALESCE(category::text,'uncategorized'),v) two_d
   FROM (
@@ -187,7 +187,7 @@ function terrainQuery(state, accountability) {
   }
 
   return `WITH terrain_list AS (
-    SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,category,visible
+    SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,category,visible
     FROM raster_tiles
     ${allowedRoleJoin}
     WHERE ${state} IS TRUE
@@ -196,13 +196,13 @@ function terrainQuery(state, accountability) {
   ), category_terrain AS (
     SELECT category,to_jsonb(l2) layers
     FROM (
-      SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,'Terrain' layer_type
+      SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,'Terrain' layer_type
       FROM terrain_list
       ORDER BY layer_alias
     )l,
     LATERAL (
-      VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,layer_type)
-    ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,layer_type)
+      VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
+    ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
   )
   SELECT json_object_agg(COALESCE(category::text,'uncategorized'),v) terrain
   FROM (
@@ -233,7 +233,7 @@ function allByCategoriesQuery(state, accountability) {
   }
 
   return `WITH three_d_tiles_list AS (
-      SELECT layer_id,layer_alias,category,opacity,point_size,point_color,visible
+      SELECT layer_id,layer_alias,preview,description,category,opacity,point_size,point_color,visible
       FROM three_d_tiles
       ${allowedRole3dJoin}
       WHERE ${state} IS TRUE
@@ -241,13 +241,13 @@ function allByCategoriesQuery(state, accountability) {
     ), category_3d AS (
       SELECT category,to_jsonb(l2) layers
       FROM (
-        SELECT category,'three_d_tiles' source,layer_id,layer_alias,opacity,point_size,point_color,visible,'3D' layer_type
+        SELECT category,'three_d_tiles' source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,'3D' layer_type
         FROM three_d_tiles_list
         ORDER BY layer_alias
       )l,
       LATERAL (
-        VALUES (source,layer_id,layer_alias,opacity,point_size,point_color,visible,layer_type)
-      ) AS l2(source,layer_id,layer_alias,opacity,point_size,point_color,visible,layer_type)
+        VALUES (source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
+      ) AS l2(source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
     ), vector_tiles_list AS (
       SELECT layer_id id,circle_style,symbol_style,fill_style,line_style
       FROM vector_tiles
@@ -273,16 +273,16 @@ function allByCategoriesQuery(state, accountability) {
     ), category_vector AS (
       SELECT category,to_jsonb(l2) layers
       FROM (
-        SELECT category,'vector_tiles' source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type
+        SELECT category,'vector_tiles' source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type
         FROM layer_styles
         INNER JOIN vector_tiles ON layer_id=id
         ORDER BY COALESCE(layer_alias,layer_name)
       ) l,
       LATERAL (
-        VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
-      ) AS l2(source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
+        VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
+      ) AS l2(source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
     ), raster_tiles_list AS (
-      SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,category,visible,terrain_rgb
+      SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,category,visible,terrain_rgb
       FROM raster_tiles
       ${allowedRoleRasterJoin}
       WHERE ${state} IS TRUE
@@ -290,13 +290,13 @@ function allByCategoriesQuery(state, accountability) {
     ), category_raster AS (
       SELECT category,to_jsonb(l2) layers
       FROM (
-        SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,CASE WHEN terrain_rgb IS TRUE THEN 'Terrain' ELSE 'Raster' END layer_type
+        SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,CASE WHEN terrain_rgb IS TRUE THEN 'Terrain' ELSE 'Raster' END layer_type
         FROM raster_tiles_list
         ORDER BY layer_alias
       )l,
       LATERAL (
-        VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,layer_type)
-      ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,visible,layer_type)
+        VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
+      ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
     )
     SELECT json_object_agg(COALESCE(category::text,'uncategorized'),v) all_by_categories
     FROM (
