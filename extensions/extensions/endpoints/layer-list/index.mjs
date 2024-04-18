@@ -104,32 +104,32 @@ function twoDQuery(state, accountability) {
     WHERE ${state} IS TRUE
     ${permissionFilter}
   ), layer_styles AS (
-    SELECT l.id,to_jsonb(circle.*) layer_style
+    SELECT l.id,to_jsonb(circle.*) layer_style,'Circle' layer_type
     FROM vector_tiles_list l,circle
     WHERE circle.id=circle_style
     UNION ALL
-    SELECT l.id,to_jsonb(symbol.*) layer_style
+    SELECT l.id,to_jsonb(symbol.*) layer_style,'Symbol' layer_type
     FROM vector_tiles_list l,symbol
     WHERE symbol.id=symbol_style
     UNION ALL
-    SELECT l.id,to_jsonb(fill.*) layer_style
+    SELECT l.id,to_jsonb(fill.*) layer_style,'Polygon' layer_type
     FROM vector_tiles_list l,fill
     WHERE fill.id=fill_style
     UNION ALL
-    SELECT l.id,to_jsonb(line.*) layer_style
+    SELECT l.id,to_jsonb(line.*) layer_style,'Line' layer_type
     FROM vector_tiles_list l,line
     WHERE line.id=line_style
   ), category_vector AS (
     SELECT category,to_jsonb(l2) layers
     FROM (
-      SELECT category,'vector_tiles' source,layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style
+      SELECT category,'vector_tiles' source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type
       FROM layer_styles
       INNER JOIN vector_tiles ON layer_id=id
       ORDER BY COALESCE(layer_alias,layer_name)
     ) l,
     LATERAL (
-      VALUES (source,layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style)
-    ) AS l2(source,layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style)
+      VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
+    ) AS l2(source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
   ), raster_tiles_list AS (
     SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,category,visible
     FROM raster_tiles
