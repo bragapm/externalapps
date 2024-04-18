@@ -15,7 +15,7 @@ export async function up(knex) {
       ('external_tiles','read','{"_and":[{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,tile_type,is_tilejson,tilejson_url,tile_url,layer_style_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category,active,visible'),
       ('circle','read','{}','{}','*'),
       ('categories','read','{}','{}','*'),
-      ('three_d_tiles','read','{"_and":[{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,layer_alias,active,visible,opacity,point_size,point_color'),
+      ('three_d_tiles','read','{"_and":[{"permission_type":{"_eq":"roles+public"}}]}','{}','layer_id,layer_alias,category,active,visible,opacity,point_size,point_color'),
       ('block_hero_slides','read','{}','{}','*'),
       ('block_hero_slides_contents','read','{}','{}','*'),
       ('block_hero_slides_block_hero_slides_contents','read','{}','{}','*'),
@@ -56,7 +56,7 @@ export async function up(knex) {
           (NEW.id,'external_tiles','read','{"_and":[{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,tile_type,is_tilejson,tilejson_url,tile_url,layer_style_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category,active,visible'),
           (NEW.id,'circle','read','{}','{}','*'),
           (NEW.id,'categories','read','{}','{}','*'),
-          (NEW.id,'three_d_tiles','read','{"_and":[{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,layer_alias,active,visible,opacity,point_size,point_color'),
+          (NEW.id,'three_d_tiles','read','{"_and":[{"permission_type":{"_in":["roles","roles+public"]}},{"allowed_roles":{"directus_roles_id":{"_eq":"$CURRENT_ROLE"}}}]}','{}','layer_id,layer_alias,category,active,visible,opacity,point_size,point_color'),
           (NEW.id,'shared_map','create','{}','{}','*'),
           (NEW.id,'directus_files','create','{}','{"_and":[{"folder":{"_eq":"${LAYER_DATA_FOLDER_ID}"}}]}','*'),
           (NEW.id,'geoprocessing_queue','read','{"_and":[{"uploader":{"_eq":"$CURRENT_USER"}}]}','{}','result,state,filename,status,mtime,result_ttl');

@@ -8,6 +8,8 @@ export async function up(knex) {
     user_updated uuid REFERENCES directus_users (id),
     date_updated timestamp with time zone,
     layer_alias character varying(255) NOT NULL,
+    category uuid REFERENCES categories (category_id)
+      ON DELETE SET NULL,
     listed boolean DEFAULT false NOT NULL,
     active boolean DEFAULT false NOT NULL,
     permission_type character varying(255) DEFAULT 'admin',
@@ -40,6 +42,7 @@ export async function up(knex) {
       ('three_d_tiles','user_updated','user-updated','select-dropdown-m2o','{"template":"{{avatar.$thumbnail}} {{first_name}} {{last_name}}"}','user',NULL,TRUE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('three_d_tiles','date_updated','date-updated','datetime',NULL,'datetime','{"relative":true}',TRUE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('three_d_tiles','layer_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
+      ('three_d_tiles','category','m2o','select-dropdown-m2o','{"template":"{{category_name}}"}','related-values','{"template":"{{category_name}}"}',FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('three_d_tiles','listed','cast-boolean','boolean','{"label":"True"}',NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('three_d_tiles','active','cast-boolean','boolean','{"label":"True"}',NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('three_d_tiles','permission_type',NULL,'select-dropdown','{"choices":[{"text":"Admin Only","value":"admin"},{"text":"Selected Roles","value":"roles"},{"text":"Selected Roles + Public","value":"roles+public"}]}',NULL,NULL,FALSE,FALSE,NULL,'half',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
@@ -55,6 +58,7 @@ export async function up(knex) {
     VALUES
       ('three_d_tiles','user_created','directus_users',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('three_d_tiles','user_updated','directus_users',NULL,NULL,NULL,NULL,NULL,'nullify'),
+      ('three_d_tiles','category','categories',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('three_d_tiles_directus_roles','directus_roles_id','directus_roles',NULL,NULL,NULL,'three_d_tiles_layer_id',NULL,'nullify'),
       ('three_d_tiles_directus_roles','three_d_tiles_layer_id','three_d_tiles','allowed_roles',NULL,NULL,'directus_roles_id',NULL,'delete');
   `);
