@@ -1,27 +1,34 @@
 <script lang="ts" setup>
 import { RadioGroupOption } from "@headlessui/vue";
-import IcAddFile from "~/assets/icons/ic-map-layer.svg";
 
 defineProps<{
   desc: string;
   optLabel: string;
   optValue: string;
+  icon: string | Component;
 }>();
 </script>
 
 <template>
-  <div
-    class="flex flex-col gap-1 justify-between p-4 bg-grey-800 border border-grey-700 rounded-xs"
-  >
-    <div class="flex flex-col items-center py-6">
-      <IcAddFile class="w-6 h-6 text-brand-500" :fontControlled="false" />
-      <p class="text-grey-50 mt-2">Supported Format:</p>
-      <p class="text-sm text-grey-400 text-center">
-        {{ desc }}
-      </p>
-    </div>
-    <RadioGroupOption v-slot="{ checked }" :value="optValue">
-      <div
+  <RadioGroupOption v-slot="{ checked }" :value="optValue">
+    <div
+      :class="[
+        checked ? 'border-brand-500' : 'border-grey-700',
+        'flex flex-col gap-1 justify-between p-4 bg-grey-800 border rounded-xs h-full cursor-pointer',
+      ]"
+    >
+      <div class="flex flex-col items-center py-6">
+        <component
+          :is="icon"
+          class="w-6 h-6 text-brand-500"
+          :fontControlled="false"
+        ></component>
+        <p class="text-grey-50 mt-2">{{ optLabel }}</p>
+        <p class="text-sm text-grey-400 text-center">
+          {{ desc }}
+        </p>
+      </div>
+      <!-- <div
         :class="[
           checked ? 'bg-red-950' : '',
           'flex gap-2 hover:bg-red-950 p-2 rounded-xxs text-2xs text-grey-50 cursor-pointer',
@@ -40,7 +47,7 @@ defineProps<{
           ></div>
         </div>
         <p>{{ optLabel }}</p>
-      </div>
-    </RadioGroupOption>
-  </div>
+      </div> -->
+    </div>
+  </RadioGroupOption>
 </template>

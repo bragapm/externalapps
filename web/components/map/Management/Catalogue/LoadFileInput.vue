@@ -5,6 +5,7 @@ import IcInfo from "~/assets/icons/ic-info.svg";
 
 const props = defineProps<{
   selectedFile: File | null;
+  accept?: string;
 }>();
 
 const emit = defineEmits<{
@@ -55,11 +56,12 @@ const handleDrop = (e: any) => {
 };
 </script>
 
+<!-- accept=".geojson,application/geo+json,.zip,application/zip,application/x-zip-compressed,.csv,text/csv,.xls,application/vnd.ms-excel,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.kml,application/vnd.google-earth.kml+xml,.gpx,application/gpx+xml,.tcx,application/vnd.garmin.tcx+xml,.gpkg,application/geopackage+sqlite3,.fgb" -->
 <template>
   <input
     ref="input"
+    :accept="accept"
     type="file"
-    accept=".geojson,application/geo+json,.zip,application/zip,application/x-zip-compressed,.csv,text/csv,.xls,application/vnd.ms-excel,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.kml,application/vnd.google-earth.kml+xml,.gpx,application/gpx+xml,.tcx,application/vnd.garmin.tcx+xml,.gpkg,application/geopackage+sqlite3,.fgb"
     hidden
     @change="handleFileUploadChange"
   />

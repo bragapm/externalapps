@@ -1,12 +1,18 @@
 <script lang="ts" setup>
-import { RadioGroup } from "@headlessui/vue";
+import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
+import IcMapLayerA from "~/assets/icons/ic-map-layer-a.svg";
+import IcMapLayerB from "~/assets/icons/ic-map-layer-b.svg";
+import Ic3d from "~/assets/icons/ic-3d.svg";
+import IcSpinner from "~/assets/icons/ic-spinner.svg";
+import IcCheck from "~/assets/icons/ic-check.svg";
 
 const props = defineProps<{
   sortOrder: { id: "asc" | "desc"; name: string };
 }>();
 
 const emit = defineEmits<{
+  (e: "refreshListedLayers"): void;
   (e: "handleCancel"): void;
   (e: "handleSuccess"): void;
 }>();
@@ -15,11 +21,23 @@ const cancel = () => {
   emit("handleCancel");
 };
 
+const authStore = useAuth();
+const toast = useToast();
+
+const uploading = ref(false);
+const uploaded = ref(false);
+
 const selectedFile = ref<File | null>(null);
 
 const dataType = ref<string>("");
+const isTerrain = ref<boolean>(false);
+const hasColor = ref<boolean>(false);
 
 const selectedTab = ref(0);
+
+const formatData = ref<string>("");
+
+const datasetName = ref<HTMLInputElement | null>(null);
 
 function changeTab(index: number) {
   selectedTab.value = index;
@@ -31,10 +49,108 @@ const handleBack = () => {
   }
 };
 const handleNext = () => {
-  if (selectedTab.value !== 1) {
+  if (selectedTab.value !== 2) {
     changeTab(selectedTab.value + 1);
   }
 };
+
+const upload = async () => {
+  try {
+    uploading.value = true;
+    const form = new FormData();
+    form.append("folder", "ffffffff-ffff-4fff-bfff-fffffffffffb");
+    form.append("format_file", formatData.value);
+    form.append(
+      "is_zipped",
+      formatData.value === "xls" ||
+        formatData.value === "xlsx" ||
+        formatData.value === "csv"
+        ? "true"
+        : "false"
+    );
+    form.append(
+      "additional_config",
+      `{"layer_alias":${JSON.stringify(
+        datasetName.value?.value || selectedFile.value?.name
+      )},"listed":true}`
+    );
+    form.append("is_ready", "true");
+    form.append("file", selectedFile.value as File);
+
+    const res = await fetch("/panel/files", {
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+      body: form,
+      method: "POST",
+    });
+
+    const result = await res.json();
+
+    if (result.data) {
+      setTimeout(() => {
+        toast.add({
+          title: "File has been processed successfully",
+          icon: "i-heroicons-check-circle",
+        });
+        uploading.value = false;
+      }, 2000);
+      uploaded.value = true;
+    } else {
+      setTimeout(() => {
+        toast.add({
+          title: result.errors[0].message,
+          icon: "i-heroicons-check-circle",
+        });
+        uploading.value = false;
+      }, 2000);
+    }
+  } catch (error) {
+    uploading.value = false;
+    console.log(error);
+  }
+};
+
+const acceptFormat = [
+  { value: ".csv,.zip", format: "csv" },
+  { value: ".gdb", format: "gdb" },
+  { value: ".geojson", format: "geojson" },
+  { value: ".kml", format: "kml" },
+  { value: ".shapefile", format: "shapefile" },
+  { value: ".xls,.zip", format: "xls" },
+  { value: ".xlsx,.zip", format: "xlsx" },
+  { value: ".laz", format: "laz" },
+  { value: ".tiff", format: "tiff" },
+];
+
+const threedOptions = [{ value: "laz", label: "las/laz" }];
+
+const vectorOptions = [
+  { value: "csv", label: "csv" },
+  { value: "gdb", label: "gdb" },
+  { value: "geojson", label: "geojson" },
+  { value: "kml", label: "kml" },
+  { value: "shapefile", label: "shapefile" },
+  { value: "xls", label: "xls" },
+  { value: "xlsx", label: "xlsx" },
+];
+
+const rasterOptions = [{ value: "tiff", label: "tiff" }];
+
+const nextDisabled = computed(() => {
+  return (
+    (selectedTab.value === 0 && !formatData.value) ||
+    (selectedTab.value === 1 && !selectedFile.value) ||
+    (selectedTab.value === 2 && !selectedFile.value)
+  );
+});
+
+watchEffect(() => {
+  if (dataType.value) {
+    formatData.value = "";
+  }
+});
 </script>
 
 <template>
@@ -42,15 +158,25 @@ const handleNext = () => {
     <div
       class="w-full h-full border border-grey-700 py-10 px-5 overflow-y-auto"
     >
-      <div class="m-auto max-w-3xl space-y-2">
+      <div v-if="!uploading && !uploaded" class="m-auto max-w-3xl space-y-2">
         <p class="text-grey-50">Upload Data</p>
-        <TabGroup :selectedIndex="selectedTab" @change="changeTab">
+        <TabGroup :selectedIndex="selectedTab" @change="changeTab" manual>
           <TabList class="flex gap-3 justify-evenly mb-3">
             <Tab
               v-for="(item, index) in [
-                { step: 1, title: 'Select Data Type' },
-                { step: 2, title: 'Upload Data' },
+                {
+                  step: 1,
+                  title: 'Select Data Type & Format',
+                  disabled: false,
+                },
+                { step: 2, title: 'Select File', disabled: !formatData },
+                {
+                  step: 3,
+                  title: 'Data Information',
+                  disabled: selectedTab === 0 || !selectedFile,
+                },
               ]"
+              :disabled="item.disabled"
               v-slot="{ selected }"
               class="flex flex-col flex-1 text-grey-200 text-2xs"
             >
@@ -64,8 +190,9 @@ const handleNext = () => {
               />
             </Tab>
           </TabList>
-          <TabPanels
-            ><TabPanel class="space-y-3">
+          <hr class="border-grey-700" />
+          <TabPanels>
+            <TabPanel class="space-y-3">
               <p class="text-sm text-grey-400">
                 Upoad to Default Data Catalogue
               </p>
@@ -81,22 +208,51 @@ const handleNext = () => {
                 <RadioGroup v-model="dataType">
                   <div class="grid grid-cols-3 gap-3">
                     <MapManagementCatalogueUploadTypeCard
-                      desc=".XYZ .ABC, .PNG, .PDF"
-                      optLabel="Vector Data"
-                      optValue="loadlocal"
+                      :icon="Ic3d"
+                      desc=".laz"
+                      optLabel="Three Dimensions"
+                      optValue="3d"
                     />
                     <MapManagementCatalogueUploadTypeCard
-                      desc=".XYZ .ABC, .PNG, .PDF"
-                      optLabel="Raster Data"
-                      optValue="upload"
+                      :icon="IcMapLayerA"
+                      desc=".shp, .geojson, .kml, .gdb, .csv, .xlsx"
+                      optLabel="Vector"
+                      optValue="vector"
+                    />
+                    <MapManagementCatalogueUploadTypeCard
+                      :icon="IcMapLayerB"
+                      desc=".tiff"
+                      optLabel="Raster"
+                      optValue="raster"
                     />
                   </div>
                 </RadioGroup>
               </div>
+              <CoreSelect
+                :disabled="!dataType"
+                placeholder="Data Format"
+                :value="formatData"
+                :options="
+                  dataType === '3d'
+                    ? threedOptions
+                    : dataType === 'vector'
+                    ? vectorOptions
+                    : rasterOptions
+                "
+                @handle-change="
+                  (value:string) => {
+                    formatData = value
+                  }
+                "
+              />
             </TabPanel>
             <TabPanel class="space-y-3">
               <p class="text-sm text-grey-400">Upload Data</p>
               <MapManagementCatalogueLoadFileInput
+                :accept="
+                  acceptFormat &&
+                  acceptFormat.filter((el) => el.format === formatData)[0].value
+                "
                 :selectedFile="selectedFile"
                 @set-selected-file="
                   (value: File|null) => {
@@ -108,12 +264,147 @@ const handleNext = () => {
                     emit('handleSuccess');
                   }
                 "
-              /> </TabPanel
-          ></TabPanels>
+              />
+              <div v-if="dataType === 'raster'" class="space-y-3">
+                <p class="text-sm text-grey-400">Is Terrain</p>
+                <RadioGroup
+                  v-model="isTerrain"
+                  class="flex gap-2 w-full bg-grey-800 border border-grey-700 rounded-xs p-2"
+                >
+                  <RadioGroupOption
+                    v-for="(item, index) in [
+                      { value: true, label: 'Yes' },
+                      { value: false, label: 'No' },
+                    ]"
+                    v-slot="{ checked }"
+                    :value="item.value"
+                    class="w-full"
+                  >
+                    <div
+                      :class="[
+                        checked ? 'bg-brand-950' : '',
+                        'flex gap-2 hover:bg-brand-950 p-2 rounded-xxs text-2xs text-grey-50 cursor-pointer',
+                      ]"
+                    >
+                      <div
+                        :class="[
+                          checked
+                            ? 'border-brand-500'
+                            : 'border-grey-600 bg-grey-700',
+                          ,
+                          'flex items-center justify-center w-4 h-4 border  rounded-full',
+                        ]"
+                      >
+                        <div
+                          v-if="checked"
+                          class="w-3 h-3 border-2 border-brand-500 rounded-full"
+                        ></div>
+                      </div>
+                      <p>{{ item.label }}</p>
+                    </div>
+                  </RadioGroupOption>
+                </RadioGroup>
+              </div>
+              <div v-if="dataType === '3d'" class="space-y-3">
+                <p class="text-sm text-grey-400">Has Color</p>
+                <RadioGroup
+                  v-model="hasColor"
+                  class="flex gap-2 w-full bg-grey-800 border border-grey-700 rounded-xs p-2"
+                >
+                  <RadioGroupOption
+                    v-for="(item, index) in [
+                      { value: true, label: 'Yes' },
+                      { value: false, label: 'No' },
+                    ]"
+                    v-slot="{ checked }"
+                    :value="item.value"
+                    class="w-full"
+                  >
+                    <div
+                      :class="[
+                        checked ? 'bg-brand-950' : '',
+                        'flex gap-2 hover:bg-brand-950 p-2 rounded-xxs text-2xs text-grey-50 cursor-pointer',
+                      ]"
+                    >
+                      <div
+                        :class="[
+                          checked
+                            ? 'border-brand-500'
+                            : 'border-grey-600 bg-grey-700',
+                          ,
+                          'flex items-center justify-center w-4 h-4 border  rounded-full',
+                        ]"
+                      >
+                        <div
+                          v-if="checked"
+                          class="w-3 h-3 border-2 border-brand-500 rounded-full"
+                        ></div>
+                      </div>
+                      <p>{{ item.label }}</p>
+                    </div>
+                  </RadioGroupOption>
+                </RadioGroup>
+              </div>
+            </TabPanel>
+            <TabPanel class="space-y-3">
+              <p class="text-sm text-grey-400">Dataset Information</p>
+              <div class="relative">
+                <input
+                  ref="datasetName"
+                  type="text"
+                  id="floating_filled"
+                  class="block rounded-xxs px-2.5 pb-2.5 pt-5 w-full text-sm text-grey-200 bg-grey-700 border border-grey-600 appearance-none focus:outline-none focus:ring-0 focus:border-grey-600 peer"
+                  placeholder=" "
+                />
+                <label
+                  for="floating_filled"
+                  class="absolute text-sm text-grey-200 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] start-2.5 peer-focus:text-grey-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+                >
+                  Dataset Name
+                </label>
+              </div></TabPanel
+            >
+          </TabPanels>
         </TabGroup>
       </div>
+      <div
+        v-else-if="uploading"
+        class="w-full h-full flex flex-col justify-center items-center"
+      >
+        <IcSpinner
+          class="text-brand-500 animate-spin h-10 w-10 mb-3"
+          :fontControlled="false"
+        />
+        <p class="text-grey-50">Uploading Data</p>
+        <p class="text-grey-400 text-sm">
+          This might take a few seconds. Please Wait.
+        </p>
+      </div>
+      <div
+        v-else-if="uploaded"
+        class="w-full h-full flex flex-col justify-center items-center gap-3"
+      >
+        <IcCheck class="w-10 h-10 text-brand-500" :fontControlled="false" />
+        <div class="flex flex-col items-center">
+          <p class="text-grey-50">Data Loaded</p>
+          <p class="text-grey-400 text-sm">
+            Your Data is Successfully loaded to the catalogue.
+          </p>
+        </div>
+        <UButton
+          @click="
+            () => {
+              emit('refreshListedLayers');
+              emit('handleSuccess');
+            }
+          "
+          :ui="{ rounded: 'rounded-[4px]' }"
+          color="brand"
+          >Go To Catalogue</UButton
+        >
+      </div>
     </div>
-    <div class="flex justify-between">
+    <div v-if="!uploading && !uploaded" class="flex justify-between">
       <UButton
         @click="cancel"
         :ui="{ rounded: 'rounded-xs' }"
@@ -135,11 +426,11 @@ const handleNext = () => {
         >
         </UButton>
         <UButton
-          :disabled="selectedTab === 1"
-          @click="handleNext"
+          :disabled="nextDisabled"
+          @click="selectedTab === 2 && selectedFile ? upload() : handleNext()"
           :ui="{ rounded: 'rounded-xs' }"
-          label="Next"
-          :color="selectedTab === 1 ? 'grey' : 'brand'"
+          :label="selectedTab === 2 ? 'Upload Data' : 'Next'"
+          :color="nextDisabled ? 'grey' : 'brand'"
           class="w-44 text-sm justify-center"
         >
         </UButton>

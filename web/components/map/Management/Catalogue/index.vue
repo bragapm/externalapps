@@ -14,11 +14,13 @@ const fetchingListedLayers = ref(true);
 const mode = ref<UploadModeEnum>("");
 const isOption = ref(false);
 
-// get listed layer list
-onMounted(async () => {
+const getListedLayers = async () => {
   await fetchListedLayers();
   fetchingListedLayers.value = false;
-});
+};
+
+// get listed layer list
+onMounted(() => getListedLayers());
 const filteredLayers = ref<LayerGroupedByCategory[]>([]);
 const filteredLocalLayers = ref<LayerGroupedByCategory[]>([]);
 
@@ -394,6 +396,7 @@ const changeMode = (value: UploadModeEnum) => {
     <MapManagementCatalogueUpload
       v-if="mode === 'upload'"
       :sortOrder="sortOrder"
+      @refresh-listed-layers="() => getListedLayers()"
       @handle-success="
         () => {
           changeMode('');
