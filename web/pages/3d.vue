@@ -18,7 +18,7 @@ const list3D = [
     id: "jembatan-sei-hampangen",
     cesium: "2418832",
     name: "Jembatan Sei Hampangen",
-    src: "a9b71ba2-ea8b-4022-b792-22ad35c8299f",
+    src: "/panel/assets/a9b71ba2-ea8b-4022-b792-22ad35c8299f",
     long: 113.5064618088,
     lat: -1.8897180463,
     zoom: 18,
@@ -27,7 +27,7 @@ const list3D = [
     id: "embung-bokondini",
     cesium: "2421499",
     name: "Embung Bokondini",
-    src: "06ec4c92-1aa3-49cb-bb61-fccf757f5441",
+    src: "/panel/assets/06ec4c92-1aa3-49cb-bb61-fccf757f5441",
     long: 138.6670112611,
     lat: -3.6874015645,
     zoom: 18,
@@ -36,13 +36,22 @@ const list3D = [
     id: "bendungan-sepaku-semoi",
     cesium: "2426584",
     name: "Bendungan Sepaku Semoi",
-    src: "096406c0-f3f6-47fb-9614-f4316f076f5b",
+    src: "/panel/assets/096406c0-f3f6-47fb-9614-f4316f076f5b",
   },
   {
     id: "dermaga-logistik",
     cesium: "2426587",
     name: "Dermaga Logistik",
-    src: "27210f03-9449-4776-9d4e-57c2b1f6ba94",
+    src: "/panel/assets/27210f03-9449-4776-9d4e-57c2b1f6ba94",
+    long: 116.72235667,
+    lat: -1.1339615,
+    zoom: 18,
+  },
+  {
+    id: "basic-house",
+    cesium: "000",
+    name: "Basic House",
+    src: "/panel/xkt/2e07eb96-a067-49d9-9cb0-8ece322bd0df",
     long: 116.72235667,
     lat: -1.1339615,
     zoom: 18,
@@ -75,10 +84,10 @@ onMounted(() => {
   const xktLoader = new XKTLoaderPlugin(viewer);
 
   // TODO : dynamic selection
-  const idx = queryObject.model ?? 0;
+  const idx: number = queryObject.model ? +queryObject.model : 0;
   const sceneModel = xktLoader.load({
     id: "myModel",
-    src: "/panel/assets/" + list3D[idx].src,
+    src: list3D[idx].src,
     saoEnabled: true,
     edges: false,
     dtxEnabled: true,

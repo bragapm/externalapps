@@ -10,7 +10,7 @@ from pyproj import CRS
 import dramatiq.results
 
 
-from lib.raster_tiling import delete_generated_tiles
+# from lib.raster_tiling import delete_generated_tiles
 from lib.register_table import register_3d_tile
 from utils import (
     generate_local_temp_dir_path,
@@ -21,7 +21,7 @@ from utils import (
 )
 
 
-def delete_generated_tiles(bucket: str, layer_id: str):
+def delete_generated_3d_tiles(bucket: str, layer_id: str):
     delete_object_list = map(
         lambda x: DeleteObject(x.object_name),
         minio_client.list_objects(bucket, f"3d-tiles/{layer_id}/", recursive=True),
@@ -78,7 +78,7 @@ def three_d_tiling(
     except Exception as err:
         del_errs = []
         if layer_id and bucket:
-            del_err_generator = delete_generated_tiles(bucket, layer_id)
+            del_err_generator = delete_generated_3d_tiles(bucket, layer_id)
             for del_err in del_err_generator:
                 del_errs.append(del_err)
 

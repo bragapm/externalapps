@@ -7,7 +7,6 @@ import tasks
 from utils import logger
 
 
-
 # If run as simple python script (python main.py)
 def main():
     # input_geotiff = "b0e271ae-8d03-4810-b7ea-7f409cfff2f2.tif"
@@ -19,6 +18,7 @@ def main():
         is_zipped=True,
         table_name="hahaha13",
     )
+    # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
 
 
 # If run as dramatiq manager (dramatiq --verbose -p 1 -t 1 main)
