@@ -22,6 +22,8 @@ def register_table_to_directus(
     fill_style = None
     line_style = None
     circle_style = None
+    preview = None
+    description = None
 
     if additional_config is not None:
         layer_alias = additional_config.get("layer_alias", None)
@@ -29,6 +31,8 @@ def register_table_to_directus(
         # TODO also get permission type from additional_config, but validate before use
         # i.e. if uploader is not an admin, only allow "roles" or "roles+public"
         permission_type = "roles+public"
+        preview = additional_config.get("preview", None)
+        description = additional_config.get("description", None)
 
     with conn:
         with conn.cursor() as cur:
@@ -62,7 +66,7 @@ def register_table_to_directus(
                         )
 
             cur.execute(
-                "INSERT INTO vector_tiles(layer_id, layer_name, geometry_type, user_created, bounds, layer_alias, listed, fill_style, line_style, circle_style, permission_type) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                "INSERT INTO vector_tiles(layer_id, layer_name, geometry_type, user_created, bounds, layer_alias, listed, fill_style, line_style, circle_style, permission_type, preview, description) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 [
                     str(uuid4()),
                     table_name,
@@ -79,6 +83,8 @@ def register_table_to_directus(
                     line_style,
                     circle_style,
                     permission_type,
+                    preview,
+                    description,
                 ],
             )
 
@@ -117,18 +123,22 @@ def register_raster_tile(
 ):
     listed = False
     permission_type = "admin"
+    preview = None
+    description = None
 
     if additional_config is not None:
         listed = additional_config.get("listed", False)
         # TODO also get permission type from additional_config, but validate before use
         # i.e. if uploader is not an admin, only allow "roles" or "roles+public"
         permission_type = "roles+public"
+        preview = additional_config.get("preview", None)
+        description = additional_config.get("description", None)
 
     with conn:
         with conn.cursor() as cur:
             cur.execute(
-                """INSERT INTO raster_tiles(layer_id, layer_alias, bounds, minzoom, maxzoom, terrain_rgb, user_created, listed, permission_type)
-            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                """INSERT INTO raster_tiles(layer_id, layer_alias, bounds, minzoom, maxzoom, terrain_rgb, user_created, listed, permission_type, preview, description)
+            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 [
                     layer_id,
                     raster_alias,
@@ -139,6 +149,8 @@ def register_raster_tile(
                     uploader,
                     listed,
                     permission_type,
+                    preview,
+                    description,
                 ],
             )
     logger.info("Register to raster tiles")
@@ -155,12 +167,16 @@ def register_3d_tile(
     permission_type = "admin"
     opacity = None
     point_size = None
+    preview = None
+    description = None
 
     if additional_config is not None:
         listed = additional_config.get("listed", False)
         # TODO also get permission type from additional_config, but validate before use
         # i.e. if uploader is not an admin, only allow "roles" or "roles+public"
         permission_type = "roles+public"
+        preview = additional_config.get("preview", None)
+        description = additional_config.get("description", None)
 
     if listed:
         # default view for auto listed layer
@@ -170,8 +186,8 @@ def register_3d_tile(
     with conn:
         with conn.cursor() as cur:
             cur.execute(
-                """INSERT INTO three_d_tiles(layer_id, layer_alias, user_created, listed, permission_type, opacity, point_size)
-            VALUES(%s, %s, %s, %s, %s, %s, %s)""",
+                """INSERT INTO three_d_tiles(layer_id, layer_alias, user_created, listed, permission_type, opacity, point_size, preview, description)
+            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 [
                     layer_id,
                     three_d_alias,
@@ -180,5 +196,7 @@ def register_3d_tile(
                     permission_type,
                     opacity,
                     point_size,
+                    preview,
+                    description,
                 ],
             )
