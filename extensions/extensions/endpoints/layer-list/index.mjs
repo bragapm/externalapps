@@ -8,7 +8,9 @@ export default (router, { database, logger }) => {
       group_by: groupBy = "type",
       sort_dir: sortDir = "asc",
       dimension = "all",
+      format = "all",
     } = req.query;
+    const formatArr = format.split(",");
 
     if (!["active", "listed"].includes(state)) {
       return next(
@@ -36,25 +38,54 @@ export default (router, { database, logger }) => {
         })
       );
     }
+    const twoDFormats = ["circle", "line", "polygon", "symbol", "raster"];
+    for (const format of formatArr) {
+      if (!["all", "3d", "terrain", ...twoDFormats].includes(format)) {
+        return next(
+          new InvalidQueryError({
+            reason:
+              'format must be comma-separated values of "all", "3d", "circle", "line", "polygon", "symbol", "raster", or "terrain"',
+          })
+        );
+      }
+    }
 
-    const fetch2d = ["all", "2d"].includes(dimension);
-    const fetch3d = ["all", "3d"].includes(dimension);
+    const fetch2d =
+      ["all", "2d"].includes(dimension) &&
+      ["all", ...twoDFormats].some((el) => formatArr.includes(el));
+    const fetch3d =
+      ["all", "3d"].includes(dimension) &&
+      ["all", "3d"].some((el) => formatArr.includes(el));
+    const fetchTerrain =
+      ["all", "3d"].includes(dimension) &&
+      ["all", "terrain"].some((el) => formatArr.includes(el));
 
     try {
       if (groupBy === "category") {
-        const result = await database.raw(
-          allByCategoriesQuery(state, accountability, sortDir, fetch2d, fetch3d)
+        const query = allByCategoriesQuery(
+          state,
+          accountability,
+          sortDir,
+          fetch2d,
+          fetch3d,
+          fetchTerrain,
+          formatArr
         );
-        return res.json({ data: result.rows[0]?.all_by_categories || {} });
+        if (query) {
+          const result = await database.raw(query);
+          return res.json({ data: result.rows[0]?.all_by_categories || {} });
+        } else {
+          return res.json({ data: {} });
+        }
       } else {
         const [threeDResult, twoDResult, terrainResult] = await Promise.all([
           fetch3d
             ? database.raw(threeDQuery(state, accountability, sortDir))
             : false,
           fetch2d
-            ? database.raw(twoDQuery(state, accountability, sortDir))
+            ? database.raw(twoDQuery(state, accountability, sortDir, formatArr))
             : false,
-          fetch3d
+          fetchTerrain
             ? database.raw(terrainQuery(state, accountability, sortDir))
             : false,
         ]);
@@ -118,7 +149,7 @@ function threeDQuery(state, accountability, sortDir) {
   ) cg`;
 }
 
-function twoDQuery(state, accountability, sortDir) {
+function twoDQuery(state, accountability, sortDir, formatArr) {
   let allowedRoleVectorJoin = "";
   let allowedRoleRasterJoin = "";
   let permissionFilter = "";
@@ -131,55 +162,77 @@ function twoDQuery(state, accountability, sortDir) {
     permissionFilter = "AND permission_type = 'roles+public'";
   }
 
-  return `WITH vector_tiles_list AS (
-    SELECT layer_id id,circle_style,symbol_style,fill_style,line_style
-    FROM vector_tiles
-    ${allowedRoleVectorJoin}
-    WHERE ${state} IS TRUE
-    ${permissionFilter}
-  ), layer_styles AS (
-    SELECT l.id,to_jsonb(circle.*) layer_style,'Circle' layer_type
-    FROM vector_tiles_list l,circle
-    WHERE circle.id=circle_style
-    UNION ALL
-    SELECT l.id,to_jsonb(symbol.*) layer_style,'Symbol' layer_type
-    FROM vector_tiles_list l,symbol
-    WHERE symbol.id=symbol_style
-    UNION ALL
-    SELECT l.id,to_jsonb(fill.*) layer_style,'Polygon' layer_type
-    FROM vector_tiles_list l,fill
-    WHERE fill.id=fill_style
-    UNION ALL
-    SELECT l.id,to_jsonb(line.*) layer_style,'Line' layer_type
-    FROM vector_tiles_list l,line
-    WHERE line.id=line_style
-  ), category_vector AS (
-    SELECT category,to_jsonb(l2) layers
-    FROM (
-      SELECT category,'vector_tiles' source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type
-      FROM layer_styles
-      INNER JOIN vector_tiles ON layer_id=id
-    ) l,
-    LATERAL (
-      VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
-    ) AS l2(source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
-  ), raster_tiles_list AS (
-    SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,category,visible
-    FROM raster_tiles
-    ${allowedRoleRasterJoin}
-    WHERE ${state} IS TRUE
-    AND terrain_rgb IS FALSE
-    ${permissionFilter}
-  ), category_raster AS (
-    SELECT category,to_jsonb(l2) layers
-    FROM (
-      SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,'Raster' layer_type
-      FROM raster_tiles_list
-    )l,
-    LATERAL (
-      VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
-    ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
-  )
+  const listQueries = [];
+  const unionQueries = [];
+  if (
+    ["all", "circle", "line", "polygon", "symbol"].some((el) =>
+      formatArr.includes(el)
+    )
+  ) {
+    const styleUnionQueries = [];
+    if (["all", "circle"].some((el) => formatArr.includes(el))) {
+      styleUnionQueries.push(
+        "SELECT l.id,to_jsonb(circle.*) layer_style,'Circle' layer_type FROM vector_tiles_list l,circle WHERE circle.id=circle_style"
+      );
+    }
+    if (["all", "symbol"].some((el) => formatArr.includes(el))) {
+      styleUnionQueries.push(
+        "SELECT l.id,to_jsonb(symbol.*) layer_style,'Symbol' layer_type FROM vector_tiles_list l,symbol WHERE symbol.id=symbol_style"
+      );
+    }
+    if (["all", "polygon"].some((el) => formatArr.includes(el))) {
+      styleUnionQueries.push(
+        "SELECT l.id,to_jsonb(fill.*) layer_style,'Polygon' layer_type FROM vector_tiles_list l,fill WHERE fill.id=fill_style"
+      );
+    }
+    if (["all", "line"].some((el) => formatArr.includes(el))) {
+      styleUnionQueries.push(
+        "SELECT l.id,to_jsonb(line.*) layer_style,'Line' layer_type FROM vector_tiles_list l,line WHERE line.id=line_style"
+      );
+    }
+    listQueries.push(`vector_tiles_list AS (
+      SELECT layer_id id,circle_style,symbol_style,fill_style,line_style
+      FROM vector_tiles
+      ${allowedRoleVectorJoin}
+      WHERE ${state} IS TRUE
+      ${permissionFilter}
+    ), layer_styles AS (
+      ${styleUnionQueries.join(" UNION ALL ")}
+    ), category_vector AS (
+      SELECT category,to_jsonb(l2) layers
+      FROM (
+        SELECT category,'vector_tiles' source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type
+        FROM layer_styles
+        INNER JOIN vector_tiles ON layer_id=id
+      ) l,
+      LATERAL (
+        VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
+      ) AS l2(source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
+    )`);
+    unionQueries.push("SELECT * FROM category_vector");
+  }
+  if (["all", "raster"].some((el) => formatArr.includes(el))) {
+    listQueries.push(`raster_tiles_list AS (
+      SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,category,visible
+      FROM raster_tiles
+      ${allowedRoleRasterJoin}
+      WHERE ${state} IS TRUE
+      AND terrain_rgb IS FALSE
+      ${permissionFilter}
+    ), category_raster AS (
+      SELECT category,to_jsonb(l2) layers
+      FROM (
+        SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,'Raster' layer_type
+        FROM raster_tiles_list
+      )l,
+      LATERAL (
+        VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
+      ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
+    )`);
+    unionQueries.push("SELECT * FROM category_raster");
+  }
+
+  return `WITH ${listQueries.join(",")}
   SELECT json_object_agg(COALESCE(category::text,'uncategorized'),v) two_d
   FROM (
     SELECT category,jsonb_build_object('category_name',category_name,'layers',layers) v
@@ -187,13 +240,7 @@ function twoDQuery(state, accountability, sortDir) {
       SELECT category,array_agg(layers) layers
       FROM (
         SELECT *
-        FROM (
-          SELECT *
-          FROM category_vector
-          UNION ALL
-          SELECT *
-          FROM category_raster
-        ) o
+        FROM (${unionQueries.join(" UNION ALL ")}) o
         ORDER BY category,COALESCE(layers ->> 'layer_alias',layers ->> 'layer_name') ${sortDir}
       ) c
       GROUP BY category
@@ -250,7 +297,9 @@ function allByCategoriesQuery(
   accountability,
   sortDir,
   fetch2d,
-  fetch3d
+  fetch3d,
+  fetchTerrain,
+  formatArr
 ) {
   let allowedRole3dJoin = "";
   let allowedRoleVectorJoin = "";
@@ -266,34 +315,43 @@ function allByCategoriesQuery(
     permissionFilter = "AND permission_type = 'roles+public'";
   }
 
-  let vectorListQuery = "";
-  let vectorUnionQuery = "";
-  let threeDListQuery = "";
-  let threeDUnionQuery = "";
-  let rasterListFilter = "";
-  if (fetch2d) {
-    vectorListQuery = `vector_tiles_list AS (
+  const listQueries = [];
+  const unionQueries = [];
+  if (
+    fetch2d &&
+    ["all", "circle", "line", "polygon", "symbol"].some((el) =>
+      formatArr.includes(el)
+    )
+  ) {
+    const styleUnionQueries = [];
+    if (["all", "circle"].some((el) => formatArr.includes(el))) {
+      styleUnionQueries.push(
+        "SELECT l.id,to_jsonb(circle.*) layer_style,'Circle' layer_type FROM vector_tiles_list l,circle WHERE circle.id=circle_style"
+      );
+    }
+    if (["all", "symbol"].some((el) => formatArr.includes(el))) {
+      styleUnionQueries.push(
+        "SELECT l.id,to_jsonb(symbol.*) layer_style,'Symbol' layer_type FROM vector_tiles_list l,symbol WHERE symbol.id=symbol_style"
+      );
+    }
+    if (["all", "polygon"].some((el) => formatArr.includes(el))) {
+      styleUnionQueries.push(
+        "SELECT l.id,to_jsonb(fill.*) layer_style,'Polygon' layer_type FROM vector_tiles_list l,fill WHERE fill.id=fill_style"
+      );
+    }
+    if (["all", "line"].some((el) => formatArr.includes(el))) {
+      styleUnionQueries.push(
+        "SELECT l.id,to_jsonb(line.*) layer_style,'Line' layer_type FROM vector_tiles_list l,line WHERE line.id=line_style"
+      );
+    }
+    listQueries.push(`vector_tiles_list AS (
       SELECT layer_id id,circle_style,symbol_style,fill_style,line_style
       FROM vector_tiles
       ${allowedRoleVectorJoin}
       WHERE ${state} IS TRUE
       ${permissionFilter}
     ), layer_styles AS (
-      SELECT l.id,to_jsonb(circle.*) layer_style,'Circle' layer_type
-      FROM vector_tiles_list l,circle
-      WHERE circle.id=circle_style
-      UNION ALL
-      SELECT l.id,to_jsonb(symbol.*) layer_style,'Symbol' layer_type
-      FROM vector_tiles_list l,symbol
-      WHERE symbol.id=symbol_style
-      UNION ALL
-      SELECT l.id,to_jsonb(fill.*) layer_style,'Polygon' layer_type
-      FROM vector_tiles_list l,fill
-      WHERE fill.id=fill_style
-      UNION ALL
-      SELECT l.id,to_jsonb(line.*) layer_style,'Line' layer_type
-      FROM vector_tiles_list l,line
-      WHERE line.id=line_style
+      ${styleUnionQueries.join(" UNION ALL ")}
     ), category_vector AS (
       SELECT category,to_jsonb(l2) layers
       FROM (
@@ -304,12 +362,11 @@ function allByCategoriesQuery(
       LATERAL (
         VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
       ) AS l2(source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
-    ),`;
-    vectorUnionQuery = "SELECT * FROM category_vector UNION ALL";
-    rasterListFilter = "AND terrain_rgb IS FALSE";
+    )`);
+    unionQueries.push("SELECT * FROM category_vector");
   }
   if (fetch3d) {
-    threeDListQuery = `three_d_tiles_list AS (
+    listQueries.push(`three_d_tiles_list AS (
       SELECT layer_id,layer_alias,preview,description,category,opacity,point_size,point_color,visible
       FROM three_d_tiles
       ${allowedRole3dJoin}
@@ -324,13 +381,20 @@ function allByCategoriesQuery(
       LATERAL (
         VALUES (source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
       ) AS l2(source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
-    ),`;
-    threeDUnionQuery = "SELECT * FROM category_3d UNION ALL";
-    rasterListFilter = fetch2d ? "" : "AND terrain_rgb IS TRUE";
+    )`);
+    unionQueries.push("SELECT * FROM category_3d");
   }
-
-  return `WITH ${threeDListQuery}${vectorListQuery}
-    raster_tiles_list AS (
+  if (
+    (fetch2d && ["all", "raster"].some((el) => formatArr.includes(el))) ||
+    fetchTerrain
+  ) {
+    let rasterListFilter = "";
+    if (!fetch2d) {
+      rasterListFilter = "AND terrain_rgb IS TRUE";
+    } else if (!fetchTerrain) {
+      rasterListFilter = "AND terrain_rgb IS FALSE";
+    }
+    listQueries.push(`raster_tiles_list AS (
       SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,category,visible,terrain_rgb
       FROM raster_tiles
       ${allowedRoleRasterJoin}
@@ -346,25 +410,28 @@ function allByCategoriesQuery(
       LATERAL (
         VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
       ) AS l2(source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
-    )
-    SELECT json_object_agg(COALESCE(category::text,'uncategorized'),v) all_by_categories
-    FROM (
-      SELECT category,jsonb_build_object('category_name',category_name,'layers',layers) v
+    )`);
+    unionQueries.push("SELECT * FROM category_raster");
+  }
+
+  if (listQueries.length) {
+    return `WITH ${listQueries.join(",")}
+      SELECT json_object_agg(COALESCE(category::text,'uncategorized'),v) all_by_categories
       FROM (
-        SELECT category,array_agg(layers) layers
+        SELECT category,jsonb_build_object('category_name',category_name,'layers',layers) v
         FROM (
-          SELECT *
+          SELECT category,array_agg(layers) layers
           FROM (
-            ${threeDUnionQuery}
-            ${vectorUnionQuery}
             SELECT *
-            FROM category_raster
-          ) o
-          ORDER BY category,COALESCE(layers ->> 'layer_alias',layers ->> 'layer_name') ${sortDir}
-        ) c
-        GROUP BY category
-      ) g
-      LEFT JOIN categories ON category_id = category
-      ORDER BY category_name
-    ) cg`;
+            FROM (${unionQueries.join(" UNION ALL ")}) o
+            ORDER BY category,COALESCE(layers ->> 'layer_alias',layers ->> 'layer_name') ${sortDir}
+          ) c
+          GROUP BY category
+        ) g
+        LEFT JOIN categories ON category_id = category
+        ORDER BY category_name
+      ) cg`;
+  } else {
+    return "";
+  }
 }
