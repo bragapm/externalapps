@@ -9,7 +9,6 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "handleSuccess"): void;
   (e: "setSelectedFile", value: File | null): void;
 }>();
 
@@ -56,7 +55,6 @@ const handleDrop = (e: any) => {
 };
 </script>
 
-<!-- accept=".geojson,application/geo+json,.zip,application/zip,application/x-zip-compressed,.csv,text/csv,.xls,application/vnd.ms-excel,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.kml,application/vnd.google-earth.kml+xml,.gpx,application/gpx+xml,.tcx,application/vnd.garmin.tcx+xml,.gpkg,application/geopackage+sqlite3,.fgb" -->
 <template>
   <input
     ref="input"

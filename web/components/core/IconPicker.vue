@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/vue-query";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue";
 import { useFloating, offset, flip } from "@floating-ui/vue";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
+import { layerIconsFolderId } from "~/constants";
 
 const props = defineProps<{
   modelValue: { id: string; title: string };
@@ -26,7 +27,7 @@ const { data: iconImageData, refetch } = useQuery({
         filter: JSON.stringify({
           _and: [
             {
-              folder: { _eq: "ffffffff-ffff-4fff-bfff-fffffffffffe" },
+              folder: { _eq: layerIconsFolderId },
             },
             { type: { _eq: "image/svg+xml" } },
             filterByTitle.value && {

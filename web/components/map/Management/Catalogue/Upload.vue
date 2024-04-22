@@ -6,6 +6,7 @@ import IcMapLayerB from "~/assets/icons/ic-map-layer-b.svg";
 import Ic3d from "~/assets/icons/ic-3d.svg";
 import IcSpinner from "~/assets/icons/ic-spinner.svg";
 import IcCheck from "~/assets/icons/ic-check.svg";
+import { layerDataFolderId, layerPreviewFolderId } from "~/constants";
 
 const props = defineProps<{
   sortOrder: { id: "asc" | "desc"; name: string };
@@ -28,6 +29,7 @@ const uploading = ref(false);
 const uploaded = ref(false);
 
 const selectedFile = ref<File | null>(null);
+const thumbnailFile = ref<File | null>(null);
 
 const dataType = ref<string>("");
 const isTerrain = ref<boolean>(false);
@@ -38,6 +40,7 @@ const selectedTab = ref(0);
 const formatData = ref<string>("");
 
 const datasetName = ref<HTMLInputElement | null>(null);
+const datasetDesc = ref<HTMLInputElement | null>(null);
 
 function changeTab(index: number) {
   selectedTab.value = index;
@@ -54,25 +57,64 @@ const handleNext = () => {
   }
 };
 
+const uploadPreviewImg = async () => {
+  const form = new FormData();
+  form.append("folder", layerPreviewFolderId);
+
+  form.append("file", thumbnailFile.value as File);
+
+  const res = await fetch("/panel/files", {
+    credentials: "include",
+    headers: {
+      Authorization: `Bearer ${authStore.accessToken}`,
+    },
+    body: form,
+    method: "POST",
+  });
+
+  const result = await res.json();
+
+  if (result?.data?.id) {
+    return result.data.id;
+  } else {
+    if (result.errors[0].message) {
+      throw new Error(result.errors[0].message);
+    } else {
+      throw new Error("Error uploading preview image");
+    }
+  }
+};
+
 const upload = async () => {
   try {
     uploading.value = true;
+
+    const additionalConfig: Record<string, any> = { listed: true };
+
+    if (thumbnailFile) {
+      const previewUploadResId = await uploadPreviewImg();
+
+      if (previewUploadResId) {
+        additionalConfig["preview"] = previewUploadResId;
+      }
+    }
+
     const form = new FormData();
-    form.append("folder", "ffffffff-ffff-4fff-bfff-fffffffffffb");
+    form.append("folder", layerDataFolderId);
     form.append("format_file", formatData.value);
     form.append(
       "is_zipped",
       selectedFile.value?.type === "application/zip" ? "true" : "false"
     );
-    dataType.value === "vector"
-      ? form.append(
-          "additional_config",
-          `{"layer_alias":${JSON.stringify(
-            datasetName.value?.value || selectedFile.value?.name
-          )},"listed":true}`
-        )
-      : form.append("additional_config", '{"listed":true}');
-      
+
+    datasetDesc.value?.value &&
+      (additionalConfig["description"] = datasetDesc.value.value);
+    dataType.value === "vector" &&
+      (additionalConfig["layer_alias"] =
+        datasetName.value?.value || selectedFile.value?.name);
+
+    form.append("additional_config", JSON.stringify(additionalConfig));
+
     dataType.value === "raster" &&
       form.append(
         "raster_alias",
@@ -123,7 +165,13 @@ const upload = async () => {
     }
   } catch (error) {
     uploading.value = false;
-    console.log(error);
+    const message =
+      error instanceof Error
+        ? error.message || "Error uploading file"
+        : "Error uploading file";
+    toast.add({
+      title: message,
+    });
   }
 };
 
@@ -269,11 +317,6 @@ watchEffect(() => {
                     selectedFile = value;
                   }
                 "
-                @handle-success="
-                  () => {
-                    emit('handleSuccess');
-                  }
-                "
               />
               <div v-if="dataType === 'raster'" class="space-y-3">
                 <p class="text-sm text-grey-400">Is Terrain</p>
@@ -358,6 +401,15 @@ watchEffect(() => {
             </TabPanel>
             <TabPanel class="space-y-3">
               <p class="text-sm text-grey-400">Dataset Information</p>
+              <MapManagementCatalogueLoadFileInput
+                accept="image/*"
+                :selectedFile="thumbnailFile"
+                @set-selected-file="
+                  (value: File|null) => {
+                    thumbnailFile = value;
+                  }
+                "
+              />
               <div class="relative">
                 <input
                   ref="datasetName"
@@ -372,8 +424,24 @@ watchEffect(() => {
                 >
                   Dataset Name
                 </label>
-              </div></TabPanel
-            >
+              </div>
+              <div class="relative">
+                <textarea
+                  ref="datasetDesc"
+                  type="text"
+                  rows="5"
+                  id="floating_filled"
+                  class="block rounded-xxs px-2.5 pb-2.5 pt-5 w-full text-sm text-grey-200 bg-grey-700 border border-grey-600 appearance-none focus:outline-none focus:ring-0 focus:border-grey-600 peer"
+                  placeholder=" "
+                />
+                <label
+                  for="floating_filled"
+                  class="absolute text-sm text-grey-200 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] start-2.5 peer-focus:text-grey-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+                >
+                  Dataset Description
+                </label>
+              </div>
+            </TabPanel>
           </TabPanels>
         </TabGroup>
       </div>
