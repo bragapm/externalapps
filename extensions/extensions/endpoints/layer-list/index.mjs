@@ -11,13 +11,13 @@ export default (router, { database, logger }) => {
 
     if (!["active", "listed"].includes(state)) {
       return next(
-        new InvalidQueryError({ reason: `${state} is not a valid state query` })
+        new InvalidQueryError({ reason: 'state must be "active" or "listed"' })
       );
     }
     if (!["type", "category"].includes(groupBy)) {
       return next(
         new InvalidQueryError({
-          reason: `${groupBy} is not a valid group_by query`,
+          reason: 'group_by must be "type" or "category"',
         })
       );
     }
