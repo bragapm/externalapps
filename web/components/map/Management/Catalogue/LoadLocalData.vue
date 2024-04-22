@@ -41,8 +41,10 @@ const uploaded = ref(false);
 const toast = useToast();
 
 const selectedFile = ref<File | null>(null);
+const thumbnailFile = ref<File | null>(null);
 
 const datasetName = ref<HTMLInputElement | null>(null);
+const datasetDesc = ref<HTMLInputElement | null>(null);
 
 const mapLayerStore = useMapLayer();
 const { addLoadedGeoJsonData } = useIDB();
@@ -153,7 +155,9 @@ const getGeomTypeAndStyle = (
 const addToIDBAndLayerList = async (
   fileName: string,
   geojsonObj: GeoJSON.GeoJSON,
-  bounds: GeoJSON.Polygon
+  bounds: GeoJSON.Polygon,
+  layerAlias: string | null,
+  description: string | null
 ) => {
   let geojsonGeomType: GeoJSON.GeoJsonGeometryTypes;
   if (geojsonObj.type === "Feature") {
@@ -182,13 +186,16 @@ const addToIDBAndLayerList = async (
   const newLayer: LoadedGeoJson = {
     source: "loaded_geojson",
     layer_id: `__local_${crypto.randomUUID()}`,
-    layer_alias: datasetName.value?.value || fileName,
+    layer_alias: layerAlias || fileName,
+    description: description || "",
+    preview: (thumbnailFile?.value as File) || null,
     category: { category_name: uncategorizedLoadedData },
     bounds,
     layer_style: typeAndStyle.layerStyle,
     geometry_type: typeAndStyle.geomType,
     dimension: "2D",
   };
+
   const newLayerWithData = {
     ...newLayer,
     data: geojsonObj,
@@ -217,7 +224,10 @@ const addToIDBAndLayerList = async (
   }
 };
 
-const handleFileUpload = async () => {
+const handleFileUpload = async (
+  layerAlias: string | null,
+  description: string | null
+) => {
   if (!window.Worker) {
     toast.add({
       title: "Feature not supported in this browser",
@@ -265,13 +275,16 @@ const handleFileUpload = async () => {
       let toastErr;
       try {
         const result = e.data.data;
+
         if (Array.isArray(result)) {
           for (let i = 0; i < result.length; i++) {
             const data = result[i];
             toastErr = await addToIDBAndLayerList(
               data.fileName || `${selectedFile.value!.name}_${i}`,
               data.geojsonObj,
-              data.bounds
+              data.bounds,
+              layerAlias || null,
+              description || null
             );
             if (toastErr) break;
           }
@@ -279,7 +292,9 @@ const handleFileUpload = async () => {
           toastErr = await addToIDBAndLayerList(
             selectedFile.value!.name,
             result.geojsonObj,
-            result.bounds
+            result.bounds,
+            layerAlias || null,
+            description || null
           );
         }
       } catch (error) {
@@ -318,7 +333,10 @@ const handleNext = () => {
     changeTab(selectedTab.value + 1);
   } else {
     if (selectedFile.value) {
-      handleFileUpload();
+      handleFileUpload(
+        datasetName?.value?.value || null,
+        datasetDesc?.value?.value || null
+      );
     }
   }
 };
@@ -406,6 +424,15 @@ const handleNext = () => {
             </TabPanel>
             <TabPanel class="space-y-3">
               <p class="text-sm text-grey-400">Dataset Information</p>
+              <MapManagementCatalogueLoadFileInput
+                accept="image/*"
+                :selectedFile="thumbnailFile"
+                @set-selected-file="
+                  (value: File|null) => {
+                    thumbnailFile = value;
+                  }
+                "
+              />
               <div class="relative">
                 <input
                   ref="datasetName"
@@ -419,6 +446,22 @@ const handleNext = () => {
                   class="absolute text-sm text-grey-200 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] start-2.5 peer-focus:text-grey-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
                 >
                   Dataset Name
+                </label>
+              </div>
+              <div class="relative">
+                <textarea
+                  ref="datasetDesc"
+                  type="text"
+                  rows="5"
+                  id="floating_filled"
+                  class="block rounded-xxs px-2.5 pb-2.5 pt-5 w-full text-sm text-grey-200 bg-grey-700 border border-grey-600 appearance-none focus:outline-none focus:ring-0 focus:border-grey-600 peer"
+                  placeholder=" "
+                />
+                <label
+                  for="floating_filled"
+                  class="absolute text-sm text-grey-200 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] start-2.5 peer-focus:text-grey-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+                >
+                  Dataset Description
                 </label>
               </div>
             </TabPanel>
