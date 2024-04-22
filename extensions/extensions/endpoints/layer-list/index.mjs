@@ -7,6 +7,7 @@ export default (router, { database, logger }) => {
       state = "listed",
       group_by: groupBy = "type",
       sort_dir: sortDir = "asc",
+      dimension = "all",
     } = req.query;
 
     if (!["active", "listed"].includes(state)) {
@@ -28,27 +29,41 @@ export default (router, { database, logger }) => {
         })
       );
     }
+    if (!["all", "2d", "3d"].includes(dimension)) {
+      return next(
+        new InvalidQueryError({
+          reason: 'dimension must be "all", "2d", or "3d"',
+        })
+      );
+    }
+
+    const fetch2d = ["all", "2d"].includes(dimension);
+    const fetch3d = ["all", "3d"].includes(dimension);
 
     try {
       if (groupBy === "category") {
         const result = await database.raw(
-          allByCategoriesQuery(state, accountability, sortDir)
+          allByCategoriesQuery(state, accountability, sortDir, fetch2d, fetch3d)
         );
         return res.json({ data: result.rows[0]?.all_by_categories || {} });
       } else {
         const [threeDResult, twoDResult, terrainResult] = await Promise.all([
-          database.raw(threeDQuery(state, accountability, sortDir)),
-          database.raw(twoDQuery(state, accountability, sortDir)),
-          database.raw(terrainQuery(state, accountability, sortDir)),
+          fetch3d
+            ? database.raw(threeDQuery(state, accountability, sortDir))
+            : false,
+          fetch2d
+            ? database.raw(twoDQuery(state, accountability, sortDir))
+            : false,
+          fetch3d
+            ? database.raw(terrainQuery(state, accountability, sortDir))
+            : false,
         ]);
+        const data = {};
+        if (threeDResult) data["3d"] = threeDResult.rows[0]?.three_d || {};
+        if (twoDResult) data["2d"] = twoDResult.rows[0]?.two_d || {};
+        if (terrainResult) data.terrain = terrainResult.rows[0]?.terrain || {};
 
-        return res.json({
-          data: {
-            "3d": threeDResult.rows[0]?.three_d || {},
-            "2d": twoDResult.rows[0]?.two_d || {},
-            terrain: terrainResult.rows[0]?.terrain || {},
-          },
-        });
+        return res.json({ data });
       }
     } catch (error) {
       logger.error(error);
@@ -230,7 +245,13 @@ function terrainQuery(state, accountability, sortDir) {
   ) cg`;
 }
 
-function allByCategoriesQuery(state, accountability, sortDir) {
+function allByCategoriesQuery(
+  state,
+  accountability,
+  sortDir,
+  fetch2d,
+  fetch3d
+) {
   let allowedRole3dJoin = "";
   let allowedRoleVectorJoin = "";
   let allowedRoleRasterJoin = "";
@@ -245,22 +266,13 @@ function allByCategoriesQuery(state, accountability, sortDir) {
     permissionFilter = "AND permission_type = 'roles+public'";
   }
 
-  return `WITH three_d_tiles_list AS (
-      SELECT layer_id,layer_alias,preview,description,category,opacity,point_size,point_color,visible
-      FROM three_d_tiles
-      ${allowedRole3dJoin}
-      WHERE ${state} IS TRUE
-      ${permissionFilter}
-    ), category_3d AS (
-      SELECT category,to_jsonb(l2) layers
-      FROM (
-        SELECT category,'three_d_tiles' source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,'3D' layer_type
-        FROM three_d_tiles_list
-      )l,
-      LATERAL (
-        VALUES (source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
-      ) AS l2(source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
-    ), vector_tiles_list AS (
+  let vectorListQuery = "";
+  let vectorUnionQuery = "";
+  let threeDListQuery = "";
+  let threeDUnionQuery = "";
+  let rasterListFilter = "";
+  if (fetch2d) {
+    vectorListQuery = `vector_tiles_list AS (
       SELECT layer_id id,circle_style,symbol_style,fill_style,line_style
       FROM vector_tiles
       ${allowedRoleVectorJoin}
@@ -292,12 +304,39 @@ function allByCategoriesQuery(state, accountability, sortDir) {
       LATERAL (
         VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
       ) AS l2(source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
-    ), raster_tiles_list AS (
+    ),`;
+    vectorUnionQuery = "SELECT * FROM category_vector UNION ALL";
+    rasterListFilter = "AND terrain_rgb IS FALSE";
+  }
+  if (fetch3d) {
+    threeDListQuery = `three_d_tiles_list AS (
+      SELECT layer_id,layer_alias,preview,description,category,opacity,point_size,point_color,visible
+      FROM three_d_tiles
+      ${allowedRole3dJoin}
+      WHERE ${state} IS TRUE
+      ${permissionFilter}
+    ), category_3d AS (
+      SELECT category,to_jsonb(l2) layers
+      FROM (
+        SELECT category,'three_d_tiles' source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,'3D' layer_type
+        FROM three_d_tiles_list
+      )l,
+      LATERAL (
+        VALUES (source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
+      ) AS l2(source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
+    ),`;
+    threeDUnionQuery = "SELECT * FROM category_3d UNION ALL";
+    rasterListFilter = fetch2d ? "" : "AND terrain_rgb IS TRUE";
+  }
+
+  return `WITH ${threeDListQuery}${vectorListQuery}
+    raster_tiles_list AS (
       SELECT layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,category,visible,terrain_rgb
       FROM raster_tiles
       ${allowedRoleRasterJoin}
       WHERE ${state} IS TRUE
       ${permissionFilter}
+      ${rasterListFilter}
     ), category_raster AS (
       SELECT category,to_jsonb(l2) layers
       FROM (
@@ -316,12 +355,8 @@ function allByCategoriesQuery(state, accountability, sortDir) {
         FROM (
           SELECT *
           FROM (
-            SELECT *
-            FROM category_3d
-            UNION ALL
-            SELECT *
-            FROM category_vector
-            UNION ALL
+            ${threeDUnionQuery}
+            ${vectorUnionQuery}
             SELECT *
             FROM category_raster
           ) o
