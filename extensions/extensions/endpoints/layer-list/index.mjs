@@ -3,7 +3,11 @@ import { InvalidQueryError, ServiceUnavailableError } from "@directus/errors";
 export default (router, { database, logger }) => {
   router.get("/", async (req, res, next) => {
     const { accountability } = req;
-    const { state = "listed", group_by: groupBy = "type" } = req.query;
+    const {
+      state = "listed",
+      group_by: groupBy = "type",
+      sort_dir: sortDir = "asc",
+    } = req.query;
 
     if (!["active", "listed"].includes(state)) {
       return next(
@@ -17,18 +21,25 @@ export default (router, { database, logger }) => {
         })
       );
     }
+    if (!["asc", "desc"].includes(sortDir)) {
+      return next(
+        new InvalidQueryError({
+          reason: 'sort_dir must be "asc" or "desc"',
+        })
+      );
+    }
 
     try {
       if (groupBy === "category") {
         const result = await database.raw(
-          allByCategoriesQuery(state, accountability)
+          allByCategoriesQuery(state, accountability, sortDir)
         );
         return res.json({ data: result.rows[0]?.all_by_categories || {} });
       } else {
         const [threeDResult, twoDResult, terrainResult] = await Promise.all([
-          database.raw(threeDQuery(state, accountability)),
-          database.raw(twoDQuery(state, accountability)),
-          database.raw(terrainQuery(state, accountability)),
+          database.raw(threeDQuery(state, accountability, sortDir)),
+          database.raw(twoDQuery(state, accountability, sortDir)),
+          database.raw(terrainQuery(state, accountability, sortDir)),
         ]);
 
         return res.json({
@@ -51,7 +62,7 @@ export default (router, { database, logger }) => {
   });
 };
 
-function threeDQuery(state, accountability) {
+function threeDQuery(state, accountability, sortDir) {
   let allowedRoleJoin = "";
   let permissionFilter = "";
   if (accountability.admin) {
@@ -73,7 +84,7 @@ function threeDQuery(state, accountability) {
     FROM (
       SELECT category,'three_d_tiles' source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,'3D' layer_type
       FROM three_d_tiles_list
-      ORDER BY layer_alias
+      ORDER BY layer_alias ${sortDir}
     )l,
     LATERAL (
       VALUES (source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
@@ -92,7 +103,7 @@ function threeDQuery(state, accountability) {
   ) cg`;
 }
 
-function twoDQuery(state, accountability) {
+function twoDQuery(state, accountability, sortDir) {
   let allowedRoleVectorJoin = "";
   let allowedRoleRasterJoin = "";
   let permissionFilter = "";
@@ -133,7 +144,6 @@ function twoDQuery(state, accountability) {
       SELECT category,'vector_tiles' source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type
       FROM layer_styles
       INNER JOIN vector_tiles ON layer_id=id
-      ORDER BY COALESCE(layer_alias,layer_name)
     ) l,
     LATERAL (
       VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
@@ -150,7 +160,6 @@ function twoDQuery(state, accountability) {
     FROM (
       SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,'Raster' layer_type
       FROM raster_tiles_list
-      ORDER BY layer_alias
     )l,
     LATERAL (
       VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
@@ -163,10 +172,14 @@ function twoDQuery(state, accountability) {
       SELECT category,array_agg(layers) layers
       FROM (
         SELECT *
-        FROM category_vector
-        UNION ALL
-        SELECT *
-        FROM category_raster
+        FROM (
+          SELECT *
+          FROM category_vector
+          UNION ALL
+          SELECT *
+          FROM category_raster
+        ) o
+        ORDER BY category,COALESCE(layers ->> 'layer_alias',layers ->> 'layer_name') ${sortDir}
       ) c
       GROUP BY category
     ) g
@@ -175,7 +188,7 @@ function twoDQuery(state, accountability) {
   ) cg`;
 }
 
-function terrainQuery(state, accountability) {
+function terrainQuery(state, accountability, sortDir) {
   let allowedRoleJoin = "";
   let permissionFilter = "";
   if (accountability.admin) {
@@ -198,7 +211,7 @@ function terrainQuery(state, accountability) {
     FROM (
       SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,'Terrain' layer_type
       FROM terrain_list
-      ORDER BY layer_alias
+      ORDER BY layer_alias ${sortDir}
     )l,
     LATERAL (
       VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
@@ -217,7 +230,7 @@ function terrainQuery(state, accountability) {
   ) cg`;
 }
 
-function allByCategoriesQuery(state, accountability) {
+function allByCategoriesQuery(state, accountability, sortDir) {
   let allowedRole3dJoin = "";
   let allowedRoleVectorJoin = "";
   let allowedRoleRasterJoin = "";
@@ -243,7 +256,6 @@ function allByCategoriesQuery(state, accountability) {
       FROM (
         SELECT category,'three_d_tiles' source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,'3D' layer_type
         FROM three_d_tiles_list
-        ORDER BY layer_alias
       )l,
       LATERAL (
         VALUES (source,layer_id,layer_alias,preview,description,opacity,point_size,point_color,visible,layer_type)
@@ -276,7 +288,6 @@ function allByCategoriesQuery(state, accountability) {
         SELECT category,'vector_tiles' source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type
         FROM layer_styles
         INNER JOIN vector_tiles ON layer_id=id
-        ORDER BY COALESCE(layer_alias,layer_name)
       ) l,
       LATERAL (
         VALUES (source,layer_id,layer_name,bounds,minzoom,maxzoom,layer_alias,preview,description,click_popup_columns,image_columns,feature_detail_template,feature_detail_attachments,layer_style,layer_type)
@@ -292,7 +303,6 @@ function allByCategoriesQuery(state, accountability) {
       FROM (
         SELECT category,'raster_tiles' source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,CASE WHEN terrain_rgb IS TRUE THEN 'Terrain' ELSE 'Raster' END layer_type
         FROM raster_tiles_list
-        ORDER BY layer_alias
       )l,
       LATERAL (
         VALUES (source,layer_id,bounds,minzoom,maxzoom,layer_alias,preview,description,visible,layer_type)
@@ -305,13 +315,17 @@ function allByCategoriesQuery(state, accountability) {
         SELECT category,array_agg(layers) layers
         FROM (
           SELECT *
-          FROM category_3d
-          UNION ALL
-          SELECT *
-          FROM category_vector
-          UNION ALL
-          SELECT *
-          FROM category_raster
+          FROM (
+            SELECT *
+            FROM category_3d
+            UNION ALL
+            SELECT *
+            FROM category_vector
+            UNION ALL
+            SELECT *
+            FROM category_raster
+          ) o
+          ORDER BY category,COALESCE(layers ->> 'layer_alias',layers ->> 'layer_name') ${sortDir}
         ) c
         GROUP BY category
       ) g
