@@ -90,7 +90,9 @@ const removeAllAnimation = () => {
             id: 'buffer_area',
             label: 'Buffer Area',
             icon: IcDrawSquare,
-            action: () => console.log('buffer_area'),
+            action: (item) => {
+              handleOpenToolsCard(item!);
+            },          
           },
           {
             id: 'route_finder',
@@ -180,5 +182,6 @@ const removeAllAnimation = () => {
     <MapToolsLength v-if="activeTools?.id === 'length'" />
     <MapToolsArea v-else-if="activeTools?.id === 'area'" />
     <MapToolsFindCoordinate v-else-if="activeTools?.id === 'find_coordinate'" />
+    <MapToolsBuffer v-else-if="activeTools?.id === 'buffer_area'" />
   </MapToolsCard>
 </template>

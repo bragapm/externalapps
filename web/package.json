@@ -38,6 +38,7 @@
     "@tanstack/vue-query": "^5.24.1",
     "@turf/area": "^6.5.0",
     "@turf/bbox": "^6.5.0",
+    "@turf/buffer": "^6.5.0",
     "@turf/helpers": "^6.5.0",
     "@turf/length": "^6.5.0",
     "@xeokit/xeokit-sdk": "2.6.0-beta-10",

@@ -37,6 +37,14 @@ export default defineAppConfig({
         },
       },
     },
+    select: {
+      color: {
+        gray: {
+          outline:
+            "shadow-sm bg-grey-700 dark:bg-grey-700 text-grey-200 dark:text-white ring-1 ring-inset ring-grey-600 dark:ring-grey-700 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400",
+        },
+      },
+    },
     notifications: {
       position: "bottom-0 top-auto",
     },
