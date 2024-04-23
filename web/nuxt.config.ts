@@ -37,6 +37,7 @@ export default defineNuxtConfig({
             ? "http://directus:8055/**"
             : "https://latest.geodashboard.io/panel/**",
       },
+      // "/buffer/**": { proxy: "http://localhost:8055/**" },
     },
   },
   alias: {

@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import type { GeoJSONSource, MapLayerTouchEvent } from "maplibre-gl";
 import buffer from "@turf/buffer";
+import { convertLength, type Units } from "@turf/helpers";
+import { useQuery } from "@tanstack/vue-query";
+import type { HeaderData } from "../Management/Table.vue";
 
 const mapStore = useMapRef();
 const { map } = mapStore;
@@ -100,12 +103,11 @@ const units = [
   "kilometers",
   "meters",
   "miles",
-  "centimeters",
-  "millimeters",
-  "degrees",
-  "radians",
   "feet",
+  "yards",
   "inches",
+  "nauticalmiles",
+  "centimeters",
 ];
 const unit = ref(units[0]);
 const colour = ref("#ffffff");
@@ -132,6 +134,77 @@ const handleBuffer = () => {
   );
   map!.setPaintProperty("buffer-polygon", "fill-color", colour.value);
   (map!.getSource("buffer-polygon") as GeoJSONSource).setData(result);
+};
+
+const layerStore = useMapLayer();
+const activeLayers = computed(() => {
+  return layerStore.groupedActiveLayers
+    ?.map(({ layerLists }) => layerLists)
+    .flat()
+    .filter((el) => el.source === "vector_tiles")
+    .map(({ layer_name }: any) => layer_name as string);
+});
+const selectedLayer = ref<string>();
+
+const enabled = computed(() => !!selectedLayer.value);
+const {
+  data: headerData,
+  error: headerError,
+  isFetching: isHeaderFetching,
+  isError: isHeaderError,
+} = useQuery({
+  queryKey: [`/panel/vector-tiles-attribute-table-header/`, selectedLayer],
+  queryFn: ({ queryKey }) =>
+    $fetch<{
+      data: HeaderData[];
+    }>(queryKey[0] + queryKey[1]!).then((r) => r.data),
+  enabled,
+});
+const columns = computed<
+  {
+    value: string;
+    name: string;
+  }[]
+>(() => {
+  if (headerData.value) {
+    return headerData.value
+      .filter((el) => el.type !== "geometry")
+      .map((el: HeaderData) => ({
+        value: el.field,
+        name: capitalizeEachWords(el.field),
+      }));
+  } else return [];
+});
+const selectedType = ref("simple");
+const selectedColumn = ref<{
+  value: string;
+  name: string;
+}>();
+
+watch(selectedLayer, () => {
+  selectedColumn.value = undefined;
+});
+
+const authStore = useAuth();
+const handleIntersect = async () => {
+  const payload = {
+    points: points.value.map(([_, lng, lat]) => [lng, lat]),
+    radius: convertLength(+digit.value, unit.value as Units, "meters"),
+    layer: selectedLayer.value,
+    type: selectedType.value,
+    column: selectedColumn.value,
+  };
+  try {
+    const result = await $fetch("/panel/buffer", {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + authStore.accessToken,
+      },
+    });
+    console.log(result);
+  } catch (error) {}
 };
 </script>
 
@@ -177,6 +250,28 @@ const handleBuffer = () => {
       label="Intersection"
       size="2xs"
     />
+    <div class="grid grid-cols-3 gap-1">
+      <USelect
+        v-model="selectedLayer"
+        :options="activeLayers"
+        color="gray"
+        :ui="{ rounded: 'rounded-xxs' }"
+        size="2xs"
+      /><USelect
+        v-model="selectedType"
+        :options="['simple', 'categorical']"
+        color="gray"
+        :ui="{ rounded: 'rounded-xxs' }"
+        size="2xs"
+      /><USelect
+        :disabled="selectedType === 'simple'"
+        v-model="selectedColumn"
+        :options="columns"
+        color="gray"
+        :ui="{ rounded: 'rounded-xxs' }"
+        size="2xs"
+      />
+    </div>
   </div>
   <div class="p-2 grid grid-cols-2 gap-x-3">
     <UButton
@@ -188,7 +283,7 @@ const handleBuffer = () => {
       >Show Buffer</UButton
     >
     <UButton
-      @click="() => {}"
+      @click="handleIntersect"
       color="brand"
       :ui="{ rounded: 'rounded-[4px]' }"
       class="w-full justify-center text-sm"

@@ -20,7 +20,7 @@ import {
   DialogTitle,
 } from "@headlessui/vue";
 
-type HeaderData = {
+export type HeaderData = {
   field: string;
   type: string;
 };
@@ -53,12 +53,13 @@ const {
   isError: isHeaderError,
 } = useQuery({
   queryKey: [
-    `/panel/vector-tiles-attribute-table-header/${store.activeCollection}`,
+    `/panel/vector-tiles-attribute-table-header/`,
+    store.activeCollection,
   ],
   queryFn: ({ queryKey }) =>
     $fetch<{
       data: HeaderData[];
-    }>(queryKey[0]).then((r) => r.data),
+    }>(queryKey[0] + queryKey[1]!).then((r) => r.data),
 });
 
 const columns = computed<
