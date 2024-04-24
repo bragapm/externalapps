@@ -1,4 +1,4 @@
-import { ServiceUnavailableError } from "@directus/errors";
+import { InvalidPayloadError, ServiceUnavailableError } from "@directus/errors";
 
 export default (router, { database, logger }) => {
   router.patch("/", async (req, res, next) => {
@@ -37,25 +37,30 @@ export default (router, { database, logger }) => {
                WHERE ST_Intersects(:layer:.geom, buffer.geom)
                GROUP BY :column:;
         `;
+    } else {
+      return next(
+        new InvalidPayloadError({
+          reason: 'type must be "simple" or "categorical"',
+        })
+      );
     }
-    let result;
+
     try {
-      result = (
-        await database.raw(sql, { ...pointBindings, radius, layer, column })
-      ).rows;
+      const { rows } = await database.raw(sql, {
+        ...pointBindings,
+        radius,
+        layer,
+        column,
+      });
+      return res.json(rows);
     } catch (error) {
-      if (error.code === "FORBIDDEN") {
-        return next(error);
-      } else {
-        logger.error(error);
-        return next(
-          new ServiceUnavailableError({
-            service: "buffer-analysis",
-            reason: "Failed to apply buffer analysis",
-          })
-        );
-      }
+      logger.error(error);
+      return next(
+        new ServiceUnavailableError({
+          service: "buffer-analysis",
+          reason: "Failed to apply buffer analysis",
+        })
+      );
     }
-    return res.json(result);
   });
 };
