@@ -157,7 +157,7 @@ watchEffect((onCleanup) => {
     >
       <MapInformation />
     </TransitionRoot>
-    <!-- <TransitionRoot
+    <TransitionRoot
       as="div"
       :show="featureStore.mapInfo === 'analytic'"
       enter="transition-all duration-300"
@@ -168,8 +168,8 @@ watchEffect((onCleanup) => {
       leave-to="-mr-8 opacity-0"
       class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
-      <MapAnalytic />
-    </TransitionRoot> -->
+      <MapAnalysis />
+    </TransitionRoot>
     <TransitionRoot
       as="div"
       :show="featureStore.rightSidebar === 'feature'"
@@ -237,7 +237,7 @@ watchEffect((onCleanup) => {
       >
         <IcInfo class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>
-      <!-- <MapButtonControl
+      <MapButtonControl
         :onClick="
           () => {
             featureStore.setMapInfo(
@@ -248,7 +248,7 @@ watchEffect((onCleanup) => {
         :active="featureStore.mapInfo === 'analytic'"
       >
         <IcChart class="w-5 h-5" :fontControlled="false" />
-      </MapButtonControl> -->
+      </MapButtonControl>
       <MapButtonControl
         :onClick="
           () => {

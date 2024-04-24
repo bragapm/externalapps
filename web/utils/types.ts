@@ -351,3 +351,10 @@ export type ThreeDLayerCenter = {
 export type UploadModeEnum = "loadlocal" | "upload" | "";
 
 export type TableColumn = { key: string; label: string; type: string };
+
+export type AnalysisResult = {
+  date: string;
+  description: string;
+  layer: string;
+  result: { category: string; count: string }[];
+};

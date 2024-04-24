@@ -19,7 +19,7 @@ export default (router, { database, logger }) => {
     let sql;
     if (type === "simple") {
       sql = `${baseSQL}
-               SELECT COUNT(*) FROM "${layer}", buffer
+               SELECT 'All' as category, COUNT(*) FROM "${layer}", buffer
                WHERE ST_Intersects("${layer}".geom, buffer.geom);
         `;
     } else if (type === "categorical") {

@@ -42,8 +42,8 @@ const addLocation = (event: MapLayerTouchEvent) => {
     });
   } else {
     toast.add({
-      title: "Invalid Input Coordinate",
-      description: "Please provide correct input coordinate",
+      title: "Map is not ready",
+      description: "Please try again in a while",
       icon: "i-heroicons-information-circle",
       timeout: 1500,
     });
@@ -186,6 +186,9 @@ watch(selectedLayer, () => {
 });
 
 const authStore = useAuth();
+const featureStore = useFeature();
+const analysisStore = useAnalysisResult();
+const isAnalyze = ref(false);
 const handleIntersect = async () => {
   const payload = {
     points: points.value.map(([_, lng, lat]) => [lng, lat]),
@@ -195,16 +198,35 @@ const handleIntersect = async () => {
     column: selectedColumn.value,
   };
   try {
-    const result = await $fetch("/panel/buffer", {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + authStore.accessToken,
-      },
+    isAnalyze.value = true;
+    const result = await $fetch<{ category: string; count: string }[]>(
+      "/panel/buffer",
+      {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + authStore.accessToken,
+        },
+      }
+    );
+    analysisStore.addResult({
+      date: new Date().toLocaleString(),
+      description: `${digit.value} ${unit.value} from ${points.value.length} points`,
+      layer: selectedLayer.value!,
+      result,
     });
-    console.log(result);
-  } catch (error) {}
+    featureStore.setMapInfo("analytic");
+  } catch (error) {
+    toast.add({
+      title: "Buffer analysis failed",
+      description: "Something wrong, try again later",
+      icon: "i-heroicons-information-circle",
+      timeout: 1500,
+    });
+  } finally {
+    isAnalyze.value = false;
+  }
 };
 </script>
 
@@ -287,6 +309,7 @@ const handleIntersect = async () => {
       color="brand"
       :ui="{ rounded: 'rounded-[4px]' }"
       class="w-full justify-center text-sm"
+      :loading="isAnalyze"
       >Do Intersect</UButton
     >
   </div>

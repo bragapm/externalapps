@@ -6,11 +6,13 @@ const featureStore = useFeature();
 const closeAnalytic = () => {
   featureStore.setMapInfo("");
 };
+
+const analysisStore = useAnalysisResult();
 </script>
 
 <template>
   <div class="flex justify-between items-center m-3">
-    <h2 class="text-white">Analytic Tools Result</h2>
+    <h2 class="text-white">Analysis Result</h2>
     <IcArrowLeft
       role="button"
       @click="closeAnalytic"
@@ -19,7 +21,7 @@ const closeAnalytic = () => {
     />
   </div>
   <hr class="mx-3" />
-  <div class="flex-1 overflow-scroll px-3 my-3">
-    <p>Headline/Map Title Map Information Here</p>
+  <div class="flex-1 overflow-scroll px-3 py-1 my-3 space-y-2">
+    <MapAnalysisItem v-for="result in analysisStore.results" :result="result" />
   </div>
 </template>
