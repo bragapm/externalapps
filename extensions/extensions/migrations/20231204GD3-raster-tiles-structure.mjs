@@ -68,6 +68,7 @@ export async function up(knex) {
       ('raster_tiles','user_created','directus_users',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('raster_tiles','user_updated','directus_users',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('raster_tiles','category','categories',NULL,NULL,NULL,NULL,NULL,'nullify'),
+      ('raster_tiles','preview','directus_files',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('raster_tiles_directus_roles','directus_roles_id','directus_roles',NULL,NULL,NULL,'raster_tiles_layer_id',NULL,'nullify'),
       ('raster_tiles_directus_roles','raster_tiles_layer_id','raster_tiles','allowed_roles',NULL,NULL,'directus_roles_id',NULL,'delete');
   `);

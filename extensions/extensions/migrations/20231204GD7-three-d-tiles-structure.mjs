@@ -66,6 +66,7 @@ export async function up(knex) {
       ('three_d_tiles','user_created','directus_users',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('three_d_tiles','user_updated','directus_users',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('three_d_tiles','category','categories',NULL,NULL,NULL,NULL,NULL,'nullify'),
+      ('three_d_tiles','preview','directus_files',NULL,NULL,NULL,NULL,NULL,'nullify'),
       ('three_d_tiles_directus_roles','directus_roles_id','directus_roles',NULL,NULL,NULL,'three_d_tiles_layer_id',NULL,'nullify'),
       ('three_d_tiles_directus_roles','three_d_tiles_layer_id','three_d_tiles','allowed_roles',NULL,NULL,'directus_roles_id',NULL,'delete');
   `);
