@@ -31,7 +31,6 @@ export default [
     input: [
       ...walk("extensions/endpoints"),
       ...walk("extensions/hooks"),
-      ...walk("extensions/endpoints"),
       ...walk("extensions/migrations"),
     ],
     plugins: [
