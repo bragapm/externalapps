@@ -50,12 +50,7 @@ export default (router, { database, logger }) => {
       );
     }
 
-    if (
-      typeof radius !== "number" ||
-      !isFinite(radius) ||
-      isNaN(radius) ||
-      radius < 0
-    ) {
+    if (typeof radius !== "number" || !isFinite(radius) || radius < 0) {
       return next(
         new InvalidPayloadError({ reason: "radius must be positive number" })
       );
