@@ -24,6 +24,7 @@ def tiling(
     additional_config: dict | None,
     **kwargs,
 ):
+    conn = None
     try:
         init_gdal_config()
         bucket = os.environ.get("STORAGE_S3_BUCKET")
@@ -54,7 +55,6 @@ def tiling(
             is_terrain,
             additional_config,
         )
-        pool.putconn(conn)
         return {
             "layer_id": layer_id,
             "lon_min": xmin,
@@ -84,6 +84,8 @@ def tiling(
         return {"error": error_message, "traceback": error_traceback}
     finally:
         # cleanup
+        if conn:
+            pool.putconn(conn)
         temp_dir_path = generate_local_temp_dir_path(object_key)
         if os.path.isdir(temp_dir_path):
             shutil.rmtree(temp_dir_path)

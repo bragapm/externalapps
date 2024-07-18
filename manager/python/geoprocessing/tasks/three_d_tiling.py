@@ -48,6 +48,7 @@ def three_d_tiling(
     additional_config: dict | None,
     **kwargs,
 ):
+    conn = None
     try:
         init_gdal_config()
         bucket = os.environ.get("STORAGE_S3_BUCKET")
@@ -72,7 +73,6 @@ def three_d_tiling(
 
         conn = pool.getconn()
         register_3d_tile(conn, layer_id, three_d_alias, uploader, additional_config)
-        pool.putconn(conn)
 
         return {"layer_id": layer_id}
     except Exception as err:
@@ -95,5 +95,7 @@ def three_d_tiling(
         return {"error": error_message, "traceback": error_traceback}
     finally:
         # cleanup
+        if conn:
+            pool.putconn(conn)
         if os.path.isdir(temp_dir_path):
             shutil.rmtree(temp_dir_path)

@@ -32,6 +32,7 @@ def transform(
     additional_config: dict | None,
     **kwargs
 ):
+    conn = None
     try:
         init_gdal_config()
         bucket = os.environ.get("STORAGE_S3_BUCKET")
@@ -47,7 +48,6 @@ def transform(
         register_table_to_directus(
             conn, table_name, header_info, uploader, additional_config, not is_dev_mode()
         )
-        pool.putconn(conn)
         return header_info
     except Exception as err:
         error_traceback = traceback.format_exc()
@@ -59,6 +59,8 @@ def transform(
         return {"error": error_message, "traceback": error_traceback}
     finally:
         # cleanup
+        if conn:
+            pool.putconn(conn)
         temp_dir_path = generate_local_temp_dir_path(object_key)
         vrt_path = generate_vrt_path(object_key)
         if os.path.isdir(temp_dir_path):
