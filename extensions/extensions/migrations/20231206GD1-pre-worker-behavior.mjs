@@ -130,7 +130,7 @@ export async function up(knex) {
     LANGUAGE 'plpgsql'
   AS $BODY$
     BEGIN
-      IF NEW.result = 'error' THEN
+      IF NEW.result \\? 'error' THEN
         NEW.status = 'error';
       ELSE
         NEW.status = 'success';
