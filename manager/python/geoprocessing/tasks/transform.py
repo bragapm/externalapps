@@ -36,9 +36,9 @@ def transform(
     try:
         init_gdal_config()
         bucket = os.environ.get("STORAGE_S3_BUCKET")
-        table_name = table_name or os.path.splitext(os.path.basename(object_key))[0]
         if not bucket:
             raise Exception("S3 bucket not configured")
+        table_name = table_name or os.path.splitext(os.path.basename(object_key))[0]
         header_info, data_source = get_header_info(
             format_file, bucket, object_key, is_zipped, table_name
         )

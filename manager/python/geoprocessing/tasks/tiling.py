@@ -28,9 +28,9 @@ def tiling(
     try:
         init_gdal_config()
         bucket = os.environ.get("STORAGE_S3_BUCKET")
-        layer_id = ""
         if not bucket:
             raise Exception("S3 bucket not configured")
+        layer_id = ""
         if is_terrain:
             terrain_rgb_path = dem_to_terrain_rgb(bucket, object_key)
             (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = raster_tiling(

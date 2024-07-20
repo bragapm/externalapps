@@ -64,6 +64,8 @@ def three_d_tiling(
     try:
         init_gdal_config()
         bucket = os.environ.get("STORAGE_S3_BUCKET")
+        if not bucket:
+            raise Exception("S3 bucket not configured")
         storage_root = (
             os.environ.get("STORAGE_S3_ROOT", "") + "/"
             if os.environ.get("STORAGE_S3_ROOT")
@@ -72,8 +74,6 @@ def three_d_tiling(
         temp_dir_path = generate_local_temp_dir_path(object_key)
         temp_file_path = os.path.join(temp_dir_path, object_key)
         layer_id = ""
-        if not bucket:
-            raise Exception("S3 bucket not configured")
 
         minio_client.fget_object(bucket, storage_root + object_key, temp_file_path)
 
