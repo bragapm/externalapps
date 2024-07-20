@@ -3,7 +3,9 @@ import minioClient from "../../utils/minioClient.mjs";
 export default ({ action }, { env, logger }) => {
   action("raster_tiles.items.delete", async ({ keys }) => {
     for (const layerId of keys) {
-      const rasterTilePath = `raster-tiles/${layerId}/`;
+      const rasterTilePath =
+        (env.STORAGE_S3_ROOT ? env.STORAGE_S3_ROOT + "/" : "") +
+        `raster-tiles/${layerId}/`;
 
       const objectKeys = [];
       const listStream = minioClient.listObjectsV2(

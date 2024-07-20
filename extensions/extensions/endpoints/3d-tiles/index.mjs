@@ -104,8 +104,9 @@ export default (router, { database, env, logger }) => {
         );
     }
 
-    const objectKey = `3d-tiles/${layerId}/${fileName}`;
-
+    const objectKey =
+      (env.STORAGE_S3_ROOT ? env.STORAGE_S3_ROOT + "/" : "") +
+      `3d-tiles/${layerId}/${fileName}`;
     let fileStream;
     try {
       fileStream = await minioClient.getObject(

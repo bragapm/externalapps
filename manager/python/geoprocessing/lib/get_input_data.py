@@ -12,8 +12,13 @@ def get_input_data_with_vsi(
     driver_short_name: str,
     open_opts: list[str] = [],
 ):
+    storage_root = (
+        os.environ.get("STORAGE_S3_ROOT", "") + "/"
+        if os.environ.get("STORAGE_S3_ROOT")
+        else ""
+    )
     src_path = (
-        f"/vsizip//vsis3/{bucket}/{object_key}"
+        f"/vsizip//vsis3/{bucket}/{storage_root}{object_key}"
         if is_zipped
         else f"/vsis3/{bucket}/{object_key}"
     )
@@ -36,11 +41,16 @@ def get_input_data_without_vsi_with_vrt(
     if is_zipped:
         raise Exception("Zipped file for this format is not supported yet")
 
+    storage_root = (
+        os.environ.get("STORAGE_S3_ROOT", "") + "/"
+        if os.environ.get("STORAGE_S3_ROOT")
+        else ""
+    )
     temp_dir_path = generate_local_temp_dir_path(object_key)
     temp_file_path = os.path.join(temp_dir_path, object_key)
 
     # download data to temp directory
-    minio_client.fget_object(bucket, object_key, temp_file_path)
+    minio_client.fget_object(bucket, storage_root + object_key, temp_file_path)
 
     # get layer name
     data_source: gdal.Dataset = gdal.OpenEx(
@@ -101,14 +111,19 @@ def get_input_data_with_vsi_with_vrt(
     del data_source
 
     # create in memory VRT
+    storage_root = (
+        os.environ.get("STORAGE_S3_ROOT", "") + "/"
+        if os.environ.get("STORAGE_S3_ROOT")
+        else ""
+    )
     vrt_path = generate_vrt_path(object_key)
     src_path = (
-        f"/vsizip//vsis3/{bucket}/{object_key}"
+        f"/vsizip//vsis3/{bucket}/{storage_root}{object_key}"
         if is_zipped
-        else f"/vsis3/{bucket}/{object_key}"
+        else f"/vsis3/{bucket}/{storage_root}{object_key}"
     )
     gdal.FileFromMemBuffer(
-        generate_vrt_path(object_key),
+        vrt_path,
         f"""<OGRVRTDataSource>
     <OGRVRTLayer name="{table_name}">
         <SrcDataSource>{src_path}</SrcDataSource>

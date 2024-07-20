@@ -1,3 +1,4 @@
+import os
 from typing import TypedDict
 
 from osgeo import ogr, gdal, osr
@@ -87,7 +88,12 @@ def get_driver_short_name(format_file: str):
 
 
 def get_gdb_directory(bucket: str, object_key: str):
-    src_path = f"/vsizip//vsis3/{bucket}/{object_key}"
+    storage_root = (
+        os.environ.get("STORAGE_S3_ROOT", "") + "/"
+        if os.environ.get("STORAGE_S3_ROOT")
+        else ""
+    )
+    src_path = f"/vsizip//vsis3/{bucket}/{storage_root}{object_key}"
     gdb_directory = gdal.ReadDir(src_path)
 
     return f"{object_key}/{gdb_directory[0]}"

@@ -50,6 +50,7 @@ services:
       - STORAGE_S3_BUCKET
       - STORAGE_S3_ENDPOINT
       - STORAGE_S3_REGION
+      - STORAGE_S3_ROOT
       # telemetry
       - TELEMETRY=false
       # email
@@ -73,6 +74,7 @@ services:
       - STORAGE_S3_ENDPOINT
       - STORAGE_S3_BUCKET
       - STORAGE_S3_REGION
+      - STORAGE_S3_ROOT
       - ADMIN_TOKEN
     restart: unless-stopped
 
@@ -86,6 +88,7 @@ services:
       - STORAGE_S3_ENDPOINT
       - STORAGE_S3_BUCKET
       - STORAGE_S3_REGION
+      - STORAGE_S3_ROOT
     restart: unless-stopped
 
   web:

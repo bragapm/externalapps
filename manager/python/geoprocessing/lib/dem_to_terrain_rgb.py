@@ -35,7 +35,12 @@ def gdt_to_numpy_type(gdt: gdal.GDT_Unknown):
 
 
 def dem_to_terrain_rgb(bucket: str, object_key: str):
-    input_file = f"/vsis3/{bucket}/{object_key}"
+    storage_root = (
+        os.environ.get("STORAGE_S3_ROOT", "") + "/"
+        if os.environ.get("STORAGE_S3_ROOT")
+        else ""
+    )
+    input_file = f"/vsis3/{bucket}/{storage_root}{object_key}"
     input_dataset: gdal.Dataset = gdal.Open(input_file)
     input_srs: osr.SpatialReference = input_dataset.GetSpatialRef()
 

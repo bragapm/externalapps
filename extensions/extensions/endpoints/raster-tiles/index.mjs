@@ -115,7 +115,9 @@ export default (router, { database, env, logger }) => {
       return next(new InvalidQueryError({ reason: "Invalid z, x, y" }));
     }
 
-    const objectKey = `raster-tiles/${layerId}/${z}/${x}/${y}.png`;
+    const objectKey =
+      (env.STORAGE_S3_ROOT ? env.STORAGE_S3_ROOT + "/" : "") +
+      `raster-tiles/${layerId}/${z}/${x}/${y}.png`;
 
     let fileStream;
     try {

@@ -55,9 +55,16 @@ class GDAL2TilesOptions:
 
 
 def delete_generated_tiles(bucket: str, layer_id: str):
+    storage_root = (
+        os.environ.get("STORAGE_S3_ROOT", "") + "/"
+        if os.environ.get("STORAGE_S3_ROOT")
+        else ""
+    )
     delete_object_list = map(
         lambda x: DeleteObject(x.object_name),
-        minio_client.list_objects(bucket, f"raster-tiles/{layer_id}/", recursive=True),
+        minio_client.list_objects(
+            bucket, f"{storage_root}raster-tiles/{layer_id}/", recursive=True
+        ),
     )
     errors = minio_client.remove_objects(bucket, delete_object_list)
     return errors
@@ -82,13 +89,18 @@ def raster_tiling(
     gdal2tiles_opts = GDAL2TilesOptions(min_zoom, max_zoom)
     layer_id = str(uuid4())
 
-    if bucket and object_key:
-        input_file = f"/vsis3/{bucket}/{object_key}"
+    storage_root = (
+        os.environ.get("STORAGE_S3_ROOT", "") + "/"
+        if os.environ.get("STORAGE_S3_ROOT")
+        else ""
+    )
+    if object_key:
+        input_file = f"/vsis3/{bucket}/{storage_root}{object_key}"
     elif file_path:
         input_file = file_path
     else:
         raise Exception("Neither object_key nor file_path defined")
-    output_dir = f"/vsis3/{bucket}/raster-tiles/{layer_id}"
+    output_dir = f"/vsis3/{bucket}/{storage_root}raster-tiles/{layer_id}"
 
     dataset: gdal.Dataset = gdal.Open(input_file)
     xmin, xres, _, ymax, _, yres = dataset.GetGeoTransform()

@@ -13,6 +13,9 @@ export default async function ({ objectKey, uploader, queueId }, helpers) {
   logger.info(`Received convertToXkt task with queue ID: ${queueId}`);
 
   const bucketName = process.env.STORAGE_S3_BUCKET;
+  const storageRoot = process.env.STORAGE_S3_ROOT
+    ? process.env.STORAGE_S3_ROOT + "/"
+    : "";
   const tempDir = path.join(os.tmpdir(), `geodashboard_xkt_${objectKey}`);
   const tempInputPath = path.join(tempDir, objectKey);
   const tempOutputPath = tempInputPath + ".xkt";
@@ -26,7 +29,11 @@ export default async function ({ objectKey, uploader, queueId }, helpers) {
     );
 
     logger.info("Downloading file");
-    await minioClient.fGetObject(bucketName, objectKey, tempInputPath);
+    await minioClient.fGetObject(
+      bucketName,
+      storageRoot + objectKey,
+      tempInputPath
+    );
 
     await convert2xkt({
       WebIFC,
@@ -40,7 +47,11 @@ export default async function ({ objectKey, uploader, queueId }, helpers) {
 
     const xktObjectKey = `xkt/${queueId}.xkt`;
     logger.info(`Uploading XKT as ${xktObjectKey}`);
-    await minioClient.fPutObject(bucketName, xktObjectKey, tempOutputPath);
+    await minioClient.fPutObject(
+      bucketName,
+      storageRoot + xktObjectKey,
+      tempOutputPath
+    );
 
     logger.info("Registering XKT to table");
     await withPgClient((pgClient) =>

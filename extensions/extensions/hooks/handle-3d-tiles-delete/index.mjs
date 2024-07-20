@@ -3,7 +3,9 @@ import minioClient from "../../utils/minioClient.mjs";
 export default ({ action }, { env, logger }) => {
   action("three_d_tiles.items.delete", async ({ keys }) => {
     for (const layerId of keys) {
-      const threeDTilePath = `3d-tiles/${layerId}/`;
+      const threeDTilePath =
+        (env.STORAGE_S3_ROOT ? env.STORAGE_S3_ROOT + "/" : "") +
+        `3d-tiles/${layerId}/`;
 
       const objectKeys = [];
       const listStream = minioClient.listObjectsV2(

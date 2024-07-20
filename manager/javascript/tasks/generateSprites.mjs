@@ -8,6 +8,9 @@ import { LAYER_ICONS_FOLDER_ID } from "../utils/const.mjs";
 import minioClient from "../utils/minioClient.mjs";
 
 export default async function ({ queueId }, helpers) {
+  const storageRoot = process.env.STORAGE_S3_ROOT
+    ? process.env.STORAGE_S3_ROOT + "/"
+    : "";
   const bucketName = process.env.STORAGE_S3_BUCKET;
 
   const { withPgClient, logger } = helpers;
@@ -39,13 +42,17 @@ export default async function ({ queueId }, helpers) {
         return new Promise((resolve, reject) => {
           const filePath = path.join(spritesDir, key);
           const fileStream = fs.createWriteStream(filePath);
-          minioClient.getObject(bucketName, key, (err, stream) => {
-            if (err) {
-              reject(err);
-              return;
+          minioClient.getObject(
+            bucketName,
+            storageRoot + key,
+            (err, stream) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+              stream.pipe(fileStream).on("finish", resolve).on("error", reject);
             }
-            stream.pipe(fileStream).on("finish", resolve).on("error", reject);
-          });
+          );
         });
       })
     );
@@ -68,14 +75,14 @@ export default async function ({ queueId }, helpers) {
       // Upload JSON and PNG to MinIO
       await minioClient.fPutObject(
         bucketName,
-        `sprites/sprite@${pxRatio}x.png`,
+        `${storageRoot}sprites/sprite@${pxRatio}x.png`,
         filePath + ".png",
         { "Content-Type": "image/png" }
       );
       if (pxRatio === 1) {
         await minioClient.fPutObject(
           bucketName,
-          `sprites/sprite.png`,
+          `${storageRoot}sprites/sprite.png`,
           filePath + ".png",
           { "Content-Type": "image/png" }
         );
@@ -84,14 +91,14 @@ export default async function ({ queueId }, helpers) {
 
       await minioClient.fPutObject(
         bucketName,
-        `sprites/sprite@${pxRatio}x.json`,
+        `${storageRoot}sprites/sprite@${pxRatio}x.json`,
         filePath + ".json",
         { "Content-Type": "application/json" }
       );
       if (pxRatio === 1) {
         await minioClient.fPutObject(
           bucketName,
-          `sprites/sprite.json`,
+          `${storageRoot}sprites/sprite.json`,
           filePath + ".json",
           { "Content-Type": "application/json" }
         );

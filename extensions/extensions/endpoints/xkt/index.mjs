@@ -16,7 +16,7 @@ const validateUuid = (input) => {
 
 const ObjectNotFoundError = createError(
   "OBJECT_NOT_FOUND",
-  (ext) => `Object xkt/${ext.extId}.xkt not found`,
+  (ext) => `Object ${ext.objectKey} not found`,
   404
 );
 
@@ -51,7 +51,9 @@ export default (router, { database, env, logger }) => {
       return next(new RouteNotFoundError({ path: "/xkt" + req.path }));
     }
 
-    const objectKey = `xkt/${xktId}.xkt`;
+    const objectKey =
+      (env.STORAGE_S3_ROOT ? env.STORAGE_S3_ROOT + "/" : "") +
+      `xkt/${xktId}.xkt`;
 
     let fileStream;
     try {
@@ -61,7 +63,7 @@ export default (router, { database, env, logger }) => {
       );
     } catch (error) {
       if (error.code === "NoSuchKey") {
-        return next(new ObjectNotFoundError({ xktId }));
+        return next(new ObjectNotFoundError({ objectKey }));
       } else {
         logger.error(error);
         return next(

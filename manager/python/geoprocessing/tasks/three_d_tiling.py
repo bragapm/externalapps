@@ -22,18 +22,30 @@ from utils import (
 
 
 def delete_generated_3d_tiles(bucket: str, layer_id: str):
+    storage_root = (
+        os.environ.get("STORAGE_S3_ROOT", "") + "/"
+        if os.environ.get("STORAGE_S3_ROOT")
+        else ""
+    )
     delete_object_list = map(
         lambda x: DeleteObject(x.object_name),
-        minio_client.list_objects(bucket, f"3d-tiles/{layer_id}/", recursive=True),
+        minio_client.list_objects(
+            bucket, f"{storage_root}3d-tiles/{layer_id}/", recursive=True
+        ),
     )
     errors = minio_client.remove_objects(bucket, delete_object_list)
     return errors
 
 
 def upload_3d_tiles(bucket: str, layer_id: str, tiles_dir_path: str):
+    storage_root = (
+        os.environ.get("STORAGE_S3_ROOT", "") + "/"
+        if os.environ.get("STORAGE_S3_ROOT")
+        else ""
+    )
     files = os.walk(tiles_dir_path)
     for dirpath, _, filenames in files:
-        prefix = f"3d-tiles/{layer_id}{dirpath[len(tiles_dir_path):]}/"
+        prefix = f"{storage_root}3d-tiles/{layer_id}{dirpath[len(tiles_dir_path):]}/"
         for filename in filenames:
             current_file = os.path.join(dirpath, filename)
             minio_client.fput_object(bucket, f"{prefix}{filename}", current_file)
@@ -52,13 +64,18 @@ def three_d_tiling(
     try:
         init_gdal_config()
         bucket = os.environ.get("STORAGE_S3_BUCKET")
+        storage_root = (
+            os.environ.get("STORAGE_S3_ROOT", "") + "/"
+            if os.environ.get("STORAGE_S3_ROOT")
+            else ""
+        )
         temp_dir_path = generate_local_temp_dir_path(object_key)
         temp_file_path = os.path.join(temp_dir_path, object_key)
         layer_id = ""
         if not bucket:
             raise Exception("S3 bucket not configured")
 
-        minio_client.fget_object(bucket, object_key, temp_file_path)
+        minio_client.fget_object(bucket, storage_root + object_key, temp_file_path)
 
         temp_tiles_dir_path = os.path.join(temp_dir_path, "3dtiles/")
         convert_to_3d_tiles(
