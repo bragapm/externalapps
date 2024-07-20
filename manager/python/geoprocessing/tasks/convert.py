@@ -12,6 +12,9 @@ from utils import init_gdal_config, logger
 def convert(input_file: str, output_file: str, **kwargs):
     try:
         init_gdal_config()
+        bucket = os.environ.get("STORAGE_S3_BUCKET")
+        if not bucket:
+            raise Exception("S3 bucket not configured")
         storage_root = (
             os.environ.get("STORAGE_S3_ROOT", "") + "/"
             if os.environ.get("STORAGE_S3_ROOT")
@@ -20,7 +23,7 @@ def convert(input_file: str, output_file: str, **kwargs):
 
         # Open the source dataset
         src_ds = gdal.OpenEx(
-            f"/vsis3/{os.environ.get('STORAGE_S3_BUCKET')}/{storage_root}{input_file}",
+            f"/vsis3/{bucket}/{storage_root}{input_file}",
             gdal.GA_ReadOnly,
         )
 
@@ -36,7 +39,7 @@ def convert(input_file: str, output_file: str, **kwargs):
 
         # Convert to COG
         gdal.Translate(
-            f"/vsis3/{os.environ.get('STORAGE_S3_BUCKET')}/{storage_root}{output_file}",
+            f"/vsis3/{bucket}/{storage_root}{output_file}",
             src_ds,
             format="GTiff",
             creationOptions=creation_options,
