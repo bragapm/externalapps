@@ -20,7 +20,7 @@ def get_input_data_with_vsi(
     src_path = (
         f"/vsizip//vsis3/{bucket}/{storage_root}{object_key}"
         if is_zipped
-        else f"/vsis3/{bucket}/{object_key}"
+        else f"/vsis3/{bucket}/{storage_root}{object_key}"
     )
     data_source: gdal.Dataset = gdal.OpenEx(
         src_path,
