@@ -7,9 +7,9 @@ export default (router, { env, logger }) => {
     try {
       // Use your MinIO client instance to fetch the asset from S3
       const stream = await minioClient.getObject(
+        env.STORAGE_S3_BUCKET,
         (env.STORAGE_S3_ROOT ? env.STORAGE_S3_ROOT + "/" : "") +
-          env.STORAGE_S3_BUCKET,
-        `sprites/${assetName}`
+          `sprites/${assetName}`
       );
 
       // Set appropriate content type
