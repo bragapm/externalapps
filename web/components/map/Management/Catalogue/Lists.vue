@@ -11,7 +11,7 @@ const handleScroll = (id: string) => {
 </script>
 
 <template>
-  <div class="flex-1 overflow-scroll">
+  <div class="flex-1 overflow-y-scroll">
     <div class="flex flex-col gap-2 p-2">
       <span>
         <h2 class="text-xs text-grey-400">Default Catalogue</h2>
@@ -32,7 +32,7 @@ const handleScroll = (id: string) => {
             handleScroll(category.label.split(' ').join(''));
           }
         "
-        class="text-xs"
+        class="text-xs text-left"
       />
     </div>
     <div class="border-t border-grey-700 mx-2" />

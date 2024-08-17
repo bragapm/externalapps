@@ -21,7 +21,7 @@ const analysisStore = useAnalysisResult();
     />
   </div>
   <hr class="mx-3" />
-  <div class="flex-1 overflow-scroll px-3 py-1 my-3 space-y-2">
+  <div class="flex-1 overflow-y-auto px-3 py-1 my-3 space-y-2">
     <MapAnalysisItem v-for="result in analysisStore.results" :result="result" />
   </div>
 </template>

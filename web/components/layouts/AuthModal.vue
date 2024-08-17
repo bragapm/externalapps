@@ -117,7 +117,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               >
                 <div class="w-1/2 p-8">
                   <div
-                    class="bg-grey-800 rounded-lg h-full px-16 overflow-scroll"
+                    class="bg-grey-800 rounded-lg h-full px-16 overflow-y-auto"
                   >
                     <div class="flex flex-col text-center space-y-3 mb-16 mt-8">
                       <IcLogoGeodashboardFull

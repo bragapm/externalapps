@@ -79,7 +79,7 @@ const handleChangeGroupOrder = () => {
   <hr class="mx-3" />
   <!-- to do change temporary loading state -->
   <!-- <div v-if="!getgroupedLayerList" class="px-3 my-3 text-white">Loading ...</div> -->
-  <div class="px-3 py-1 my-3 flex-1 overflow-scroll">
+  <div class="px-3 py-1 my-3 flex-1 overflow-y-auto">
     <div
       v-if="filteredLayers && filteredLayers.length > 0"
       class="flex flex-col gap-2"

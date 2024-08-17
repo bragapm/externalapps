@@ -18,7 +18,7 @@ const legendLists = computed(() => {
 
   <hr class="mx-3" />
   <div
-    class="p-3 flex-1 overflow-scroll transition-all duration-500 ease-in-out"
+    class="p-3 flex-1 overflow-y-auto transition-all duration-500 ease-in-out"
   >
     <div v-if="legendLists && legendLists.length > 0" class="flex flex-col">
       <template

@@ -20,7 +20,7 @@ const featureStore = useFeature();
     />
   </div>
   <hr class="mx-3" />
-  <div class="grow overflow-scroll px-3 my-3 text-grey-50 space-y-6">
+  <div class="grow overflow-y-auto px-3 my-3 text-grey-50 space-y-6">
     <div>
       <h5>Header Detail</h5>
       <pre class="bg-grey-700 overflow-x-scroll p-2 rounded-xs mt-2">{{

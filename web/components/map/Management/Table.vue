@@ -421,7 +421,7 @@ function openModal() {
     </div>
     <!-- New Table -->
     <section
-      class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-grey-700 w-full overflow-scroll pb-12 relative"
+      class="h-[calc(100%-5.5rem)] flex flex-col rounded-xxs border border-grey-700 w-full overflow-auto pb-12 relative"
       @scroll="handleScroll"
     >
       <header class="flex w-full sticky top-0">

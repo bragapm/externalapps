@@ -103,7 +103,7 @@ watch(filterRef, debounce(handleFilter, 500));
         </div>
         <div
           v-if="iconImageData?.data"
-          class="flex gap-2 flex-wrap max-h-80 overflow-scroll px-2"
+          class="flex gap-2 flex-wrap max-h-80 overflow-y-auto px-2"
         >
           <button
             v-for="item in iconImageData?.data"

@@ -161,7 +161,7 @@ function transformObjToQuery(array: any) {
 </script>
 
 <template>
-  <div class="overflow-scroll flex-1">
+  <div class="overflow-auto flex-1">
     <div v-for="filter of filterObj">
       <MapManagementTableFilterGroup
         v-if="filter.group"

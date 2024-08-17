@@ -64,8 +64,23 @@ body {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar track */
+::-webkit-scrollbar {
+  width: 4px; /* Set the width of the scrollbar */
+}
+
+/* Horizontal Scrollbar */
+::-webkit-scrollbar:horizontal {
+  height: 4px; /* Set the height of the horizontal scrollbar */
+  width: 4px; /* Set the height of the horizontal scrollbar */
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+  @apply bg-grey-600 rounded-lg h-7;
 }
 
 /* Hide Arrows From Input Number */
@@ -77,6 +92,6 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }

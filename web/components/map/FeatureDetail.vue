@@ -131,7 +131,7 @@ const clearSelection = () => {
     />
   </div>
   <hr class="mx-3" />
-  <div class="grow overflow-scroll px-3 my-3">
+  <div class="grow overflow-y-auto px-3 my-3">
     <div
       v-if="!featureStore.feature"
       class="h-full flex flex-col justify-center items-center text-white text-center gap-3"

@@ -169,7 +169,7 @@ const authStore = useAuth();
             id="auto-scroll"
             @mouseover="startScroll"
             @mouseout="refreshScroll"
-            class="hide-scrollbar whitespace-nowrap ml-3 text-sm w-64 overflow-scroll select-none"
+            class="hide-scrollbar whitespace-nowrap ml-3 text-sm w-64 overflow-auto select-none"
           >
             {{ mapData?.data.subtitle ?? "" }}
           </p>

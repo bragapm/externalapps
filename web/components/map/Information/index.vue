@@ -21,7 +21,7 @@ const closeMapInfo = () => {
     />
   </div>
   <hr class="mx-3" />
-  <div class="flex-1 overflow-scroll px-3 my-3">
+  <div class="flex-1 overflow-y-auto px-3 my-3">
     <div v-if="!mapData" class="animate-pulse space-y-3">
       <div class="w-full h-8 bg-grey-700 rounded-xs"></div>
       <div class="w-full h-8 bg-grey-700 rounded-xs"></div>
