@@ -88,39 +88,41 @@ def dem_to_terrain_rgb(bucket: str, object_key: str):
     g_band: gdal.Band = output_dataset.GetRasterBand(2)
     b_band: gdal.Band = output_dataset.GetRasterBand(3)
 
-    input_data = np.ndarray(
-        (input_dataset.RasterXSize, input_dataset.RasterYSize),
-        gdt_to_numpy_type(input_band.DataType),
-        input_band.ReadRaster(0, 0),
-    )
+    # use scanline to minimize memory usage
+    for line_offset in range(input_dataset.RasterYSize):
+        input_data = np.ndarray(
+            (input_dataset.RasterXSize, 1),
+            gdt_to_numpy_type(input_band.DataType),
+            input_band.ReadRaster(0, line_offset, None, 1),
+        )
 
-    input_data = (input_data + 10000) / 0.1
-    r = (
-        (((input_data // 256) // 256) / 256) - (((input_data // 256) // 256) // 256)
-    ) * 256
-    g = (((input_data // 256) / 256) - ((input_data // 256) // 256)) * 256
-    b = ((input_data / 256) - (input_data // 256)) * 256
+        input_data = (input_data + 10000) / 0.1
+        r = (
+            (((input_data // 256) // 256) / 256) - (((input_data // 256) // 256) // 256)
+        ) * 256
+        g = (((input_data // 256) / 256) - ((input_data // 256) // 256)) * 256
+        b = ((input_data / 256) - (input_data // 256)) * 256
 
-    r_band.WriteRaster(
-        0,
-        0,
-        input_dataset.RasterXSize,
-        input_dataset.RasterYSize,
-        r.astype(np.byte).tobytes(),
-    )
-    g_band.WriteRaster(
-        0,
-        0,
-        input_dataset.RasterXSize,
-        input_dataset.RasterYSize,
-        g.astype(np.byte).tobytes(),
-    )
-    b_band.WriteRaster(
-        0,
-        0,
-        input_dataset.RasterXSize,
-        input_dataset.RasterYSize,
-        b.astype(np.byte).tobytes(),
-    )
+        r_band.WriteRaster(
+            0,
+            line_offset,
+            input_dataset.RasterXSize,
+            1,
+            r.astype(np.byte).tobytes(),
+        )
+        g_band.WriteRaster(
+            0,
+            line_offset,
+            input_dataset.RasterXSize,
+            1,
+            g.astype(np.byte).tobytes(),
+        )
+        b_band.WriteRaster(
+            0,
+            line_offset,
+            input_dataset.RasterXSize,
+            1,
+            b.astype(np.byte).tobytes(),
+        )
 
     return output_path
