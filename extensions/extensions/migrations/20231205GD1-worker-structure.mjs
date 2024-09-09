@@ -45,8 +45,8 @@ export async function up(knex) {
     ('directus_files','is_ready','cast-boolean','boolean','{"label":"True"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,'trigger_after_configuration',NULL,NULL),
     ('directus_files','additional_config','cast-json','input-code',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,'task_configurations',NULL,NULL);
 
-  INSERT INTO directus_collections(collection, icon, color)
-  VALUES ('internal', 'privacy_tip', '#E35169');
+  INSERT INTO directus_collections(collection, icon, color, collapse)
+  VALUES ('internal', 'privacy_tip', '#E35169', 'closed');
 
   CREATE TYPE geoprocessing_state AS ENUM (
     'queued',
