@@ -7,8 +7,8 @@ export async function up(knex) {
   );
   CREATE INDEX idx_vector_tile_cache_key ON vector_tile_cache (key);
 
-  INSERT INTO directus_collections(collection, "group", icon, color)
-  VALUES ('vector_tile_cache', 'internal', 'tab_duplicate', '#E35169');
+  INSERT INTO directus_collections(collection, "group", icon, color, hidden)
+  VALUES ('vector_tile_cache', 'internal', 'tab_duplicate', '#E35169', TRUE);
 
   INSERT INTO directus_fields(collection, field)
   VALUES
