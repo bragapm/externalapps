@@ -19,7 +19,7 @@ if [ $STATUS1 -eq 0 ] && [ $STATUS2 -eq 0 ]; then
     python3 create_eb_zip.py
     if [ $? -eq 0 ]; then
         echo "Package created successfully. Proceeding with deployment."
-        eb deploy cim-geo2-env
+        eb deploy
         echo "Build and deploy completed."
     else
         echo "Failed to create deployment package. Deployment aborted."

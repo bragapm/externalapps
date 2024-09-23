@@ -2,6 +2,7 @@
 
 # Elastic Beanstalk Files
 # .elasticbeanstalk/*
+.elasticbeanstalk/my-app.zip
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
