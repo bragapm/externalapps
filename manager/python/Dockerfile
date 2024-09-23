@@ -1,4 +1,4 @@
-FROM ghcr.io/osgeo/gdal:ubuntu-full-3.9.2
+FROM ghcr.io/osgeo/gdal:ubuntu-full-3.8.5
 
 # Install Poetry
 ENV POETRY_HOME=/opt/poetry \

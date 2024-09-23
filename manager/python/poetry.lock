@@ -195,12 +195,12 @@ numpy = "*"
 
 [[package]]
 name = "gdal"
-version = "3.9.2"
+version = "3.8.5"
 description = "GDAL: Geospatial Data Abstraction Library"
 optional = false
-python-versions = ">=3.8.0"
+python-versions = ">=3.6.0"
 files = [
-    {file = "gdal-3.9.2.tar.gz", hash = "sha256:cf9c1add09ce152975c94d48a1a89dd300c292e0761fd3d22a8071a98852e129"},
+    {file = "GDAL-3.8.5.tar.gz", hash = "sha256:ad8addd58ba9c62aefc7f65d345c168736798f137e5c8f247af76fcf4862d371"},
 ]
 
 [package.extras]
@@ -871,4 +871,4 @@ watchmedo = ["PyYAML (>=3.10)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "19916f626dab76617bf99b4cad91e8bc5beee77815f989755cf4c8da714ecd43"
+content-hash = "8556b8349c8d09cd2b23bdb4843f2dad32b6217425fb2fef8afa9f408edc89bf"

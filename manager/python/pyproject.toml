@@ -1,7 +1,7 @@
 [tool.poetry]
 authors = ["Miko <jherjati@gmail.com>"]
 description = ""
-name = "braga-task"
+name = "braga-py-worker"
 readme = "README.md"
 version = "0.1.0"
 
@@ -16,8 +16,8 @@ python = ">=3.10,<3.12"
 python-dotenv = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
+gdal = "3.8.5"
 watchdog = "^3.0.0"
-gdal = "^3.9.2"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

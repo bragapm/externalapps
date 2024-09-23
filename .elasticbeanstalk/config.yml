@@ -1,8 +1,8 @@
 branch-defaults:
   latest:
-    environment: dev-geo1-env
+    environment: latest-geo2-env
 environment-defaults:
-  dev-geo1-env:
+  latest-geo2-env:
     branch: null
     repository: null
 global:
@@ -17,3 +17,5 @@ global:
   profile: null
   sc: git
   workspace_type: Application
+deploy:
+  artifact: ./.elasticbeanstalk/my-app.zip

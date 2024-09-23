@@ -14,9 +14,17 @@ STATUS2=$?
 
 # Check if all builds were successful
 if [ $STATUS1 -eq 0 ] && [ $STATUS2 -eq 0 ]; then
-    echo "All builds succeeded. Proceeding with deployment."
-    eb deploy dev-geo1-env
-    echo "Build and deploy completed."
+    echo "All builds succeeded. Creating the deployment package."
+    # Execute the script to create the zip file for Elastic Beanstalk deployment
+    python3 create_eb_zip.py
+    if [ $? -eq 0 ]; then
+        echo "Package created successfully. Proceeding with deployment."
+        eb deploy cim-geo2-env
+        echo "Build and deploy completed."
+    else
+        echo "Failed to create deployment package. Deployment aborted."
+        exit 1
+    fi
 else
     echo "Build failed. Deployment aborted."
     exit 1
