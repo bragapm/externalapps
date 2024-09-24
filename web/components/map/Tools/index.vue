@@ -2,9 +2,12 @@
 import { TransitionRoot } from "@headlessui/vue";
 import IcArrowFat from "~/assets/icons/ic-arrow-fat.svg";
 import IcChart from "~/assets/icons/ic-chart.svg";
+import IcDifference from "~/assets/icons/ic-difference.svg";
 import IcDrawFree from "~/assets/icons/ic-draw-free.svg";
 import IcDrawSquare from "~/assets/icons/ic-draw-square.svg";
+import IcIntersect from "~/assets/icons/ic-intersect.svg";
 import IcMapFlat from "~/assets/icons/ic-map-flat.svg";
+import IcMapLayerB from "~/assets/icons/ic-map-layer-b.svg";
 import IcRoute from "~/assets/icons/ic-route.svg";
 import IcRuler from "~/assets/icons/ic-ruler.svg";
 import IcRulerCorner from "~/assets/icons/ic-ruler-corner.svg";
@@ -126,6 +129,28 @@ const removeAllAnimation = () => {
           },
         ]"
       ></MapToolsDropdown>
+      <MapToolsDropdown
+        :triggerLabel="'Geoprocessing'"
+        :triggerIcon="IcMapLayerB"
+        :items="[
+          {
+            id: 'intersect',
+            label: 'Intersect Tool',
+            icon: IcIntersect,
+            action: (item) => {
+              handleOpenToolsCard(item!);
+            },
+          },
+          {
+            id: 'difference',
+            label: 'Difference Tool',
+            icon: IcDifference,
+            action: (item) => {
+              handleOpenToolsCard(item!);
+            },
+          },
+        ]"
+      ></MapToolsDropdown>
       <div class="border-l border-grey-700 h-8"></div>
       <MapToolsDropdown
         :triggerIcon="IcRuler"
@@ -183,5 +208,7 @@ const removeAllAnimation = () => {
     <MapToolsArea v-else-if="activeTools?.id === 'area'" />
     <MapToolsFindCoordinate v-else-if="activeTools?.id === 'find_coordinate'" />
     <MapToolsBuffer v-else-if="activeTools?.id === 'buffer_area'" />
+    <MapToolsIntersect v-else-if="activeTools?.id === 'intersect'" />
+    <MapToolsDifference v-else-if="activeTools?.id === 'difference'" />
   </MapToolsCard>
 </template>
