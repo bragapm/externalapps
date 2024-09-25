@@ -360,3 +360,40 @@ export type AnalysisResult = {
   layer: string;
   result: { category: string; count: string }[];
 };
+
+export type Uploader = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  status: string;
+  role: string;
+  last_access: Date;
+  last_page: string;
+  provider: string;
+  email_notifications: boolean;
+};
+
+export type Message = {
+  args: any[];
+  kwargs: Record<string, string>;
+  options: any;
+  actor_name: string;
+  message_id: string;
+  queue_name: string;
+  message_timestamp: string;
+};
+
+export type Queue = {
+  message_id: string;
+  queue_name: string;
+  state: string;
+  mtime: Date;
+  message: Message;
+  result: Record<string, string>;
+  result_ttl: Date;
+  uploader: Uploader;
+  filename: null;
+  status: string;
+};

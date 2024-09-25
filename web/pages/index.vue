@@ -4,6 +4,7 @@ import IcBasemap from "~/assets/icons/ic-basemap.svg";
 import IcInfo from "~/assets/icons/ic-info.svg";
 import IcChart from "~/assets/icons/ic-chart.svg";
 import IcRectangleList from "~/assets/icons/ic-rectangle-list.svg";
+import IcMapLayerB from "~/assets/icons/ic-map-layer-b.svg";
 import IcLocation from "~/assets/icons/ic-location.svg";
 import IcMapExtent from "~/assets/icons/ic-map-instance.svg";
 import IcMapLayer from "~/assets/icons/ic-map-layer.svg";
@@ -206,20 +207,38 @@ watchEffect((onCleanup) => {
     >
       <Map3DFeatureDetail />
     </TransitionRoot>
+    <TransitionRoot
+      as="div"
+      :show="featureStore.rightSidebar === 'geoprocessing'"
+      enter="transition-all duration-300"
+      enter-from="-mr-8 opacity-0"
+      enter-to="mr-0 opacity-1"
+      leave="transition-all duration-300"
+      leave-from="mr-0 opacity-1"
+      leave-to="-mr-8 opacity-0"
+      :class="
+        featureStore.mapInfo === 'info' || featureStore.mapInfo === 'analytic'
+          ? 'right-[20.5rem]'
+          : 'right-[1.5rem]'
+      "
+      class="z-10 absolute top-[5.5rem] right-6 bg-grey-900 w-[18.5rem] rounded-xs h-[calc(100%-12rem)] overflow-hidden flex flex-col transition-all ease-in-out duration-300"
+    >
+      <MapGeoprocessing />
+    </TransitionRoot>
 
     <!-- top right button controller -->
     <div
       :class="
-        (featureStore.mapInfo === 'info' ||
-          featureStore.mapInfo === 'analytic') &&
-        (featureStore.rightSidebar === 'feature' ||
-          featureStore.rightSidebar === '3d-feature')
+        ['info', 'analytic'].includes(featureStore.mapInfo) &&
+        ['feature', '3d-feature', 'geoprocessing'].includes(
+          featureStore.rightSidebar
+        )
           ? 'right-[39.5rem]'
-          : featureStore.mapInfo === 'info' ||
-            featureStore.mapInfo === 'analytic'
+          : ['info', 'analytic'].includes(featureStore.mapInfo)
           ? 'right-[20.5rem]'
-          : featureStore.rightSidebar === 'feature' ||
-            featureStore.rightSidebar === '3d-feature'
+          : ['feature', '3d-feature', 'geoprocessing'].includes(
+              featureStore.rightSidebar
+            )
           ? 'right-[20.5rem]'
           : 'right-[1.5rem]'
       "
@@ -266,6 +285,20 @@ watchEffect((onCleanup) => {
         "
       >
         <IcRectangleList class="w-5 h-5" :fontControlled="false" />
+      </MapButtonControl>
+      <MapButtonControl
+        :onClick="
+          () => {
+            featureStore.setRightSidebar(
+              featureStore.rightSidebar === 'geoprocessing'
+                ? ''
+                : 'geoprocessing'
+            );
+          }
+        "
+        :active="featureStore.rightSidebar === 'geoprocessing'"
+      >
+        <IcMapLayerB class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>
     </div>
 
