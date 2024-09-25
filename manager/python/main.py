@@ -7,16 +7,31 @@ import tasks
 from utils import logger
 
 
-# If run as simple python script (python main.py)
+# If run as simple python script
+# Ex : python main.py Kesesuaian_KDB_RTR.zip kesesuaian_5
+
+
 def main():
-    # input_geotiff = "b0e271ae-8d03-4810-b7ea-7f409cfff2f2.tif"
-    # output_cog = "bali_cog1.tif"
+    if len(sys.argv) < 3:
+        print("Usage: python main.py <object_key> <table_name>")
+        sys.exit(1)  # Exit the script if there are not enough arguments
+
+    object_key = sys.argv[1]
+    table_name = sys.argv[2]
+
     tasks.transform(
-        object_key="99ada037-d1f7-463b-ab22-22645ac46e88.zip",
-        uploader="49015332-8717-411c-bb40-b589d4273a8a",
-        format_file="geojson",
+        maxzoom=None,
+        minzoom=None,
+        uploader="2f171986-c81e-47d5-984e-d918821e473c",
+        has_color=None,
         is_zipped=True,
-        table_name="hahaha13",
+        is_terrain=None,
+        object_key=object_key,
+        table_name=table_name,
+        format_file="shapefile",
+        raster_alias=None,
+        three_d_alias=None,
+        additional_config=None,
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
 

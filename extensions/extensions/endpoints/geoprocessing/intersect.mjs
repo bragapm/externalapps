@@ -4,11 +4,7 @@ import isValidTableName from "../../utils/isValidTableName.mjs";
 
 export default async (req, res, next, database, logger) => {
   const { accountability } = req;
-  const {
-    input_table: inputTable,
-    output_table: outputTable,
-    available_all_internal: availableAllInternal = false,
-  } = req.body;
+  const { input_table: inputTable, output_table: outputTable } = req.body;
   if (!Array.isArray(inputTable) || inputTable.length < 2) {
     return next(
       new InvalidPayloadError({
@@ -152,7 +148,6 @@ export default async (req, res, next, database, logger) => {
             input_table: inputTable,
             output_table: outputTable,
             user_id: accountability.user,
-            available_all_internal: availableAllInternal,
           },
           options: {},
           actor_name: "intersect",
