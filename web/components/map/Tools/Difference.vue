@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+const emit = defineEmits<{
+  onClose: [];
+}>();
 const layerStore = useMapLayer();
 const activeLayers = computed(() => {
   return layerStore.groupedActiveLayers
@@ -11,7 +14,9 @@ const selectedLayer = ref<string>();
 const overlapLayer = ref<string>();
 const outputLayername = ref<string>();
 
-const handleDifference = () => {};
+const handleDifference = () => {
+  emit("onClose");
+};
 </script>
 
 <template>

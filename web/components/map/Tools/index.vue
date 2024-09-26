@@ -208,7 +208,13 @@ const removeAllAnimation = () => {
     <MapToolsArea v-else-if="activeTools?.id === 'area'" />
     <MapToolsFindCoordinate v-else-if="activeTools?.id === 'find_coordinate'" />
     <MapToolsBuffer v-else-if="activeTools?.id === 'buffer_area'" />
-    <MapToolsIntersect v-else-if="activeTools?.id === 'intersect'" />
-    <MapToolsDifference v-else-if="activeTools?.id === 'difference'" />
+    <MapToolsIntersect
+      v-else-if="activeTools?.id === 'intersect'"
+      @on-close="handleCloseToolsCard"
+    />
+    <MapToolsDifference
+      v-else-if="activeTools?.id === 'difference'"
+      @on-close="handleCloseToolsCard"
+    />
   </MapToolsCard>
 </template>

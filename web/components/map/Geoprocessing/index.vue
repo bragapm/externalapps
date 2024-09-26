@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import IcCross from "~/assets/icons/ic-cross.svg";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
-const featureStore = useFeature();
 
+const featureStore = useFeature();
 const tabItems = [
   {
     key: "onprocess",
@@ -43,7 +43,7 @@ const tabItems = [
           </p>
         </Tab>
       </TabList>
-      <TabPanels class="mt-3 overflow-y-auto h-full">
+      <TabPanels class="mt-3 overflow-y-auto h-full pb-10">
         <TabPanel>
           <MapGeoprocessingQueue />
         </TabPanel>
