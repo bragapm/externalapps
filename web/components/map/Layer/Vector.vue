@@ -23,6 +23,7 @@ type StyleObject = Record<
 >;
 
 const store = useMapRef();
+const authStore = useAuth();
 const { map } = storeToRefs(store);
 const { getLoadedGeoJsonData } = useIDB();
 
@@ -49,7 +50,10 @@ watchEffect(async (onInvalidate) => {
             window.location.origin +
               "/panel/mvt/" +
               props.item.layer_name +
-              "?z={z}&x={x}&y={y}",
+              "?z={z}&x={x}&y={y}" +
+              (authStore.accessToken
+                ? "&access_token=" + authStore.accessToken
+                : ""),
           ],
           minzoom: props.item.minzoom || 5,
           maxzoom: props.item.maxzoom || 15,

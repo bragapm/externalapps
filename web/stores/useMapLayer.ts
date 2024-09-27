@@ -29,6 +29,7 @@ import { isString, parseString } from "~/utils";
 
 export const useMapLayer = defineStore("maplayer", () => {
   const mapRefStore = useMapRef();
+  const authStore = useAuth();
   const { getAllLoadedGeoJsonData } = useIDB();
   const groupedActiveLayers = ref<LayerGroupedByCategory[]>([]);
   const groupedLayerList = ref<LayerGroupedByCategory[]>([]);
@@ -327,13 +328,31 @@ export const useMapLayer = defineStore("maplayer", () => {
         await Promise.all([
           $fetch<{
             data: LayerConfigLists;
-          }>("/panel/items/vector_tiles?fields=*.*.*&sort=layer_name"),
+          }>("/panel/items/vector_tiles?fields=*.*.*&sort=layer_name", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + authStore.accessToken,
+            },
+          }),
           $fetch<{
             data: LayerConfigLists;
-          }>("/panel/items/raster_tiles?fields=*.*&sort=layer_alias"),
+          }>("/panel/items/raster_tiles?fields=*.*&sort=layer_alias", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + authStore.accessToken,
+            },
+          }),
           $fetch<{
             data: LayerConfigLists;
-          }>("/panel/items/three_d_tiles?fields=*.*&sort=layer_alias"),
+          }>("/panel/items/three_d_tiles?fields=*.*&sort=layer_alias", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + authStore.accessToken,
+            },
+          }),
           getAllLoadedGeoJsonData(),
         ]);
 
@@ -377,13 +396,34 @@ export const useMapLayer = defineStore("maplayer", () => {
             data: LayerConfigLists;
           }>([
             $fetch(
-              "/panel/items/vector_tiles?fields=*.*.*&filter[active][_eq]=true&sort=layer_name"
+              "/panel/items/vector_tiles?fields=*.*.*&filter[active][_eq]=true&sort=layer_name",
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + authStore.accessToken,
+                },
+              }
             ),
             $fetch(
-              "/panel/items/raster_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_alias"
+              "/panel/items/raster_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_alias",
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + authStore.accessToken,
+                },
+              }
             ),
             $fetch(
-              "/panel/items/three_d_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_alias"
+              "/panel/items/three_d_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_alias",
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + authStore.accessToken,
+                },
+              }
             ),
           ]);
 
