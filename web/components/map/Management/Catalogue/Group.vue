@@ -41,41 +41,41 @@ const activeLayers = computed(() => {
     .flat();
 });
 
-const addLayer = (
-  layerItem: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
-) => {
-  let groupName = layerItem.category?.category_name || uncategorizedAlias;
+// const addLayer = (
+//   layerItem: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
+// ) => {
+//   let groupName = layerItem.category?.category_name || uncategorizedAlias;
 
-  let groupIndex = mapLayerStore.groupedActiveLayers.findIndex(
-    (el) => el.label === groupName
-  );
-  if (groupIndex !== -1) {
-    mapLayerStore.groupedActiveLayers[groupIndex].layerLists.push(layerItem);
-  } else {
-    if (
-      mapLayerStore.groupedActiveLayers.findIndex(
-        (el) => el.label === "Terrain"
-      ) !== -1
-    ) {
-      mapLayerStore.groupedActiveLayers.splice(-1, 0, {
-        label: groupName,
-        layerLists: [layerItem],
-        defaultOpen: false,
-      });
-      // mapLayerStore.groupedActiveLayers.push({
-      //   label: groupName,
-      //   layerLists: [layerItem],
-      //   defaultOpen: false,
-      // });
-    } else {
-      mapLayerStore.groupedActiveLayers.push({
-        label: groupName,
-        layerLists: [layerItem],
-        defaultOpen: false,
-      });
-    }
-  }
-};
+//   let groupIndex = mapLayerStore.groupedActiveLayers.findIndex(
+//     (el) => el.label === groupName
+//   );
+//   if (groupIndex !== -1) {
+//     mapLayerStore.groupedActiveLayers[groupIndex].layerLists.push(layerItem);
+//   } else {
+//     if (
+//       mapLayerStore.groupedActiveLayers.findIndex(
+//         (el) => el.label === "Terrain"
+//       ) !== -1
+//     ) {
+//       mapLayerStore.groupedActiveLayers.splice(-1, 0, {
+//         label: groupName,
+//         layerLists: [layerItem],
+//         defaultOpen: false,
+//       });
+//       // mapLayerStore.groupedActiveLayers.push({
+//       //   label: groupName,
+//       //   layerLists: [layerItem],
+//       //   defaultOpen: false,
+//       // });
+//     } else {
+//       mapLayerStore.groupedActiveLayers.push({
+//         label: groupName,
+//         layerLists: [layerItem],
+//         defaultOpen: false,
+//       });
+//     }
+//   }
+// };
 </script>
 
 <template>
@@ -117,7 +117,6 @@ const addLayer = (
               ) > -1
             : false
         "
-        @add-layer="addLayer"
       />
     </div>
   </div>

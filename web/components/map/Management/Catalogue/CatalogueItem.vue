@@ -19,12 +19,6 @@ defineProps<{
   isActive: boolean;
 }>();
 
-const emit = defineEmits<{
-  addLayer: [
-    layerItem: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
-  ];
-}>();
-
 const mapLayerStore = useMapLayer();
 const { deleteLoadedGeoJsonData } = useIDB();
 
@@ -37,7 +31,7 @@ const addLayer = (
   isLoad.value = true;
   setTimeout(() => {
     isLoad.value = false;
-    emit("addLayer", item);
+    mapLayerStore.addLayer(item);
   }, 750);
 };
 

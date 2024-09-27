@@ -28,8 +28,9 @@ import {
 import { isString, parseString } from "~/utils";
 
 export const useMapLayer = defineStore("maplayer", () => {
-  const mapRefStore = useMapRef();
   const authStore = useAuth();
+  const mapRefStore = useMapRef();
+  const mapLayerStore = useMapLayer();
   const { getAllLoadedGeoJsonData } = useIDB();
   const groupedActiveLayers = ref<LayerGroupedByCategory[]>([]);
   const groupedLayerList = ref<LayerGroupedByCategory[]>([]);
@@ -149,13 +150,13 @@ export const useMapLayer = defineStore("maplayer", () => {
   };
 
   const getLayersArr = (layers: {
-    vectorTiles: {
+    vectorTiles?: {
       data: LayerConfigLists;
     };
-    rasterTiles: {
+    rasterTiles?: {
       data: LayerConfigLists;
     };
-    threeDTiles: {
+    threeDTiles?: {
       data: LayerConfigLists;
     };
   }) => {
@@ -477,6 +478,43 @@ export const useMapLayer = defineStore("maplayer", () => {
     }
   };
 
+  const addLayer = (
+    layerItem: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
+  ) => {
+
+    let groupName = layerItem.category?.category_name || uncategorizedAlias;
+
+    let groupIndex = mapLayerStore.groupedActiveLayers.findIndex(
+      (el) => el.label === groupName
+    );
+    if (groupIndex !== -1) {
+      mapLayerStore.groupedActiveLayers[groupIndex].layerLists.push(layerItem);
+    } else {
+      if (
+        mapLayerStore.groupedActiveLayers.findIndex(
+          (el) => el.label === "Terrain"
+        ) !== -1
+      ) {
+        mapLayerStore.groupedActiveLayers.splice(-1, 0, {
+          label: groupName,
+          layerLists: [layerItem],
+          defaultOpen: false,
+        });
+        // mapLayerStore.groupedActiveLayers.push({
+        //   label: groupName,
+        //   layerLists: [layerItem],
+        //   defaultOpen: false,
+        // });
+      } else {
+        mapLayerStore.groupedActiveLayers.push({
+          label: groupName,
+          layerLists: [layerItem],
+          defaultOpen: false,
+        });
+      }
+    }
+  };
+
   return {
     fetchListedLayers,
     fetchActiveLayers,
@@ -490,5 +528,7 @@ export const useMapLayer = defineStore("maplayer", () => {
     removeLayer,
     updateLayerProperty,
     sortLayer,
+    addLayer,
+    getLayersArr
   };
 });
