@@ -96,123 +96,144 @@ def difference(
                 logger.info("Table created")
 
                 # insert data
-                def build_difference_query(
-                    table_a, table_b, input_fields, is_final=False
-                ):
-                    """
-                    Build SQL query for calculating the difference of two tables' geometries, with handling for covers and differences.
-                    """
-                    return sql.SQL(
-                        """SELECT {input_fields}, 
-                        ST_Multi(CASE WHEN ST_Covers({table_a}.geom, {table_b}.geom) THEN NULL
-                                      ELSE ST_CollectionExtract(ST_Difference({table_a}.geom, {table_b}.geom), %s)
-                                 END) AS geom
-                        FROM {table_a}
-                        LEFT JOIN {table_b} ON ST_Intersects({table_a}.geom, {table_b}.geom)"""
-                        + (""" WHERE NOT ST_IsEmpty(geom)""" if is_final else "")
-                    ).format(
-                        input_fields=input_fields,
-                        table_a=sql.Identifier(table_a),
-                        table_b=sql.Identifier(table_b),
-                    )
-
-                def format_input_fields(table_columns_selected):
-                    """
-                    Format the input fields by concatenating table and column names.
-                    """
-                    return sql.SQL(",").join(
-                        sql.SQL("{} {}").format(
-                            sql.Identifier(table_name, col_name),
-                            sql.Identifier(f"{col_name}_{table_name}"),
-                        )
-                        for table_name, columns in table_columns_selected
-                        for col_name in columns
-                    )
-
-                # Main logic
                 total_input_table = len(input_table)
-
                 if total_input_table == 2:
-                    input_fields = format_input_fields(table_columns[:2])
-                    select_query = build_difference_query(
-                        input_table[0], input_table[1], input_fields, is_final=True
+                    select_query = sql.SQL(
+                        """ SELECT *
+                            FROM (
+                              SELECT {input_fields}, ST_Multi(CASE WHEN ST_Covers({table_a}.geom,{table_b}.geom) 
+                              THEN ST_Difference({table_a}.geom, {table_b}.geom) 
+                              ELSE ST_CollectionExtract(ST_Difference({table_a}.geom, {table_b}.geom), %s) 
+                              END) geom
+                              FROM {table_a}
+                              INNER JOIN {table_b} ON ST_Intersects({table_a}.geom, {table_b}.geom)
+                            ) differenced
+                            WHERE NOT ST_IsEmpty(geom)"""
+                    ).format(
+                        input_fields=sql.SQL(",").join(
+                            sql.Identifier(table_name, col_name)
+                            for table_name, columns in table_columns
+                            for col_name in columns
+                        ),
+                        table_a=sql.Identifier(input_table[0]),
+                        table_b=sql.Identifier(input_table[1]),
                     )
-
                 else:
-                    # Handle case with more than 2 tables
-                    cte_queries = []
-                    table_columns_selected = table_columns[:2]
-
-                    # First CTE for first two tables
-                    input_fields = format_input_fields(table_columns_selected)
-                    cte_queries.append(
-                        sql.SQL("WITH cte_1 AS ({query})").format(
-                            query=build_difference_query(
-                                input_table[0], input_table[1], input_fields
-                            )
-                        )
-                    )
-
-                    # Process remaining tables
-                    cte_count = 2
-                    for i, (current_table_name, current_columns) in enumerate(
-                        table_columns[2:], 2
-                    ):
-                        input_fields = sql.SQL(",").join(
-                            [
-                                sql.Identifier(
-                                    f"cte_{cte_count - 1}",
-                                    f"{col_name}_{table_name_sel}",
-                                )
-                                for table_name_sel, columns_sel in table_columns_selected
-                                for col_name in columns_sel
-                            ]
-                            + [
+                    # Create difference for first 2 tables in a CTE
+                    table_columns_selected = table_columns[0:2]
+                    cte_queries = [
+                        sql.SQL(
+                            "WITH cte_1 AS (SELECT {input_fields}, ST_Difference({table_a}.geom, {table_b}.geom) geom FROM {table_a} INNER JOIN {table_b} ON ST_Intersects({table_a}.geom, {table_b}.geom))"
+                        ).format(
+                            input_fields=sql.SQL(",").join(
                                 sql.SQL("{} {}").format(
-                                    sql.Identifier(current_table_name, col_name),
-                                    sql.Identifier(f"{col_name}_{current_table_name}"),
+                                    sql.Identifier(table_name, col_name),
+                                    sql.Identifier(f"{col_name}_{table_name}"),
                                 )
-                                for col_name in current_columns
-                            ]
+                                for table_name, columns in table_columns_selected
+                                for col_name in columns
+                            ),
+                            table_a=sql.Identifier(input_table[0]),
+                            table_b=sql.Identifier(input_table[1]),
                         )
+                    ]
 
-                        cte_queries.append(
-                            sql.SQL("{cte_name} AS ({query})").format(
-                                cte_name=sql.Identifier(f"cte_{cte_count}"),
-                                query=build_difference_query(
-                                    f"cte_{cte_count - 1}",
-                                    current_table_name,
-                                    input_fields,
-                                ),
+                    # Process the rest of the tables
+                    cte_count = 2
+                    for i, table_column in enumerate(table_columns[2:], 2):
+                        current_table_name, current_columns = table_column
+                        if i != total_input_table - 1:
+                            # Append to CTE query if not the last input table
+                            cte_queries.append(
+                                sql.SQL(
+                                    "{cte_name} AS (SELECT {input_fields}, ST_Difference({table_a}.geom, {table_b}.geom) geom FROM {table_a} INNER JOIN {table_b} ON ST_Intersects({table_a}.geom, {table_b}.geom))"
+                                ).format(
+                                    cte_name=sql.Identifier(f"cte_{cte_count}"),
+                                    input_fields=sql.SQL(",").join(
+                                        [
+                                            sql.Identifier(
+                                                f"cte_{cte_count - 1}",
+                                                f"{col_name}_{table_name_sel}",
+                                            )
+                                            for table_name_sel, columns_sel in table_columns_selected
+                                            for col_name in columns_sel
+                                        ]
+                                        + [
+                                            sql.SQL("{} {}").format(
+                                                sql.Identifier(
+                                                    current_table_name, col_name
+                                                ),
+                                                sql.Identifier(
+                                                    f"{col_name}_{current_table_name}"
+                                                ),
+                                            )
+                                            for col_name in current_columns
+                                        ]
+                                    ),
+                                    table_a=sql.Identifier(current_table_name),
+                                    table_b=sql.Identifier(f"cte_{cte_count - 1}"),
+                                )
                             )
-                        )
-                        table_columns_selected.append(
-                            (current_table_name, current_columns)
-                        )
-                        cte_count += 1
-
-                    # Final CTE handling
-                    final_query = build_difference_query(
-                        f"cte_{cte_count - 1}",
-                        input_table[-1],
-                        input_fields,
-                        is_final=True,
-                    )
+                            table_columns_selected.append(table_column)
+                            cte_count += 1
+                        else:
+                            # Set the last input table as the final select query
+                            final_query = sql.SQL(
+                                """ SELECT *
+                                    FROM (
+                                      SELECT {input_fields}, ST_Multi(CASE WHEN ST_Covers({table_a}.geom, {table_b}.geom) 
+                                      THEN ST_Difference({table_a}.geom, {table_b}.geom) 
+                                      ELSE ST_CollectionExtract(ST_Difference({table_a}.geom, {table_b}.geom), %s) 
+                                      END) geom
+                                      FROM {table_a}
+                                      INNER JOIN {table_b} ON ST_Intersects({table_a}.geom, {table_b}.geom)
+                                    ) differenced
+                                    WHERE NOT ST_IsEmpty(geom)"""
+                            ).format(
+                                input_fields=sql.SQL(",").join(
+                                    [
+                                        sql.Identifier(
+                                            f"cte_{cte_count - 1}",
+                                            f"{col_name}_{table_name_sel}",
+                                        )
+                                        for table_name_sel, columns_sel in table_columns_selected
+                                        for col_name in columns_sel
+                                    ]
+                                    + [
+                                        sql.SQL("{} {}").format(
+                                            sql.Identifier(
+                                                current_table_name, col_name
+                                            ),
+                                            sql.Identifier(
+                                                f"{col_name}_{current_table_name}"
+                                            ),
+                                        )
+                                        for col_name in current_columns
+                                    ]
+                                ),
+                                table_a=sql.Identifier(current_table_name),
+                                table_b=sql.Identifier(f"cte_{cte_count - 1}"),
+                            )
                     select_query = sql.SQL("{} {}").format(
                         sql.SQL(",").join(cte_queries), final_query
                     )
 
-                # Insert result into the output table
+                # Execute the query
                 cur.execute(
                     sql.SQL(
                         "INSERT INTO {output_table} ({output_fields}, geom) {select_query}"
                     ).format(
                         output_table=output_table_ident,
-                        output_fields=format_input_fields(table_columns),
+                        output_fields=sql.SQL(",").join(
+                            sql.Identifier(f"{col_name}_{table_name}")
+                            for table_name, columns in table_columns
+                            for col_name in columns
+                        ),
                         select_query=select_query,
                     ),
                     [dim],
                 )
+
                 logger.info("Data inserted")
 
                 # get new bounding box

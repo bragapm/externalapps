@@ -12,26 +12,17 @@ from utils import logger
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: python main.py <object_key> <table_name>")
-        sys.exit(1)  # Exit the script if there are not enough arguments
+    # if len(sys.argv) < 3:
+    #     print("Usage: python main.py <object_key> <table_name>")
+    #     sys.exit(1)  # Exit the script if there are not enough arguments
 
-    object_key = sys.argv[1]
-    table_name = sys.argv[2]
+    # object_key = sys.argv[1]
+    # table_name = sys.argv[2]
 
-    tasks.transform(
-        maxzoom=None,
-        minzoom=None,
-        uploader="2f171986-c81e-47d5-984e-d918821e473c",
-        has_color=None,
-        is_zipped=True,
-        is_terrain=None,
-        object_key=object_key,
-        table_name=table_name,
-        format_file="shapefile",
-        raster_alias=None,
-        three_d_alias=None,
-        additional_config=None,
+    tasks.difference(
+        user_id="49015332-8717-411c-bb40-b589d4273a8a",
+        input_table=["admin_kota_batam", "sungai_ar_50k_batam"],
+        output_table="miko_difference1",
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
 
