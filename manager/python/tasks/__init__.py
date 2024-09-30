@@ -8,5 +8,6 @@ from .merge import merge as merge
 from .spatial_join import spatial_join as spatial_join
 from .clip import clip as clip
 from .union import union as union
+from .difference import difference as difference
 
 # Add new actor imports here as you create them
