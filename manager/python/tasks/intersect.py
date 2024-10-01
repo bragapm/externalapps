@@ -101,11 +101,21 @@ def intersect(
                     select_query = sql.SQL(
                         """ SELECT *
                             FROM (
-                              SELECT {input_fields},ST_Multi(CASE WHEN ST_Covers({table_a}.geom,{table_b}.geom) THEN {table_b}.geom ELSE ST_CollectionExtract(ST_Intersection({table_a}.geom,{table_b}.geom),%s) END) geom
+                              SELECT {input_fields},
+                              ST_Multi(
+                                    CASE
+                                    WHEN ST_Covers({table_a}.geom,{table_b}.geom)
+                                    THEN {table_b}.geom
+                                    ELSE ST_CollectionExtract(
+                                        ST_Intersection({table_a}.geom,{table_b}.geom), 
+                                    %s)
+                                    END
+                                ) geom
                               FROM {table_a}
-                              INNER JOIN {table_b} ON ST_Intersects({table_a}.geom,{table_b}.geom)
+                              INNER JOIN {table_b}
+                              ON ST_Intersects({table_a}.geom,{table_b}.geom)
                             ) intersected
-                            WHERE NOT ST_IsEmpty(geom)"""
+                            WHERE NOT ST_IsEmpty(geom); """
                     ).format(
                         input_fields=sql.SQL(",").join(
                             sql.Identifier(table_name, col_name)
@@ -214,7 +224,7 @@ def intersect(
 
                 cur.execute(
                     sql.SQL(
-                        "INSERT INTO {output_table} ({output_fields},geom) {select_query}"
+                        "INSERT INTO {output_table} ({output_fields}, geom) {select_query}"
                     ).format(
                         output_table=output_table_ident,
                         output_fields=sql.SQL(",").join(

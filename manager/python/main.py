@@ -21,8 +21,8 @@ def main():
 
     tasks.difference(
         user_id="49015332-8717-411c-bb40-b589d4273a8a",
-        input_table=["admin_kota_batam", "sungai_ar_50k_batam"],
-        output_table="miko_difference1",
+        input_table=["sample_grid_1", "sample_grid_2"],
+        output_table="miko_diff7",
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
 

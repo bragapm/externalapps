@@ -61,7 +61,7 @@ def difference(
                         "SELECT table_name,json_object_agg(column_name,data_type) FROM information_schema.columns WHERE table_schema='public' AND table_name IN ({input_tables}) AND column_name<>'geom' GROUP BY table_name"
                     ).format(
                         input_tables=sql.SQL(",").join(
-                            sql.Literal(table) for table in input_table
+                            sql.Literal(table) for table in input_table[:1]
                         )
                     )
                 )
@@ -101,14 +101,26 @@ def difference(
                     select_query = sql.SQL(
                         """ SELECT *
                             FROM (
-                              SELECT {input_fields}, ST_Multi(CASE WHEN ST_Covers({table_a}.geom,{table_b}.geom) 
-                              THEN ST_Difference({table_a}.geom, {table_b}.geom) 
-                              ELSE ST_CollectionExtract(ST_Difference({table_a}.geom, {table_b}.geom), %s) 
-                              END) geom
-                              FROM {table_a}
-                              INNER JOIN {table_b} ON ST_Intersects({table_a}.geom, {table_b}.geom)
+                              SELECT {input_fields},
+                                ST_Multi(
+                                  CASE
+                                    WHEN ST_CoveredBy({table_a}.geom, u.geom) THEN NULL
+
+                                    WHEN ST_Intersects({table_a}.geom, u.geom) THEN 
+                                      ST_CollectionExtract(
+                                        ST_Difference({table_a}.geom, u.geom),
+                                        %s
+                                      )
+
+                                    ELSE {table_a}.geom
+                                  END
+                                ) AS geom
+                              FROM 
+                                {table_a}, ( SELECT
+                                                ST_Union (geom) geom
+                                            FROM {table_b} ) AS u
                             ) differenced
-                            WHERE NOT ST_IsEmpty(geom)"""
+                            WHERE geom IS NOT NULL """
                     ).format(
                         input_fields=sql.SQL(",").join(
                             sql.Identifier(table_name, col_name)
@@ -233,7 +245,6 @@ def difference(
                     ),
                     [dim],
                 )
-
                 logger.info("Data inserted")
 
                 # get new bounding box
