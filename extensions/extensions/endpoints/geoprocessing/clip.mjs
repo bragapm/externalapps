@@ -8,7 +8,6 @@ export default async (req, res, next, database, logger) => {
     input_table: inputTable,
     clip_table: clipTable,
     output_table: outputTable,
-    available_all_internal: availableAllInternal = false,
     filter = null,
   } = req.body;
 
@@ -179,7 +178,6 @@ export default async (req, res, next, database, logger) => {
             clip_table: clipTable,
             output_table: outputTable,
             user_id: accountability.user,
-            available_all_internal: availableAllInternal,
             filter,
           },
           options: {},
