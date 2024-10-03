@@ -102,8 +102,8 @@ const handleDelete = async () => {
       class="p-2 bg-grey-800 rounded-xxs flex gap-2 justify-between items-center"
     >
       <div class="text-2xs">
-        <p class="text-grey-400">{{ data.message.kwargs.output_table }}</p>
-        <p class="text-grey-500">01</p>
+        <p class="text-grey-400 capitalize">{{ data.message.actor_name }}</p>
+        <p class="text-grey-500">{{ data.message.kwargs.output_table }}</p>
       </div>
       <div class="space-x-1">
         <button v-if="isAddLayerAction" @click="handleAddLayer">
