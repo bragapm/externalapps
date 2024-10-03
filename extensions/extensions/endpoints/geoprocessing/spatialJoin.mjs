@@ -8,7 +8,6 @@ export default async (req, res, next, database, logger) => {
     target_table: targetTable,
     join_table: joinTable,
     output_table: outputTable,
-    available_all_internal: availableAllInternal = false,
     filter = null,
   } = req.body;
 
@@ -158,7 +157,6 @@ export default async (req, res, next, database, logger) => {
             join_table: joinTable,
             output_table: outputTable,
             user_id: accountability.user,
-            available_all_internal: availableAllInternal,
             filter,
           },
           options: {},
