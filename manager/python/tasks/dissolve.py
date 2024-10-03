@@ -24,7 +24,6 @@ def dissolve(
     fields: list[str],
     output_table: str,
     user_id: str,
-    available_all_internal: bool,
     filter: list[dict] | None,
 ):
     conn = None
@@ -32,8 +31,8 @@ def dissolve(
         conn = pool.getconn()
         with conn:
             with conn.cursor() as cur:
-                (category_id, internal_role, internal_umum_role, fill_style) = (
-                    fetch_geoprocessing_default_values(cur, "Dissolve")
+                (category_id, fill_style) = fetch_geoprocessing_default_values(
+                    cur, "Dissolve"
                 )
 
                 # fetch input table column names and types
@@ -118,31 +117,18 @@ def dissolve(
                     user_id,
                     output_table.replace("_", " ").title(),
                     layer_id,
-                    available_all_internal,
                 ]
 
                 # register to vector_tiles
                 cur.execute(
                     sql.SQL(
-                        "INSERT INTO vector_tiles(geometry_type,bounds,category,listed,permission_type,fill_style,layer_name,user_created,layer_alias,layer_id,available_all_internal) VALUES({})"
+                        "INSERT INTO vector_tiles(geometry_type,bounds,category,listed,permission_type,fill_style,layer_name,user_created,layer_alias,layer_id) VALUES({})"
                     ).format(
                         sql.SQL(",").join(sql.Placeholder() * len(new_layer_config))
                     ),
                     new_layer_config,
                 )
                 logger.info("Registered to vector_tiles")
-
-                # insert into allowed roles junction table
-                # this insertion will invoke insert into directus_permissions trigger
-                cur.execute(
-                    "INSERT INTO vector_tiles_directus_roles(vector_tiles_layer_id,directus_roles_id) VALUES(%(layer_id)s,%(internal_role)s),(%(layer_id)s,%(internal_umum_role)s)",
-                    {
-                        "layer_id": layer_id,
-                        "internal_role": internal_role,
-                        "internal_umum_role": internal_umum_role,
-                    },
-                )
-                logger.info("Allowed roles registered to vector_tiles_directus_roles")
 
         if not is_dev_mode():
             clear_directus_cache()
