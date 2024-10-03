@@ -11,13 +11,13 @@ export async function up(knex) {
   ('#FF3357', '0.85', 'fill-7'),
   ('#57FF33', '0.75', 'fill-8'),
   ('#337FFF', '0.65', 'fill-9'),
-  ('#7F33FF', '0.55', 'fill-10');
+  ('#7F33FF', '0.55', 'default-geoprocessing');
   `);
 }
 
 export async function down(knex) {
   await knex.raw(`
   DELETE FROM public.fill
-  WHERE "name" IN ('fill-1', 'fill-2', 'fill-3', 'fill-4', 'fill-5', 'fill-6', 'fill-7', 'fill-8', 'fill-9', 'fill-10');
+  WHERE "name" IN ('fill-1', 'fill-2', 'fill-3', 'fill-4', 'fill-5', 'fill-6', 'fill-7', 'fill-8', 'fill-9', 'default-geoprocessing');
   `);
 }
