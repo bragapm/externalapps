@@ -5,6 +5,7 @@ const emit = defineEmits<{
 const toast = useToast();
 const layerStore = useMapLayer();
 const authStore = useAuth();
+const queueStore = useGeoprocessingQueue();
 const featureStore = useFeature();
 const activeLayers = computed(() => {
   return layerStore.groupedActiveLayers
@@ -34,6 +35,9 @@ const handleDifference = async () => {
     const result = await response.json();
 
     if (result.errors?.length) throw new Error(result.errors[0].message);
+    setTimeout(() => {
+      queueStore.checkQueueState(result.message_id);
+    }, 1000);
     toast.add({
       title: "Success",
       description:

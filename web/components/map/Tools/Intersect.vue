@@ -5,6 +5,7 @@ const emit = defineEmits<{
 const toast = useToast();
 const layerStore = useMapLayer();
 const authStore = useAuth();
+const queueStore = useGeoprocessingQueue();
 const featureStore = useFeature();
 const activeLayers = computed(() => {
   return layerStore.groupedActiveLayers
@@ -34,12 +35,9 @@ const handleIntersect = async () => {
     const result = await response.json();
 
     if (result.errors?.length) throw new Error(result.errors[0].message);
-    toast.add({
-      title: "Success",
-      description:
-        "Your intersect task has been successfully added to the queue! You'll be notified once processing is complete.",
-      icon: "i-heroicons-check-circle",
-    });
+    setTimeout(() => {
+      queueStore.checkQueueState(result.message_id);
+    }, 1000);
     featureStore.setRightSidebar("geoprocessing");
     featureStore.setMapInfo("");
     emit("onClose");

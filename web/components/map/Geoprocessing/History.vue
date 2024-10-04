@@ -3,7 +3,7 @@ import { useInfiniteQuery } from "@tanstack/vue-query";
 import IcSpinner from "~/assets/icons/ic-spinner.svg";
 
 const authStore = useAuth();
-
+const pageLimit = 10;
 const {
   data: historyDataInfinite,
   fetchNextPage,
@@ -13,11 +13,13 @@ const {
   queryKey: ["geoprocessing_history_query_key"],
   queryFn: async ({ pageParam = 1, queryKey }) => {
     const queryParams: Record<string, string> = {
-      limit: "10",
+      limit: pageLimit.toString(),
       page: pageParam.toString(),
       fields: "*,uploader.*",
       sort: "-mtime",
-      "filter[state][_eq]": "done",
+      filter: JSON.stringify({
+        _or: [{ state: { _eq: "done" } }, { state: { _eq: "rejected" } }],
+      }),
     };
     const r = await $fetch<{ data: any[] }>(
       "/panel/items/geoprocessing_queue?" + new URLSearchParams(queryParams),
@@ -29,7 +31,7 @@ const {
   },
   initialPageParam: 1,
   getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) => {
-    if (lastPage.length < 10) {
+    if (lastPage.length < pageLimit) {
       return undefined;
     }
     return lastPageParam + 1;
