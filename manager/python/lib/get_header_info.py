@@ -31,7 +31,7 @@ def get_header_info_from_data_source(
 ) -> HeaderInfo:
     layer: ogr.Layer = data_source.GetLayer()
     geom_type: ogr.wkbUnknown = layer.GetGeomType()
-    temp_geom = ogr.Geometry(geom_type)
+    temp_geom = ogr.Geometry(geom_type or 3)
     geom_name = temp_geom.GetGeometryName()
 
     # if "Z" in str(temp_geom):

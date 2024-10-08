@@ -55,7 +55,7 @@ def fill_table_with_layer_feature(
 
     # Define the source and target spatial reference systems
     source_srs = detect_and_import_srs(
-        srs_string if srs_string is not None else header_info["srs_code"]
+        srs_string or header_info["srs_code"]
     )  # Source SRS
     target_srs = osr.SpatialReference()
     target_srs.ImportFromEPSG(4326)  # Target SRS (WGS 84)
@@ -65,31 +65,43 @@ def fill_table_with_layer_feature(
     coord_transform = osr.CoordinateTransformation(source_srs, target_srs)
 
     need_transform = (
-        int(header_info["srs_code"]) is not None
-        and int(header_info["srs_code"]) != 4326
-    )
+        header_info["srs_code"] is not None and "4326" in header_info["srs_code"]
+    ) or (srs_string is not None and "4326" in srs_string)
 
-    with conn:
+    # Process in batches
+    batch_size = 1000  # Adjust based on your system's capability
+    batch = []
+    batch_count = 0
+
+    for feature in layer:
+        geometry = feature.GetGeometryRef()
+        if geometry:
+            if need_transform:
+                geometry.Transform(coord_transform)
+            geometry.FlattenTo2D()
+            wkt_geom = geometry.ExportToWkt()
+
+        columns = [f'"{field["name"].lower()}"' for field in fields]
+        values = [feature.GetField(field["name"]) for field in fields]
+        geom_text = f"ST_GeomFromText('{wkt_geom}', 4326)" if wkt_geom else "NULL"
+        geom_and_placeholders = ", ".join([geom_text] + ["%s" for _ in values])
+        insert_sql = f"INSERT INTO {table_name} ({', '.join(['geom'] + columns)}) VALUES ({geom_and_placeholders});"
+        batch.append((insert_sql, values))
+
+        if len(batch) >= batch_size:
+            with conn.cursor() as cur:
+                for sql, vals in batch:
+                    cur.execute(sql, vals)
+                conn.commit()
+            batch = []
+            batch_count = batch_count + 1
+            logger.info(f"Insert batch number {batch_count} completed")
+
+    # Insert remaining items
+    if batch:
         with conn.cursor() as cur:
-            for feature in layer:
-                wkt_geom = "NULL"
-                geometry = feature.GetGeometryRef()
-                if geometry:
-                    if need_transform:
-                        geometry.Transform(coord_transform)
-                    geometry.FlattenTo2D()
-                    wkt_geom = geometry.ExportToWkt()
+            for sql, vals in batch:
+                cur.execute(sql, vals)
+            conn.commit()
 
-                columns = []
-                values = []
-                for field in fields:
-                    columns.append(f'"{field["name"].lower()}"')
-                    values.append(feature.GetField(field["name"]))
-                columns_str = ", ".join(["geom"] + columns)
-                geom_and_placeholders = ", ".join(
-                    [f"ST_GeomFromText('{wkt_geom}', 4326)"] + ["%s" for _ in values]
-                )
-                insert_sql = f"INSERT INTO {table_name} ({columns_str}) VALUES ({geom_and_placeholders});"
-                cur.execute(insert_sql, values)
-
-    logger.info("Fill table with layer feature")
+    logger.info("Fill table with layer feature completed")

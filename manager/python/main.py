@@ -19,10 +19,13 @@ def main():
     # object_key = sys.argv[1]
     # table_name = sys.argv[2]
 
-    tasks.difference(
-        user_id="49015332-8717-411c-bb40-b589d4273a8a",
-        input_table=["sample_grid_1", "sample_grid_2"],
-        output_table="miko_diff7",
+    tasks.transform(
+        object_key="05f2194a-5e9e-4af9-9067-fed6e6b5c6b2.dxf",
+        uploader="49015332-8717-411c-bb40-b589d4273a8a",
+        format_file="dxf",
+        is_zipped=False,
+        table_name="miko_dxf2",
+        additional_config={"source_srs": "32750"},
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
 
