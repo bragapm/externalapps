@@ -24,7 +24,7 @@ def main():
         uploader="49015332-8717-411c-bb40-b589d4273a8a",
         format_file="dxf",
         is_zipped=False,
-        table_name="miko_dxf2",
+        table_name="miko_dxf9",
         additional_config={"source_srs": "32750"},
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it

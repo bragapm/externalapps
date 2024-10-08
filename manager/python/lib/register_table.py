@@ -65,6 +65,19 @@ def register_table_to_directus(
                             f"Failed to define default style for geom_name: {header_info['geom_name']}"
                         )
 
+            # Calculate bbox from PostGIS using ST_Extent
+            cur.execute(f"SELECT ST_Extent(geom) FROM {table_name}")
+            bbox_result = cur.fetchone()
+            if bbox_result is None or bbox_result[0] is None:
+                raise Exception(f"Could not calculate bbox for table: {table_name}")
+
+            bbox_str = bbox_result[0]
+            bbox_str_clean = bbox_str.replace("BOX(", "").replace(")", "")
+            bbox_values = bbox_str_clean.replace(",", " ").split()
+            lon_min, lat_min, lon_max, lat_max = map(float, bbox_values)
+            bbox_polygon = create_bbox_polygon(lon_min, lat_min, lon_max, lat_max)
+
+            # Insert data into vector_tiles table
             cur.execute(
                 "INSERT INTO vector_tiles(layer_id, layer_name, geometry_type, user_created, bounds, layer_alias, listed, fill_style, line_style, circle_style, permission_type, preview, description) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 [
@@ -76,7 +89,7 @@ def register_table_to_directus(
                         else header_info["geom_name"]
                     ),
                     uploader,
-                    Json(header_info["bbox"]),
+                    Json(bbox_polygon),  # Insert the calculated bbox
                     layer_alias,
                     listed,
                     fill_style,
@@ -88,7 +101,7 @@ def register_table_to_directus(
                 ],
             )
 
-            # TODO do many-to-many insertion for allowed_roles
+            # TODO: do many-to-many insertion for allowed_roles
 
             # handle public only, because permission for allowed roles are handled by junction table insertion trigger
             if permission_type == "roles+public":
