@@ -8,6 +8,7 @@ import IcPicture from "~/assets/icons/ic-picture.svg";
 import IcDrawFree from "~/assets/icons/ic-draw-free.svg";
 
 // export const mapApiKey = "D7JUUxLv3oK21JM9jscD";
+export const orsApiKey = "5b3ce3597851110001cf6248a74916be492f4775af9522b9c91d851c";
 
 export const uncategorizedAlias = "Others";
 export const uncategorizedLoadedData = "Loaded Data";
@@ -41,4 +42,4 @@ export const logicalOperatorOptions = [
 
 export const layerDataFolderId = "ffffffff-ffff-4fff-bfff-fffffffffffb";
 export const layerPreviewFolderId = "ffffffff-ffff-4fff-bfff-fffffffffffd";
-export const layerIconsFolderId = "ffffffff-ffff-4fff-bfff-fffffffffffe"
+export const layerIconsFolderId = "ffffffff-ffff-4fff-bfff-fffffffffffe";
