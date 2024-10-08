@@ -14,6 +14,8 @@ const props = withDefaults(defineProps<Props>(), {
   label: "",
   onClose: () => {},
 });
+
+const toolsStore = useMapTools();
 </script>
 
 <template>
@@ -35,7 +37,7 @@ const props = withDefaults(defineProps<Props>(), {
         :fontControlled="false"
       ></component>
       <p class="flex-1 text-grey-200 text-2xs">{{ label }}</p>
-      <button @click="onClose">
+      <button @click="() => toolsStore.handleCloseToolsCard()">
         <IcCross class="w-2 h-2 text-grey-400 m-2" :fontControlled="false" />
       </button>
     </div>

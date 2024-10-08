@@ -70,6 +70,7 @@ const { expandTools } = storeToRefs(toolsStore);
             <button
               @click="
                 () => {
+                  toolsStore.handleOpenToolsCard(item);
                   if (item.action) {
                     item.action(item);
                   }

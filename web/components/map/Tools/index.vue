@@ -14,11 +14,8 @@ import IcRulerCorner from "~/assets/icons/ic-ruler-corner.svg";
 import IcSearch from "~/assets/icons/ic-search.svg";
 import IcTools from "~/assets/icons/ic-tools.svg";
 import { storeToRefs } from "pinia";
-import type { ToolItem } from "~/utils/types";
 import type { GeoJSONSource } from "maplibre-gl";
 
-const showTools = ref(true);
-const showIsochroneCard = ref(false);
 const store = useTableData();
 const { showTable } = storeToRefs(store);
 
@@ -26,25 +23,9 @@ const mapRefStore = useMapRef();
 const { map } = storeToRefs(mapRefStore);
 
 const toolsStore = useMapTools();
-const { toggleExpandTools } = toolsStore;
-const { expandTools } = storeToRefs(toolsStore);
-
-const showCard = ref(false);
-const activeTools = shallowRef<ToolItem | null>(null);
-
-const handleOpenToolsCard = (item: ToolItem) => {
-  showCard.value = true;
-  showTools.value = false;
-  activeTools.value = item;
-};
-
-const handleCloseToolsCard = () => {
-  showCard.value = false;
-  showTools.value = true;
-  setTimeout(() => {
-    activeTools.value = null;
-  }, 400);
-};
+const { showTools, showCard, activeTools, expandTools } =
+  storeToRefs(toolsStore);
+const { handleCloseToolsCard, toggleExpandTools } = toolsStore;
 
 const removeAllAnimation = () => {
   if (map.value?.getSource("highlight")) {
@@ -81,27 +62,21 @@ const removeAllAnimation = () => {
             id: 'advanced_insight',
             label: 'Advanced Insight',
             icon: IcTools,
-            action: () => console.log('advanced_insight'),
           },
           {
             id: 'isochrone',
             label: 'Isochrone',
             icon: IcDrawFree,
-            action: () => console.log('isochrone'),
           },
           {
             id: 'buffer_area',
             label: 'Buffer Area',
             icon: IcDrawSquare,
-            action: (item) => {
-              handleOpenToolsCard(item!);
-            },          
           },
           {
             id: 'route_finder',
             label: 'Route Finder',
             icon: IcRoute,
-            action: () => console.log('route_finder'),
           },
         ]"
       ></MapToolsDropdown>
@@ -113,9 +88,6 @@ const removeAllAnimation = () => {
             id: 'find_coordinate',
             label: 'Find Coordinate',
             icon: IcDrawFree,
-            action: (item) => {
-              handleOpenToolsCard(item!);
-            },
           },
           {
             id: 'administrative_area',
@@ -137,17 +109,11 @@ const removeAllAnimation = () => {
             id: 'intersect',
             label: 'Intersect Tool',
             icon: IcIntersect,
-            action: (item) => {
-              handleOpenToolsCard(item!);
-            },
           },
           {
             id: 'difference',
             label: 'Difference Tool',
             icon: IcDifference,
-            action: (item) => {
-              handleOpenToolsCard(item!);
-            },
           },
         ]"
       ></MapToolsDropdown>
@@ -164,7 +130,6 @@ const removeAllAnimation = () => {
             icon: IcRuler,
             action: (item) => {
               removeAllAnimation();
-              handleOpenToolsCard(item!);
             },
           },
           {
@@ -174,7 +139,6 @@ const removeAllAnimation = () => {
             icon: IcRulerCorner,
             action: (item) => {
               removeAllAnimation();
-              handleOpenToolsCard(item!);
             },
           },
         ]"
