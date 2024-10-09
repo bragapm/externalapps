@@ -61,7 +61,10 @@ def fill_table_with_layer_feature(
     target_srs.ImportFromEPSG(4326)  # Target SRS (WGS 84)
     target_srs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
     coord_transform = osr.CoordinateTransformation(source_srs, target_srs)
-    need_transform = not source_srs.IsSame(target_srs)
+    need_transform = (
+        header_info["srs_code"] is not None and "4326" not in header_info["srs_code"]
+    ) or (srs_string is not None and "4326" not in srs_string)
+    print({"need_transform": need_transform})
 
     # Process in batches
     batch_size = 1000  # Adjust based on your system's capability

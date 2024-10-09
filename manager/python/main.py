@@ -22,13 +22,13 @@ def main():
     tasks.transform(
         uploader="49015332-8717-411c-bb40-b589d4273a8a",
         # object_key="05f2194a-5e9e-4af9-9067-fed6e6b5c6b2.dxf",
-        object_key="e7f7078e-2c60-46d2-ad8b-a1b51e98654e.zip",
+        object_key="58909a56-aec6-4c23-a16e-ab2c546ac274.zip",
         # format_file="dxf",
         format_file="shapefile",
         # is_zipped=False,
         is_zipped=True,
         # table_name="miko_dxf6",
-        table_name="miko_shp6",
+        table_name="miko_batam3",
         # additional_config={"source_srs": "32750"},
         additional_config=None,
     )
