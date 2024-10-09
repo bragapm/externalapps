@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { orsApiKey } from "~/constants";
 import marker from "~/assets/images/marker.png";
 import waypoint from "~/assets/images/waypoint.png";
+import type { Raw } from "vue";
 
 const defaultLocations = [
   {
@@ -26,6 +27,13 @@ export type DirectionProfile =
 export const useDirection = defineStore("direction", () => {
   const toast = useToast();
   const mapStore = useMapRef();
+
+  const focusedInputId = ref<null | string>();
+  const markerRef = ref<null | Raw<any>>(null);
+  const removeMarker = () => {
+    markerRef.value?.remove();
+    markerRef.value = null;
+  };
 
   const directionProfile = ref<DirectionProfile>("driving-car");
 
@@ -201,6 +209,7 @@ export const useDirection = defineStore("direction", () => {
   };
 
   return {
+    focusedInputId,
     directionProfile,
     locations,
     updateLocations,
@@ -208,5 +217,7 @@ export const useDirection = defineStore("direction", () => {
     deleteLocationsById,
     getDirections,
     reset,
+    markerRef,
+    removeMarker,
   };
 });

@@ -15,8 +15,12 @@ const travelModeOptions = [
 ];
 
 const directionStore = useDirection();
-const { reverseLocations, getDirections, reset } = directionStore;
+const { reverseLocations, getDirections, reset, removeMarker } = directionStore;
 const { directionProfile, locations } = storeToRefs(directionStore);
+
+onUnmounted(() => {
+  removeMarker();
+});
 </script>
 
 <template>
@@ -52,9 +56,10 @@ const { directionProfile, locations } = storeToRefs(directionStore);
   <div class="p-2 space-y-2">
     <p class="text-xs text-white">Route</p>
     <MapToolsRouteFinderInput
-      v-for="item in locations"
+      v-for="(item, index) in locations"
       :key="item.id"
       :item="item"
+      :endPoint="index === locations.length - 1"
     />
     <button
       :disabled="locations.filter((el) => el.feature !== null).length < 2"
@@ -67,7 +72,12 @@ const { directionProfile, locations } = storeToRefs(directionStore);
   </div>
   <div class="p-2 grid grid-cols-2 gap-x-3">
     <UButton
-      @click="() => reset()"
+      @click="
+        () => {
+          removeMarker();
+          reset();
+        }
+      "
       color="brand"
       variant="outline"
       :ui="{ rounded: 'rounded-[4px]' }"
@@ -77,6 +87,7 @@ const { directionProfile, locations } = storeToRefs(directionStore);
     <UButton
       @click="
         () => {
+          removeMarker()
           getDirections(locations.map((el:any) => el.feature?.geometry.coordinates))
         }
       "
