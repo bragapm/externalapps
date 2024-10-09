@@ -4,6 +4,7 @@ import IcCar from "~/assets/icons/ic-car.svg";
 import IcCycling from "~/assets/icons/ic-cycling.svg";
 import IcBus from "~/assets/icons/ic-bus.svg";
 import IcWalk from "~/assets/icons/ic-walk.svg";
+import IcReverse from "~/assets/icons/ic-reverse.svg";
 import type { DirectionProfile } from "~/stores/useDirection";
 
 const travelModeOptions = [
@@ -14,7 +15,7 @@ const travelModeOptions = [
 ];
 
 const directionStore = useDirection();
-const { getDirections, reset } = directionStore;
+const { reverseLocations, getDirections, reset } = directionStore;
 const { directionProfile, locations } = storeToRefs(directionStore);
 </script>
 
@@ -55,6 +56,14 @@ const { directionProfile, locations } = storeToRefs(directionStore);
       :key="item.id"
       :item="item"
     />
+    <button
+      :disabled="locations.filter((el) => el.feature !== null).length < 2"
+      @click="reverseLocations"
+      class="text-grey-50 flex gap-1 items-center"
+    >
+      <IcReverse class="w-3 h-3" :fontControlled="false" />
+      <p class="text-2xs">Reverse</p>
+    </button>
   </div>
   <div class="p-2 grid grid-cols-2 gap-x-3">
     <UButton

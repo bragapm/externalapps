@@ -97,6 +97,7 @@ const blurWithDelayed = () => {
             selected: 'bg-grey-200 text-grey-700',
             color: 'text-grey-200',
             rounded: 'rounded-xxs',
+            active: 'bg-grey-200 text-grey-700',
           },
         }"
         size="xs"

@@ -46,6 +46,11 @@ export const useDirection = defineStore("direction", () => {
     locations.value[indexToUpdate].label = newLabel;
   };
 
+  const reverseLocations = () => {
+    const current = [...locations.value];
+    locations.value = current.reverse();
+  };
+
   const deleteLocationsById = (id: string) => {
     const indexToUpdate = locations.value.findIndex((el) => el.id === id);
     locations.value[indexToUpdate].feature = null;
@@ -199,6 +204,7 @@ export const useDirection = defineStore("direction", () => {
     directionProfile,
     locations,
     updateLocations,
+    reverseLocations,
     deleteLocationsById,
     getDirections,
     reset,
