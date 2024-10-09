@@ -60,13 +60,8 @@ def fill_table_with_layer_feature(
     target_srs = osr.SpatialReference()
     target_srs.ImportFromEPSG(4326)  # Target SRS (WGS 84)
     target_srs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
-
-    # Create a coordinate transformation object
     coord_transform = osr.CoordinateTransformation(source_srs, target_srs)
-
-    need_transform = (
-        header_info["srs_code"] is not None and "4326" in header_info["srs_code"]
-    ) or (srs_string is not None and "4326" in srs_string)
+    need_transform = not source_srs.IsSame(target_srs)
 
     # Process in batches
     batch_size = 1000  # Adjust based on your system's capability

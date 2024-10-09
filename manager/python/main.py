@@ -20,12 +20,17 @@ def main():
     # table_name = sys.argv[2]
 
     tasks.transform(
-        object_key="05f2194a-5e9e-4af9-9067-fed6e6b5c6b2.dxf",
         uploader="49015332-8717-411c-bb40-b589d4273a8a",
-        format_file="dxf",
-        is_zipped=False,
-        table_name="miko_dxf9",
-        additional_config={"source_srs": "32750"},
+        # object_key="05f2194a-5e9e-4af9-9067-fed6e6b5c6b2.dxf",
+        object_key="e7f7078e-2c60-46d2-ad8b-a1b51e98654e.zip",
+        # format_file="dxf",
+        format_file="shapefile",
+        # is_zipped=False,
+        is_zipped=True,
+        # table_name="miko_dxf6",
+        table_name="miko_shp6",
+        # additional_config={"source_srs": "32750"},
+        additional_config=None,
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
 

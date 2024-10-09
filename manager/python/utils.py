@@ -64,6 +64,16 @@ def is_dev_mode():
 
 
 def create_bbox_polygon(lon_min, lat_min, lon_max, lat_max):
+    # Flip if the absolute latitude is greater than 90 or if lat > lon
+    if (
+        abs(lat_min) > 90
+        or abs(lat_max) > 90
+        or abs(lat_min) > abs(lon_min)
+        or abs(lat_max) > abs(lon_max)
+    ):
+        lon_min, lat_min = lat_min, lon_min
+        lon_max, lat_max = lat_max, lon_max
+
     # Define the polygon coordinates for the bounding box
     coordinates = [
         [
