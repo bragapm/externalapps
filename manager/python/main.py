@@ -21,16 +21,16 @@ def main():
 
     tasks.transform(
         uploader="49015332-8717-411c-bb40-b589d4273a8a",
-        # object_key="05f2194a-5e9e-4af9-9067-fed6e6b5c6b2.dxf",
-        object_key="58909a56-aec6-4c23-a16e-ab2c546ac274.zip",
-        # format_file="dxf",
-        format_file="shapefile",
-        # is_zipped=False,
-        is_zipped=True,
-        # table_name="miko_dxf6",
-        table_name="miko_batam3",
-        # additional_config={"source_srs": "32750"},
-        additional_config=None,
+        object_key="f917f8d0-02a7-41ea-ad69-816d0879626f.dwg",
+        # object_key="58909a56-aec6-4c23-a16e-ab2c546ac274.zip",
+        format_file="dwg",
+        # format_file="shapefile",
+        is_zipped=False,
+        # is_zipped=True,
+        table_name="miko_dwg",
+        # table_name="miko_batam3",
+        additional_config={"source_srs": "32750"},
+        # additional_config=None,
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
 
