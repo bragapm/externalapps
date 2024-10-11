@@ -141,7 +141,7 @@ def get_header_info(
             data_source = get_input_data_with_vsi(bucket, object_key, is_zipped, "DXF")
             header_info = get_header_info_from_data_source(data_source)
         case "dwg":
-            data_source = get_input_data_with_vsi(bucket, object_key, is_zipped, "DWG")
+            data_source = get_input_data_with_vsi(bucket, object_key, is_zipped, "CAD")
             header_info = get_header_info_from_data_source(data_source)
         case _:
             data_source = get_input_data_with_vsi(
