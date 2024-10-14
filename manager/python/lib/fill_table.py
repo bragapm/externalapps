@@ -17,24 +17,24 @@ def detect_and_import_srs(srs_string: str):
     if srs_string.lower().startswith("epsg:"):
         epsg_code = int(srs_string.split(":")[1])
         srs.ImportFromEPSG(epsg_code)
-        print(f"Detected EPSG: {epsg_code}")
+        logger.info(f"Detected EPSG: {epsg_code}")
 
     elif srs_string.isdigit():
         # Handle case where the user only provides the EPSG code (e.g., "4326")
         epsg_code = int(srs_string)
         srs.ImportFromEPSG(epsg_code)
-        print(f"Detected EPSG: {epsg_code}")
+        logger.info(f"Detected EPSG: {epsg_code}")
 
     # Check if it's a Proj4 string (starts with "+proj=")
     elif srs_string.startswith("+proj="):
         srs.ImportFromProj4(srs_string)
-        print("Detected Proj4 string")
+        logger.info("Detected Proj4 string")
 
     # Assume it's a WKT string otherwise
     else:
         try:
             srs.ImportFromWkt(srs_string)
-            print("Detected WKT string")
+            logger.info("Detected WKT string")
         except Exception as e:
             raise ValueError(
                 "Invalid SRS string format. Could not interpret input."
@@ -64,7 +64,6 @@ def fill_table_with_layer_feature(
     need_transform = (
         header_info["srs_code"] is not None and "4326" not in header_info["srs_code"]
     ) or (srs_string is not None and "4326" not in srs_string)
-    print({"need_transform": need_transform})
 
     # Process in batches
     batch_size = 1000  # Adjust based on your system's capability
@@ -80,7 +79,17 @@ def fill_table_with_layer_feature(
             wkt_geom = geometry.ExportToWkt()
 
         columns = [f'"{field["name"].lower()}"' for field in fields]
-        values = [feature.GetField(field["name"]) for field in fields]
+        values = []
+
+        for field in fields:
+            value = feature.GetField(field["name"])
+
+            # Convert boolean-like values to 0 or 1
+            if isinstance(value, bool):
+                value = 1 if value else 0
+
+            values.append(value)
+
         geom_text = f"ST_GeomFromText('{wkt_geom}', 4326)" if wkt_geom else "NULL"
         geom_and_placeholders = ", ".join([geom_text] + ["%s" for _ in values])
         insert_sql = f"INSERT INTO {table_name} ({', '.join(['geom'] + columns)}) VALUES ({geom_and_placeholders});"
@@ -92,7 +101,7 @@ def fill_table_with_layer_feature(
                     cur.execute(sql, vals)
                 conn.commit()
             batch = []
-            batch_count = batch_count + 1
+            batch_count += 1
             logger.info(f"Insert batch number {batch_count} completed")
 
     # Insert remaining items

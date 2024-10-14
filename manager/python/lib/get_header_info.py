@@ -143,6 +143,9 @@ def get_header_info(
         case "dwg":
             data_source = get_input_data_with_vsi(bucket, object_key, is_zipped, "CAD")
             header_info = get_header_info_from_data_source(data_source)
+        case "gpkg":
+            data_source = get_input_data_with_vsi(bucket, object_key, is_zipped, "GPKG")
+            header_info = get_header_info_from_data_source(data_source)
         case _:
             data_source = get_input_data_with_vsi(
                 bucket, object_key, is_zipped, get_driver_short_name(format_file)

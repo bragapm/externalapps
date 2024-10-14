@@ -24,7 +24,7 @@ def create_table_from_header_info(conn, header_info: HeaderInfo, table_name: str
     columns_sql = ", ".join(
         ["ogc_fid serial PRIMARY KEY"]
         + [
-            f'"{field["name"].lower()}" {type_mapping.get(field["type"], "String")}'
+            f'"{field["name"].lower()}" {type_mapping.get(field["type"], "text")}'
             for field in fields
         ]
         + ["geom geometry(Geometry, 4326)"]

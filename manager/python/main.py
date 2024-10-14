@@ -13,7 +13,7 @@ from utils import logger
 
 def main():
     # if len(sys.argv) < 3:
-    #     print("Usage: python main.py <object_key> <table_name>")
+    #     logger.info("Usage: python main.py <object_key> <table_name>")
     #     sys.exit(1)  # Exit the script if there are not enough arguments
 
     # object_key = sys.argv[1]
@@ -21,16 +21,11 @@ def main():
 
     tasks.transform(
         uploader="49015332-8717-411c-bb40-b589d4273a8a",
-        object_key="f917f8d0-02a7-41ea-ad69-816d0879626f.dwg",
-        # object_key="58909a56-aec6-4c23-a16e-ab2c546ac274.zip",
-        format_file="dwg",
-        # format_file="shapefile",
+        object_key="85c549de-179d-4de7-a849-b5ff1aeeffdb.gpkg",
+        format_file="gpkg",
         is_zipped=False,
-        # is_zipped=True,
-        table_name="miko_dwg",
-        # table_name="miko_batam3",
-        additional_config={"source_srs": "32750"},
-        # additional_config=None,
+        table_name="miko_gpkg",
+        additional_config=None,
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
 
