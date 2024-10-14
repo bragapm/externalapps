@@ -21,10 +21,10 @@ def main():
 
     tasks.transform(
         uploader="49015332-8717-411c-bb40-b589d4273a8a",
-        object_key="85c549de-179d-4de7-a849-b5ff1aeeffdb.gpkg",
+        object_key="52719c8f-5d29-4a97-8b93-67d5ce9e57e5.gpkg",
         format_file="gpkg",
         is_zipped=False,
-        table_name="miko_gpkg",
+        table_name="miko_gpkg1",
         additional_config=None,
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
