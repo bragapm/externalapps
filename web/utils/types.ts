@@ -198,7 +198,7 @@ export type VectorTilesConfig = {
   layer_name: string;
   bounds: GeoJSON.Polygon;
   geometry_type: string;
-  category?: { category_name?: string };
+  category?: Category;
   circle_style?: CircleStylesConfig;
   symbol_style?: SymbolStylesConfig;
   fill_style?: FillStylesConfig;
@@ -209,6 +209,8 @@ export type VectorTilesConfig = {
   click_popup_columns?: string[];
   image_columns?: string[];
   feature_detail_columns?: string[];
+  preview?: File;
+  description?: string;
 };
 
 export type RasterTiles = {
@@ -238,7 +240,9 @@ export type RasterTilesConfig = {
   layer_alias: string;
   active: boolean;
   visible: boolean;
-  category?: { category_name?: string };
+  category?: Category;
+  preview?: File;
+  description?: string;
 };
 
 export type ThreeDTiles = {
@@ -265,6 +269,9 @@ export type ThreeDTilesConfig = {
   point_size?: number;
   point_color?: string;
   visible: boolean;
+  preview?: File;
+  description?: string;
+  category?: Category;
 };
 
 export type LayerConfigLists = (
@@ -396,4 +403,14 @@ export type Queue = {
   uploader: Uploader;
   filename: null;
   status: string;
+};
+
+export type Category = {
+  category_id: string;
+  category_name: string;
+  description: string;
+  subcategories: Category[];
+  parent?: string;
+  date_created?: any;
+  contributor?: string;
 };

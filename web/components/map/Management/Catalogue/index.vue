@@ -4,25 +4,28 @@ import IcFileAdd from "~/assets/icons/ic-file-add.svg";
 import IcFileSort from "~/assets/icons/ic-file-sort.svg";
 import IcCloudUpload from "~/assets/icons/ic-cloud-upload.svg";
 import IcArrow from "~/assets/icons/ic-arrow-square.svg";
-import { layerTypeFilterOptions, dimensionFilterOptions } from "~/constants";
+import {
+  layerTypeFilterOptions,
+  dimensionFilterOptions,
+  staticKey,
+} from "~/constants";
+import type { LayerConfigLists } from "~/utils/types";
 
+const authStore = useAuth();
+const { getAllLoadedGeoJsonData } = useIDB();
 const catalogueStore = useCatalogue();
 const { toggleCatalogue } = catalogueStore;
+const { selectedCategory } = storeToRefs(catalogueStore);
 const mapLayerStore = useMapLayer();
-const { fetchListedLayers } = mapLayerStore;
-const fetchingListedLayers = ref(true);
+const { getLayersArr } = mapLayerStore;
 const mode = ref<UploadModeEnum>("");
 const isOption = ref(false);
 
-const getListedLayers = async () => {
-  await fetchListedLayers();
-  fetchingListedLayers.value = false;
-};
-
-// get listed layer list
-onMounted(() => getListedLayers());
-const filteredLayers = ref<LayerGroupedByCategory[]>([]);
-const filteredLocalLayers = ref<LayerGroupedByCategory[]>([]);
+const activeLayers = computed(() => {
+  return mapLayerStore.groupedActiveLayers
+    .map(({ layerLists }) => layerLists)
+    .flat();
+});
 
 const formatLists = ref(layerTypeFilterOptions);
 const handleChangeFormatList = (index: string | number, value: boolean) => {
@@ -91,99 +94,6 @@ const updateSortOrder = (order: { id: "asc" | "desc"; name: string }) => {
   sortOrder.value = order;
 };
 
-const updateFilteredLayers = (newValue: LayerGroupedByCategory[]) => {
-  filteredLayers.value = newValue;
-};
-const updateFilteredLocalLayers = (newValue: LayerGroupedByCategory[]) => {
-  filteredLocalLayers.value = newValue;
-};
-
-const applyFilter = (
-  data: LayerGroupedByCategory[],
-  updateFunc: (newValue: LayerGroupedByCategory[]) => void
-) => {
-  //filter by format
-  if (formatLists.value.length) {
-    const filteredFormat = formatLists.value
-      .filter((el) => el.checked === true && el.type !== "all")
-      .map((el) => el.type);
-
-    const filteredByFormat = data
-      .map((item: LayerGroupedByCategory) => {
-        return {
-          ...item,
-          layerLists: item.layerLists.filter((el: LayerLists) => {
-            if (filteredFormat.length > 0) {
-              return filteredFormat.includes(el.geometry_type);
-            } else {
-              return el;
-            }
-          }),
-        };
-      })
-      .filter((item: LayerGroupedByCategory) => item.layerLists.length > 0);
-
-    data = filteredByFormat;
-  }
-  //filter by format
-
-  //filter by dimension
-  if (dimensionLists.value.length) {
-    const dimensionFormat = dimensionLists.value
-      .filter((el) => el.checked === true && el.type !== "all")
-      .map((el) => el.type);
-
-    const filteredByDimension = data
-      ?.map((item: LayerGroupedByCategory) => {
-        return {
-          ...item,
-          layerLists: item.layerLists.filter((el: LayerLists) => {
-            if (dimensionFormat.length > 0) {
-              return dimensionFormat.includes(el.dimension);
-            } else {
-              return el;
-            }
-          }),
-        };
-      })
-      .filter((item: LayerGroupedByCategory) => item.layerLists.length > 0);
-
-    data = filteredByDimension;
-  }
-  //filter by dimension
-
-  //filter by search
-  if (searchFilter.value !== "") {
-    const filteredBySearch = data
-      ?.map((item: LayerGroupedByCategory) => {
-        return {
-          ...item,
-          layerLists: item.layerLists.filter((el) => {
-            if (el.source === "vector_tiles") {
-              const name = el.layer_alias ?? el.layer_name;
-              return name
-                .toLowerCase()
-                .includes(searchFilter.value.toLowerCase());
-            } else {
-              return el.layer_alias
-                ?.toLowerCase()
-                .includes(searchFilter.value.toLowerCase());
-            }
-          }),
-        };
-      })
-      .filter((item: LayerGroupedByCategory) => item.layerLists.length > 0);
-
-    data = filteredBySearch;
-  }
-  updateFunc(data);
-};
-
-watchEffect(() => {
-  applyFilter(mapLayerStore.groupedLayerList, updateFilteredLayers);
-  applyFilter(mapLayerStore.groupedLocalLayers, updateFilteredLocalLayers);
-});
-
 const updateSearchFilter = (input: string) => {
   searchFilter.value = input;
 };
@@ -192,6 +102,162 @@ watch(searchRef, debounce(updateSearchFilter, 750));
 const changeMode = (value: UploadModeEnum) => {
   mode.value = value;
 };
+
+const catalogueData = ref<any[]>([]);
+const filteredData = ref<any[]>([]);
+const isFetching = ref(false);
+const fetchData = async (categoryId: string) => {
+  isFetching.value = true;
+  if (categoryId === staticKey.loadedData) {
+    const loadedData = await getAllLoadedGeoJsonData();
+    if (loadedData) {
+      catalogueData.value = loadedData;
+    }
+    isFetching.value = false;
+  } else {
+    const [vectorTiles, rasterTiles, threeDTiles] = await Promise.all([
+      $fetch<{
+        data: LayerConfigLists;
+      }>(
+        `/panel/items/vector_tiles?fields=layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,hover_popup_columns,click_popup_columns,image_columns,active,description,preview,category.*,fill_style.*,line_style.*,circle_style.*,symbol_style.*&sort=layer_name&${
+          categoryId === staticKey.other
+            ? `filter[category][_null]=true`
+            : `filter[category][category_id][_eq]=${categoryId}`
+        }`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + authStore.accessToken,
+          },
+        }
+      ),
+      $fetch<{
+        data: LayerConfigLists;
+      }>(
+        `/panel/items/raster_tiles?fields=layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,active,visible,category.*,preview,description&sort=layer_alias&${
+          categoryId === staticKey.other
+            ? `filter[category][_null]=true`
+            : `filter[category][category_id][_eq]=${categoryId}`
+        }`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + authStore.accessToken,
+          },
+        }
+      ),
+      $fetch<{
+        data: LayerConfigLists;
+      }>(
+        `/panel/items/three_d_tiles?fields=layer_id,layer_alias,active,visible,opacity,point_color,point_size,category.*,preview,description&sort=layer_alias&${
+          categoryId === staticKey.other
+            ? `filter[category][_null]=true`
+            : `filter[category][category_id][_eq]=${categoryId}`
+        }`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + authStore.accessToken,
+          },
+        }
+      ),
+    ]);
+    catalogueData.value = getLayersArr({
+      vectorTiles,
+      rasterTiles,
+      threeDTiles,
+    });
+    isFetching.value = false;
+  }
+};
+
+watchEffect(async () => {
+  if (selectedCategory.value) {
+    fetchData(selectedCategory.value);
+  }
+});
+
+const applyFilter = (data: LayerLists[]) => {
+  let currentData = data;
+  //filter by format
+  if (formatLists.value.length) {
+    const filteredFormat = formatLists.value
+      .filter((el) => el.checked === true && el.type !== "all")
+      .map((el) => el.type);
+
+    const filteredByFormat = currentData.filter((el: LayerLists) => {
+      if (filteredFormat.length > 0) {
+        return filteredFormat.includes(el.geometry_type);
+      } else {
+        return el;
+      }
+    });
+
+    currentData = filteredByFormat;
+  }
+
+  //filter by dimension
+  if (dimensionLists.value.length) {
+    const dimensionFormat = dimensionLists.value
+      .filter((el) => el.checked === true && el.type !== "all")
+      .map((el) => el.type);
+
+    const filteredByDimension = currentData.filter((el: LayerLists) => {
+      if (dimensionFormat.length > 0) {
+        return dimensionFormat.includes(el.dimension);
+      } else {
+        return el;
+      }
+    });
+
+    currentData = filteredByDimension;
+  }
+
+  //filter by search
+  if (searchFilter.value !== "") {
+    const filteredBySearch = currentData.filter((el: LayerLists) => {
+      if (el.source === "vector_tiles") {
+        const name = el.layer_alias ?? el.layer_name;
+        return name.toLowerCase().includes(searchFilter.value.toLowerCase());
+      } else {
+        return el.layer_alias
+          ?.toLowerCase()
+          .includes(searchFilter.value.toLowerCase());
+      }
+    });
+
+    currentData = filteredBySearch;
+  }
+
+  filteredData.value = currentData.sort((a, b) => {
+    let nameA: string;
+    let nameB: string;
+    if (a.source === "vector_tiles") {
+      nameA = a.layer_alias?.toUpperCase() ?? a.layer_name.toUpperCase();
+    } else {
+      nameA = a.layer_alias.toUpperCase();
+    }
+    if (b.source === "vector_tiles") {
+      nameB = b.layer_alias?.toUpperCase() ?? b.layer_name.toUpperCase();
+    } else {
+      nameB = b.layer_alias.toUpperCase();
+    }
+    if (sortOrder.value.id === "asc") {
+      return nameA.localeCompare(nameB);
+    } else {
+      return nameB.localeCompare(nameA);
+    }
+  });
+};
+
+watchEffect(async () => {
+  if (catalogueData.value.length > 0) {
+    applyFilter(catalogueData.value);
+  }
+});
 </script>
 
 <template>
@@ -234,28 +300,7 @@ const changeMode = (value: UploadModeEnum) => {
       <div
         class="flex flex-col text-white border border-grey-700 rounded-l-xs gap-2 overflow-hidden w-60"
       >
-        <div v-if="fetchingListedLayers" class="flex-1 overflow-scroll">
-          <template v-for="i of [0, 1]" :key="i">
-            <div v-if="i !== 0" class="border-t border-grey-700 mx-2" />
-            <div class="flex flex-col gap-2 p-2">
-              <USkeleton
-                :ui="{ background: 'bg-grey-800' }"
-                class="h-3 w-1/2"
-              />
-              <USkeleton
-                :ui="{ background: 'bg-grey-800' }"
-                class="h-3 w-full"
-              />
-              <USkeleton
-                v-for="i of [0, 1, 2, 3, 4]"
-                :key="i"
-                :ui="{ rounded: 'rounded-xxs', background: 'bg-grey-800' }"
-                class="w-full h-7"
-              />
-            </div>
-          </template>
-        </div>
-        <MapManagementCatalogueLists v-else :disabled="isOption" />
+        <MapManagementCatalogueLists :disabled="isOption" />
         <div class="flex flex-col p-2 gap-2">
           <div class="border-t border-grey-700" />
           <UButton
@@ -319,18 +364,45 @@ const changeMode = (value: UploadModeEnum) => {
             </template>
           </UInput>
         </div>
+        <MapManagementCatalogueHeader
+          v-if="!isOption"
+          :count="filteredData.length"
+        />
         <div
           class="flex flex-col w-full h-full border border-grey-700 border-t-0 border-l-0 rounded-br-xs overflow-y-auto divide-y divide-grey-700"
         >
           <div
-            v-if="fetchingListedLayers"
-            v-for="i of [0, 1]"
-            :key="i"
-            class="flex flex-col p-3 gap-1"
+            v-if="filteredData.length === 0 && !isOption && !isFetching"
+            class="flex items-center justify-center text-grey-400 text-sm w-full h-full"
           >
-            <USkeleton :ui="{ background: 'bg-grey-800' }" class="h-6 w-1/12" />
-            <USkeleton :ui="{ background: 'bg-grey-800' }" class="h-4 w-3/12" />
-            <USkeleton :ui="{ background: 'bg-grey-800' }" class="h-4 w-5/12" />
+            No Data Layers Found
+          </div>
+          <div
+            v-if="!isOption && !isFetching"
+            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-3 gap-3 p-3"
+          >
+            <MapManagementCatalogueItem
+              v-for="layer of filteredData"
+              :key="layer.layer_id"
+              :item="layer"
+              :isActive="
+                activeLayers
+                  ? activeLayers.findIndex(
+                      (item) => item.layer_id === layer.layer_id
+                    ) > -1
+                  : false
+              "
+              @remove-loaded-layer="
+                (layerId) => {
+                  const loadedDataIdx = catalogueData.findIndex(
+                    (el) => el.layer_id === layerId
+                  );
+                  catalogueData.splice(loadedDataIdx, 1);
+                }
+              "
+            />
+          </div>
+          <div v-if="!isOption && isFetching" class="flex flex-col p-3 gap-1">
             <div
               class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-3 gap-3"
             >
@@ -364,12 +436,6 @@ const changeMode = (value: UploadModeEnum) => {
               </div>
             </div>
           </div>
-          <MapManagementCatalogueData
-            v-else
-            v-if="!isOption"
-            :filteredLayers="filteredLayers"
-            :filteredLocalLayers="filteredLocalLayers"
-          />
           <MapManagementCatalogueUploadOption
             v-if="isOption"
             :mode="mode"
@@ -384,19 +450,22 @@ const changeMode = (value: UploadModeEnum) => {
     </div>
     <MapManagementCatalogueLoadLocalData
       v-if="mode === 'loadlocal'"
-      :sortOrder="sortOrder"
       @handle-success="
         () => {
           changeMode('');
           isOption = false;
+          fetchData(staticKey.loadedData);
         }
       "
       @handle-cancel="changeMode('')"
     />
     <MapManagementCatalogueUpload
       v-if="mode === 'upload'"
-      :sortOrder="sortOrder"
-      @refresh-listed-layers="() => getListedLayers()"
+      @refresh-listed-layers="
+        () => {
+          if (selectedCategory) fetchData(selectedCategory);
+        }
+      "
       @handle-success="
         () => {
           changeMode('');

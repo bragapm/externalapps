@@ -26,10 +26,6 @@ interface IParseResultWithFileName extends IParseResult {
   fileName: string;
 }
 
-const props = defineProps<{
-  sortOrder: { id: "asc" | "desc"; name: string };
-}>();
-
 const emit = defineEmits<{
   (e: "handleCancel"): void;
   (e: "handleSuccess"): void;
@@ -201,27 +197,6 @@ const addToIDBAndLayerList = async (
     data: geojsonObj,
   };
   await addLoadedGeoJsonData(newLayerWithData);
-
-  const loadedDataGroupIdx = mapLayerStore.groupedLocalLayers.findIndex(
-    (el) => el.label === uncategorizedLoadedData
-  );
-  if (loadedDataGroupIdx > -1) {
-    mapLayerStore.groupedLocalLayers[loadedDataGroupIdx].layerLists.push(
-      newLayer
-    );
-    const currentLayers = mapLayerStore.groupedLocalLayers
-      .map(({ layerLists }) => layerLists)
-      .flat();
-    mapLayerStore.groupedLocalLayers = mapLayerStore.groupLayerByCategory(
-      mapLayerStore.sortLayer(currentLayers, props.sortOrder.id)
-    );
-  } else {
-    mapLayerStore.groupedLocalLayers.push({
-      label: uncategorizedLoadedData,
-      layerLists: [newLayer],
-      defaultOpen: false,
-    });
-  }
 };
 
 const handleFileUpload = async (

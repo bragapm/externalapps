@@ -19,6 +19,10 @@ defineProps<{
   isActive: boolean;
 }>();
 
+const emit = defineEmits<{
+  removeLoadedLayer: [layerId: string];
+}>();
+
 const mapLayerStore = useMapLayer();
 const { deleteLoadedGeoJsonData } = useIDB();
 
@@ -46,24 +50,7 @@ const removeLayer = (
 };
 
 const removeLoadedData = async (item: LoadedGeoJson) => {
-  const loadedDataGroupIdx = mapLayerStore.groupedLocalLayers.findIndex(
-    (el) => el.label === item.category.category_name
-  );
-  if (loadedDataGroupIdx < 0) return;
-  if (
-    mapLayerStore.groupedLocalLayers[loadedDataGroupIdx].layerLists.length > 1
-  ) {
-    const layerIdx = mapLayerStore.groupedLocalLayers[
-      loadedDataGroupIdx
-    ].layerLists.findIndex((el) => el.layer_id === item.layer_id);
-    if (layerIdx < 0) return;
-    mapLayerStore.groupedLocalLayers[loadedDataGroupIdx].layerLists.splice(
-      layerIdx,
-      1
-    );
-  } else {
-    mapLayerStore.groupedLocalLayers = [];
-  }
+  emit("removeLoadedLayer", item.layer_id);
   await deleteLoadedGeoJsonData(item.layer_id);
 };
 </script>

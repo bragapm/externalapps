@@ -31,10 +31,7 @@ export const useMapLayer = defineStore("maplayer", () => {
   const authStore = useAuth();
   const mapRefStore = useMapRef();
   const mapLayerStore = useMapLayer();
-  const { getAllLoadedGeoJsonData } = useIDB();
   const groupedActiveLayers = ref<LayerGroupedByCategory[]>([]);
-  const groupedLayerList = ref<LayerGroupedByCategory[]>([]);
-  const groupedLocalLayers = ref<LayerGroupedByCategory[]>([]);
 
   const handleVisibility = (
     groupIndex: number,
@@ -323,71 +320,6 @@ export const useMapLayer = defineStore("maplayer", () => {
     return layerGroupedByCategory;
   };
 
-  const fetchListedLayers = async () => {
-    try {
-      const [vectorTiles, rasterTiles, threeDTiles, loadedGeoJsonData] =
-        await Promise.all([
-          $fetch<{
-            data: LayerConfigLists;
-          }>("/panel/items/vector_tiles?fields=*.*.*&sort=layer_name", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + authStore.accessToken,
-            },
-          }),
-          $fetch<{
-            data: LayerConfigLists;
-          }>("/panel/items/raster_tiles?fields=*.*&sort=layer_alias", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + authStore.accessToken,
-            },
-          }),
-          $fetch<{
-            data: LayerConfigLists;
-          }>("/panel/items/three_d_tiles?fields=*.*&sort=layer_alias", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + authStore.accessToken,
-            },
-          }),
-          getAllLoadedGeoJsonData(),
-        ]);
-
-      const layerData = groupLayerByCategory(
-        getLayersArr({
-          vectorTiles,
-          rasterTiles,
-          threeDTiles,
-        })
-      );
-      const localLayerData = groupLayerByCategory(
-        sortLayer(
-          loadedGeoJsonData.map((el) => {
-            return {
-              source: el.source,
-              layer_id: el.layer_id,
-              layer_alias: el.layer_alias,
-              layer_style: el.layer_style,
-              bounds: el.bounds,
-              category: el.category,
-              geometry_type: el.geometry_type,
-              dimension: el.dimension,
-            };
-          })
-        )
-      );
-
-      groupedLayerList.value = layerData;
-      groupedLocalLayers.value = localLayerData;
-    } catch (error) {
-      return [];
-    }
-  };
-
   const fetchActiveLayers = async () => {
     try {
       const { data: layers, pending } = await useAsyncData(
@@ -397,7 +329,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             data: LayerConfigLists;
           }>([
             $fetch(
-              "/panel/items/vector_tiles?fields=*.*.*&filter[active][_eq]=true&sort=layer_name",
+              "/panel/items/vector_tiles?fields=layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,hover_popup_columns,click_popup_columns,image_columns,active,description,preview,category.*,fill_style.*,line_style.*,circle_style.*,symbol_style.*&filter[active][_eq]=true&sort=layer_name",
               {
                 method: "GET",
                 headers: {
@@ -407,7 +339,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               }
             ),
             $fetch(
-              "/panel/items/raster_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_alias",
+              "/panel/items/raster_tiles?fields=layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,active,visible,category.*,preview,description&filter[active][_eq]=true&sort=layer_alias",
               {
                 method: "GET",
                 headers: {
@@ -417,7 +349,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               }
             ),
             $fetch(
-              "/panel/items/three_d_tiles?fields=*.*&filter[active][_eq]=true&sort=layer_alias",
+              "/panel/items/three_d_tiles?fields=layer_id,layer_alias,active,visible,opacity,point_color,point_size,category.*,preview,description&filter[active][_eq]=true&sort=layer_alias",
               {
                 method: "GET",
                 headers: {
@@ -481,7 +413,6 @@ export const useMapLayer = defineStore("maplayer", () => {
   const addLayer = (
     layerItem: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
   ) => {
-
     let groupName = layerItem.category?.category_name || uncategorizedAlias;
 
     let groupIndex = mapLayerStore.groupedActiveLayers.findIndex(
@@ -516,12 +447,9 @@ export const useMapLayer = defineStore("maplayer", () => {
   };
 
   return {
-    fetchListedLayers,
     fetchActiveLayers,
     handleVisibility,
-    groupedLayerList,
     groupedActiveLayers,
-    groupedLocalLayers,
     updateLayerOpacity,
     groupLayerByCategory,
     threeDLayerCenter,
@@ -529,6 +457,6 @@ export const useMapLayer = defineStore("maplayer", () => {
     updateLayerProperty,
     sortLayer,
     addLayer,
-    getLayersArr
+    getLayersArr,
   };
 });

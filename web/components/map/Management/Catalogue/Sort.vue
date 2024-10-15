@@ -15,55 +15,10 @@ const emit = defineEmits<{
   updateSortOrder: [order: { id: "asc" | "desc"; name: string }];
 }>();
 
-const mapLayerStore = useMapLayer();
 const sortOption: { id: "asc" | "desc"; name: string }[] = [
   { id: "asc", name: "Sort - Alphabetical (A-Z)" },
   { id: "desc", name: "Sort - Alphabetical (Z-A)" },
 ];
-
-const updateLayers = (newValue: LayerGroupedByCategory[]) => {
-  mapLayerStore.groupedLayerList = newValue;
-};
-const updateLocalLayers = (newValue: LayerGroupedByCategory[]) => {
-  mapLayerStore.groupedLocalLayers = newValue;
-};
-
-const handleSort = async (
-  data: LayerLists[],
-  updateFunc: (newValue: LayerGroupedByCategory[]) => void
-) => {
-  data.sort((a, b) => {
-    let nameA: string;
-    let nameB: string;
-    if (a.source === "vector_tiles") {
-      nameA = a.layer_alias?.toUpperCase() ?? a.layer_name.toUpperCase();
-    } else {
-      nameA = a.layer_alias.toUpperCase();
-    }
-    if (b.source === "vector_tiles") {
-      nameB = b.layer_alias?.toUpperCase() ?? b.layer_name.toUpperCase();
-    } else {
-      nameB = b.layer_alias.toUpperCase();
-    }
-    if (props.sortOrder.id === "asc") {
-      return nameA.localeCompare(nameB);
-    } else {
-      return nameB.localeCompare(nameA);
-    }
-  });
-  updateFunc(mapLayerStore.groupLayerByCategory(data));
-};
-
-watchEffect(() => {
-  handleSort(
-    mapLayerStore.groupedLayerList.map(({ layerLists }) => layerLists).flat(),
-    updateLayers
-  );
-  handleSort(
-    mapLayerStore.groupedLocalLayers.map(({ layerLists }) => layerLists).flat(),
-    updateLocalLayers
-  );
-});
 </script>
 
 <template>

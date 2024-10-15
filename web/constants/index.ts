@@ -43,3 +43,5 @@ export const logicalOperatorOptions = [
 export const layerDataFolderId = "ffffffff-ffff-4fff-bfff-fffffffffffb";
 export const layerPreviewFolderId = "ffffffff-ffff-4fff-bfff-fffffffffffd";
 export const layerIconsFolderId = "ffffffff-ffff-4fff-bfff-fffffffffffe";
+
+export const staticKey = { other: "other", loadedData: "loadedData" };

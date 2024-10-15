@@ -8,10 +8,6 @@ import IcSpinner from "~/assets/icons/ic-spinner.svg";
 import IcCheck from "~/assets/icons/ic-check.svg";
 import { layerDataFolderId, layerPreviewFolderId } from "~/constants";
 
-const props = defineProps<{
-  sortOrder: { id: "asc" | "desc"; name: string };
-}>();
-
 const emit = defineEmits<{
   (e: "refreshListedLayers"): void;
   (e: "handleCancel"): void;
@@ -279,23 +275,25 @@ watchEffect(() => {
                   </div>
                 </RadioGroup>
               </div>
-              <CoreSelect
-                :disabled="!dataType"
-                placeholder="Data Format"
-                :value="formatData"
-                :options="
-                  dataType === '3d'
-                    ? threedOptions
-                    : dataType === 'vector'
-                    ? vectorOptions
-                    : rasterOptions
-                "
-                @handle-change="
-                  (value:string) => {
-                    formatData = value
-                  }
-                "
-              />
+              <div class="w-48">
+                <CoreSelect
+                  :disabled="!dataType"
+                  placeholder="Data Format"
+                  :value="formatData"
+                  :options="
+                    dataType === '3d'
+                      ? threedOptions
+                      : dataType === 'vector'
+                      ? vectorOptions
+                      : rasterOptions
+                  "
+                  @handle-change="
+                    (value:string) => {
+                      formatData = value
+                    }
+                  "
+                />
+              </div>
             </TabPanel>
             <TabPanel class="space-y-3">
               <p class="text-sm text-grey-400">Upload Data</p>
