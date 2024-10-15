@@ -62,6 +62,8 @@ services:
       # auths
       - SECUREWATCH_MAXAR_USERNAME
       - SECUREWATCH_MAXAR_PASSWORD
+    deploy:
+      replicas: ${DIRECTUS_REPLICA_COUNT:-1}
     restart: unless-stopped
 
   geoprocessing:
