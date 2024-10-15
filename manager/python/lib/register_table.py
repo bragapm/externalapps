@@ -1,5 +1,3 @@
-import os
-from urllib import request
 from uuid import uuid4
 
 from psycopg2.extras import Json
@@ -90,7 +88,7 @@ def register_table_to_directus(
                         else header_info["geom_name"]
                     ),
                     uploader,
-                    Json(bbox_polygon),  # Insert the calculated bbox
+                    Json(bbox_polygon),
                     layer_alias,
                     listed,
                     fill_style,

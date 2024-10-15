@@ -1,5 +1,6 @@
 from tempfile import gettempdir
 
+import re
 import dramatiq_pg
 import dramatiq.results
 import logging
@@ -95,3 +96,45 @@ def generate_local_temp_dir_path(object_key: str):
 
 def generate_vrt_path(object_key: str):
     return f"/vsimem/{object_key}.vrt"
+
+
+# List of PostgreSQL reserved keywords (you can expand this list as needed)
+POSTGRES_RESERVED_KEYWORDS = {
+    "select",
+    "table",
+    "user",
+    "group",
+    "insert",
+    "update",
+    "delete",
+    "from",
+    "where",
+    "join",
+    "order",
+    "by",
+    "limit",
+}
+
+
+def sanitize_table_name(table_name: str) -> str:
+    # Convert to lowercase to match PostgreSQL default behavior
+    table_name = table_name.lower()
+
+    # Replace any restricted characters with underscores
+    table_name = re.sub(r"[^a-zA-Z0-9_]", "_", table_name)
+
+    # Replace multiple underscores with a single underscore
+    table_name = re.sub(r"_+", "_", table_name)
+
+    # Ensure the name starts with a letter or underscore, not a number
+    if not re.match(r"^[a-zA-Z_]", table_name):
+        table_name = f"_{table_name}"
+
+    # Truncate to 63 characters (PostgreSQL identifier limit)
+    table_name = table_name[:63]
+
+    # Check if the table name is a reserved keyword, and add a prefix if it is
+    if table_name in POSTGRES_RESERVED_KEYWORDS:
+        table_name = f"tbl_{table_name}"
+
+    return table_name

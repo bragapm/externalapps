@@ -21,11 +21,11 @@ def main():
 
     tasks.transform(
         uploader="49015332-8717-411c-bb40-b589d4273a8a",
-        object_key="52719c8f-5d29-4a97-8b93-67d5ce9e57e5.gpkg",
-        format_file="gpkg",
+        object_key="0f6ee9a4-48d5-417d-9a79-34abf0cddd02.dxf",
+        format_file="dxf",
         is_zipped=False,
-        table_name="miko_gpkg1",
-        additional_config=None,
+        table_name="miko_dxf",
+        additional_config={"source_srs": "32750"},
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
 

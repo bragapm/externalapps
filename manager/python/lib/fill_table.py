@@ -1,4 +1,4 @@
-from osgeo import osr, gdal
+from osgeo import osr, ogr
 from typing import Any
 
 from utils import logger
@@ -44,13 +44,12 @@ def detect_and_import_srs(srs_string: str):
 
 
 def fill_table_with_layer_feature(
-    data_source: gdal.Dataset,
+    layer: ogr.Layer,
     header_info: dict,
     conn: Any,
     table_name: str,
     srs_string: str | None,
 ):
-    layer = data_source.GetLayer()
     fields = header_info["fields"]
 
     # Define the source and target spatial reference systems

@@ -8,7 +8,7 @@ from osgeo import gdal
 
 from lib.create_table import create_table_from_header_info
 from lib.fill_table import fill_table_with_layer_feature
-from lib.get_header_info import get_header_info
+from lib.get_header_info import get_gdal_dataset, get_header_info_from_data_layer
 from lib.register_table import (
     register_table_to_directus,
 )
@@ -19,6 +19,7 @@ from utils import (
     init_gdal_config,
     generate_local_temp_dir_path,
     generate_vrt_path,
+    sanitize_table_name,
 )
 
 
@@ -30,7 +31,7 @@ def transform(
     is_zipped: bool,
     table_name: str,
     additional_config: dict | None,
-    **kwargs
+    **kwargs,
 ):
     conn = None
     try:
@@ -39,31 +40,48 @@ def transform(
         if not bucket:
             raise Exception("S3 bucket not configured")
         table_name = table_name or os.path.splitext(os.path.basename(object_key))[0]
-        header_info, data_source = get_header_info(
+        dataset = get_gdal_dataset(
             format_file, bucket, object_key, is_zipped, table_name
         )
+
+        layer_count = dataset.GetLayerCount()
+        is_single_layer = layer_count == 1
         conn = pool.getconn()
-        create_table_from_header_info(conn, header_info, table_name)
-        fill_table_with_layer_feature(
-            data_source,
-            header_info,
-            conn,
-            table_name,
-            (
-                None
-                if additional_config is None
-                else additional_config.get("source_srs", None)
-            ),
-        )
-        register_table_to_directus(
-            conn,
-            table_name,
-            header_info,
-            uploader,
-            additional_config,
-            not is_dev_mode(),
-        )
-        return header_info
+        result_table = []
+        for i in range(layer_count):
+            layer = dataset.GetLayerByIndex(i)
+            layer_name = layer.GetName()
+            if layer_name == "layer_styles":
+                continue
+            final_table_name = (
+                table_name
+                if is_single_layer
+                else sanitize_table_name(table_name + "_" + layer_name)
+            )
+            result_table.append(final_table_name)
+
+            layer_header_info = get_header_info_from_data_layer(layer)
+            create_table_from_header_info(conn, layer_header_info, final_table_name)
+            fill_table_with_layer_feature(
+                layer,
+                layer_header_info,
+                conn,
+                final_table_name,
+                (
+                    None
+                    if additional_config is None
+                    else additional_config.get("source_srs", None)
+                ),
+            )
+            register_table_to_directus(
+                conn,
+                final_table_name,
+                layer_header_info,
+                uploader,
+                additional_config,
+                not is_dev_mode(),
+            )
+        return {"result table": result_table}
     except Exception as err:
         error_traceback = traceback.format_exc()
         if isinstance(err, TimeLimitExceeded):
