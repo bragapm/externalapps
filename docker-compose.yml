@@ -63,7 +63,7 @@ services:
       - SECUREWATCH_MAXAR_USERNAME
       - SECUREWATCH_MAXAR_PASSWORD
     deploy:
-      replicas: ${DIRECTUS_REPLICA_COUNT:-1}
+      replicas: ${DIRECTUS_REPLICAS:-1}
     restart: unless-stopped
 
   geoprocessing:
@@ -78,6 +78,7 @@ services:
       - STORAGE_S3_REGION
       - STORAGE_S3_ROOT
       - ADMIN_TOKEN
+      - DIRECTUS_PUBLIC_URL
     restart: unless-stopped
 
   graphile:

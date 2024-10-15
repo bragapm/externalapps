@@ -6,6 +6,7 @@ from psycopg2.extras import Json
 
 from utils import logger, create_bbox_polygon
 from lib.get_header_info import HeaderInfo
+from lib.clear_directus_cache import clear_directus_cache
 
 
 def register_table_to_directus(
@@ -113,11 +114,7 @@ def register_table_to_directus(
     logger.info("Register to vector_tiles")
 
     if with_invalidate:
-        url = "http://directus:8055/utils/cache/clear?access_token=" + os.environ.get(
-            "ADMIN_TOKEN", ""
-        )
-        request.urlopen(request.Request(url, method="POST"))
-        logger.info("Clear directus table schema cache")
+        clear_directus_cache()
 
 
 def register_raster_tile(
