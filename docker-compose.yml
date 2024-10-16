@@ -62,6 +62,9 @@ services:
       # auths
       - SECUREWATCH_MAXAR_USERNAME
       - SECUREWATCH_MAXAR_PASSWORD
+      - SYNCHRONIZATION_STORE=redis
+      - PM2_INSTANCES
+      - PM2_AUTO_RESTART
     deploy:
       replicas: ${DIRECTUS_REPLICAS:-1}
     restart: unless-stopped
