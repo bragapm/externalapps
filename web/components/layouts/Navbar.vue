@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { TransitionRoot } from "@headlessui/vue";
 import IcHome from "~/assets/icons/ic-home.svg";
-import IcLogoGeodashboardFull from "~/assets/icons/ic-logo-geodashboard-full.svg";
 import IcLink from "~/assets/icons/ic-link.svg";
 import IcMapFlat from "~/assets/icons/ic-map-flat.svg";
 import IcTopnav from "~/assets/icons/ic-topnav.svg";
@@ -26,6 +25,7 @@ const isDark = computed({
 
 import { useMapData } from "~/utils";
 const { isLoading, data: mapData } = await useMapData();
+const { data: generalSettingsData } = await useGeneralSettings();
 
 const myInterval = ref<NodeJS.Timeout>();
 
@@ -77,9 +77,11 @@ const authStore = useAuth();
           >
             <IcTopnav class="text-lg" />
           </button>
-          <IcLogoGeodashboardFull
-            class="w-40 text-white"
-            :fontControlled="false"
+          <NuxtImg
+            v-if="generalSettingsData?.data?.project_logo_horizontal"
+            provider="directus"
+            :src="generalSettingsData?.data?.project_logo_horizontal"
+            class="h-10 max-w-56 object-contain object-center"
           />
           <TransitionRoot
             :show="isExpand"
@@ -153,7 +155,9 @@ const authStore = useAuth();
           <IcLogin v-else />
         </UButton>
       </TransitionRoot>
+      <!-- Welcome to the interactive digital map of Indonesia, providing a comprehensive overview of the country's civil data. -->
       <TransitionRoot
+        v-if="mapData?.data?.title || mapData?.data?.subtitle"
         :show="!isExpand"
         enter="transition-opacity duration-1000"
         enter-from="opacity-0"
@@ -163,15 +167,18 @@ const authStore = useAuth();
         leave-to="opacity-0"
         class="absolute top-0 -right-5 translate-x-full bg-grey-700/30 rounded-xs h-12 p-3 max-w-2xl text-white transition-opacity ease-in-out duration-100"
       >
-        <div class="flex items-center">
-          <p class="whitespace-nowrap">{{ mapData?.data.title ?? "" }}</p>
+        <div class="flex items-center h-6 gap-3">
+          <p v-if="mapData?.data?.title" class="whitespace-nowrap">
+            {{ mapData?.data.title }}
+          </p>
           <p
+            v-if="mapData?.data?.subtitle"
             id="auto-scroll"
             @mouseover="startScroll"
             @mouseout="refreshScroll"
-            class="hide-scrollbar whitespace-nowrap ml-3 text-sm w-64 overflow-auto select-none"
+            class="hide-scrollbar whitespace-nowrap text-sm w-64 overflow-auto select-none"
           >
-            {{ mapData?.data.subtitle ?? "" }}
+            {{ mapData?.data.subtitle }}
           </p>
         </div>
       </TransitionRoot>

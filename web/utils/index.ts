@@ -7,10 +7,10 @@ export const getBrandColor = (colorStep: string): string =>
   (tailwindConfig.theme?.colors as any).brand[colorStep];
 
 export const useMapData = async () => {
-  const { pending, data } = await useFetch<MapData>("/panel/items/map/eng", {
+  const { status, data } = await useFetch<MapData>("/panel/items/map/eng", {
     key: "map",
   });
-  return { data, isLoading: pending };
+  return { data, isLoading: status.value === "pending" };
 };
 
 export const useSharedMap = async () => {
@@ -25,10 +25,10 @@ export const useSharedMap = async () => {
 };
 
 export const useGeneralSettings = async () => {
-  const { pending, data } = await useFetch<GeneralSettings>("/panel/settings", {
+  const { status, data } = await useFetch<GeneralSettings>("/panel/settings", {
     key: "settings",
   });
-  return { data, isLoading: pending };
+  return { data, isLoading: status.value === "pending" };
 };
 
 export const moveHighlightLayer = (map: Map, layerName: string) => {
