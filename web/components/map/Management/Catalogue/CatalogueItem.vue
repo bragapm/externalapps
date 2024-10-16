@@ -96,9 +96,9 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
         <IcCross class="text-grey-50" @click="removeLoadedData(item)" />
       </button>
     </div>
-    <img
-      src="~/assets/images/catalogue-item.jpeg"
-      alt="catalogue-item"
+    <NuxtImg
+      :provider="item.preview ? 'directus' : ''"
+      :src="item.preview || '/catalogue-item.jpeg'"
       class="h-24 w-full object-cover object-center rounded-xxs"
     />
     <article>

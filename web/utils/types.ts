@@ -191,6 +191,7 @@ export type VectorTiles = {
   image_columns?: string[];
   feature_detail_columns?: string[];
   dimension: string;
+  preview?: string;
 };
 
 export type VectorTilesConfig = {
@@ -209,7 +210,7 @@ export type VectorTilesConfig = {
   click_popup_columns?: string[];
   image_columns?: string[];
   feature_detail_columns?: string[];
-  preview?: File;
+  preview?: string;
   description?: string;
 };
 
@@ -229,6 +230,7 @@ export type RasterTiles = {
   click_popup_columns?: string[];
   image_columns?: string[];
   feature_detail_columns?: string[];
+  preview?: string;
 };
 
 export type RasterTilesConfig = {
@@ -241,7 +243,7 @@ export type RasterTilesConfig = {
   active: boolean;
   visible: boolean;
   category?: Category;
-  preview?: File;
+  preview?: string;
   description?: string;
 };
 
@@ -259,6 +261,7 @@ export type ThreeDTiles = {
   click_popup_columns?: string[];
   image_columns?: string[];
   feature_detail_columns?: string[];
+  preview?: string;
 };
 
 export type ThreeDTilesConfig = {
@@ -269,7 +272,7 @@ export type ThreeDTilesConfig = {
   point_size?: number;
   point_color?: string;
   visible: boolean;
-  preview?: File;
+  preview?: string;
   description?: string;
   category?: Category;
 };
@@ -285,7 +288,7 @@ export type LoadedGeoJson = {
   layer_id: string;
   layer_alias: string;
   description: string;
-  preview: File | null;
+  preview?: string;
   layer_style: CircleStyles | FillStyles | LineStyles;
   bounds: GeoJSON.Polygon;
   category: { category_name: string | null };
