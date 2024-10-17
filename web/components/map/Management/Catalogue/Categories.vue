@@ -1,61 +1,93 @@
-<script lang="ts" setup>
-import { TransitionRoot } from "@headlessui/vue";
+<script setup lang="ts">
+import { staticKey } from "~/constants";
 import type { Category } from "~/utils/types";
-import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 
-const props = defineProps<{
-  item: Category;
+defineProps<{
+  disabled: boolean;
 }>();
 
-const isExpand = ref(false);
 const catalogueStore = useCatalogue();
 const { setCategory } = catalogueStore;
 const { selectedCategory } = storeToRefs(catalogueStore);
+
+const { data: categoriesData, status } = useFetch<{
+  data: Category[];
+}>(`/panel/items/categories`, {
+  query: {
+    filter: { parent: { _null: true } },
+    fields: "category_id,category_name,description,subcategories.*",
+    sort: "category_name",
+    deep: { subcategories: { _sort: "category_name" } },
+  },
+});
+
+watchEffect(() => {
+  if (
+    !selectedCategory.value &&
+    categoriesData.value &&
+    categoriesData.value.data.length > 0
+  ) {
+    setCategory(categoriesData.value.data[0].category_id);
+  }
+});
 </script>
 
 <template>
-  <UButton
-    :ui="{ rounded: 'rounded-xxs' }"
-    :label="item.category_name"
-    :variant="selectedCategory === item.category_id ? 'solid' : 'ghost'"
-    color="grey"
-    @click="
-      () => {
-        if (item.subcategories.length > 0) {
-          isExpand = !isExpand;
-        } else {
-          setCategory(item.category_id);
-        }
-      }
-    "
-    class="text-xs text-left flex justify-between"
-  >
-    <template #trailing v-if="item.subcategories.length > 0">
-      <div
-        :class="[
-          isExpand ? 'rotate-0' : 'rotate-180',
-          'transition-all duration-200 ease-in',
-        ]"
-      >
-        <IcArrowReg :fontControlled="false" class="w-4 h-4 text-right" />
+  <div class="flex-1 overflow-y-scroll">
+    <div class="flex flex-col gap-2 p-2">
+      <span>
+        <h2 class="text-xs text-grey-400">Default Catalogue</h2>
+        <p class="text-2xs text-grey-500">
+          Dataset Folder/Project Provided by Default
+        </p>
+      </span>
+      <div v-if="!categoriesData && status === 'pending'" class="space-y-2">
+        <USkeleton
+          v-for="i of [0, 1, 2, 3, 4]"
+          :key="i"
+          :ui="{ rounded: 'rounded-xxs', background: 'bg-grey-800' }"
+          class="w-full h-6"
+        />
       </div>
-    </template>
-  </UButton>
-  <TransitionRoot
-    v-if="item.subcategories.length > 0"
-    :show="isExpand"
-    enter="transition-all ease-in duration-300"
-    enterFrom="max-h-0 "
-    enterTo="max-h-[100rem]"
-    leave="transition-all ease-out duration-300"
-    leaveFrom="max-h-[100rem]"
-    leaveTo="max-h-0 "
-    class="w-full overflow-auto flex flex-col gap-2"
-  >
-    <MapManagementCatalogueSubcategories
-      v-for="subcategory of item.subcategories"
-      :key="subcategory.category_id"
-      :item="subcategory"
-    />
-  </TransitionRoot>
+      <MapManagementCatalogueCategory
+        v-if="categoriesData?.data && categoriesData.data.length > 0"
+        v-for="category of categoriesData.data"
+        :key="category.category_id"
+        :item="category"
+      />
+      <UButton
+        :ui="{ rounded: 'rounded-xxs' }"
+        label="Other"
+        :variant="selectedCategory === staticKey.other ? 'solid' : 'ghost'"
+        color="grey"
+        @click="
+          () => {
+            setCategory(staticKey.other);
+          }
+        "
+        class="text-xs text-left flex justify-between"
+      />
+    </div>
+    <div class="border-t border-grey-700 mx-2" />
+    <div class="flex flex-col gap-2 p-2">
+      <span>
+        <h2 class="text-xs text-grey-400">User’s Catalogue</h2>
+        <p class="text-2xs text-grey-500">
+          Dataset Folder/Project Uploaded by User
+        </p>
+      </span>
+      <UButton
+        :ui="{ rounded: 'rounded-xxs' }"
+        label="Loaded Data"
+        :variant="selectedCategory === staticKey.loadedData ? 'solid' : 'ghost'"
+        color="grey"
+        @click="
+          () => {
+            setCategory(staticKey.loadedData);
+          }
+        "
+        class="w-full text-xs text-left flex justify-between"
+      />
+    </div>
+  </div>
 </template>

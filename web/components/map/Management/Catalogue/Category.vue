@@ -3,29 +3,14 @@ import { TransitionRoot } from "@headlessui/vue";
 import type { Category } from "~/utils/types";
 import IcArrowReg from "~/assets/icons/ic-arrow-reg.svg";
 
-const props = withDefaults(
-  defineProps<{
-    item: Category;
-    level?: number;
-  }>(),
-  { level: 0 }
-);
+const props = defineProps<{
+  item: Category;
+}>();
 
 const isExpand = ref(false);
 const catalogueStore = useCatalogue();
 const { setCategory } = catalogueStore;
 const { selectedCategory } = storeToRefs(catalogueStore);
-
-const { data: subcategoriesData, status } = useFetch<{
-  data: Category;
-}>(`/panel/items/categories/${props.item.category_id}`, {
-  query: {
-    filter: {},
-    fields: "category_id,category_name,description,subcategories.*",
-    sort: "category_name",
-    deep: { subcategories: { _sort: "category_name" } },
-  },
-});
 </script>
 
 <template>
@@ -43,12 +28,7 @@ const { data: subcategoriesData, status } = useFetch<{
         }
       }
     "
-    class="text-xs flex justify-between"
-    :class="{}"
-    :style="{
-      marginLeft: `${level * 10 + 10}px`,
-      width: `calc(100% - ${level * 10 + 10}px)`,
-    }"
+    class="text-xs text-left flex justify-between"
   >
     <template #trailing v-if="item.subcategories.length > 0">
       <div
@@ -62,10 +42,7 @@ const { data: subcategoriesData, status } = useFetch<{
     </template>
   </UButton>
   <TransitionRoot
-    v-if="
-      subcategoriesData?.data?.subcategories &&
-      subcategoriesData.data.subcategories.length > 0
-    "
+    v-if="item.subcategories.length > 0"
     :show="isExpand"
     enter="transition-all ease-in duration-300"
     enterFrom="max-h-0 "
@@ -73,13 +50,12 @@ const { data: subcategoriesData, status } = useFetch<{
     leave="transition-all ease-out duration-300"
     leaveFrom="max-h-[100rem]"
     leaveTo="max-h-0 "
-    class="overflow-auto flex flex-col gap-2"
+    class="w-full overflow-auto flex flex-col gap-2"
   >
-    <MapManagementCatalogueSubcategories
-      v-for="subcategory of subcategoriesData.data.subcategories"
+    <MapManagementCatalogueSubcategory
+      v-for="subcategory of item.subcategories"
       :key="subcategory.category_id"
       :item="subcategory"
-      :level="level + 1"
     />
   </TransitionRoot>
 </template>
