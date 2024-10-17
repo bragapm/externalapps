@@ -12,15 +12,23 @@ const activeLayers = computed(() => {
     ?.map(({ layerLists }) => layerLists)
     .flat()
     .filter((el) => el.source === "vector_tiles")
-    .map(({ layer_name }: any) => layer_name as string);
+    .map((el: LayerLists) => {
+      return {
+        label: el.layer_alias || (el as VectorTiles).layer_name,
+        layer_name: (el as VectorTiles).layer_name,
+      };
+    });
 });
-const selectedLayer = ref<string>();
-const overlapLayer = ref<string>();
+const selectedLayer = ref<{ layer_name: string; label: string }>();
+const overlapLayer = ref<{ layer_name: string; label: string }>();
 const outputLayer = ref<string>();
 
 const handleIntersect = async () => {
   const body = {
-    input_table: [selectedLayer.value, overlapLayer.value],
+    input_table: [
+      selectedLayer.value?.layer_name,
+      overlapLayer.value?.layer_name,
+    ],
     output_table: outputLayer.value,
   };
   try {
@@ -58,24 +66,68 @@ const handleIntersect = async () => {
   <div class="p-2 flex flex-col gap-2">
     <div class="space-y-1">
       <p class="text-2xs text-white">Create new features from</p>
-      <USelect
+      <USelectMenu
+        searchable
+        searchable-placeholder="Search Layer"
         v-model="selectedLayer"
         :options="activeLayers"
-        color="gray"
-        :ui="{ rounded: 'rounded-xxs' }"
-        size="2xs"
+        :search-attributes="['layer_name', 'label']"
+        option-attribute="label"
         placeholder="Select layer"
+        color="gray"
+        :ui="{
+          rounded: 'rounded-xxs',
+        }"
+        :uiMenu="{
+          base: 'space-y-1',
+          rounded: 'rounded-xxs',
+          background: 'bg-grey-700',
+          ring: 'ring-1 ring-grey-600',
+          option: {
+            base: 'cursor-pointer hover:text-grey-700',
+            padding: 'px-1.5 py-1',
+            selected: 'bg-grey-200 text-grey-700',
+            color: 'text-grey-200',
+            rounded: 'rounded-xxs',
+            active: 'bg-grey-200 text-grey-700',
+            size: 'text-xs',
+          },
+          input: 'bg-grey-700 text-grey-200 text-xs',
+        }"
+        size="2xs"
       />
     </div>
     <div class="space-y-1">
       <p class="text-2xs text-white">Overlaps with</p>
-      <USelect
+      <USelectMenu
+        searchable
+        searchable-placeholder="Search Layer"
         v-model="overlapLayer"
         :options="activeLayers"
-        color="gray"
-        :ui="{ rounded: 'rounded-xxs' }"
-        size="2xs"
+        :search-attributes="['layer_name', 'label']"
+        option-attribute="label"
         placeholder="Select layer"
+        color="gray"
+        :ui="{
+          rounded: 'rounded-xxs',
+        }"
+        :uiMenu="{
+          base: 'space-y-1',
+          rounded: 'rounded-xxs',
+          background: 'bg-grey-700',
+          ring: 'ring-1 ring-grey-600',
+          option: {
+            base: 'cursor-pointer hover:text-grey-700',
+            padding: 'px-1.5 py-1',
+            selected: 'bg-grey-200 text-grey-700',
+            color: 'text-grey-200',
+            rounded: 'rounded-xxs',
+            active: 'bg-grey-200 text-grey-700',
+            size: 'text-xs',
+          },
+          input: 'bg-grey-700 text-grey-200 text-xs',
+        }"
+        size="2xs"
       />
     </div>
     <div class="space-y-1">

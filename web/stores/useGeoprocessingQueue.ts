@@ -46,7 +46,7 @@ export const useGeoprocessingQueue = defineStore("geoprocessingQueue", () => {
         toast.add({
           title: "Success",
           description:
-            "Your intersect task has been successfully added to the queue! You'll be notified once processing is complete.",
+            "Your geoprocessing task has been successfully added to the queue! You'll be notified once processing is complete.",
           icon: "i-heroicons-check-circle",
         });
       }
