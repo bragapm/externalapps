@@ -35,8 +35,8 @@ const selectedTab = ref(0);
 
 const formatData = ref<string>("");
 
-const datasetName = ref<HTMLInputElement | null>(null);
-const datasetDesc = ref<HTMLInputElement | null>(null);
+const datasetName = ref<string>();
+const datasetDesc = ref<string>();
 
 function changeTab(index: number) {
   selectedTab.value = index;
@@ -103,18 +103,17 @@ const upload = async () => {
       selectedFile.value?.type === "application/zip" ? "true" : "false"
     );
 
-    datasetDesc.value?.value &&
-      (additionalConfig["description"] = datasetDesc.value.value);
+    datasetDesc.value && (additionalConfig["description"] = datasetDesc.value);
     dataType.value === "vector" &&
       (additionalConfig["layer_alias"] =
-        datasetName.value?.value || selectedFile.value?.name);
+        datasetName.value || selectedFile.value?.name);
 
     form.append("additional_config", JSON.stringify(additionalConfig));
 
     dataType.value === "raster" &&
       form.append(
         "raster_alias",
-        JSON.stringify(datasetName.value?.value || selectedFile.value?.name)
+        JSON.stringify(datasetName.value || selectedFile.value?.name)
       );
     dataType.value === "raster" &&
       form.append("is_terrain", JSON.stringify(isTerrain.value));
@@ -122,14 +121,13 @@ const upload = async () => {
     dataType.value === "3d" &&
       form.append(
         "three_d_alias",
-        JSON.stringify(datasetName.value?.value || selectedFile.value?.name)
+        JSON.stringify(datasetName.value || selectedFile.value?.name)
       );
     dataType.value === "3d" &&
       form.append("has_color", JSON.stringify(hasColor.value));
 
     form.append("is_ready", "true");
     form.append("file", selectedFile.value as File);
-
     const res = await fetch("/panel/files", {
       credentials: "include",
       headers: {
@@ -241,7 +239,7 @@ watchEffect(() => {
           <TabPanels>
             <TabPanel class="space-y-3">
               <p class="text-sm text-grey-400">
-                Upoad to Default Data Catalogue
+                Upload to Default Data Catalogue
               </p>
               <p class="text-xs text-grey-400">
                 The file you choose from your storage will automatically be
@@ -410,7 +408,7 @@ watchEffect(() => {
               />
               <div class="relative">
                 <input
-                  ref="datasetName"
+                  v-model="datasetName"
                   type="text"
                   id="floating_filled"
                   class="block rounded-xxs px-2.5 pb-2.5 pt-5 w-full text-sm text-grey-200 bg-grey-700 border border-grey-600 appearance-none focus:outline-none focus:ring-0 focus:border-grey-600 peer"
@@ -425,7 +423,7 @@ watchEffect(() => {
               </div>
               <div class="relative">
                 <textarea
-                  ref="datasetDesc"
+                  v-model="datasetDesc"
                   type="text"
                   rows="5"
                   id="floating_filled"
