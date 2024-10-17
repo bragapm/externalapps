@@ -87,7 +87,7 @@ const upload = async () => {
 
     const additionalConfig: Record<string, any> = { listed: true };
 
-    if (thumbnailFile) {
+    if (thumbnailFile.value) {
       const previewUploadResId = await uploadPreviewImg();
 
       if (previewUploadResId) {
