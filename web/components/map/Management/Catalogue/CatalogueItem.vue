@@ -53,6 +53,10 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
   emit("removeLoadedLayer", item.layer_id);
   await deleteLoadedGeoJsonData(item.layer_id);
 };
+
+const getImageUrl = (file: File) => {
+  return URL.createObjectURL(file);
+};
 </script>
 
 <template>
@@ -97,8 +101,14 @@ const removeLoadedData = async (item: LoadedGeoJson) => {
       </button>
     </div>
     <NuxtImg
+      v-if="item.source !== 'loaded_geojson'"
       :provider="item.preview ? 'directus' : ''"
       :src="item.preview || '/catalogue-item.jpeg'"
+      class="h-24 w-full object-cover object-center rounded-xxs"
+    />
+    <NuxtImg
+      v-else
+      :src="item.preview ? getImageUrl(item.preview) : '/catalogue-item.jpeg'"
       class="h-24 w-full object-cover object-center rounded-xxs"
     />
     <article>

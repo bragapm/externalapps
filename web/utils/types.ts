@@ -288,7 +288,7 @@ export type LoadedGeoJson = {
   layer_id: string;
   layer_alias: string;
   description: string;
-  preview?: string;
+  preview?: File;
   layer_style: CircleStyles | FillStyles | LineStyles;
   bounds: GeoJSON.Polygon;
   category: { category_name: string | null };
