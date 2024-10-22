@@ -25,7 +25,7 @@
     "vue-tsc": "^2.1.6"
   },
   "dependencies": {
-    "@deck.gl/mapbox": "^9.0.1",
+    "@deck.gl/mapbox": "^9.0.33",
     "@floating-ui/vue": "^1.0.3",
     "@loaders.gl/flatgeobuf": "^4.1.4",
     "@loaders.gl/geopackage": "^4.1.4",
@@ -44,7 +44,7 @@
     "@xeokit/xeokit-sdk": "2.6.0-beta-10",
     "deck.gl": "^9.0.1",
     "keen-slider": "^6.8.6",
-    "maplibre-gl": "^3.6.2",
+    "maplibre-gl": "^4.7.1",
     "markdown-it": "^14.0.0",
     "pinia": "^2.1.7",
     "shpjs": "^4.0.4",

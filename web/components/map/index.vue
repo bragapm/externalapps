@@ -4,6 +4,7 @@ import type { LngLatBoundsLike, StyleSpecification } from "maplibre-gl";
 import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
 import { useMapData, useSharedMap } from "~/utils";
+import addRasterColorProtocol from "~/utils/addRasterColorProtocol.ts";
 import bbox from "@turf/bbox";
 
 const { isLoading, data: mapData } = await useMapData();
@@ -42,7 +43,7 @@ onMounted(async () => {
       },
     ],
   };
-
+  addRasterColorProtocol();
   map.value = markRaw(
     new Map({
       container: mapContainer.value!,
