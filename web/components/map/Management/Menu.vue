@@ -18,6 +18,9 @@ const { map } = storeToRefs(mapStore);
 
 const mapLayerStore = useMapLayer();
 const tableDataStore = useTableData();
+const { activeCollection } = storeToRefs(tableDataStore);
+const filterStore = useFilter();
+const { resetFilter } = filterStore;
 
 const reference = ref(null);
 const floating = ref(null);
@@ -112,6 +115,10 @@ const { floatingStyles } = useFloating(reference, floating, {
               :disabled="item.source !== 'vector_tiles'"
               @click="
                 () => {
+                  if(activeCollection && (activeCollection!==(item as VectorTiles).layer_name)){
+                    resetFilter()
+                  }
+                  
                   tableDataStore.setActiveCollection((item as VectorTiles).layer_name);
                   toggleTable();
                   close();
@@ -121,9 +128,7 @@ const { floatingStyles } = useFloating(reference, floating, {
                 active && item.source === 'vector_tiles'
                   ? 'bg-grey-700'
                   : 'bg-transparent text-grey-200',
-                item.source !== 'vector_tiles'
-                  ? 'text-grey-500'
-                  : 'text-white',
+                item.source !== 'vector_tiles' ? 'text-grey-500' : 'text-white',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs ',
               ]"
             >

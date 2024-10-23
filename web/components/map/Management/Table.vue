@@ -8,17 +8,8 @@ import IcFilter from "~/assets/icons/ic-filter.svg";
 import IcShrink from "~/assets/icons/ic-shrink.svg";
 import IcSort from "~/assets/icons/ic-sort.svg";
 import bbox from "@turf/bbox";
-import {
-  Menu,
-  MenuButton,
-  MenuItems,
-  MenuItem,
-  TransitionRoot,
-  TransitionChild,
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-} from "@headlessui/vue";
+import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
+import { capitalizeEachWords } from "~/utils";
 
 export type HeaderData = {
   field: string;
@@ -32,19 +23,6 @@ const { toggleTable, toggleFullscreen } = store;
 
 const selectedIds = ref<string[]>([]);
 const highlightedIds = ref<string[]>([]);
-
-const {
-  data: countData,
-  error: countError,
-  isFetching: isCountFetching,
-  isError: isCountError,
-} = useQuery({
-  queryKey: [`/panel/items/${store.activeCollection}?aggregate[count]=*`],
-  queryFn: ({ queryKey }) =>
-    $fetch<{ data: { count: number }[] }>(queryKey[0]).then(
-      (r) => r.data[0].count
-    ),
-});
 
 const {
   data: headerData,
@@ -81,7 +59,30 @@ const columns = computed<
 });
 
 const sortBy = ref("");
-const queryFilter = ref([]);
+const filterStore = useFilter();
+const { filterParams } = storeToRefs(filterStore);
+
+const {
+  data: countData,
+  error: countError,
+  isFetching: isCountFetching,
+  isError: isCountError,
+} = useQuery({
+  queryKey: ["count_table_data_query_key"],
+  queryFn: async ({ queryKey }) => {
+    const queryParams: Record<string, string> = {
+      filter: JSON.stringify({
+        _and: filterParams.value || [],
+      }),
+    };
+    const r = await $fetch<{ data: { count: number }[] }>(
+      `/panel/items/${store.activeCollection}?aggregate[count]=*&` +
+        new URLSearchParams(queryParams)
+    ).then((r) => r.data[0].count);
+
+    return r;
+  },
+});
 
 const {
   data: tableData,
@@ -90,8 +91,9 @@ const {
   hasNextPage,
   isError: isTableError,
   isFetching: isTableFetching,
+  refetch,
 } = useInfiniteQuery({
-  queryKey: [`/panel/items/${store.activeCollection}?`, sortBy, queryFilter],
+  queryKey: ["table_data_query_key"],
   queryFn: async ({ pageParam = 1, queryKey }) => {
     const queryParams: Record<string, string> = {
       limit: "25",
@@ -103,15 +105,16 @@ const {
           .concat("ogc_fid")
           .join(","),
       }),
-      sort: queryKey[1] as string,
-      ...(queryKey[2] && {
+      ...(filterParams.value && {
         filter: JSON.stringify({
-          _and: queryKey[2],
+          _and: filterParams.value,
         }),
       }),
+      sort: sortBy.value,
     };
     const r = await $fetch<{ data: any[] }>(
-      (queryKey[0] as string) + new URLSearchParams(queryParams)
+      `/panel/items/${store.activeCollection}?` +
+        new URLSearchParams(queryParams)
     );
     return r.data;
   },
@@ -338,6 +341,11 @@ function openModal() {
 
         <button
           class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
+          @click="
+            () => {
+              openModal();
+            }
+          "
         >
           <IcFilter
             class="w-[14px] h-[14px] text-grey-400"
@@ -345,57 +353,19 @@ function openModal() {
           />
           Filter
         </button>
-        <TransitionRoot appear :show="isOpen" as="template">
-          <Dialog as="div" @close="closeModal" class="relative z-10">
-            <TransitionChild
-              as="template"
-              enter="duration-300 ease-out"
-              enter-from="opacity-0"
-              enter-to="opacity-100"
-              leave="duration-200 ease-in"
-              leave-from="opacity-100"
-              leave-to="opacity-0"
-            >
-              <div class="fixed inset-0 bg-black/25" />
-            </TransitionChild>
-
-            <div class="fixed inset-0 overflow-y-auto">
-              <div
-                class="flex min-h-full items-center justify-center p-4 text-center"
-              >
-                <TransitionChild
-                  as="template"
-                  enter="duration-300 ease-out"
-                  enter-from="opacity-0 scale-95"
-                  enter-to="opacity-100 scale-100"
-                  leave="duration-200 ease-in"
-                  leave-from="opacity-100 scale-100"
-                  leave-to="opacity-0 scale-95"
-                >
-                  <DialogPanel
-                    class="flex flex-col w-full min-h-[20rem] max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
-                  >
-                    <DialogTitle
-                      as="h3"
-                      class="text-lg font-medium leading-6 text-gray-900"
-                    >
-                      Filter
-                    </DialogTitle>
-                    <MapManagementTableFilter
-                      :columns="columns"
-                      @close-modal="closeModal"
-                      @update-query-filter="
-                        (value) => {
-                          queryFilter = value;
-                        }
-                      "
-                    />
-                  </DialogPanel>
-                </TransitionChild>
-              </div>
-            </div>
-          </Dialog>
-        </TransitionRoot>
+        <UModal
+          v-model="isOpen"
+          :ui="{
+            background: 'bg-grey-900',
+            height: 'h-[50vh]',
+            rounded: 'rounded-xxs',
+          }"
+        >
+          <MapManagementTableFilter
+            :columns="columns"
+            @close-modal="closeModal"
+          />
+        </UModal>
         <button
           @click="downloadData"
           class="flex items-center gap-3 p-2 border border-grey-600 rounded-xxs bg-grey-800 text-xs text-grey-200"
@@ -479,6 +449,7 @@ function openModal() {
                   @click="
                     () => {
                       sortBy = column.key;
+                      refetch();
                     }
                   "
                 >
@@ -496,6 +467,7 @@ function openModal() {
                   @click="
                     () => {
                       sortBy = '-' + column.key;
+                      refetch();
                     }
                   "
                 >
