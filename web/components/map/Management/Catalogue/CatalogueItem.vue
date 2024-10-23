@@ -101,14 +101,20 @@ const getImageUrl = (file: File) => {
       </button>
     </div>
     <NuxtImg
-      v-if="item.source !== 'loaded_geojson'"
-      :provider="item.preview ? 'directus' : ''"
-      :src="item.preview || '/catalogue-item.jpeg'"
+      v-if="item.preview && item.source !== 'loaded_geojson'"
+      provider="directus"
+      :src="item.preview"
       class="h-24 w-full object-cover object-center rounded-xxs"
     />
     <NuxtImg
+      v-else-if="item.preview && item.source === 'loaded_geojson'"
+      :src="getImageUrl(item.preview)"
+      class="h-24 w-full object-cover object-center rounded-xxs"
+    />
+    <img
       v-else
-      :src="item.preview ? getImageUrl(item.preview) : '/catalogue-item.jpeg'"
+      src="~/assets/images/catalogue-item.jpeg"
+      alt="catalogue-item"
       class="h-24 w-full object-cover object-center rounded-xxs"
     />
     <article>
