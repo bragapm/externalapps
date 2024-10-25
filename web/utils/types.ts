@@ -231,6 +231,8 @@ export type RasterTiles = {
   image_columns?: string[];
   feature_detail_columns?: string[];
   preview?: string;
+  protocol?: string;
+  steps?: Record<string, any[]>;
 };
 
 export type RasterTilesConfig = {
@@ -245,6 +247,8 @@ export type RasterTilesConfig = {
   category?: Category;
   preview?: string;
   description?: string;
+  protocol?: string;
+  steps?: Record<string, any[]>;
 };
 
 export type ThreeDTiles = {

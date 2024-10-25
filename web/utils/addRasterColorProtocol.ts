@@ -57,10 +57,7 @@ export default function addRasterColorProtocol() {
     return match ? match[0] : null;
   }
 
-  function parseColorsToRGB(colorString: string): [number, number, number][] {
-    // Remove square brackets and split by commas
-    const colorArray = colorString.replace(/\[|\]/g, "").split(",");
-
+  function parseColorsToRGB(colorArray: string[]): [number, number, number][] {
     // Convert hex color to RGB
     const hexToRgb = (hex: string): [number, number, number] => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -94,21 +91,20 @@ export default function addRasterColorProtocol() {
     });
   }
 
+  const colorScales: Record<string, any> = {};
+
   maplibregl.addProtocol("greyscale", (async (params: any) => {
     let [protocolQuery, absoluteUrl] = params.url.split("[|]");
-
-    const colorScaleKey = `colorScale-${getUuidFromUrl(absoluteUrl)}`;
-    let colorScale = localStorage.getItem(colorScaleKey)
-      ? JSON.parse(localStorage.getItem(colorScaleKey)!)
-      : undefined;
+    let uuid = getUuidFromUrl(absoluteUrl)!;
+    let colorScale = colorScales[uuid];
     if (!colorScale) {
       protocolQuery = protocolQuery.replace("greyscale://", "");
       protocolQuery = Object.fromEntries(new URLSearchParams(protocolQuery));
       colorScale = generateColorScale(
         rescaleValueSteps(JSON.parse(protocolQuery["value_steps"])),
-        parseColorsToRGB(protocolQuery["color_steps"])
+        parseColorsToRGB(JSON.parse(protocolQuery["color_steps"]))
       );
-      localStorage.setItem(colorScaleKey, JSON.stringify(colorScale));
+      colorScales[uuid] = colorScale;
     }
 
     try {
