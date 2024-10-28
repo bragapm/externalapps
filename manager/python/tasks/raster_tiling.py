@@ -5,7 +5,7 @@ import traceback
 from dramatiq.middleware import TimeLimitExceeded
 import dramatiq.results
 
-from manager.python.lib.tile_raster_data import delete_generated_tiles, tile_raster_data
+from lib.tile_raster_data import delete_generated_tiles, tile_raster_data
 from lib.register_table import (
     register_raster_tile,
 )
