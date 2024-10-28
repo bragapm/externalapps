@@ -10,7 +10,6 @@ from pyproj import CRS
 import dramatiq.results
 
 
-# from lib.raster_tiling import delete_generated_tiles
 from lib.register_table import register_3d_tile
 from utils import (
     generate_local_temp_dir_path,

@@ -40,14 +40,14 @@ export async function up(knex) {
           IF NEW.is_terrain = TRUE AND terrain_rgb_enabled = FALSE THEN
               RAISE EXCEPTION 'Terrain RGB worker is not enabled';
           END IF;
-          actor_name := 'tiling';
+          actor_name := 'raster_tiling';
       ELSIF NEW.format_file = 'las/laz' THEN
           IF three_d_tiling_enabled = FALSE THEN
               RAISE EXCEPTION '3D tiling worker is not enabled';
           END IF;
           actor_name := 'three_d_tiling';
       ELSE
-          actor_name := 'transform';
+          actor_name := 'vector_transform';
           IF NEW.table_name IS NULL THEN
               NEW.table_name := 'upload_' || REPLACE(gen_random_uuid()::text,'-','');
           END IF;

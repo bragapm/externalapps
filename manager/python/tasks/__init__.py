@@ -1,7 +1,7 @@
 from .convert import convert as convert
 from .three_d_tiling import three_d_tiling as three_d_tiling
-from .tiling import tiling as tiling
-from .transform import transform as transform
+from .raster_tiling import raster_tiling as raster_tiling
+from .vector_transform import vector_transform as vector_transform
 from .dissolve import dissolve as dissolve
 from .intersect import intersect as intersect
 from .merge import merge as merge

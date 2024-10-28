@@ -5,7 +5,7 @@ import traceback
 from dramatiq.middleware import TimeLimitExceeded
 import dramatiq.results
 
-from lib.raster_tiling import delete_generated_tiles, raster_tiling
+from manager.python.lib.tile_raster_data import delete_generated_tiles, tile_raster_data
 from lib.register_table import (
     register_raster_tile,
 )
@@ -14,7 +14,7 @@ from utils import generate_local_temp_dir_path, pool, logger, init_gdal_config
 
 
 @dramatiq.actor(store_results=True)
-def tiling(
+def raster_tiling(
     object_key: str,
     uploader: str,
     raster_alias: str,
@@ -33,11 +33,11 @@ def tiling(
         layer_id = ""
         if is_terrain:
             terrain_rgb_path = dem_to_terrain_rgb(bucket, object_key)
-            (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = raster_tiling(
+            (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = tile_raster_data(
                 bucket, minzoom, maxzoom, file_path=terrain_rgb_path
             )
         else:
-            (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = raster_tiling(
+            (layer_id, xmin, ymin, xmax, ymax, minzoom, maxzoom) = tile_raster_data(
                 bucket, minzoom, maxzoom, object_key
             )
         conn = pool.getconn()

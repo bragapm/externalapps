@@ -70,7 +70,7 @@ def delete_generated_tiles(bucket: str, layer_id: str):
     return errors
 
 
-def raster_tiling(
+def tile_raster_data(
     bucket: str,
     min_zoom: int | None,
     max_zoom: int | None,

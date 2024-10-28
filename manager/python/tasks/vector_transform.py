@@ -24,7 +24,7 @@ from utils import (
 
 
 @dramatiq.actor(store_results=True)
-def transform(
+def vector_transform(
     object_key: str,
     uploader: str,
     format_file: str,

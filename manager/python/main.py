@@ -19,7 +19,7 @@ def main():
     # object_key = sys.argv[1]
     # table_name = sys.argv[2]
 
-    tasks.transform(
+    tasks.vector_transform(
         uploader="49015332-8717-411c-bb40-b589d4273a8a",
         object_key="0f6ee9a4-48d5-417d-9a79-34abf0cddd02.dxf",
         format_file="dxf",
