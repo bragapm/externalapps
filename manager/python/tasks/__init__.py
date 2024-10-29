@@ -9,5 +9,6 @@ from .spatial_join import spatial_join as spatial_join
 from .clip import clip as clip
 from .union import union as union
 from .difference import difference as difference
+from .export import export as export
 
 # Add new actor imports here as you create them
