@@ -15,7 +15,7 @@ LAYER_EXPORTS_FOLDER_ID = "ffffffff-ffff-4fff-bfff-fffffffffff9"
 
 
 @dramatiq.actor(store_results=True)
-def export(table_name: str, format_file: str, downloader: str):
+def export(table_name: str, format_file: str, downloader: str | None):
     conn = None
     bucket = os.environ.get("STORAGE_S3_BUCKET")
     storage_root = (
