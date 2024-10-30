@@ -105,7 +105,7 @@ def export(table_name: str, format_file: str, downloader: str):
                         ],
                     )
 
-        return {"id": file_id}
+        return {"file_id": file_id}
 
     except Exception as err:
         error_traceback = traceback.format_exc()
