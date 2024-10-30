@@ -11,6 +11,8 @@ import dramatiq
 
 from utils import init_gdal_config, logger, minio_client, pool
 
+LAYER_EXPORTS_FOLDER_ID = "ffffffff-ffff-4fff-bfff-fffffffffff9"
+
 
 @dramatiq.actor(store_results=True)
 def export(table_name: str, format_file: str, downloader: str):
@@ -99,7 +101,7 @@ def export(table_name: str, format_file: str, downloader: str):
                             object_key,
                             table_name + ".zip",
                             "application/zip",
-                            None,  # TODO
+                            LAYER_EXPORTS_FOLDER_ID,
                             downloader,
                             os.stat(zip_path).st_size,
                         ],
