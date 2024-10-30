@@ -202,7 +202,7 @@ const handleIntersect = async () => {
     const result = await $fetch<{ category: string; count: string }[]>(
       "/panel/buffer",
       {
-        method: "PATCH",
+        method: "POST",
         body: JSON.stringify(payload),
         headers: {
           "Content-Type": "application/json",

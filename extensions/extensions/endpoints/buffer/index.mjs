@@ -5,7 +5,7 @@ import {
 } from "@directus/errors";
 
 export default (router, { database, logger }) => {
-  router.patch("/", async (req, res, next) => {
+  router.post("/", async (req, res, next) => {
     const { accountability } = req;
     const { points, radius, layer, type, column } = req.body;
 
