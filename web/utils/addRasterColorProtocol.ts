@@ -37,12 +37,7 @@ export default function addRasterColorProtocol() {
       }
     }
 
-    // If the scale length doesn't reach 256, pad it with the last color
-    while (scale.length < 256) {
-      scale.push(scale[scale.length - 1]);
-    }
-
-    return scale.slice(0, 256); // Return exactly 256 colors
+    return scale; // Return exactly 256 colors
   }
 
   function getUuidFromUrl(url: string): string | null {
@@ -76,21 +71,6 @@ export default function addRasterColorProtocol() {
     return rgbArray;
   }
 
-  function rescaleValueSteps(
-    value_steps: number[],
-    targetMin: number = 0,
-    targetMax: number = 255
-  ): number[] {
-    const minVal = Math.min(...value_steps);
-    const maxVal = Math.max(...value_steps);
-    const range = maxVal - minVal;
-    const targetRange = targetMax - targetMin;
-
-    return value_steps.map((step) => {
-      return ((step - minVal) / range) * targetRange + targetMin;
-    });
-  }
-
   const colorScales: Record<string, any> = {};
 
   maplibregl.addProtocol("greyscale", (async (params: any) => {
@@ -101,7 +81,7 @@ export default function addRasterColorProtocol() {
       protocolQuery = protocolQuery.replace("greyscale://", "");
       protocolQuery = Object.fromEntries(new URLSearchParams(protocolQuery));
       colorScale = generateColorScale(
-        rescaleValueSteps(JSON.parse(protocolQuery["value_steps"])),
+        JSON.parse(protocolQuery["value_steps"]),
         parseColorsToRGB(JSON.parse(protocolQuery["color_steps"]))
       );
       colorScales[uuid] = colorScale;
@@ -140,9 +120,13 @@ export default function addRasterColorProtocol() {
             for (let i = 0; i < data.length; i += 4) {
               const value = data[i]; // Assuming grayscale image
               const color = colorScale[value];
-              data[i] = color[0]; // Red
-              data[i + 1] = color[1]; // Green
-              data[i + 2] = color[2]; // Blue
+              if (color) {
+                data[i] = color[0]; // Red
+                data[i + 1] = color[1]; // Green
+                data[i + 2] = color[2]; // Blue
+              } else {
+                data[i + 3] = 0; // Transparent
+              }
             }
 
             ctx.putImageData(imageData, 0, 0);
