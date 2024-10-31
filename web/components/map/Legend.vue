@@ -5,11 +5,20 @@ import { geomTypeCircle, geomTypeLine, geomTypePolygon } from "~/constants";
 
 const mapLayerStore = useMapLayer();
 
-const legendLists = computed(() => {
+const vectorLegendLists = computed(() => {
   return mapLayerStore.groupedActiveLayers
     ?.map(({ layerLists }) => layerLists)
     .flat()
     .filter((el) => el.source === "vector_tiles");
+});
+
+const rasterLegendLists = computed(() => {
+  return mapLayerStore.groupedActiveLayers
+    ?.map(({ layerLists }) => layerLists)
+    .flat()
+    .filter(
+      (el) => el.source === "raster_tiles" && el.protocol === "greyscale"
+    );
 });
 </script>
 
@@ -20,9 +29,12 @@ const legendLists = computed(() => {
   <div
     class="p-3 flex-1 overflow-y-auto transition-all duration-500 ease-in-out"
   >
-    <div v-if="legendLists && legendLists.length > 0" class="flex flex-col">
+    <div
+      v-if="vectorLegendLists && vectorLegendLists.length > 0"
+      class="flex flex-col"
+    >
       <template
-        v-for="(item, index) in (legendLists as VectorTiles[])"
+        v-for="(item, index) in (vectorLegendLists as VectorTiles[])"
         :key="item.label"
       >
         <TransitionRoot
@@ -65,6 +77,47 @@ const legendLists = computed(() => {
               opacity: (item.layer_style as LineStyles).paint_line_opacity,
             }"
             ></div>
+          </div>
+        </TransitionRoot>
+      </template>
+      <template
+        v-for="(item, index) in (rasterLegendLists as RasterTiles[])"
+        :key="item.label"
+      >
+        <TransitionRoot
+          :show="item.layer_style.layout_visibility === 'visible'"
+          enter="transition duration-500 ease-in-out"
+          enterFrom="transform max-h-0 opacity-0"
+          enterTo="transform max-h-96 opacity-100"
+          leave="transition duration-500 ease-in-out"
+          leaveFrom="transform max-h-96 opacity-100"
+          leaveTo="transform max-h-0 opacity-0"
+          class="transition-all duration-500 ease-in-out"
+        >
+          <div class="pb-2">
+            <p class="text-xs text-grey-50">
+              {{ item.layer_alias || item.layer_name }}
+            </p>
+            <p class="text-2xs text-grey-400">{{ item.geometry_type }}</p>
+            <template
+              v-for="(step, index) in (item.steps.color_steps as any[])"
+              :key="index"
+            >
+              <div class="flex items-end space-x-3 text-2xs text-grey-50">
+                <span
+                  class="h-4 w-4 mt-1"
+                  :style="{ backgroundColor: step }"
+                ></span>
+                <p>
+                  {{
+                    Array.isArray(item.steps.legend_steps) &&
+                    item.steps.legend_steps.length
+                      ? item.steps.legend_steps[index]
+                      : item.steps.value_steps[index]
+                  }}
+                </p>
+              </div>
+            </template>
           </div>
         </TransitionRoot>
       </template>
