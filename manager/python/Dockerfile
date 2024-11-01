@@ -1,11 +1,12 @@
-FROM ghcr.io/osgeo/gdal:ubuntu-full-3.8.5
+FROM ghcr.io/osgeo/gdal:ubuntu-full-3.9.3
 
 # Install Poetry
 ENV POETRY_HOME=/opt/poetry \
     POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_CREATE=0 \
-    POETRY_CACHE_DIR=/tmp/poetry_cache
-RUN wget -O - https://install.python-poetry.org | python3 - --version 1.6.1
+    POETRY_CACHE_DIR=/tmp/poetry_cache \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_OPTIONS_SYSTEM_SITE_PACKAGES=1
+RUN wget -O - https://install.python-poetry.org | python3 - --version 1.8.4
 ENV PATH=$POETRY_HOME/bin:$PATH
 
 WORKDIR /app

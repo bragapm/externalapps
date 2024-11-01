@@ -11,12 +11,12 @@ dramatiq-pg = "^0.11.0"
 laspy = {extras = ["laszip", "lazrs"], version = "^2.5.3"}
 minio = "^7.1.17"
 psycopg2-binary = "^2.9.8"
-py3dtiles = {extras = ["las"], version = "^7.0.0"}
-python = ">=3.10,<3.12"
+py3dtiles = {extras = ["las"], version = "^9.0.0"}
+python = ">=3.10,<3.13"
 python-dotenv = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
-gdal = "3.8.5"
+gdal = "3.9.3"
 watchdog = "^3.0.0"
 
 [build-system]
