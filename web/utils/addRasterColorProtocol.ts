@@ -73,10 +73,14 @@ export default function addRasterColorProtocol() {
 
   const colorScales: Record<string, any> = {};
 
-  maplibregl.addProtocol("greyscale", (async (params: any) => {
+  maplibregl.addProtocol("greyscale", (async (
+    params: any,
+    abortController: AbortController
+  ) => {
     let [protocolQuery, absoluteUrl] = params.url.split("[|]");
     let uuid = getUuidFromUrl(absoluteUrl)!;
     let colorScale = colorScales[uuid];
+
     if (!colorScale) {
       protocolQuery = protocolQuery.replace("greyscale://", "");
       protocolQuery = Object.fromEntries(new URLSearchParams(protocolQuery));
@@ -88,9 +92,12 @@ export default function addRasterColorProtocol() {
     }
 
     try {
-      const t = await fetch(absoluteUrl);
-      if (t.status !== 200) {
-        throw new Error(`Tile fetch error: ${t.statusText}`);
+      // Use AbortController signal to cancel the request if needed
+      const response = await fetch(absoluteUrl, {
+        signal: abortController.signal,
+      });
+      if (response.status !== 200) {
+        throw new Error(`Tile fetch error: ${response.statusText}`);
       }
 
       const canvas = document.createElement("canvas");
@@ -99,11 +106,11 @@ export default function addRasterColorProtocol() {
       const ctx = canvas.getContext("2d");
 
       if (ctx) {
-        const blob = await t.blob();
+        const blob = await response.blob();
         const img = new Image();
         img.src = URL.createObjectURL(blob);
 
-        await new Promise<void>((resolve) => {
+        await new Promise<void>((resolve, reject) => {
           img.onload = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, 256, 256);
@@ -132,6 +139,8 @@ export default function addRasterColorProtocol() {
             ctx.putImageData(imageData, 0, 0);
             resolve();
           };
+
+          img.onerror = () => reject(new Error("Image load error"));
         });
 
         const newBlob = await new Promise<Blob | null>((resolve) => {
@@ -144,6 +153,11 @@ export default function addRasterColorProtocol() {
         }
       }
     } catch (error: any) {
+      if (abortController.signal.aborted) {
+        console.warn("Fetch aborted");
+      } else {
+        console.error("Error in tile fetch or processing:", error.message);
+      }
       throw new Error(error?.message);
     }
   }) as any);
