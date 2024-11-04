@@ -106,14 +106,24 @@ const removeAllAnimation = () => {
         :triggerIcon="IcMapLayerB"
         :items="[
           {
-            id: 'intersect',
-            label: 'Intersect Tool',
-            icon: IcIntersect,
+            id: 'clip',
+            label: 'Clip Tool',
+            icon: IcDifference,
           },
           {
             id: 'difference',
             label: 'Difference Tool',
+            icon: IcIntersect,
+          },
+          {
+            id: 'dissolve',
+            label: 'Dissolve Tool',
             icon: IcDifference,
+          },
+          {
+            id: 'intersect',
+            label: 'Intersect Tool',
+            icon: IcIntersect,
           },
         ]"
       ></MapToolsDropdown>
@@ -179,6 +189,14 @@ const removeAllAnimation = () => {
     />
     <MapToolsDifference
       v-else-if="activeTools?.id === 'difference'"
+      @on-close="handleCloseToolsCard"
+    />
+    <MapToolsClip
+      v-else-if="activeTools?.id === 'clip'"
+      @on-close="handleCloseToolsCard"
+    />
+    <MapToolsDissolve
+      v-else-if="activeTools?.id === 'dissolve'"
       @on-close="handleCloseToolsCard"
     />
   </MapToolsCard>
