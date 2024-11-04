@@ -49,6 +49,9 @@ class GDAL2TilesOptions:
     resume = False
     exclude_transparent = True
     # nb_processes = cpu_count()
+    excluded_values = None
+    excluded_values_pct_threshold = 50
+    nodata_values_pct_threshold = 100
 
     def __init__(self, min_zoom: int | None = None, max_zoom: int | None = None):
         self.zoom = (min_zoom, max_zoom)
