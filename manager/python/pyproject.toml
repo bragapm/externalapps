@@ -1,4 +1,5 @@
 [tool.poetry]
+package-mode = false
 authors = ["Miko <jherjati@gmail.com>"]
 description = ""
 name = "braga-py-worker"
