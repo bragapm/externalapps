@@ -125,6 +125,21 @@ const removeAllAnimation = () => {
             label: 'Intersect Tool',
             icon: IcIntersect,
           },
+          {
+            id: 'merge',
+            label: 'Merge Tool',
+            icon: IcDifference,
+          },
+          {
+            id: 'spatial-join',
+            label: 'Spatial Join Tool',
+            icon: IcIntersect,
+          },
+          {
+            id: 'union',
+            label: 'Union Tool',
+            icon: IcDifference,
+          },
         ]"
       ></MapToolsDropdown>
       <div class="border-l border-grey-700 h-8"></div>
@@ -197,6 +212,18 @@ const removeAllAnimation = () => {
     />
     <MapToolsDissolve
       v-else-if="activeTools?.id === 'dissolve'"
+      @on-close="handleCloseToolsCard"
+    />
+    <MapToolsMerge
+      v-else-if="activeTools?.id === 'merge'"
+      @on-close="handleCloseToolsCard"
+    />
+    <MapToolsSpatialJoin
+      v-else-if="activeTools?.id === 'spatial-join'"
+      @on-close="handleCloseToolsCard"
+    />
+    <MapToolsUnion
+      v-else-if="activeTools?.id === 'union'"
       @on-close="handleCloseToolsCard"
     />
   </MapToolsCard>
