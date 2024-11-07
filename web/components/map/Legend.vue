@@ -96,25 +96,17 @@ const rasterLegendLists = computed(() => {
         >
           <div class="pb-2">
             <p class="text-xs text-grey-50">
-              {{ item.layer_alias || item.layer_name }}
+              {{ item.layer_alias }}
             </p>
             <p class="text-2xs text-grey-400">{{ item.geometry_type }}</p>
-            <template
-              v-for="(step, index) in (item.steps.color_steps as any[])"
-              :key="index"
-            >
+            <template v-for="(step, index) in item.color_steps" :key="index">
               <div class="flex items-end space-x-3 text-2xs text-grey-50">
                 <span
                   class="h-4 w-4 mt-1"
-                  :style="{ backgroundColor: step }"
+                  :style="{ backgroundColor: step.color }"
                 ></span>
                 <p>
-                  {{
-                    Array.isArray(item.steps.legend_steps) &&
-                    item.steps.legend_steps.length
-                      ? item.steps.legend_steps[index]
-                      : item.steps.value_steps[index]
-                  }}
+                  {{ step.legend_label || step.pixel_value }}
                 </p>
               </div>
             </template>

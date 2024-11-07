@@ -239,7 +239,7 @@ export const useMapLayer = defineStore("maplayer", () => {
             dimension: "2D",
             category: item.category,
             protocol: item.protocol,
-            steps: item.steps,
+            color_steps: item.color_steps,
             ...(item.terrain_rgb && { category: { category_name: "Terrain" } }),
           };
           layersArr.push(RasterTilesItem);
@@ -341,7 +341,7 @@ export const useMapLayer = defineStore("maplayer", () => {
               }
             ),
             $fetch(
-              "/panel/items/raster_tiles?fields=layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,active,visible,protocol,steps,category.*,preview,description&filter[active][_eq]=true&sort=layer_alias",
+              "/panel/items/raster_tiles?fields=layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,active,visible,protocol,color_steps,category.*,preview,description&filter[active][_eq]=true&sort=layer_alias",
               {
                 method: "GET",
                 headers: {

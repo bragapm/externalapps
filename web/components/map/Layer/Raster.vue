@@ -18,9 +18,9 @@ watchEffect(async () => {
       if (props.item.protocol === "greyscale") {
         tileUrl =
           `greyscale://value_steps=${JSON.stringify(
-            props.item.steps["value_steps"]
+            props.item.color_steps?.map(({ pixel_value }) => pixel_value)
           )}&color_steps=${JSON.stringify(
-            props.item.steps["color_steps"]
+            props.item.color_steps?.map(({ color }) => color)
           )}[|]` + tileUrl;
       }
       map.value.addSource(props.item.layer_id, {

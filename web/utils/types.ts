@@ -214,6 +214,12 @@ export type VectorTilesConfig = {
   description?: string;
 };
 
+export type ColorStep = {
+  pixel_value: number;
+  color: string;
+  legend_label?: string;
+};
+
 export type RasterTiles = {
   source: "raster_tiles";
   opacity: number;
@@ -232,7 +238,7 @@ export type RasterTiles = {
   feature_detail_columns?: string[];
   preview?: string;
   protocol?: string;
-  steps?: Record<string, any[]>;
+  color_steps?: ColorStep[];
 };
 
 export type RasterTilesConfig = {
@@ -248,7 +254,7 @@ export type RasterTilesConfig = {
   preview?: string;
   description?: string;
   protocol?: string;
-  steps?: Record<string, any[]>;
+  color_steps?: ColorStep[];
 };
 
 export type ThreeDTiles = {

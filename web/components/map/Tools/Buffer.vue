@@ -130,7 +130,7 @@ const handleBuffer = () => {
       features,
     },
     +digit.value,
-    { units: unit.value, steps: 60 }
+    { units: unit.value as any, steps: 60 }
   );
   map!.setPaintProperty("buffer-polygon", "fill-color", colour.value);
   (map!.getSource("buffer-polygon") as GeoJSONSource).setData(result);
