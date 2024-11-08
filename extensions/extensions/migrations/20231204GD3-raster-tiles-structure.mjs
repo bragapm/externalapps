@@ -12,6 +12,8 @@ export async function up(knex) {
       minzoom integer NOT NULL,
       maxzoom integer NOT NULL,
       terrain_rgb boolean NOT NULL,
+      protocol character varying(255) NOT NULL DEFAULT 'default',
+      color_steps json,
       layer_alias character varying(255) NOT NULL,
       preview uuid REFERENCES directus_files (id)
         ON DELETE SET NULL,
@@ -50,6 +52,8 @@ export async function up(knex) {
       ('raster_tiles','minzoom',NULL,'input',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_tiles','maxzoom',NULL,'input',NULL,NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_tiles','terrain_rgb','cast-boolean','boolean','{"label":"True"}',NULL,NULL,TRUE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
+      ('raster_tiles','protocol',NULL,'select-dropdown','{"choices":[{"text":"default","value":"default"},{"text":"greyscale","value":"greyscale"}]}',NULL,NULL,false,false,NULL,'full',NULL,NULL,'[{"name":"Hide when terrain_rgb is true","rule":{"_and":[{"terrain_rgb":{"_eq":true}}]},"hidden":true,"options":{}}]',true,NULL,NULL,NULL),
+      ('raster_tiles','color_steps','cast-json','list','{"fields":[{"field":"pixel_value","name":"pixel_value","type":"integer","meta":{"field":"pixel_value","type":"integer","required":true,"interface":"input"}},{"field":"color","name":"color","type":"string","meta":{"field":"color","type":"string","required":true,"interface":"select-color"}},{"field":"legend_label","name":"legend_label","type":"string","meta":{"field":"legend_label","type":"string","interface":"input"}}],"template":"{{ pixel_value }}: {{ color }} [{{ legend_label }}]"}',NULL,NULL,false,false,NULL,'full',NULL,NULL,'[{"name":"Hide if protocol is not greyscale","rule":{"_and":[{"protocol":{"_neq":"greyscale"}}]},"hidden":true,"options":{}}]',false,NULL,NULL,NULL),
       ('raster_tiles','layer_alias',NULL,'input',NULL,NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,TRUE,NULL,NULL,NULL),
       ('raster_tiles','preview','file','file-image','{"folder":"${LAYER_PREVIEWS_FOLDER_ID}"}',NULL,NULL,FALSE,FALSE,NULL,'full',NULL,NULL,NULL,FALSE,NULL,NULL,NULL),
       ('raster_tiles','description',NULL,'input-multiline',NULL,NULL,NULL,false,false,NULL,'full',NULL,NULL,NULL,false,NULL,NULL,NULL),
