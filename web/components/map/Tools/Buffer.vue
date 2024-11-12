@@ -289,6 +289,7 @@ const handleIntersect = async () => {
         :disabled="selectedType === 'simple'"
         v-model="selectedColumn"
         :options="columns"
+        option-attribute="name"
         color="gray"
         :ui="{ rounded: 'rounded-xxs' }"
         size="2xs"

@@ -61,10 +61,10 @@ const paintPropertyName = () => {
   }
 };
 
-const handleChangeOpacity = (e: Event) => {
-  emit("updateOpacity", parseInt((e.target as HTMLInputElement).value));
+const handleChangeOpacity = (value: string) => {
+  emit("updateOpacity", parseInt(value));
 
-  const decimalOpacity = parseInt((e.target as HTMLInputElement).value) / 100;
+  const decimalOpacity = parseInt(value) / 100;
   updateLayerOpacity(
     groupIndex as number,
     layerIndex as number,
