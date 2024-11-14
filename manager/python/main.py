@@ -21,11 +21,11 @@ def main():
 
     tasks.vector_transform(
         uploader="49015332-8717-411c-bb40-b589d4273a8a",
-        object_key="0f6ee9a4-48d5-417d-9a79-34abf0cddd02.dxf",
-        format_file="dxf",
+        object_key="f4d1b531-ccde-4926-a9fc-ff700e5ba4eb.kml",
+        format_file="kml",
         is_zipped=False,
-        table_name="miko_dxf",
-        additional_config={"source_srs": "32750"},
+        table_name="miko_kml",
+        additional_config=None,
     )
     # Above invocation and top most import is necessary for actors auto registration, don't remove or comment it
 

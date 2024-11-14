@@ -47,41 +47,46 @@ def vector_transform(
         layer_count = dataset.GetLayerCount()
         is_single_layer = layer_count == 1
         conn = pool.getconn()
-        result_table = []
+        processed_tables = []
+        error_tables = []
         for i in range(layer_count):
-            layer = dataset.GetLayerByIndex(i)
-            layer_name = layer.GetName()
-            if layer_name == "layer_styles":
-                continue
-            final_table_name = (
-                table_name
-                if is_single_layer
-                else sanitize_table_name(table_name + "_" + layer_name)
-            )
-            result_table.append(final_table_name)
+            try:
+                layer = dataset.GetLayerByIndex(i)
+                layer_name = layer.GetName()
+                if layer_name == "layer_styles":
+                    continue
+                final_table_name = (
+                    table_name
+                    if is_single_layer
+                    else sanitize_table_name(table_name + "_" + layer_name)
+                )
 
-            layer_header_info = get_header_info_from_data_layer(layer)
-            create_table_from_header_info(conn, layer_header_info, final_table_name)
-            fill_table_with_layer_feature(
-                layer,
-                layer_header_info,
-                conn,
-                final_table_name,
-                (
-                    None
-                    if additional_config is None
-                    else additional_config.get("source_srs", None)
-                ),
-            )
-            register_table_to_directus(
-                conn,
-                final_table_name,
-                layer_header_info,
-                uploader,
-                additional_config,
-                not is_dev_mode(),
-            )
-        return {"result table": result_table}
+                layer_header_info = get_header_info_from_data_layer(layer)
+                create_table_from_header_info(conn, layer_header_info, final_table_name)
+                fill_table_with_layer_feature(
+                    layer,
+                    layer_header_info,
+                    conn,
+                    final_table_name,
+                    (
+                        None
+                        if additional_config is None
+                        else additional_config.get("source_srs", None)
+                    ),
+                )
+                register_table_to_directus(
+                    conn,
+                    final_table_name,
+                    layer_header_info,
+                    uploader,
+                    additional_config,
+                    not is_dev_mode(),
+                )
+                processed_tables.append(final_table_name)
+            except Exception as e:
+                # Log the error or handle it as needed, then continue with the next layer
+                error_tables.append(final_table_name)
+        return {"processed tables": processed_tables, "error tables": error_tables}
     except Exception as err:
         error_traceback = traceback.format_exc()
         if isinstance(err, TimeLimitExceeded):
