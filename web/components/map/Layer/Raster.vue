@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import bbox from "@turf/bbox";
-import type { LayerLists, RasterTiles } from "~/utils/types";
+import type { ExternalTiles, LayerLists, RasterTiles } from "~/utils/types";
 
 const store = useMapRef();
 const { map } = storeToRefs(store);
 
 const props = defineProps<{
   renderedLayers: LayerLists[];
-  item: RasterTiles;
+  item: RasterTiles | ExternalTiles;
   order: number;
 }>();
 
@@ -15,7 +15,7 @@ watchEffect(async () => {
   if (map?.value) {
     if (!map.value.getSource(props.item.layer_id)) {
       let tileUrl = `${window.location.origin}/panel/raster-tiles/${props.item.layer_id}?z={z}&x={x}&y={y}`;
-      if (props.item.protocol === "greyscale") {
+      if ("protocol" in props.item && props.item.protocol === "greyscale") {
         tileUrl =
           `greyscale://value_steps=${JSON.stringify(
             props.item.color_steps?.map(({ pixel_value }) => pixel_value)
@@ -25,8 +25,8 @@ watchEffect(async () => {
       }
       map.value.addSource(props.item.layer_id, {
         type: "raster",
-        tiles: [tileUrl],
-        tileSize: 256,
+        tiles: "tile_url" in props.item ? props.item.tile_url : [tileUrl],
+        tileSize: "tile_size" in props.item ? props.item.tile_size : 256,
         bounds: bbox(props.item.bounds) as [number, number, number, number],
         minzoom: props.item.minzoom || 5,
         maxzoom: props.item.maxzoom || 15,

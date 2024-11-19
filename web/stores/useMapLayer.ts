@@ -14,6 +14,8 @@ import type {
   LayerConfigLists,
   ThreeDLayerCenter,
   SymbolStylesConfig,
+  ExternalTilesConfig,
+  ExternalTiles,
 } from "~/utils/types";
 import {
   geomTypeCircle,
@@ -156,6 +158,9 @@ export const useMapLayer = defineStore("maplayer", () => {
     threeDTiles?: {
       data: LayerConfigLists;
     };
+    externalTiles?: {
+      data: LayerConfigLists;
+    };
   }) => {
     const layersArr: LayerLists[] = [];
     for (const [key, value] of Object.entries(layers)) {
@@ -261,6 +266,28 @@ export const useMapLayer = defineStore("maplayer", () => {
             dimension: "3D",
           };
           layersArr.push(ThreeDTilesItem);
+        } else if (key === "externalTiles") {
+          const item = el as ExternalTilesConfig;
+          let ExternalTilesItem: ExternalTiles;
+          ExternalTilesItem = {
+            layer_alias: item.layer_alias,
+            layer_id: item.layer_id,
+            bounds: item.bounds,
+            minzoom: item.minzoom,
+            maxzoom: item.maxzoom,
+            source: "external_tiles",
+            opacity: 1,
+            layer_style: {
+              layout_visibility: item.visible ? "visible" : "none",
+            },
+            category: item.category,
+            geometry_type: geomTypeRaster,
+            tile_type: "raster",
+            is_tilejson: item.is_tilejson,
+            tile_url: item.tile_url,
+            tile_size: item.tile_size,
+          };
+          layersArr.push(ExternalTilesItem);
         }
       });
     }
@@ -327,42 +354,53 @@ export const useMapLayer = defineStore("maplayer", () => {
       const { data: layers, pending } = await useAsyncData(
         "map-layer-tiles",
         async () => {
-          const [vectorTiles, rasterTiles, threeDTiles] = await Promise.all<{
-            data: LayerConfigLists;
-          }>([
-            $fetch(
-              "/panel/items/vector_tiles?fields=layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,hover_popup_columns,click_popup_columns,image_columns,active,description,preview,category.*,fill_style.*,line_style.*,circle_style.*,symbol_style.*&filter[active][_eq]=true&sort=layer_name",
-              {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + authStore.accessToken,
-                },
-              }
-            ),
-            $fetch(
-              "/panel/items/raster_tiles?fields=layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,active,visible,protocol,color_steps,category.*,preview,description&filter[active][_eq]=true&sort=layer_alias",
-              {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + authStore.accessToken,
-                },
-              }
-            ),
-            $fetch(
-              "/panel/items/three_d_tiles?fields=layer_id,layer_alias,active,visible,opacity,point_color,point_size,category.*,preview,description&filter[active][_eq]=true&sort=layer_alias",
-              {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + authStore.accessToken,
-                },
-              }
-            ),
-          ]);
+          const [vectorTiles, rasterTiles, threeDTiles, externalTiles] =
+            await Promise.all<{
+              data: LayerConfigLists;
+            }>([
+              $fetch(
+                "/panel/items/vector_tiles?fields=layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,hover_popup_columns,click_popup_columns,image_columns,active,description,preview,category.*,fill_style.*,line_style.*,circle_style.*,symbol_style.*&filter[active][_eq]=true&sort=layer_name",
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + authStore.accessToken,
+                  },
+                }
+              ),
+              $fetch(
+                "/panel/items/raster_tiles?fields=layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,active,visible,protocol,color_steps,category.*,preview,description&filter[active][_eq]=true&sort=layer_alias",
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + authStore.accessToken,
+                  },
+                }
+              ),
+              $fetch(
+                "/panel/items/three_d_tiles?fields=layer_id,layer_alias,active,visible,opacity,point_color,point_size,category.*,preview,description&filter[active][_eq]=true&sort=layer_alias",
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + authStore.accessToken,
+                  },
+                }
+              ),
+              $fetch(
+                "/panel/items/external_tiles?fields=visible,layer_id,tile_type,is_tilejson,tile_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category.*,listed,active&filter[active][_eq]=true&sort=layer_alias",
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + authStore.accessToken,
+                  },
+                }
+              ),
+            ]);
 
-          return { vectorTiles, rasterTiles, threeDTiles };
+          return { vectorTiles, rasterTiles, threeDTiles, externalTiles };
         }
       );
 

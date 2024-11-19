@@ -3,7 +3,7 @@ import IcEye from "~/assets/icons/ic-eye.svg";
 import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
 import IcMarkerStyle from "~/assets/icons/ic-marker-style.svg";
 import { TransitionRoot } from "@headlessui/vue";
-import type { RasterTiles } from "~/utils/types";
+import type { ExternalTiles, RasterTiles } from "~/utils/types";
 import { uncategorizedAlias } from "~/constants";
 import { storeToRefs } from "pinia";
 import { provide } from "vue";
@@ -12,7 +12,7 @@ const props = defineProps<{
   order: number;
   groupOrder: number;
   filtered: boolean;
-  layerItem: RasterTiles;
+  layerItem: RasterTiles | ExternalTiles;
 }>();
 
 const emit = defineEmits<{
@@ -57,7 +57,7 @@ const isShowStyling = ref(false);
 const visibility = ref(props.layerItem.layer_style.layout_visibility);
 
 const toggleVisibility = () => {
-  if (props.layerItem.terrain_rgb) {
+  if ("terrain_rgb" in props.layerItem && props.layerItem.terrain_rgb) {
     if (visibility.value === "visible") {
       map.value?.setTerrain(null);
     } else {

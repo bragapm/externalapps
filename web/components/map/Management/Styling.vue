@@ -46,7 +46,7 @@ const { map } = storeToRefs(mapStore);
 
 const paintPropertyName = () => {
   switch (true) {
-    case props.source === "raster_tiles":
+    case props.source === "raster_tiles" || props.source === "external_tiles":
       return "raster-opacity";
     case props.source === "vector_tiles" &&
       props.geometryType === geomTypeCircle:

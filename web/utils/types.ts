@@ -257,6 +257,39 @@ export type RasterTilesConfig = {
   color_steps?: ColorStep[];
 };
 
+export type ExternalTiles = {
+  source: "external_tiles";
+  opacity: number;
+  layer_style: RasterStyles;
+  bounds: GeoJSON.Polygon;
+  category?: { category_name?: string };
+  geometry_type: string;
+  layer_alias: string;
+  layer_id: string;
+  minzoom: number;
+  maxzoom: number;
+  tile_type: "raster" | "vector";
+  is_tilejson: boolean;
+  tile_url: string[];
+  tile_size: number;
+};
+
+export type ExternalTilesConfig = {
+  visible: boolean;
+  layer_id: string;
+  tile_type: "raster" | "vector";
+  is_tilejson: boolean;
+  tile_url: string[];
+  tile_size: number;
+  bounds: GeoJSON.Polygon;
+  minzoom: number;
+  maxzoom: number;
+  layer_alias: string;
+  listed: boolean;
+  active: boolean;
+  category?: Category;
+};
+
 export type ThreeDTiles = {
   source: "three_d_tiles";
   opacity: number;
@@ -291,6 +324,7 @@ export type LayerConfigLists = (
   | VectorTilesConfig
   | RasterTilesConfig
   | ThreeDTilesConfig
+  | ExternalTilesConfig
 )[];
 
 export type LoadedGeoJson = {
@@ -313,6 +347,7 @@ export type LayerLists =
   | VectorTiles
   | RasterTiles
   | ThreeDTiles
+  | ExternalTiles
   | LoadedGeoJson;
 
 export type LayerGroupedByCategory = {

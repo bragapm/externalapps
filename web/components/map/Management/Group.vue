@@ -149,7 +149,9 @@ const handleChangeOrder = () => {
             @handle-change-order="handleChangeOrder"
           />
           <MapManagementLayerRaster
-            v-else-if="item.source === 'raster_tiles'"
+            v-else-if="
+              item.source === 'raster_tiles' || item.source === 'external_tiles'
+            "
             :filtered="filtered"
             :order="index"
             :groupOrder="order"

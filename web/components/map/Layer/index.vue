@@ -38,7 +38,10 @@ const threeDRenderedLayers = computed(() => {
       :item="(layerItem as RasterTiles)"
     />
     <MapLayerRaster
-      v-else-if="layerItem.source === 'raster_tiles'"
+      v-else-if="
+        layerItem.source === 'raster_tiles' ||
+        layerItem.source === 'external_tiles'
+      "
       :renderedLayers="renderedLayers"
       :order="index"
       :item="(layerItem as RasterTiles)"
