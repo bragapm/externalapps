@@ -10,10 +10,12 @@ import IcMapExtent from "~/assets/icons/ic-map-instance.svg";
 import IcMapLayer from "~/assets/icons/ic-map-layer.svg";
 import IcZoomIn from "~/assets/icons/ic-plus.svg";
 import IcZoomOut from "~/assets/icons/ic-min.svg";
+import IcPrint from "~/assets/icons/ic-print.svg";
 import { useMapData } from "~/utils";
 import { storeToRefs } from "pinia";
 import bbox from "@turf/bbox";
 import type { LngLatBoundsLike } from "maplibre-gl";
+import type { AllGeoJSON } from "@turf/helpers";
 
 const isShowLayerManagement = ref(false);
 const isShowLegend = ref(false);
@@ -44,6 +46,14 @@ watchEffect((onCleanup) => {
     map.value?.off("moveend", () => updateZoomValue());
   });
 });
+
+const handlePrint = () => {
+  if (!window.print) {
+    console.log("browser not supported");
+  } else {
+    window.print();
+  }
+};
 </script>
 
 <template>
@@ -300,6 +310,9 @@ watchEffect((onCleanup) => {
       >
         <IcMapLayerB class="w-5 h-5" :fontControlled="false" />
       </MapButtonControl>
+      <MapButtonControl :onClick="handlePrint" :active="false">
+        <IcPrint class="w-5 h-5" :fontControlled="false" />
+      </MapButtonControl>
     </div>
 
     <!-- bottom left map -->
@@ -322,10 +335,11 @@ watchEffect((onCleanup) => {
         <button
           @click="
             () => {
-              map && map.fitBounds(bbox(mapData?.data?.initial_map_view ? mapData?.data?.initial_map_view :[
+              map && map.fitBounds(mapData?.data?.initial_map_view?
+              bbox( mapData?.data?.initial_map_view  ) as LngLatBoundsLike:[
                   [95.01, -11.01],
                   [141.02, 6.08],
-                ]) as LngLatBoundsLike);
+                ]);
             }
           "
           class="bg-transparent hover:bg-black p-2 rounded-xs"
