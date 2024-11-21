@@ -4,12 +4,15 @@ import { useFloating, offset, flip } from "@floating-ui/vue";
 import IcMenuDots from "~/assets/icons/ic-menu-dots.svg";
 import type { LngLatBoundsLike } from "maplibre-gl";
 import bbox from "@turf/bbox";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 
-defineProps<{
+const props = defineProps<{
   disabled: boolean;
   item: LayerLists;
 }>();
-
+const queryClient = useQueryClient();
+const toast = useToast();
+const authStore = useAuth();
 const store = useTableData();
 const { toggleTable } = store;
 
@@ -28,6 +31,116 @@ const { floatingStyles } = useFloating(reference, floating, {
   placement: "right-start",
   middleware: [offset(10), flip()],
 });
+
+const queueId = ref("");
+const exportLoad = ref(false);
+const {
+  data: exportData,
+  // error: detailError,
+  // isFetching: isDetailFetching,
+  // isError: isDetailError,
+} = useQuery({
+  queryKey: ["/panel/items/geoprocessing_queue"],
+  queryFn: async ({ queryKey }) => {
+    const res = await $fetch<any>(`${queryKey[0]}/${queueId.value}`, {
+      headers: {
+        Authorization: "Bearer " + authStore.accessToken,
+        "Cache-Control": "no-store",
+      },
+    });
+
+    return res;
+  },
+  enabled: computed(() => (queueId.value ? true : false)),
+  refetchInterval: computed(() => (queueId.value ? 3000 : false)),
+  refetchOnWindowFocus: false,
+});
+
+const downloadFile = async (fileId: string) => {
+  console.log(fileId);
+
+  try {
+    const response = await fetch(`/panel/assets/${fileId}?download`, {
+      method: "GET",
+    });
+    const resData = await response.blob();
+    let anchor = document.createElement("a");
+    const href = window.URL.createObjectURL(resData);
+    anchor.href = href;
+    anchor.download =
+      (props.item as VectorTiles).layer_alias ||
+      (props.item as VectorTiles).layer_name;
+    anchor.click();
+    window.URL.revokeObjectURL(href);
+    anchor.remove();
+  } catch (error) {
+    toast.add({
+      title: "Download failed",
+      description: "Something wrong, try again later",
+      icon: "i-heroicons-information-circle",
+      timeout: 1500,
+    });
+  }
+};
+
+watchEffect(() => {
+  if (
+    queueId.value &&
+    exportData.value?.data &&
+    exportData.value.data.state === "done"
+  ) {
+    if (exportData.value.data.status === "success") {
+      downloadFile(exportData.value.data.result.file_id);
+      queryClient.resetQueries({
+        queryKey: ["/panel/items/geoprocessing_queue"],
+        exact: true,
+      });
+      queueId.value = "";
+    } else if (exportData.value.data.status === "error") {
+      toast.add({
+        title: "Export Error",
+        description: "Something wrong, try again later",
+        icon: "i-heroicons-information-circle",
+      });
+    }
+    queryClient.resetQueries({
+      queryKey: ["/panel/items/geoprocessing_queue"],
+      exact: true,
+    });
+    queueId.value = "";
+    exportLoad.value = false;
+  }
+});
+
+const handleExport = async (format: string) => {
+  try {
+    console.log(format);
+
+    const result = await $fetch<{ message_id: string }>(
+      "/panel/export-layer/" + (props.item as VectorTiles).layer_name,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          format: format,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (result.message_id) {
+      queueId.value = result.message_id;
+      exportLoad.value = true;
+    }
+  } catch (error) {
+    toast.add({
+      title: "Export JSON failed",
+      description: "Something wrong, try again later",
+      icon: "i-heroicons-information-circle",
+      timeout: 1500,
+    });
+  }
+};
 </script>
 
 <template>
@@ -77,15 +190,59 @@ const { floatingStyles } = useFloating(reference, floating, {
             </button>
           </MenuItem>
           <hr class="border-t-2 border-grey-800" />
-          <MenuItem v-slot="{ active }">
+          <button
+            @click="() => downloadFile('6fe1b1b8-f57f-4a20-856c-d6767d68b8c1')"
+          >
+            download gpkg
+          </button>
+          <button
+            @click="() => downloadFile('499133ff-473b-4898-a1ba-cee921031b46')"
+          >
+            download geojson
+          </button>
+          <MenuItem v-if="item.source === 'vector_tiles'" v-slot="{ active }">
             <button
-              @click="() => {}"
+              @click="
+                () => {
+                  handleExport('geojson');
+                }
+              "
               :class="[
                 active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
                 'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
               ]"
             >
               Export JSON
+            </button>
+          </MenuItem>
+          <MenuItem v-if="item.source === 'vector_tiles'" v-slot="{ active }">
+            <button
+              @click="
+                () => {
+                  handleExport('gpkg');
+                }
+              "
+              :class="[
+                active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
+                'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
+              ]"
+            >
+              Export GPKG
+            </button>
+          </MenuItem>
+          <MenuItem v-if="item.source === 'vector_tiles'" v-slot="{ active }">
+            <button
+              @click="
+                () => {
+                  handleExport('kml');
+                }
+              "
+              :class="[
+                active ? 'bg-grey-700' : 'bg-transparent text-grey-200',
+                'group flex w-full items-center gap-3 rounded-xxs p-2 text-xs text-white',
+              ]"
+            >
+              Export KML
             </button>
           </MenuItem>
           <MenuItem v-slot="{ active }">

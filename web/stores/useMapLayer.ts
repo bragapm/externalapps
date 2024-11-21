@@ -421,9 +421,7 @@ export const useMapLayer = defineStore("maplayer", () => {
   const threeDLayerCenter = ref<ThreeDLayerCenter[]>([]);
 
   //remove item from groupedActiveLayer
-  const removeLayer = (
-    layerItem: VectorTiles | RasterTiles | ThreeDTiles | LoadedGeoJson
-  ) => {
+  const removeLayer = (layerItem: LayerLists) => {
     let groupName = layerItem.category
       ? layerItem.category.category_name
       : uncategorizedAlias;
