@@ -57,8 +57,6 @@ const {
 });
 
 const downloadFile = async (fileId: string) => {
-  console.log(fileId);
-
   try {
     const response = await fetch(`/panel/assets/${fileId}?download`, {
       method: "GET",
@@ -114,8 +112,6 @@ watchEffect(() => {
 
 const handleExport = async (format: string) => {
   try {
-    console.log(format);
-
     const result = await $fetch<{ message_id: string }>(
       "/panel/export-layer/" + (props.item as VectorTiles).layer_name,
       {
@@ -190,16 +186,6 @@ const handleExport = async (format: string) => {
             </button>
           </MenuItem>
           <hr class="border-t-2 border-grey-800" />
-          <button
-            @click="() => downloadFile('6fe1b1b8-f57f-4a20-856c-d6767d68b8c1')"
-          >
-            download gpkg
-          </button>
-          <button
-            @click="() => downloadFile('499133ff-473b-4898-a1ba-cee921031b46')"
-          >
-            download geojson
-          </button>
           <MenuItem v-if="item.source === 'vector_tiles'" v-slot="{ active }">
             <button
               @click="
