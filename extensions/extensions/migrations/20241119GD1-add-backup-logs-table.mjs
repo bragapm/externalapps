@@ -3,7 +3,7 @@ export async function up(knex) {
     await trx.raw(`CREATE TABLE IF NOT EXISTS backup_logs (
   backup_id uuid PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
   status character varying,
-  date_created timestamp with time zone
+  date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP
 )`);
     await trx("directus_collections").insert({
       collection: "backup_logs",
