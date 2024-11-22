@@ -93,6 +93,8 @@ services:
       - STORAGE_S3_BUCKET
       - STORAGE_S3_REGION
       - STORAGE_S3_ROOT
+      - ADMIN_TOKEN
+      - DIRECTUS_PUBLIC_URL
     restart: unless-stopped
 
   web:
