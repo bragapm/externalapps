@@ -52,7 +52,7 @@ const fetchData = async (categoryId: string) => {
       $fetch<{
         data: LayerConfigLists;
       }>(
-        `/panel/items/raster_tiles?fields=layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,active,visible,category.*,preview,description&sort=layer_alias&${
+        `/panel/items/raster_tiles?fields=layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,active,visible,protocol,color_steps,category.*,preview,description&sort=layer_alias&${
           categoryId === staticKey.other
             ? `filter[category][_null]=true`
             : `filter[category][category_id][_eq]=${categoryId}`
