@@ -33,6 +33,8 @@ const props = defineProps<{
   order: number;
 }>();
 
+const currentToken = ref(authStore.accessToken);
+
 watchEffect(async (onInvalidate) => {
   const onMouseEnter = () => {
     map.value!.getCanvas().style.cursor = "pointer";
@@ -72,6 +74,23 @@ watchEffect(async (onInvalidate) => {
         } catch (error) {
           console.error(error);
         }
+      }
+    } else {
+      if (
+        authStore.accessToken &&
+        authStore.accessToken !== currentToken.value &&
+        props.item.source === "vector_tiles"
+      ) {
+        (map.value.getSource(props.item.layer_id) as any)!.setTiles([
+          window.location.origin +
+            "/panel/mvt/" +
+            props.item.layer_name +
+            "?z={z}&x={x}&y={y}" +
+            (authStore.accessToken
+              ? "&access_token=" + authStore.accessToken
+              : ""),
+        ]);
+        currentToken.value = authStore.accessToken;
       }
     }
     if (!map.value.getLayer(props.item.layer_id)) {
