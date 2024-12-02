@@ -316,31 +316,6 @@ export const capitalizeEachWords = (text: string) => {
   return splitText.join(" ");
 };
 
-export const refreshTokenKey = "geo_refresh";
-
-export const tryRefresh = async (
-  refresh_token: string,
-  signin: (newToken: string) => void,
-  signout: Function
-) => {
-  try {
-    const { data } = await $fetch<{ data: AuthPayload }>(
-      "/panel/auth/refresh",
-      {
-        method: "POST",
-        body: JSON.stringify({ refresh_token }),
-      }
-    );
-    signin(data.access_token);
-    localStorage.setItem(refreshTokenKey, data.refresh_token);
-    setTimeout(() => {
-      tryRefresh(data.refresh_token, signin, signout);
-    }, data.expires - 1000);
-  } catch (error) {
-    signout();
-  }
-};
-
 export function isString(value: any) {
   return typeof value === "string";
 }

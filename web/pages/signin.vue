@@ -35,7 +35,7 @@ const bgImgUrl = computed(() =>
     : null
 );
 
-const { signin, signout } = useAuth();
+const { signin, tryRefresh } = useAuth();
 const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
   generalErrorMessage.value = "";
   isLoading.value = true;
@@ -47,9 +47,8 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
       body: JSON.stringify({ email, password }),
     });
     signin(data.access_token);
-    localStorage.setItem(refreshTokenKey, data.refresh_token);
     setTimeout(() => {
-      tryRefresh(data.refresh_token, signin, signout);
+      tryRefresh();
     }, data.expires - 1000);
     await navigateTo("/");
   } catch (error) {

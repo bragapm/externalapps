@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGeneralSettings } from "./utils";
 
-const { signin, signout } = useAuth();
+const authStore = useAuth();
 const { data } = await useGeneralSettings();
 
 useSeoMeta({
@@ -15,8 +15,7 @@ useSeoMeta({
 });
 
 onMounted(() => {
-  const refresh_token = localStorage.getItem(refreshTokenKey);
-  if (refresh_token) tryRefresh(refresh_token, signin, signout);
+  authStore.tryRefresh();
 });
 </script>
 
@@ -27,7 +26,7 @@ onMounted(() => {
       type="image/png"
       :href="`/panel/assets/${data?.data.public_favicon}`"
   /></Head>
-  <NuxtLayout>
+  <NuxtLayout v-if="!authStore.appLoad">
     <NuxtPage />
   </NuxtLayout>
   <!-- <NuxtWelcome /> -->

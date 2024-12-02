@@ -1,11 +1,13 @@
 import { defineStore } from "pinia";
 
 export const useAuth = defineStore("authData", () => {
+  const appLoad = ref<boolean>(true);
   const isSignedIn = ref<boolean>(false);
   const accessToken = ref<string>("");
   function signin(newToken: string) {
     isSignedIn.value = true;
     accessToken.value = newToken;
+    appLoad.value = false;
   }
   async function signout() {
     isSignedIn.value = false;
@@ -13,10 +15,9 @@ export const useAuth = defineStore("authData", () => {
     await fetch("/panel/auth/logout", {
       method: "POST",
       body: JSON.stringify({
-        refresh_token: localStorage.getItem(refreshTokenKey),
+        mode: "cookie",
       }),
     });
-    localStorage.removeItem(refreshTokenKey);
   }
   const authModal = ref<boolean>(false);
   function mutateAuthModal(newState?: boolean) {
@@ -27,6 +28,29 @@ export const useAuth = defineStore("authData", () => {
     }
   }
 
+  const tryRefresh = async () => {
+    try {
+      const { data } = await $fetch<{ data: AuthPayload }>(
+        "/panel/auth/refresh",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            mode: "cookie",
+          }),
+        }
+      );
+      signin(data.access_token);
+      setTimeout(() => {
+        tryRefresh();
+      }, data.expires - 1000);
+    } catch (error) {
+      isSignedIn.value = false;
+      accessToken.value = "";
+    } finally {
+      appLoad.value = false;
+    }
+  };
+
   return {
     isSignedIn,
     accessToken,
@@ -34,5 +58,7 @@ export const useAuth = defineStore("authData", () => {
     signout,
     authModal,
     mutateAuthModal,
+    appLoad,
+    tryRefresh,
   };
 });

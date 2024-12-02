@@ -46,7 +46,7 @@ const bgImgUrl = computed(() =>
     : null
 );
 
-const { signin, signout } = useAuth();
+const { signin, tryRefresh } = useAuth();
 const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
   generalErrorMessage.value = "";
   isLoading.value = true;
@@ -55,12 +55,11 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
   try {
     const { data } = await $fetch<{ data: AuthPayload }>("/panel/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, mode: "cookie" }),
     });
     signin(data.access_token);
-    localStorage.setItem(refreshTokenKey, data.refresh_token);
     setTimeout(() => {
-      tryRefresh(data.refresh_token, signin, signout);
+      tryRefresh();
     }, data.expires - 1000);
     authStore.mutateAuthModal(false);
   } catch (error) {
