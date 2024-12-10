@@ -2,6 +2,7 @@
 import { TransitionRoot } from "@headlessui/vue";
 import { _backgroundOpacity } from "#tailwind-config/theme";
 import { geomTypeCircle, geomTypeLine, geomTypePolygon } from "~/constants";
+import { parseString } from "~/utils";
 
 const mapLayerStore = useMapLayer();
 
@@ -20,6 +21,39 @@ const rasterLegendLists = computed(() => {
       (el) => el.source === "raster_tiles" && el.protocol === "greyscale"
     );
 });
+
+const transformCategoricalStyleArray = (styleArray: any[]) => {
+  const transformResult = [];
+
+  for (let i = 0; i < styleArray.length; i += 2) {
+    if (styleArray[i][2] === null) {
+      transformResult.push({
+        label: "null",
+        value: styleArray[i + 1],
+      });
+    } else if (typeof styleArray[i][2] === "string") {
+      transformResult.push({
+        label: styleArray[i][2],
+        value: styleArray[i + 1],
+      });
+    } else if (typeof styleArray[i][2] === "number") {
+      transformResult.push({
+        label: `${styleArray[i][0] !== "==" ? styleArray[i][0] + " " : ""}${
+          styleArray[i][2]
+        }`,
+        value: styleArray[i + 1],
+      });
+    } else if (typeof styleArray[i][2] === "object") {
+      transformResult.push({
+        label: `${styleArray[1][0] + " " + styleArray[1][2]} ${
+          styleArray[2][0] + " " + styleArray[2][2]
+        }`,
+        value: styleArray[i + 1],
+      });
+    }
+  }
+  return transformResult;
+};
 </script>
 
 <template>
@@ -52,31 +86,115 @@ const rasterLegendLists = computed(() => {
               {{ item.layer_alias || item.layer_name }}
             </p>
             <p class="text-2xs text-grey-400">{{ item.geometry_type }}</p>
-            <div
-              v-if="item.geometry_type === geomTypeCircle"
-              class="h-4 w-4 rounded-full mt-1"
-              :style="{
-              backgroundColor: (item.layer_style as CircleStyles).paint_circle_color,
-              opacity: (item.layer_style as CircleStyles).paint_circle_opacity,
-              border: (item.layer_style as CircleStyles).paint_circle_stroke_width !==0 ? '2px solid' + (item.layer_style as CircleStyles).paint_circle_stroke_color : '',
-            }"
-            ></div>
-            <div
-              v-else-if="item.geometry_type === geomTypePolygon"
-              class="h-4 w-4 mt-1"
-              :style="{
+
+            <template v-if="item.geometry_type === geomTypeCircle">
+              <div
+                v-if="
+                  (item.layer_style as CircleStyles).paint_circle_color &&
+                  Array.isArray(parseString((item.layer_style as CircleStyles).paint_circle_color as string))
+                "
+              >
+                <div className="grid grid-cols-8 gap-2">
+                  <template
+                    v-for="parsedItem in transformCategoricalStyleArray((parseString(
+                          (item.layer_style as CircleStyles)
+                            .paint_circle_color as string
+                        )as []).slice(1,-1))"
+                  >
+                    <div
+                      class="flex items-center h-4 w-4 rounded-full place-self-center"
+                      :style="{
+                        backgroundColor: parsedItem.value,
+                      }"
+                    />
+                    <p class="col-span-7 text-grey-50 text-xs">
+                      {{ parsedItem.label }}
+                    </p>
+                  </template>
+                </div>
+              </div>
+              <div
+                v-else
+                class="h-4 w-4 rounded-full mt-1"
+                :style="{
+                  backgroundColor: (item.layer_style as CircleStyles).paint_circle_color,
+                  opacity: (item.layer_style as CircleStyles).paint_circle_opacity,
+                  border: (item.layer_style as CircleStyles).paint_circle_stroke_width !==0 ? '2px solid' + (item.layer_style as CircleStyles).paint_circle_stroke_color : '',
+                }"
+              ></div>
+            </template>
+
+            <template v-else-if="item.geometry_type === geomTypePolygon">
+              <div
+                v-if="
+                  (item.layer_style as FillStyles).paint_fill_color &&
+                  Array.isArray(parseString((item.layer_style as FillStyles).paint_fill_color as string))
+                "
+              >
+                <div className="grid grid-cols-8 gap-2">
+                  <template
+                    v-for="parsedItem in transformCategoricalStyleArray((parseString(
+                          (item.layer_style as FillStyles)
+                            .paint_fill_color as string
+                        )as []).slice(1,-1))"
+                  >
+                    <div
+                      class="flex items-center h-4 w-4 place-self-center"
+                      :style="{
+                        backgroundColor: parsedItem.value,
+                      }"
+                    />
+                    <p class="col-span-7 text-grey-50 text-xs">
+                      {{ parsedItem.label }}
+                    </p>
+                  </template>
+                </div>
+              </div>
+              <div
+                v-else
+                class="h-4 w-4 mt-1"
+                :style="{
               backgroundColor: (item.layer_style as FillStyles).paint_fill_color,
               opacity: (item.layer_style as FillStyles).paint_fill_opacity,
             }"
-            ></div>
-            <div
-              v-else-if="item.geometry_type === geomTypeLine"
-              class="flex items-center h-1 w-4 mt-1"
-              :style="{
-              backgroundColor: (item.layer_style as LineStyles).paint_line_color,
-              opacity: (item.layer_style as LineStyles).paint_line_opacity,
-            }"
-            ></div>
+              ></div>
+            </template>
+
+            <template v-else-if="item.geometry_type === geomTypeLine">
+              <div
+                v-if="
+                  (item.layer_style as LineStyles).paint_line_color &&
+                  Array.isArray(parseString((item.layer_style as LineStyles).paint_line_color as string))
+                "
+              >
+                <div className="grid grid-cols-8 gap-2">
+                  <template
+                    v-for="parsedItem in transformCategoricalStyleArray((parseString(
+                          (item.layer_style as LineStyles)
+                            .paint_line_color as string
+                        )as []).slice(1,-1))"
+                  >
+                    <div
+                      class="flex items-center h-1 w-4 place-self-center"
+                      :style="{
+                        backgroundColor: parsedItem.value,
+                      }"
+                    />
+                    <p class="col-span-7 text-grey-50 text-xs">
+                      {{ parsedItem.label }}
+                    </p>
+                  </template>
+                </div>
+              </div>
+              <div
+                v-else
+                class="flex items-center h-1 w-4 mt-1"
+                :style="{
+                  backgroundColor: (item.layer_style as LineStyles).paint_line_color,
+                  opacity: (item.layer_style as LineStyles).paint_line_opacity,
+                }"
+              ></div>
+            </template>
           </div>
         </TransitionRoot>
       </template>
