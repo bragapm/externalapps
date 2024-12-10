@@ -8,7 +8,7 @@ export async function up(knex) {
     paint_circle_opacity text NULL DEFAULT '1'::character varying,
     paint_circle_pitch_alignment varchar(255) NULL DEFAULT 'viewport'::character varying,
     paint_circle_pitch_scale varchar(255) NULL DEFAULT 'map'::character varying,
-    paint_circle_radius int4 NULL DEFAULT 5,
+    paint_circle_radius varchar(255) NULL DEFAULT '5'::character varying,
     layout_circle_sort_key int4 NULL,
     layout_visibility varchar(255) NULL DEFAULT 'visible'::character varying,
     paint_circle_stroke_color varchar(255) NULL DEFAULT '#000000'::character varying,
