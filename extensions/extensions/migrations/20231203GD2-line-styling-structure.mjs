@@ -17,7 +17,7 @@ export async function up(knex) {
     layout_line_sort_key int4 NULL,
     paint_line_translate varchar(255) NULL,
     paint_line_translate_anchor varchar(255) NULL DEFAULT 'map'::character varying,
-    paint_line_width int4 NULL DEFAULT 1,
+    paint_line_width varchar(255) NULL DEFAULT '1'::character varying,
     layout_visibility varchar(255) NULL DEFAULT 'visible'::character varying,
     paint_line_opacity text NULL DEFAULT '1'::character varying,
     CONSTRAINT line_pkey PRIMARY KEY (id)
