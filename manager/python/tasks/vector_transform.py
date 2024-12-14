@@ -48,7 +48,7 @@ def vector_transform(
         is_single_layer = layer_count == 1
         conn = pool.getconn()
         processed_tables = []
-        error_tables = []
+        errors = []
         for i in range(layer_count):
             try:
                 layer = dataset.GetLayerByIndex(i)
@@ -83,10 +83,20 @@ def vector_transform(
                     not is_dev_mode(),
                 )
                 processed_tables.append(final_table_name)
-            except Exception as e:
-                # Log the error or handle it as needed, then continue with the next layer
-                error_tables.append(final_table_name)
-        return {"processed tables": processed_tables, "error tables": error_tables}
+            except Exception as err:
+                error_traceback = traceback.format_exc()
+                errors.append(
+                    {
+                        "table_name": final_table_name,
+                        "message": str(err),
+                        "traceback": error_traceback,
+                    }
+                )
+                logger.error(error_traceback)
+        result = {"processed": processed_tables}
+        if len(errors):
+            result["error"] = errors
+        return result
     except Exception as err:
         error_traceback = traceback.format_exc()
         if isinstance(err, TimeLimitExceeded):
