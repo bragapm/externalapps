@@ -35,7 +35,20 @@ watchEffect(async () => {
     if (!map.value.getLayer(props.item.layer_id)) {
       let beforeId: undefined | string = undefined;
       if (props.order !== 0) {
-        beforeId = props.renderedLayers[props.order - 1].layer_id;
+        let order = props.order;
+        let layerId;
+        for (let i = order; i !== 0; i--) {
+          if (map.value.getLayer(props.renderedLayers[i - 1].layer_id)) {
+            layerId = props.renderedLayers[i - 1].layer_id;
+            break;
+          } else {
+            if (i === 1) {
+              layerId = undefined;
+            }
+          }
+        }
+        beforeId = layerId;
+        // beforeId = props.renderedLayers[props.order - 1].layer_id;
       }
       map.value.addLayer(
         {
