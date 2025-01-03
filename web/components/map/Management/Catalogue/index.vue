@@ -32,60 +32,78 @@ const fetchData = async (categoryId: string) => {
     }
     isFetching.value = false;
   } else {
-    const [vectorTiles, rasterTiles, threeDTiles] = await Promise.all([
-      $fetch<{
-        data: LayerConfigLists;
-      }>(
-        `/panel/items/vector_tiles?fields=layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,hover_popup_columns,click_popup_columns,image_columns,active,description,preview,category.*,fill_style.*,line_style.*,circle_style.*,symbol_style.*&sort=layer_name&${
-          categoryId === staticKey.other
-            ? `filter[category][_null]=true`
-            : `filter[category][category_id][_eq]=${categoryId}`
-        }`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + authStore.accessToken,
-          },
-        }
-      ),
-      $fetch<{
-        data: LayerConfigLists;
-      }>(
-        `/panel/items/raster_tiles?fields=layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,active,visible,protocol,color_steps,category.*,preview,description&sort=layer_alias&${
-          categoryId === staticKey.other
-            ? `filter[category][_null]=true`
-            : `filter[category][category_id][_eq]=${categoryId}`
-        }`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + authStore.accessToken,
-          },
-        }
-      ),
-      $fetch<{
-        data: LayerConfigLists;
-      }>(
-        `/panel/items/three_d_tiles?fields=layer_id,layer_alias,active,visible,opacity,point_color,point_size,category.*,preview,description&sort=layer_alias&${
-          categoryId === staticKey.other
-            ? `filter[category][_null]=true`
-            : `filter[category][category_id][_eq]=${categoryId}`
-        }`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + authStore.accessToken,
-          },
-        }
-      ),
-    ]);
+    const [vectorTiles, rasterTiles, threeDTiles, externalTiles] =
+      await Promise.all([
+        $fetch<{
+          data: LayerConfigLists;
+        }>(
+          `/panel/items/vector_tiles?fields=layer_id,layer_name,geometry_type,bounds,minzoom,maxzoom,layer_alias,hover_popup_columns,click_popup_columns,image_columns,active,description,preview,category.*,fill_style.*,line_style.*,circle_style.*,symbol_style.*&sort=layer_name&${
+            categoryId === staticKey.other
+              ? `filter[category][_null]=true`
+              : `filter[category][category_id][_eq]=${categoryId}`
+          }`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + authStore.accessToken,
+            },
+          }
+        ),
+        $fetch<{
+          data: LayerConfigLists;
+        }>(
+          `/panel/items/raster_tiles?fields=layer_id,bounds,minzoom,maxzoom,terrain_rgb,layer_alias,active,visible,protocol,color_steps,category.*,preview,description&sort=layer_alias&${
+            categoryId === staticKey.other
+              ? `filter[category][_null]=true`
+              : `filter[category][category_id][_eq]=${categoryId}`
+          }`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + authStore.accessToken,
+            },
+          }
+        ),
+        $fetch<{
+          data: LayerConfigLists;
+        }>(
+          `/panel/items/three_d_tiles?fields=layer_id,layer_alias,active,visible,opacity,point_color,point_size,category.*,preview,description&sort=layer_alias&${
+            categoryId === staticKey.other
+              ? `filter[category][_null]=true`
+              : `filter[category][category_id][_eq]=${categoryId}`
+          }`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + authStore.accessToken,
+            },
+          }
+        ),
+        $fetch<{
+          data: LayerConfigLists;
+        }>(
+          `/panel/items/external_tiles?fields=visible,layer_id,tile_type,is_tilejson,tile_url,bounds,minzoom,maxzoom,tile_size,layer_alias,category.*,listed,active&sort=layer_alias&${
+            categoryId === staticKey.other
+              ? `filter[category][_null]=true`
+              : `filter[category][category_id][_eq]=${categoryId}`
+          }`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + authStore.accessToken,
+            },
+          }
+        ),
+      ]);
     catalogueData.value = getLayersArr({
       vectorTiles,
       rasterTiles,
       threeDTiles,
+      externalTiles,
     });
     isFetching.value = false;
   }
