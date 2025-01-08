@@ -26,7 +26,10 @@ watchEffect(async () => {
       map.value.addSource(props.item.layer_id, {
         type: "raster",
         tiles: "tile_url" in props.item ? props.item.tile_url : [tileUrl],
-        tileSize: "tile_size" in props.item ? props.item.tile_size : 256,
+        tileSize:
+          "tile_size" in props.item && props.item.tile_size
+            ? props.item.tile_size
+            : 512,
         bounds: bbox(props.item.bounds) as [number, number, number, number],
         minzoom: props.item.minzoom || 5,
         maxzoom: props.item.maxzoom || 15,
