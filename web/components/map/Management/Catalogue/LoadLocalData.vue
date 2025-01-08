@@ -350,6 +350,8 @@ const handleNext = () => {
             <TabPanel class="space-y-3">
               <p class="text-sm text-grey-400">Select File</p>
               <MapManagementCatalogueLoadFileInput
+                allowed-desc="(Supported File Type: .GeoJson, .KML, .Zip)"
+                title="File"
                 accept=".geojson,application/geo+json,.zip,application/zip,application/x-zip-compressed,.csv,text/csv,.xls,application/vnd.ms-excel,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.kml,application/vnd.google-earth.kml+xml,.gpx,application/gpx+xml,.tcx,application/vnd.garmin.tcx+xml,.gpkg,application/geopackage+sqlite3,.fgb"
                 :selectedFile="selectedFile"
                 @set-selected-file="
@@ -400,6 +402,8 @@ const handleNext = () => {
             <TabPanel class="space-y-3">
               <p class="text-sm text-grey-400">Dataset Information</p>
               <MapManagementCatalogueLoadFileInput
+                allowed-desc="(Supported File Type: .PNG, .JPEG, .JPG)"
+                title="Thumbnail"
                 accept="image/*"
                 :selectedFile="thumbnailFile"
                 @set-selected-file="

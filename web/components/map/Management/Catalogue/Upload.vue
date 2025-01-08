@@ -296,6 +296,7 @@ watchEffect(() => {
             <TabPanel class="space-y-3">
               <p class="text-sm text-grey-400">Upload Data</p>
               <MapManagementCatalogueLoadFileInput
+                title="File"
                 :accept="
                   formatData
                     ? formatData !== 'xls'
@@ -307,6 +308,17 @@ watchEffect(() => {
                       : `.${formatData}`
                     : ''
                 "
+                :allowed-desc="`(Supported File Type: ${
+                  formatData
+                    ? formatData !== 'xls'
+                      ? formatData === 'tif'
+                        ? `.${formatData},.tiff,.zip`
+                        : formatData === 'las/laz'
+                        ? '.las,.laz,.zip'
+                        : `.${formatData},.zip`
+                      : `.${formatData}`
+                    : ''
+                })`"
                 :selectedFile="selectedFile"
                 @set-selected-file="
                   (value: File|null) => {
@@ -398,6 +410,8 @@ watchEffect(() => {
             <TabPanel class="space-y-3">
               <p class="text-sm text-grey-400">Dataset Information</p>
               <MapManagementCatalogueLoadFileInput
+                allowed-desc="(Supported File Type: .PNG, .JPEG, .JPG)"
+                title="Thumbnail"
                 accept="image/*"
                 :selectedFile="thumbnailFile"
                 @set-selected-file="

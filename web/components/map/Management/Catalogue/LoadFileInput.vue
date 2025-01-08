@@ -4,6 +4,8 @@ import IcTrash from "~/assets/icons/ic-trash.svg";
 import IcInfo from "~/assets/icons/ic-info.svg";
 
 const props = defineProps<{
+  title: string;
+  allowedDesc: string;
   selectedFile: File | null;
   accept?: string;
 }>();
@@ -81,7 +83,7 @@ const handleDrop = (e: any) => {
         'p-1 border rounded-xxs cursor-pointer',
       ]"
     >
-      <p class="text-2xs text-grey-400 ml-2 mb-1 mt-2">Thumbnail</p>
+      <p class="text-2xs text-grey-400 ml-2 mb-1 mt-2">{{ title }}</p>
       <div
         class="flex items-center justify-between bg-black/30 rounded-xxs px-2 py-4"
       >
@@ -100,7 +102,7 @@ const handleDrop = (e: any) => {
               'text-xs',
             ]"
           >
-            Please select or drag file from your storage here (Supported File Type: .PNG, .JPEG, .JPG)
+            Please select or drag file from your storage here {{ allowedDesc }}
           </p>
         </div>
 
