@@ -186,21 +186,7 @@ const authStore = useAuth();
     <div
       class="absolute top-6 right-6 z-40 flex items-center gap-2 bg-grey-900 p-[6px] h-12 rounded-xs"
     >
-      <UInput
-        color="gray"
-        :ui="{ rounded: 'rounded-xxs' }"
-        placeholder="Search Location"
-      >
-        <template #trailing>
-          <UButton
-            color="grey"
-            variant="link"
-            icon="i-heroicons-magnifying-glass-20-solid"
-            :padded="false"
-          />
-        </template>
-      </UInput>
-
+      <LayoutsNavbarSearchLoc />
       <LayoutsNavbarShare />
       <LayoutsNavbarAuth />
     </div>
