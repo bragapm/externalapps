@@ -109,13 +109,22 @@ def export(table_name: str, format_file: str, downloader: str | None):
 
         return {"file_id": file_id}
 
+    except TimeLimitExceeded:
+        error_message = "Time limit exceeded. Data might be too big to process."
+        logger.error(traceback.format_exc())
+
+        if file_uploaded:
+            try:
+                minio_client.remove_object(bucket, storage_root + object_key)
+            except Exception as err:
+                error_message += f"\n\nFailed to delete uploaded file. Please delete object key {object_key} manually from S3"
+                logger.error(traceback.format_exc())
+
+        return {"error": error_message}
     except Exception as err:
         error_traceback = traceback.format_exc()
-        if isinstance(err, TimeLimitExceeded):
-            error_message = "Time limit exceeded. File might be too big to process."
-        else:
-            error_message = str(err)
-            logger.error(error_traceback)
+        error_message = str(err)
+        logger.error(error_traceback)
 
         if file_uploaded:
             try:

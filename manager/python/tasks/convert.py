@@ -47,11 +47,11 @@ def convert(input_file: str, output_file: str, **kwargs):
 
         # Close the dataset
         src_ds = None
+    except TimeLimitExceeded:
+        logger.error(traceback.format_exc())
+        return {"error": "Time limit exceeded. Data might be too big to process."}
     except Exception as err:
         error_traceback = traceback.format_exc()
-        if isinstance(err, TimeLimitExceeded):
-            error_message = "Time limit exceeded. File might be too big to process."
-        else:
-            error_message = str(err)
-            logger.error(error_traceback)
+        error_message = str(err)
+        logger.error(error_traceback)
         return {"error": error_message, "traceback": error_traceback}

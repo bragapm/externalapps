@@ -64,20 +64,29 @@ def raster_tiling(
             "z_min": minzoom,
             "z_max": maxzoom,
         }
-    except Exception as err:
+    except TimeLimitExceeded:
+        error_message = "Time limit exceeded. Data might be too big to process."
+        logger.error(traceback.format_exc())
+
         del_errs = []
         if layer_id and bucket:
             del_err_generator = delete_generated_tiles(bucket, layer_id)
             for del_err in del_err_generator:
                 del_errs.append(del_err)
+        if len(del_errs):
+            error_message += f" Error deleting half generated tiles. Please delete manually via S3 console: {str(del_errs)}"
 
+        return {"error": error_message}
+    except Exception as err:
         error_traceback = traceback.format_exc()
-        if isinstance(err, TimeLimitExceeded):
-            error_message = "Time limit exceeded. File might be too big to process."
-        else:
-            error_message = str(err)
-            logger.error(error_traceback)
+        error_message = str(err)
+        logger.error(error_traceback)
 
+        del_errs = []
+        if layer_id and bucket:
+            del_err_generator = delete_generated_tiles(bucket, layer_id)
+            for del_err in del_err_generator:
+                del_errs.append(del_err)
         if len(del_errs):
             error_message += f" Error deleting half generated tiles. Please delete manually via S3 console: {str(del_errs)}"
 
