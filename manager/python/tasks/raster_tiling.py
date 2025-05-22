@@ -3,7 +3,7 @@ import shutil
 import traceback
 
 from dramatiq.middleware import TimeLimitExceeded
-import dramatiq.results
+import dramatiq
 
 from lib.tile_raster_data import delete_generated_tiles, tile_raster_data
 from lib.register_table import (

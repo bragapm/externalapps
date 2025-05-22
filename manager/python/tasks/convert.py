@@ -1,7 +1,7 @@
 import os
 import traceback
 
-import dramatiq.results
+import dramatiq
 from dramatiq.middleware import TimeLimitExceeded
 from osgeo import gdal
 

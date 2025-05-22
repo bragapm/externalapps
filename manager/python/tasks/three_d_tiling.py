@@ -7,8 +7,7 @@ from dramatiq.middleware import TimeLimitExceeded
 from minio.deleteobjects import DeleteObject
 from py3dtiles.convert import convert as convert_to_3d_tiles
 from pyproj import CRS
-import dramatiq.results
-
+import dramatiq
 
 from lib.register_table import register_3d_tile
 from utils import (
