@@ -49,5 +49,6 @@
     "pinia": "^2.1.7",
     "shpjs": "^4.0.4",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
-  }
+  },
+  "packageManager": "pnpm@8.15.9"
 }
