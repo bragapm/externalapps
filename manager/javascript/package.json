@@ -17,5 +17,6 @@
     "graphile-worker": "^0.16.2",
     "minio": "^7.1.3",
     "web-ifc": "^0.0.51"
-  }
+  },
+  "packageManager": "pnpm@8.15.9"
 }
