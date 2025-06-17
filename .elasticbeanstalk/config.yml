@@ -1,12 +1,12 @@
 branch-defaults:
-  latest:
-    environment: latest-geo2-env
+  main:
+    environment: sinarmas-externala-env
 environment-defaults:
-  latest-geo2-env:
+  sinarmas-externala-env:
     branch: null
     repository: null
 global:
-  application_name: geo2
+  application_name: sinarmas-externalapps
   default_ec2_keyname: null
   default_platform: Docker running on 64bit Amazon Linux 2023
   default_region: ap-southeast-1

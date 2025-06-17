@@ -63,6 +63,10 @@ services:
       - SYNCHRONIZATION_STORE=redis
       - PM2_INSTANCES
       - PM2_AUTO_RESTART
+      # initial acc
+      - ADMIN_EMAIL
+      - ADMIN_PASSWORD
+      - ADMIN_TOKEN
     deploy:
       replicas: ${DIRECTUS_REPLICAS:-1}
     restart: unless-stopped
