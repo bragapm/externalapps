@@ -5,6 +5,20 @@ export default defineAppConfig({
       gray: "grey",
       brand: "brand",
     },
+    navigationMenu: {
+      compoundVariants: [
+        {
+          color: "primary",
+          variant: "pill",
+          active: true,
+          class: {
+            link: "text-primary bg-brand-50 rounded-xs",
+            linkLeadingIcon:
+              "text-primary group-data-[state=open]:text-primary",
+          },
+        },
+      ],
+    },
     pagination: {
       inactiveButton: {
         color: {

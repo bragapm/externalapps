@@ -1,5 +1,5 @@
 <script lang="ts" setup></script>
 
 <template>
-  <div>absensi</div>
+  <div>perjalanan dinas</div>
 </template>

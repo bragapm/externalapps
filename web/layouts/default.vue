@@ -1,4 +1,3 @@
 <template>
-  <LayoutsNavbar> </LayoutsNavbar>
-  <slot />
+  <LayoutsDashboard><slot /></LayoutsDashboard>
 </template>
