@@ -4,17 +4,17 @@ const defaultColors = {
   white: "#FFFFFF",
   black: "#000000",
   brand: {
-    50: "#FEF9EF",
-    100: "#FCE6C5",
-    200: "#FACE9B",
-    300: "#F8B271",
-    400: "#F59047",
-    500: "#F36A1D",
-    600: "#CD541B",
-    700: "#A84118",
-    800: "#842F15",
-    900: "#663121",
-    950: "#412820",
+    50: "#F9F8F7",
+    100: "#F4F3F1",
+    200: "#E2E1DF",
+    300: "#C3C3BF",
+    400: "#B4B4AF",
+    500: "#777674",
+    600: "#4F4D4A",
+    700: "#353332",
+    800: "#232221",
+    900: "#191919",
+    950: "#161414",
   },
   grey: {
     50: "#F9F8F7",
@@ -213,22 +213,6 @@ const test1Colors = {
 export default <Partial<Config>>{
   darkMode: "class",
   theme: {
-    borderRadius: {
-      none: "0",
-      xxs: "4px",
-      xs: "8px",
-      sm: "12px",
-      md: "16px",
-      lg: "20px",
-      xl: "24px",
-      xxl: "32px",
-      full: "9999px",
-    },
     colors: defaultColors,
-    extend: {
-      fontSize: {
-        "2xs": ["10px", "16px"],
-      },
-    },
   },
 };

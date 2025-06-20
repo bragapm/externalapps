@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { TransitionRoot } from "@headlessui/vue";
-import { _backgroundOpacity } from "#tailwind-config/theme";
 import { geomTypeCircle, geomTypeLine, geomTypePolygon } from "~/constants";
 import { parseString } from "~/utils";
 
