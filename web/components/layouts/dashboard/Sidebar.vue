@@ -292,7 +292,12 @@ const onAfterLeave = (el: Element) => {
       </div>
     </div>
 
-    <div v-if="!isCollapsed" class="mt-auto text-grey-900">Help</div>
+    <div
+      class="mt-auto flex gap-3 items-center text-grey-800 font-medium text-[14px]"
+    >
+      <SvgoIcHelp class="mt-1" />
+      <p v-if="!isCollapsed">Help</p>
+    </div>
   </div>
 </template>
 
