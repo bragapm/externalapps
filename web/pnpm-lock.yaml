@@ -62,6 +62,9 @@ dependencies:
   '@xeokit/xeokit-sdk':
     specifier: 2.6.0-beta-10
     version: 2.6.0-beta-10
+  chart.js:
+    specifier: ^4.5.0
+    version: 4.5.0
   deck.gl:
     specifier: ^9.1.12
     version: 9.1.12(@arcgis/core@4.32.10)(@luma.gl/shadertools@9.1.9)(@luma.gl/webgl@9.1.9)(react-dom@18.3.1)(react@18.3.1)
@@ -83,6 +86,9 @@ dependencies:
   tailwindcss:
     specifier: ^4.1.10
     version: 4.1.10
+  vue-chartjs:
+    specifier: ^5.3.2
+    version: 5.3.2(chart.js@4.5.0)(vue@3.5.17)
   xlsx:
     specifier: https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz
     version: '@cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz'
@@ -1468,6 +1474,10 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  /@kurkle/color@0.3.4:
+    resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
+    dev: false
 
   /@kwsites/file-exists@1.1.1:
     resolution: {integrity: sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw==}
@@ -5835,6 +5845,13 @@ packages:
 
   /charenc@0.0.2:
     resolution: {integrity: sha512-yrLQ/yVUFXkzg7EDQsPieE/53+0RlaWTs+wBrvW36cyilJ2SaDWfl4Yj7MtLTXleV9uEKefbAGUPv2/iWSooRA==}
+    dev: false
+
+  /chart.js@4.5.0:
+    resolution: {integrity: sha512-aYeC/jDgSEx8SHWZvANYMioYMZ2KX02W6f6uVfyteuCGcadDLcYVHdfdygsTQkQ4TKn5lghoojAsPj5pu0SnvQ==}
+    engines: {pnpm: '>=8'}
+    dependencies:
+      '@kurkle/color': 0.3.4
     dev: false
 
   /chokidar@3.5.3:
@@ -12656,6 +12673,16 @@ packages:
     dependencies:
       ufo: 1.6.1
     dev: true
+
+  /vue-chartjs@5.3.2(chart.js@4.5.0)(vue@3.5.17):
+    resolution: {integrity: sha512-NrkbRRoYshbXbWqJkTN6InoDVwVb90C0R7eAVgMWcB9dPikbruaOoTFjFYHE/+tNPdIe6qdLCDjfjPHQ0fw4jw==}
+    peerDependencies:
+      chart.js: ^4.1.1
+      vue: ^3.0.0-0 || ^2.7.0
+    dependencies:
+      chart.js: 4.5.0
+      vue: 3.5.17(typescript@5.8.3)
+    dev: false
 
   /vue-component-type-helpers@2.2.10:
     resolution: {integrity: sha512-iDUO7uQK+Sab2tYuiP9D1oLujCWlhHELHMgV/cB13cuGbG4qwkLHvtfWb6FzvxrIOPDnU0oHsz2MlQjhYDeaHA==}

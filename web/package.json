@@ -44,6 +44,7 @@
     "@turf/helpers": "^7.1.0",
     "@turf/length": "^7.1.0",
     "@xeokit/xeokit-sdk": "2.6.0-beta-10",
+    "chart.js": "^4.5.0",
     "deck.gl": "^9.1.12",
     "keen-slider": "^6.8.6",
     "maplibre-gl": "^4.7.1",
@@ -51,6 +52,7 @@
     "pinia": "^2.1.7",
     "shpjs": "^4.0.4",
     "tailwindcss": "^4.1.10",
+    "vue-chartjs": "^5.3.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
   },
   "packageManager": "pnpm@8.15.9"
