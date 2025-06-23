@@ -2,6 +2,7 @@
 import IcMenu from "@/assets/icons/ic-burger-menu.svg";
 import IcMarker from "@/assets/icons/ic-marker.svg";
 import IcUser from "@/assets/icons/ic-user.svg";
+import IcBell from "@/assets/icons/ic-bell.svg";
 
 import Logo from "@/assets/images/logo.png";
 
@@ -55,10 +56,10 @@ onMounted(() => {
         <div class="w-[1px] h-6 bg-grey-300" />
         <div class="rounded-full w-4 h-4 bg-green-600" />
         <p>Online</p>
-        <button class="border border-red-600 p-[10px] rounded-xs">
-          <IcUser class="" />
+        <button class="border border-[#D32E36] p-[10px] rounded-xs">
+          <IcBell class="" />
         </button>
-        <button class="bg-red-600 p-[10px] rounded-full">
+        <button class="bg-[#D32E36] p-[10px] rounded-full">
           <IcUser class="text-white" />
         </button>
       </section>
