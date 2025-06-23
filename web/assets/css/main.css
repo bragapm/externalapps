@@ -70,13 +70,13 @@ body {
   --color-blue-950: #0b315e;
 
   --radius-none: 0;
-  --radius-xxs: 4px;
+  --radius-2xs: 4px;
   --radius-xs: 8px;
   --radius-sm: 12px;
   --radius-md: 16px;
   --radius-lg: 20px;
   --radius-xl: 24px;
-  --radius-xxl: 32px;
+  --radius-2xl: 32px;
   --radius-full: 9999px;
 
   --text-2xs: 10px;
