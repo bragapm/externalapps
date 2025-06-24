@@ -43,7 +43,7 @@ export default defineNuxtConfig({
         proxy:
           process.env.NODE_ENV === "production"
             ? "http://directus:8055/**"
-            : "https://latest.geodashboard.io/panel/**",
+            : "https://externalapps.braga.co.id/panel/**",
       },
     },
   },
