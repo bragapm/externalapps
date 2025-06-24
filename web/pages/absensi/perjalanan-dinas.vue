@@ -4,7 +4,7 @@ import { h, ref, resolveComponent } from "vue";
 import type { TableColumn, TableRow } from "@nuxt/ui";
 
 const page = ref(1);
-const pageSize = ref<string>("5");
+const pageSize = ref<string>("10");
 
 const {
   data: tableData,
@@ -198,6 +198,8 @@ const openReview = ref(false);
 <template>
   <div class="p-6 bg-grey-100 rounded-xs space-y-3">
     <DashboardTable
+      v-model:pageSize="pageSize"
+       v-model:page="page"
       :data="tableData?.data"
       :columns="columns"
       :totalData="tableData?.meta?.filter_count"

@@ -1,15 +1,11 @@
 <script lang="ts" setup>
-import { h, ref, resolveComponent } from "vue";
+import { ref } from "vue";
 import type { TableColumn, TableRow } from "@nuxt/ui";
-
-const page = ref(1);
-const UCheckbox = resolveComponent("UCheckbox");
 
 const props = defineProps<{
   data: Record<string, any>[] | undefined;
   columns: TableColumn<Record<string, any>>[];
   totalData: number | undefined;
-  //   modelValue?: Record<string, boolean>;
 }>();
 
 const intervalValue = ref<string>("Mingguan");
@@ -25,8 +21,9 @@ function onSelect(row: TableRow<Record<string, any>>, e?: Event) {
 }
 
 //pagination
-const pageSizeItems = ref(["5", "10", "20", "50"]);
-const pageSize = ref("10");
+const currentPage =  defineModel<number>('page');
+const pageSizeItems = ref(["10", "20", "50"]);
+const pageSize = defineModel<string>('pageSize');
 </script>
 
 <template>
@@ -84,7 +81,7 @@ const pageSize = ref("10");
       <p>dari {{ totalData || "0" }} Data Ditemukan</p>
     </div>
     <UPagination
-      v-model:page="page"
+      v-model:page="currentPage"
       show-edges
       :sibling-count="1"
       :total="totalData"
