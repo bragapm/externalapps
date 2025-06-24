@@ -8,9 +8,6 @@ const props = defineProps<{
   totalData: number | undefined;
 }>();
 
-const intervalValue = ref<string>("Mingguan");
-const intervalOptions = ref(["Harian", "Mingguan", "Bulanan"]);
-
 const table = useTemplateRef("table");
 
 const rowSelection = ref<Record<string, boolean>>({});
@@ -27,34 +24,6 @@ const pageSize = defineModel<string>('pageSize');
 </script>
 
 <template>
-  <div class="flex justify-between gap-2">
-    <div class="flex gap-2">
-      <UInput type="date" size="xl" />
-      <UInput type="date" size="xl" />
-      <UButton label="Tampilkan" size="xl" />
-    </div>
-    <div class="flex gap-2">
-      <UInput
-        trailing-icon="i-heroicons-magnifying-glass"
-        placeholder="Search by"
-        size="xl"
-      />
-      <USelectMenu
-        v-model="intervalValue"
-        :items="intervalOptions"
-        class="w-32"
-        :searchInput="false"
-      />
-      <UButton
-        icon="i-heroicons-arrow-down-tray"
-        size="xl"
-        color="neutral"
-        variant="outline"
-      />
-      <UButton icon="i-heroicons-plus" label="Check In" size="xl" />
-    </div>
-  </div>
-  <USeparator />
   <div>
     <UTable
       ref="table"

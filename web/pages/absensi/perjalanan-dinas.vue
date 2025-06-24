@@ -197,9 +197,25 @@ const openReview = ref(false);
 
 <template>
   <div class="p-6 bg-grey-100 rounded-xs space-y-3">
+    <DashboardTableHeaderControls>
+      <template #slideover-button>
+        <USlideover title="Ajukan Perjalanan Dinas" :ui="{ content: 'm-9' }">
+          <UButton
+            icon="i-heroicons-plus"
+            label="Buat Perjalanan Dinas"
+            size="xl"
+          />
+
+          <template #body>
+            <div>form perjalanan dinas</div>
+          </template>
+          <template #footer>form submit</template>
+        </USlideover>
+      </template>
+    </DashboardTableHeaderControls>
     <DashboardTable
       v-model:pageSize="pageSize"
-       v-model:page="page"
+      v-model:page="page"
       :data="tableData?.data"
       :columns="columns"
       :totalData="tableData?.meta?.filter_count"
@@ -208,11 +224,6 @@ const openReview = ref(false);
   <USlideover
     v-model:open="openReview"
     title="Review Perjalanan Dinas"
-    :close="{
-      color: 'primary',
-      variant: 'outline',
-      class: 'rounded-full',
-    }"
     :ui="{ content: 'm-9' }"
   >
     <template #body> </template>
