@@ -5,6 +5,8 @@ import type { TableColumn, TableRow } from "@nuxt/ui";
 
 const page = ref(1);
 const pageSize = ref<string>("10");
+const startDate = ref();
+const endDate = ref();
 
 const {
   data: tableData,
@@ -12,15 +14,41 @@ const {
   isFetching: isTableFetching,
   isError: isTableError,
 } = useQuery({
-  queryKey: computed(() => ["table-data", page.value, pageSize.value]),
+  queryKey: computed(() => [
+    "table-data",
+    page.value,
+    pageSize.value,
+    startDate.value,
+    endDate.value,
+  ]),
   queryFn: async ({ queryKey }) => {
+    const filters: any[] = [];
+    if (startDate.value) {
+      const date = new Date(startDate.value);
+      date.setHours(0, 0, 0);
+      filters.push({
+        start_date: {
+          _gte: date,
+        },
+      });
+    }
+    if (endDate.value) {
+      const date = new Date(endDate.value);
+      date.setHours(23, 59, 59);
+      filters.push({
+        end_date: {
+          _lte: date,
+        },
+      });
+    }
+
     const queryParams: Record<string, string> = {
       limit: String(pageSize.value),
       page: String(page.value),
       fields:
         "id,user.first_name,user.last_name,destination,transportation,status,document.id,document.filename_download,document.title,start_date,end_date",
       filter: JSON.stringify({
-        _and: [],
+        _and: filters,
       }),
       meta: "filter_count",
     };
@@ -193,11 +221,16 @@ const columns: TableColumn<Record<string, any>>[] = [
 ];
 
 const openReview = ref(false);
+
+function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
+  startDate.value = startDateInput ?? null;
+  endDate.value = endDateInput ?? null;
+}
 </script>
 
 <template>
   <div class="p-6 bg-grey-100 rounded-xs space-y-3">
-    <DashboardTableHeaderControls>
+    <DashboardTableHeaderControls @update-date="handleDateUpdate">
       <template #slideover-button>
         <USlideover title="Ajukan Perjalanan Dinas" :ui="{ content: 'm-9' }">
           <UButton

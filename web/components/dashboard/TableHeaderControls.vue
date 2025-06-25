@@ -1,14 +1,25 @@
 <script lang="ts" setup>
+const emit = defineEmits<{
+  updateDate: [startDate: string | undefined, endDate: string | undefined];
+}>();
+
 const intervalValue = ref<string>("Mingguan");
 const intervalOptions = ref(["Harian", "Mingguan", "Bulanan"]);
+
+const startDate = ref<string>();
+const endDate = ref<string>();
+
+const applyDateFilter = () => {
+    emit("updateDate", startDate.value, endDate.value);
+};
 </script>
 
 <template>
   <div class="flex justify-between gap-2">
     <div class="flex gap-2">
-      <UInput type="date" size="xl" />
-      <UInput type="date" size="xl" />
-      <UButton label="Tampilkan" size="xl" />
+      <UInput v-model="startDate" type="date" size="xl" />
+      <UInput v-model="endDate" type="date" size="xl" />
+      <UButton @click="applyDateFilter" label="Tampilkan" size="xl" />
     </div>
     <div class="flex gap-2">
       <UInput
