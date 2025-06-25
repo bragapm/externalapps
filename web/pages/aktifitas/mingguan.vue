@@ -263,16 +263,6 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
       :collection="'business_trips'"
       :queryParams="currentQueryParams"
     >
-      <template #slideover-button>
-        <USlideover title="Ajukan Cuti" :ui="{ content: 'm-9' }">
-          <UButton icon="i-heroicons-plus" label="Ajukan Cuti" size="xl" />
-
-          <template #body>
-            <div>form cuti</div>
-          </template>
-          <template #footer>form submit</template>
-        </USlideover>
-      </template>
     </DashboardTableHeaderControls>
     <DashboardTable
       v-model:pageSize="pageSize"

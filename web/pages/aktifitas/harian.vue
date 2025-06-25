@@ -264,11 +264,11 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
       :queryParams="currentQueryParams"
     >
       <template #slideover-button>
-        <USlideover title="Ajukan Cuti" :ui="{ content: 'm-9' }">
-          <UButton icon="i-heroicons-plus" label="Ajukan Cuti" size="xl" />
+        <USlideover title="Review Daily Activity" :ui="{ content: 'm-9' }">
+          <UButton icon="i-heroicons-plus" label="Create Daily Activity" size="xl" />
 
           <template #body>
-            <div>form cuti</div>
+            <div>form daily activity</div>
           </template>
           <template #footer>form submit</template>
         </USlideover>
