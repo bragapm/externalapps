@@ -8,6 +8,7 @@ const pageSize = ref<string>("10");
 const startDate = ref();
 const endDate = ref();
 const search = ref("");
+const currentQueryParams = ref<Record<string, string>>();
 
 const {
   data: tableData,
@@ -77,6 +78,7 @@ const {
       }),
       meta: "filter_count",
     };
+    currentQueryParams.value = queryParams;
     const r = await $fetch<{
       data: Record<string, any>[];
       meta: { filter_count: number };
@@ -258,6 +260,8 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
     <DashboardTableHeaderControls
       v-model:search="search"
       @update-date="handleDateUpdate"
+      :collection="'business_trips'"
+      :queryParams="currentQueryParams"
     >
       <template #slideover-button>
         <USlideover title="Ajukan Perjalanan Dinas" :ui="{ content: 'm-9' }">
