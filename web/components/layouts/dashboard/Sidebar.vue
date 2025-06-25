@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue";
+import { useRoute } from "#imports";
 
 import IcHome from "@/assets/icons/ic-home.svg";
 import IcAbsen from "@/assets/icons/ic-absen.svg";
@@ -19,155 +20,131 @@ interface MenuItem {
   icon: any;
   isActive: boolean;
   isExpanded: Ref<boolean>;
+  to?: string;
   children?: MenuChild[];
 }
 
 const route = useRoute();
 const isCollapsed = ref(false);
 
-const menuGroups = computed((): { items: MenuItem[] }[] => [
+const menuItems = computed((): MenuItem[] => [
   {
-    items: [
-      {
-        label: "Dashboard",
-        icon: IcHome,
-        isActive: route.path === "/" || route.path === "/report",
-        isExpanded: ref(route.path === "/" || route.path === "/report"),
-        children: [
-          {
-            label: "Absensi",
-            to: "/",
-            isActive: route.path === "/",
-          },
-          {
-            label: "Laporan",
-            to: "/report",
-            isActive: route.path === "/report",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    items: [
+    label: "Dashboard",
+    icon: IcHome,
+    isActive: route.path === "/" || route.path === "/report",
+    isExpanded: ref(route.path === "/" || route.path === "/report"),
+    children: [
       {
         label: "Absensi",
-        icon: IcAbsen,
-        isActive: route.path.startsWith("/absensi"),
-        isExpanded: ref(route.path.startsWith("/absensi")),
-        children: [
-          {
-            label: "Histori Absensi",
-            to: "/absensi/histori",
-            isActive: route.path === "/absensi/histori",
-          },
-          {
-            label: "Cuti",
-            to: "/absensi/cuti",
-            isActive: route.path === "/absensi/cuti",
-          },
-          {
-            label: "Perjalanan Dinas",
-            to: "/absensi/perjalanan-dinas",
-            isActive: route.path === "/absensi/perjalanan-dinas",
-          },
-        ],
+        to: "/",
+        isActive: route.path === "/",
+      },
+      {
+        label: "Laporan",
+        to: "/report",
+        isActive: route.path === "/report",
       },
     ],
   },
   {
-    items: [
+    label: "Absensi",
+    icon: IcAbsen,
+    isActive: route.path.startsWith("/absensi"),
+    isExpanded: ref(route.path.startsWith("/absensi")),
+    children: [
       {
-        label: "Aktifitas",
-        icon: IcFile,
-        isActive: route.path.startsWith("/aktifitas"),
-        isExpanded: ref(route.path.startsWith("/aktifitas")),
-        children: [
-          {
-            label: "Aktifitas Harian",
-            to: "/aktifitas/harian",
-            isActive: route.path === "/aktifitas/harian",
-          },
-          {
-            label: "Mingguan/Bulanan",
-            to: "/aktifitas/mingguan",
-            isActive: route.path === "/aktifitas/mingguan",
-          },
-          {
-            label: "Laporan",
-            to: "/aktifitas/laporan",
-            isActive: route.path === "/aktifitas/laporan",
-          },
-          {
-            label: "Rencana Kerja",
-            to: "/aktifitas/rencana-kerja",
-            isActive: route.path === "/aktifitas/rencana-kerja",
-          },
-        ],
+        label: "Histori Absensi",
+        to: "/absensi/histori",
+        isActive: route.path === "/absensi/histori",
+      },
+      {
+        label: "Cuti",
+        to: "/absensi/cuti",
+        isActive: route.path === "/absensi/cuti",
+      },
+      {
+        label: "Perjalanan Dinas",
+        to: "/absensi/perjalanan-dinas",
+        isActive: route.path === "/absensi/perjalanan-dinas",
       },
     ],
   },
   {
-    items: [
+    label: "Aktifitas",
+    icon: IcFile,
+    isActive: route.path.startsWith("/aktifitas"),
+    isExpanded: ref(route.path.startsWith("/aktifitas")),
+    children: [
       {
-        label: "Master Data",
-        icon: IcData,
-        isActive: route.path.startsWith("/data"),
-        isExpanded: ref(route.path.startsWith("/data")),
-        children: [
-          {
-            label: "Aktifitas Harian",
-            to: "/aktifitas/harian",
-            isActive: route.path === "/aktifitas/harian",
-          },
-          {
-            label: "Mingguan/Bulanan",
-            to: "/aktifitas/mingguan",
-            isActive: route.path === "/aktifitas/mingguan",
-          },
-          {
-            label: "Laporan",
-            to: "/aktifitas/laporan",
-            isActive: route.path === "/aktifitas/laporan",
-          },
-          {
-            label: "Rencana Kerja",
-            to: "/aktifitas/rencana-kerja",
-            isActive: route.path === "/aktifitas/rencana-kerja",
-          },
-        ],
+        label: "Aktifitas Harian",
+        to: "/aktifitas/harian",
+        isActive: route.path === "/aktifitas/harian",
+      },
+      {
+        label: "Mingguan/Bulanan",
+        to: "/aktifitas/mingguan",
+        isActive: route.path === "/aktifitas/mingguan",
+      },
+      {
+        label: "Laporan",
+        to: "/aktifitas/laporan",
+        isActive: route.path === "/aktifitas/laporan",
+      },
+      {
+        label: "Rencana Kerja",
+        to: "/aktifitas/rencana-kerja",
+        isActive: route.path === "/aktifitas/rencana-kerja",
       },
     ],
   },
   {
-    items: [
+    label: "Master Data",
+    icon: IcData,
+    isActive: route.path.startsWith("/data"),
+    isExpanded: ref(route.path.startsWith("/data")),
+    children: [
       {
-        label: "Stakeholder",
-        icon: IcUser,
-        isActive: route.path.startsWith("/stakeholder"),
-        isExpanded: ref(route.path.startsWith("/stakeholder")),
+        label: "Aktifitas Harian",
+        to: "/data/harian",
+        isActive: route.path === "/data/harian",
+      },
+      {
+        label: "Mingguan/Bulanan",
+        to: "/data/mingguan",
+        isActive: route.path === "/data/mingguan",
+      },
+      {
+        label: "Laporan",
+        to: "/data/laporan",
+        isActive: route.path === "/data/laporan",
+      },
+      {
+        label: "Rencana Kerja",
+        to: "/data/rencana-kerja",
+        isActive: route.path === "/data/rencana-kerja",
       },
     ],
   },
   {
-    items: [
-      {
-        label: "Media & Publikasi",
-        icon: IcFile,
-        isActive: route.path.startsWith("/media"),
-        isExpanded: ref(route.path.startsWith("/media")),
-      },
-    ],
+    label: "Stakeholder",
+    icon: IcUser,
+    isActive: route.path.startsWith("/stakeholder"),
+    isExpanded: ref(false),
+    to: "/stakeholder",
   },
   {
-    items: [
-      {
-        label: "Maps Tracking",
-        icon: IcMap,
-        isActive: route.path.startsWith("/map"),
-        isExpanded: ref(route.path.startsWith("/map")),
-      },
-    ],
+    label: "Media & Publikasi",
+    icon: IcFile,
+    isActive: route.path.startsWith("/media"),
+    isExpanded: ref(false),
+    to: "/media",
+  },
+  {
+    label: "Maps Tracking",
+    icon: IcMap,
+    isActive: route.path.startsWith("/map"),
+    isExpanded: ref(false),
+    to: "/map",
   },
 ]);
 
@@ -175,7 +152,7 @@ const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value;
 };
 
-const toggleExpand = (item: any) => {
+const toggleExpand = (item: MenuItem) => {
   item.isExpanded.value = !item.isExpanded.value;
 };
 
@@ -215,7 +192,6 @@ const onAfterLeave = (el: Element) => {
     <div class="flex justify-between items-center mb-4">
       <p v-if="!isCollapsed" class="text-grey-800 text-sm font-medium">Menu</p>
       <button @click="toggleCollapse">
-        <!-- Custom SVG from assets -->
         <SvgoIcArrowFat
           :class="[
             'transition-transform duration-300',
@@ -226,72 +202,84 @@ const onAfterLeave = (el: Element) => {
     </div>
 
     <div class="flex flex-col">
-      <div
-        v-for="(group, groupIndex) in menuGroups"
-        :key="groupIndex"
-        class="nav-group"
-      >
-        <div v-for="item in group.items" :key="item.label" class="nav-item">
-          <button
-            @click="toggleExpand(item)"
+      <div v-for="item in menuItems" :key="item.label" class="nav-item">
+        <!-- If Have Chidren -->
+        <button
+          v-if="item.children"
+          @click="toggleExpand(item)"
+          :class="[
+            'flex items-center justify-between w-full p-2 rounded-md text-left transition-colors duration-200',
+            item.isActive
+              ? 'text-red-600'
+              : 'text-grey-800 hover:text-grey-700',
+          ]"
+        >
+          <div class="flex items-center space-x-3">
+            <component v-if="!isCollapsed" :is="item.icon" class="w-12 h-12" />
+            <span v-if="!isCollapsed" class="text-sm font-medium">
+              {{ item.label }}
+            </span>
+          </div>
+
+          <SvgoIcArrowReg
+            v-if="!isCollapsed"
             :class="[
-              'flex items-center justify-between w-full p-2 rounded-md text-left transition-colors duration-200',
-              item.isActive
-                ? 'text-red-600'
-                : 'text-grey-800 hover:text-grey-700',
+              'w-4 h-4 transition-transform duration-200',
+              item.isExpanded.value ? '' : 'rotate-180',
             ]"
-          >
-            <div class="flex items-center space-x-3">
-              <!-- Custom SVG Icons from assets -->
-              <component
-                v-if="!isCollapsed"
-                :is="item.icon"
-                class="w-12 h-12"
-              />
-              <span v-if="!isCollapsed" class="text-sm font-medium">{{
-                item.label
-              }}</span>
-            </div>
+          />
+        </button>
 
-            <SvgoIcArrowReg
-              v-if="!isCollapsed && item.children"
+        <!-- If No Children -->
+        <NuxtLink
+          v-else
+          :to="item.to"
+          :class="[
+            'flex items-center w-full p-2 rounded-md transition-colors duration-200',
+            item.isActive
+              ? 'text-red-600'
+              : 'text-grey-800 hover:text-grey-700',
+          ]"
+        >
+          <div class="flex items-center space-x-3">
+            <component v-if="!isCollapsed" :is="item.icon" class="w-12 h-12" />
+            <span v-if="!isCollapsed" class="text-sm font-medium">
+              {{ item.label }}
+            </span>
+          </div>
+        </NuxtLink>
+
+        <!-- Accordion -->
+        <Transition
+          name="accordion"
+          @enter="onEnter"
+          @after-enter="onAfterEnter"
+          @leave="onLeave"
+          @after-leave="onAfterLeave"
+        >
+          <div
+            v-if="item.children && !isCollapsed && item.isExpanded.value"
+            class="accordion-content ml-7 space-y-1"
+          >
+            <NuxtLink
+              v-for="child in item.children"
+              :key="child.label"
+              :to="child.to"
               :class="[
-                'w-4 h-4 transition-transform duration-200',
-                item.isExpanded.value ? '' : 'rotate-180',
+                'block px-2 py-[0.375rem] text-sm rounded-md transition-colors duration-200',
+                child.isActive
+                  ? 'text-red-600 font-medium'
+                  : 'text-grey-900 hover:text-grey-700 font-medium',
               ]"
-            />
-          </button>
-
-          <Transition
-            name="accordion"
-            @enter="onEnter"
-            @after-enter="onAfterEnter"
-            @leave="onLeave"
-            @after-leave="onAfterLeave"
-          >
-            <div
-              v-if="item.children && !isCollapsed && item.isExpanded.value"
-              class="accordion-content ml-7 space-y-1"
             >
-              <NuxtLink
-                v-for="child in item.children"
-                :key="child.label"
-                :to="child.to"
-                :class="[
-                  'block px-2 py-[0.375rem] text-sm rounded-md transition-colors duration-200',
-                  child.isActive
-                    ? 'text-red-600 font-medium'
-                    : 'text-grey-900 hover:text-grey-700 font-medium',
-                ]"
-              >
-                {{ child.label }}
-              </NuxtLink>
-            </div>
-          </Transition>
-        </div>
+              {{ child.label }}
+            </NuxtLink>
+          </div>
+        </Transition>
       </div>
     </div>
 
+    <!-- Help section -->
     <div
       class="mt-auto flex gap-3 items-center text-grey-800 font-medium text-[14px]"
     >
@@ -310,7 +298,6 @@ const onAfterLeave = (el: Element) => {
   margin-bottom: 0.5rem;
 }
 
-/* Accordion animation styles */
 .accordion-enter-active,
 .accordion-leave-active {
   transition: all 0.3s ease-in-out;
