@@ -167,4 +167,9 @@ const table = useTemplateRef("table");
       </div>
     </section>
   </div>
+  <div>
+    <section class="bg-grey-100 px-5 py-6 rounded-xs">
+      <DashboardChartAbsensi />
+    </section>
+  </div>
 </template>
