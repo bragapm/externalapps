@@ -7,6 +7,7 @@ const page = ref(1);
 const pageSize = ref<string>("10");
 const startDate = ref();
 const endDate = ref();
+const search = ref("");
 
 const {
   data: tableData,
@@ -20,6 +21,7 @@ const {
     pageSize.value,
     startDate.value,
     endDate.value,
+    search.value,
   ]),
   queryFn: async ({ queryKey }) => {
     const filters: any[] = [];
@@ -40,6 +42,29 @@ const {
           _lte: date,
         },
       });
+    }
+    if (search.value) {
+      const searchWords = search.value.trim().split(/\s+/);
+      const orConditions = searchWords.map((word) => ({
+        _or: [
+          {
+            user: {
+              first_name: {
+                _icontains: word,
+              },
+            },
+          },
+          {
+            user: {
+              last_name: {
+                _icontains: word,
+              },
+            },
+          },
+        ],
+      }));
+
+      filters.push(...orConditions);
     }
 
     const queryParams: Record<string, string> = {
@@ -230,7 +255,10 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
 
 <template>
   <div class="p-6 bg-grey-100 rounded-xs space-y-3">
-    <DashboardTableHeaderControls @update-date="handleDateUpdate">
+    <DashboardTableHeaderControls
+      v-model:search="search"
+      @update-date="handleDateUpdate"
+    >
       <template #slideover-button>
         <USlideover title="Ajukan Perjalanan Dinas" :ui="{ content: 'm-9' }">
           <UButton

@@ -10,8 +10,16 @@ const startDate = ref<string>();
 const endDate = ref<string>();
 
 const applyDateFilter = () => {
-    emit("updateDate", startDate.value, endDate.value);
+  emit("updateDate", startDate.value, endDate.value);
 };
+
+const search = defineModel<string>("search");
+const searchInput = ref(search.value);
+
+const handleSearch = (input: string) => {
+  search.value = input;
+};
+watch(searchInput, debounce(handleSearch, 500));
 </script>
 
 <template>
@@ -23,6 +31,7 @@ const applyDateFilter = () => {
     </div>
     <div class="flex gap-2">
       <UInput
+        v-model="searchInput"
         trailing-icon="i-heroicons-magnifying-glass"
         placeholder="Search by"
         size="xl"
