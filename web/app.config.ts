@@ -20,8 +20,12 @@ export default defineAppConfig({
         },
       ],
     },
+    badge: {
+      variants: {
+        // size: { sm: { base: "text-[8px]/3 px-1 py-0.5 gap-1 rounded-2xs" } },
+      },
+    },
     button: {
-      slots: { base: ["rounded-2xs"] },
       compoundVariants: [
         {
           color: "neutral",
@@ -35,14 +39,12 @@ export default defineAppConfig({
     },
     input: {
       slots: {
-        base: ["rounded-2xs"],
         trailingIcon: "text-grey-500",
       },
       variants: { variant: { outline: "ring-grey-500" } },
     },
     selectMenu: {
       slots: {
-        base: ["rounded-2xs"],
         trailingIcon: "text-grey-500",
         item: ["data-highlighted:not-data-disabled:before:rounded-2xs"],
         content: ["rounded-2xs"],
@@ -51,7 +53,6 @@ export default defineAppConfig({
     },
     select: {
       slots: {
-        base: ["rounded-2xs"],
         trailingIcon: "text-grey-500",
         item: ["data-highlighted:not-data-disabled:before:rounded-2xs"],
         content: "rounded-2xs ring-grey-500",
@@ -62,9 +63,7 @@ export default defineAppConfig({
       variants: { color: { neutral: { border: "border-grey-300" } } },
     },
     textarea: {
-      slots: {
-        base: ["rounded-2xs"],
-      },
+      slots: {},
       variants: { variant: { outline: "ring-grey-500" } },
     },
     // pagination: {

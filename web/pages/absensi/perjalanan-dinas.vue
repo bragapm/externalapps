@@ -280,6 +280,8 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
     title="Review Perjalanan Dinas"
     :ui="{ content: 'm-9' }"
   >
-    <template #body> </template>
+    <template #body>
+      <AbsensiReviewPerjalananDinas />
+    </template>
   </USlideover>
 </template>

@@ -277,9 +277,11 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
   </div>
   <USlideover
     v-model:open="openReview"
-    title="Review Perjalanan Dinas"
+    title="Review Pengajuan Cuti"
     :ui="{ content: 'm-9' }"
   >
-    <template #body> </template>
+    <template #body>
+      <AbsensiReviewCuti />
+    </template>
   </USlideover>
 </template>
