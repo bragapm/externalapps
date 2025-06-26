@@ -6,8 +6,12 @@ const schema = z
   .object({
     start_date: z.string(),
     end_date: z.string(),
-    reason: z.string(),
-    leave_type: z.string({ required_error: "Jenis cuti wajib dipilih" }),
+    location: z.string(),
+    tujuan: z.string(),
+    agenda: z.string(),
+    transportation: z.string({
+      required_error: "Jenis transportasi wajib dipilih",
+    }),
     attachment: z
       .instanceof(File)
       .optional()
@@ -28,15 +32,21 @@ type Schema = z.output<typeof schema>;
 const state = reactive<Partial<Schema>>({
   start_date: undefined,
   end_date: undefined,
-  reason: undefined,
-  leave_type: undefined,
+  location: undefined,
+  tujuan: undefined,
+  agenda: undefined,
+  transportation: undefined,
   attachment: undefined,
 });
 
-const leaveTypeOptions = [
-  { label: "Cuti Tahunan", value: "cuti_tahunan" },
-  { label: "Cuti Sakit", value: "cuti_sakit" },
-  { label: "Cuti Melahirkan", value: "cuti_melahirkan" },
+const agendaOptions = [
+  { label: "Survei Lokasi", value: "survey" },
+  { label: "Kick-off Meeting", value: "kickoff" },
+];
+
+const transportOptions = [
+  { label: "Kereta", value: "kerete" },
+  { label: "Pesawat", value: "pesawat" },
 ];
 
 const toast = useToast();
@@ -53,11 +63,15 @@ const open = ref(false);
 </script>
 
 <template>
-  <USlideover v-model:open="open"  title="Ajukan Cuti" :ui="{ content: 'm-9' }">
-    <UButton icon="i-heroicons-plus" label="Ajukan Cuti" size="xl" />
+  <USlideover
+    v-model:open="open"
+    title="Ajukan Perjalanan Dinas"
+    :ui="{ content: 'm-9' }"
+  >
+    <UButton icon="i-heroicons-plus" label="Buat Perjalanan Dinas" size="xl" />
     <template #body>
       <UForm
-        id="cuti-form"
+        id="perjalanan-dinas-form"
         :schema="schema"
         :state="state"
         class="space-y-4"
@@ -72,16 +86,27 @@ const open = ref(false);
             <UInput v-model="state.end_date" type="date" class="w-full" />
           </UFormField>
         </div>
-        <UFormField label="Jenis Cuti" name="leave_type">
+        <UFormField label="Lokasi" name="location">
+          <UInput v-model="state.location" class="w-full" />
+        </UFormField>
+        <UFormField label="Tujuan" name="tujuan">
+          <UInput v-model="state.tujuan" class="w-full" />
+        </UFormField>
+        <UFormField label="Agenda" name="agenda">
           <USelect
-            v-model="state.leave_type"
-            :items="leaveTypeOptions"
-            placeholder="Pilih jenis cuti"
+            v-model="state.agenda"
+            :items="agendaOptions"
+            placeholder="Pilih jenis agenda"
             class="w-full"
           />
         </UFormField>
-        <UFormField label="Alasan" name="reason">
-          <UTextarea v-model="state.reason" :rows="5" class="w-full" />
+        <UFormField label="Transportasi" name="transportation">
+          <USelect
+            v-model="state.transportation"
+            :items="transportOptions"
+            placeholder="Pilih jenis transportasi"
+            class="w-full"
+          />
         </UFormField>
         <CoreCustomFileInput
           v-model="state.attachment"
@@ -94,7 +119,7 @@ const open = ref(false);
     </template>
     <template #footer>
       <div class="w-full space-y-3">
-        <UButton type="submit" form="cuti-form" class="w-full justify-center">
+        <UButton type="submit" form="perjalanan-dinas-form" class="w-full justify-center">
           Submit
         </UButton>
         <UButton
@@ -104,7 +129,7 @@ const open = ref(false);
             }
           "
           type="button"
-          form="cuti-form"
+          form="perjalanan-dinas-form"
           class="w-full justify-center"
           variant="outline"
         >
