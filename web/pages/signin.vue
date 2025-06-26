@@ -6,6 +6,9 @@ import IcLogoGeodashboardFull from "~/assets/icons/ic-logo-geodashboard-full.svg
 import IcSpinner from "~/assets/icons/ic-spinner.svg";
 import { useGeneralSettings, useMapData } from "~/utils";
 
+import Logo from "@/assets/images/logo.png";
+import Bg from "@/assets/images/login.png";
+
 import type { FormError, FormSubmitEvent } from "#ui/types";
 
 type SigninData = {
@@ -27,13 +30,13 @@ const validateSigninData = (state: SigninData) => {
   return errors;
 };
 const img = useImage();
-const bgImgUrl = computed(() =>
-  generalSettingsData.value?.data.public_background
-    ? `url('${img(generalSettingsData.value.data.public_background, undefined, {
-        provider: "directus",
-      })}')`
-    : null
-);
+const bgImgUrl = computed(() => {
+  const fromAPI = generalSettingsData.value?.data.public_background;
+  const url = fromAPI
+    ? img(fromAPI, undefined, { provider: "directus" }) // gunakan Directus image
+    : Bg; // fallback ke image lokal
+  return `url('${url}')`;
+});
 
 const { signin, tryRefresh } = useAuth();
 const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
@@ -66,22 +69,38 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
         'flex justify-end w-full rounded-lg',
         bgImgUrl ? 'bg-cover bg-center' : 'bg-grey-900',
       ]"
-      :style="bgImgUrl && `background-image: ${bgImgUrl}`"
+      :style="`background-image: ${bgImgUrl}`"
     >
       <div class="w-1/2 p-8">
         <div
-          class="flex flex-col bg-grey-800 rounded-lg h-full px-16 py-8 overflow-y-auto justify-center"
+          class="flex flex-col bg-grey-200 rounded-lg h-full px-16 py-8 overflow-y-auto justify-center"
         >
           <div class="flex flex-col text-center space-y-3 mb-16">
-            <IcLogoGeodashboardFull
+            <!-- <IcLogoGeodashboardFull
               class="h-5 w-full text-grey-50 mb-4"
               :fontControlled="false"
-            />
-            <h1 class="text-4xl font-medium text-grey-50">
+            /> -->
+
+            <div class="flex gap-2 mx-auto">
+              <div class="rounded-full w-8 h-8 bg-gray-800" />
+              <div
+                class="font-bold text-[10px] uppercase text-grey-950 text-left"
+              >
+                <p>External</p>
+                <p>Apps</p>
+              </div>
+            </div>
+
+            <img :src="Logo" class="w-[12rem] h-auto mx-auto my-5" />
+            <!-- <h1 class="text-4xl font-medium text-grey-50">
               Welcome to {{ mapData?.data.title || "GeoDashboard" }}
+            </h1> -->
+            <h1 class="text-4xl font-medium text-grey-800">
+              Welcome to the External Apps
             </h1>
             <p class="text-grey-500 text-sm">
-              Sign In to continue your mapping journey with us!
+              Access and manage all integrated applications in one place. Please
+              sign in to continue your workflow.
             </p>
           </div>
           <UForm
@@ -91,7 +110,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
             class="flex flex-col space-y-3 mb-7"
             @submit="handleSignin"
           >
-            <UFormGroup name="email">
+            <!-- <UFormGroup name="email">
               <UInput
                 v-model="signinData.email"
                 type="email"
@@ -102,8 +121,8 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
                 :ui="{ rounded: 'rounded-xxs' }"
                 :disabled="isLoading"
               />
-            </UFormGroup>
-            <UFormGroup name="password">
+            </UFormGroup> -->
+            <!-- <UFormGroup name="password">
               <UInput
                 v-model="signinData.password"
                 :type="showPassword ? 'text' : 'password'"
@@ -124,7 +143,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
                   </button>
                 </template>
               </UInput>
-            </UFormGroup>
+            </UFormGroup> -->
             <div v-if="generalErrorMessage" class="flex space-x-2 items-center">
               <IcAction class="text-red-500 h-full" />
               <p class="grow text-xs text-red-500">
@@ -145,7 +164,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               />
             </UButton>
           </UForm>
-          <div class="w-full border border-grey-600 mb-7" />
+          <!-- <div class="w-full border border-grey-600 mb-7" />
           <UButton
             block
             variant="outline"
@@ -161,9 +180,10 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
                 class="h-5"
               />
             </template>
-          </UButton>
+          </UButton> -->
           <p class="text-center text-grey-500 text-sm">
-            ©{{ new Date().getFullYear() }} Braga Technologies
+            ©{{ new Date().getFullYear() }} Provided by DigiTech - External
+            Apps Powered by Braga Technologies
           </p>
         </div>
       </div>
