@@ -1,4 +1,10 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { useRoute } from "#imports";
+
+const route = useRoute();
+
+const isAuthPage = computed(() => route.path === "/signin");
+</script>
 
 <template>
   <div
@@ -6,7 +12,7 @@
   >
     <LayoutsDashboardNavbar />
     <div class="flex flex-1 overflow-hidden gap-3">
-      <LayoutsDashboardSidebar />
+      <LayoutsDashboardSidebar v-if="!isAuthPage" />
       <div class="flex-1 overflow-auto mr-6">
         <slot></slot>
       </div>
