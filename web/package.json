@@ -53,7 +53,8 @@
     "shpjs": "^4.0.4",
     "tailwindcss": "^4.1.10",
     "vue-chartjs": "^5.3.2",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz",
+    "zod": "^3.25.67"
   },
   "packageManager": "pnpm@8.15.9"
 }

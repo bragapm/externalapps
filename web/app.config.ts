@@ -4,6 +4,7 @@ export default defineAppConfig({
       primary: "brand",
       gray: "grey",
       brand: "brand",
+      error: "red",
     },
     navigationMenu: {
       compoundVariants: [
@@ -29,8 +30,14 @@ export default defineAppConfig({
         },
       ],
     },
+    formField: {
+      slots: { root: "w-full", label: "text-xs", error: "mt-[2pxt] text-xs" },
+    },
     input: {
-      slots: { base: ["rounded-2xs"], trailingIcon: "text-grey-500" },
+      slots: {
+        base: ["rounded-2xs"],
+        trailingIcon: "text-grey-500",
+      },
       variants: { variant: { outline: "ring-grey-500" } },
     },
     selectMenu: {
@@ -47,12 +54,18 @@ export default defineAppConfig({
         base: ["rounded-2xs"],
         trailingIcon: "text-grey-500",
         item: ["data-highlighted:not-data-disabled:before:rounded-2xs"],
-        content: ["rounded-2xs"],
+        content: "rounded-2xs ring-grey-500",
       },
       variants: { variant: { outline: "ring-grey-500" } },
     },
     separator: {
       variants: { color: { neutral: { border: "border-grey-300" } } },
+    },
+    textarea: {
+      slots: {
+        base: ["rounded-2xs"],
+      },
+      variants: { variant: { outline: "ring-grey-500" } },
     },
     // pagination: {
     //   inactiveButton: {
