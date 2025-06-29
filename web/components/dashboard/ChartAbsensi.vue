@@ -15,14 +15,6 @@ const items = [
     slot: "dinas" as const,
   },
 ] satisfies TabsItem[];
-
-const state = reactive({
-  name: "Benjamin Canac",
-  username: "benjaminca;nac",
-  currentPassword: "",
-  newPassword: "",
-  confirmPassword: "",
-});
 </script>
 
 <template>

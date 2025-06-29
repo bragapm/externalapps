@@ -222,7 +222,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="bg-gray-200 rounded-xs shadow-sm border border-gray-200 p-6">
+  <div class="bg-gray-100 rounded-lg border border-gray-300 p-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <h3 class="text-lg font-semibold text-gray-900">Tren Cuti</h3>

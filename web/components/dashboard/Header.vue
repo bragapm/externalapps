@@ -43,7 +43,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="bg-[#FBDFDF] p-6 w-full text-[#D32E36] relative overflow-hidden rounded-xs"
+    class="bg-[#FBDFDF] p-6 w-full text-[#D32E36] relative overflow-hidden rounded-lg"
   >
     <img :src="patternl" class="absolute left-0 top-0 z-0" />
     <img :src="patternr" class="absolute right-0 bottom-0 z-0" />

@@ -105,22 +105,22 @@ const table = useTemplateRef("table");
     <div class="flex flex-col gap-4 w-1/2">
       <!-- Card Dummy -->
       <section class="grid grid-cols-2 gap-4">
-        <div class="bg-grey-100 p-3 rounded-xs space-y-1">
+        <div class="bg-grey-100 p-3 rounded-lg space-y-1">
           <h3 class="text-gray-800 font-medium">Jumlah Absen</h3>
           <h1 class="text-[#D32E36] font-semibold text-4xl">17/20</h1>
           <p class="text-sm text-gray-400">Update Hari Ini</p>
         </div>
-        <div class="bg-grey-100 p-3 rounded-xs space-y-1">
+        <div class="bg-grey-100 p-3 rounded-lg space-y-1">
           <h3 class="text-gray-800 font-medium">Jumlah Cuti</h3>
           <h1 class="text-[#D32E36] font-semibold text-4xl">2/20</h1>
           <p class="text-sm text-gray-400">Update Hari Ini</p>
         </div>
-        <div class="bg-grey-100 p-3 rounded-xs space-y-1">
+        <div class="bg-grey-100 p-3 rounded-lg space-y-1">
           <h3 class="text-gray-800 font-medium">Jumlah Alfa</h3>
           <h1 class="text-[#D32E36] font-semibold text-4xl">1/20</h1>
           <p class="text-sm text-gray-400">Update Hari Ini</p>
         </div>
-        <div class="bg-grey-100 p-3 rounded-xs space-y-1">
+        <div class="bg-grey-100 p-3 rounded-lg space-y-1">
           <h3 class="text-gray-800 font-medium">Perjalanan Dinas</h3>
           <h1 class="text-[#D32E36] font-semibold text-4xl">3/20</h1>
           <p class="text-sm text-gray-400">Update Hari Ini</p>
@@ -128,7 +128,7 @@ const table = useTemplateRef("table");
       </section>
 
       <!-- Chart Total -->
-      <section class="bg-grey-100 p-4 rounded-xs w-full">
+      <section class="bg-grey-100 p-4 rounded-lg w-full">
         <h3 class="font-medium text-gray-800">Total Employee</h3>
         <div
           class="h-40 bg-gray-100 mt-2 flex items-center justify-center text-gray-500"
@@ -140,7 +140,7 @@ const table = useTemplateRef("table");
 
     <!-- Table -->
 
-    <section class="bg-grey-100 p-4 rounded-xs w-[75%] overflow-y-auto">
+    <section class="bg-grey-100 p-4 rounded-lg w-[75%] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="font-medium text-gray-800">Live Absensi</h3>
         <button
@@ -168,7 +168,7 @@ const table = useTemplateRef("table");
     </section>
   </div>
   <div>
-    <section class="bg-grey-100 px-5 py-6 rounded-xs">
+    <section class="bg-grey-100 px-5 py-6 rounded-lg">
       <DashboardChartAbsensi />
     </section>
   </div>

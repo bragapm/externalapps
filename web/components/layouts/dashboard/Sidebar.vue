@@ -185,7 +185,7 @@ const onAfterLeave = (el: Element) => {
 <template>
   <div
     :class="[
-      'flex flex-col p-5 ml-6 shrink-0 sticky top-0 h-[calc(100vh-8rem)] overflow-auto bg-grey-100 shadow-[0px_4px_8px_0px_rgba(79,76,74,0.04)] border border-grey-200 rounded-xs transition-all duration-300',
+      'flex flex-col p-5 ml-6 shrink-0 sticky top-0 h-[calc(100vh-8rem)] overflow-auto bg-grey-100 shadow-[0px_4px_8px_0px_rgba(79,76,74,0.04)] border border-grey-200 rounded-lg transition-all duration-300',
       isCollapsed ? 'w-16 p-2' : 'w-[13.875rem]',
     ]"
   >
@@ -208,7 +208,7 @@ const onAfterLeave = (el: Element) => {
           v-if="item.children"
           @click="toggleExpand(item)"
           :class="[
-            'flex items-center justify-between w-full p-2 rounded-md text-left transition-colors duration-200',
+            'flex items-center justify-between w-full p-2 rounded-lg text-left transition-colors duration-200',
             item.isActive
               ? 'text-red-600'
               : 'text-grey-800 hover:text-grey-700',
@@ -235,7 +235,7 @@ const onAfterLeave = (el: Element) => {
           v-else
           :to="item.to"
           :class="[
-            'flex items-center w-full p-2 rounded-md transition-colors duration-200',
+            'flex items-center w-full p-2 rounded-lg transition-colors duration-200',
             item.isActive
               ? 'text-red-600'
               : 'text-grey-800 hover:text-grey-700',
@@ -266,7 +266,7 @@ const onAfterLeave = (el: Element) => {
               :key="child.label"
               :to="child.to"
               :class="[
-                'block px-2 py-[0.375rem] text-sm rounded-md transition-colors duration-200',
+                'block px-2 py-[0.375rem] text-sm rounded-lg transition-colors duration-200',
                 child.isActive
                   ? 'text-red-600 font-medium'
                   : 'text-grey-900 hover:text-grey-700 font-medium',
