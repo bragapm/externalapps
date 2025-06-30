@@ -63,7 +63,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
 </script>
 
 <template>
-  <div class="flex px-6 pb-6 h-[calc(100vh-120px)]">
+  <div class="flex px-6 pb-6 h-[calc(100vh-120px)] w-full">
     <div
       :class="[
         'flex justify-end w-full rounded-lg',
@@ -71,43 +71,46 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
       ]"
       :style="`background-image: ${bgImgUrl}`"
     >
-      <div class="w-1/2 p-8">
+      <div class="w-1/2 p-10">
         <div
-          class="flex flex-col bg-grey-200 rounded-lg h-full px-16 py-8 overflow-y-auto justify-center"
+          class="flex flex-col bg-grey-200 rounded-lg h-full px-20 py-8 overflow-y-auto justify-center"
         >
-          <div class="flex flex-col text-center space-y-3 mb-16">
+          <div class="flex flex-col text-center space-y-5 mb-16">
             <!-- <IcLogoGeodashboardFull
               class="h-5 w-full text-grey-50 mb-4"
               :fontControlled="false"
             /> -->
-
-            <div class="flex gap-2 mx-auto">
-              <div class="rounded-full w-8 h-8 bg-gray-800" />
-              <div
-                class="font-bold text-[10px] uppercase text-grey-950 text-left"
-              >
-                <p>External</p>
-                <p>Apps</p>
+            <div class="flex flex-col items-center gap-2">
+              <div class="flex gap-2 mx-auto">
+                <div class="rounded-full w-8 h-8 bg-gray-800" />
+                <div
+                  class="font-bold text-[10px] uppercase text-grey-950 text-left"
+                >
+                  <p>External</p>
+                  <p>Apps</p>
+                </div>
               </div>
+              <img :src="Logo" class="w-[12rem] h-auto mx-auto" />
             </div>
 
-            <img :src="Logo" class="w-[12rem] h-auto mx-auto my-5" />
             <!-- <h1 class="text-4xl font-medium text-grey-50">
               Welcome to {{ mapData?.data.title || "GeoDashboard" }}
             </h1> -->
-            <h1 class="text-4xl font-medium text-grey-800">
-              Welcome to the External Apps
-            </h1>
-            <p class="text-grey-500 text-sm">
-              Access and manage all integrated applications in one place. Please
-              sign in to continue your workflow.
-            </p>
+            <div class="flex flex-col items-center gap-1">
+              <h1 class="text-4xl font-medium text-grey-800">
+                Welcome to the External Apps
+              </h1>
+              <p class="text-grey-500 text-sm">
+                Access and manage all integrated applications in one place.
+                Please sign in to continue your workflow.
+              </p>
+            </div>
           </div>
           <UForm
             ref="formRef"
             :validate="validateSigninData"
             :state="signinData"
-            class="flex flex-col space-y-3 mb-7"
+            class="flex flex-col space-y-3 mb-5"
             @submit="handleSignin"
           >
             <!-- <UFormGroup name="email">
@@ -155,7 +158,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               size="xl"
               type="submit"
               label="Sign In"
-              :ui="{ rounded: 'rounded-xxs' }"
+              class="rounded-sm"
             >
               <IcSpinner
                 class="text-white animate-spin h-6 w-6 p-1"
@@ -164,6 +167,8 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               />
             </UButton>
           </UForm>
+          <USeparator color="secondary" class="opacity-25"/>
+   
           <!-- <div class="w-full border border-grey-600 mb-7" />
           <UButton
             block
@@ -181,7 +186,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               />
             </template>
           </UButton> -->
-          <p class="text-center text-grey-500 text-sm">
+          <p class="text-center text-grey-500 text-sm mt-5">
             ©{{ new Date().getFullYear() }} Provided by DigiTech - External
             Apps Powered by Braga Technologies
           </p>

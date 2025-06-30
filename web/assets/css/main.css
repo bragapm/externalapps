@@ -3,6 +3,7 @@
 
 :root {
   --ui-bg: var(--color-grey-200);
+  --ui-secondary: var(--color-grey-400);
 }
 
 body {

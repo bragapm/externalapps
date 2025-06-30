@@ -8,6 +8,10 @@ import Logo from "@/assets/images/logo.png";
 
 const city = ref("Loading...");
 
+const route = useRoute();
+
+const isAuthPage = computed(() => route.path === "/signin");
+
 onMounted(() => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -49,6 +53,7 @@ onMounted(() => {
         <img :src="Logo" alt="" srcset="" />
       </section>
       <section
+        v-if="!isAuthPage"
         class="flex items-center gap-3 text-grey-800 text-xs font-medium"
       >
         <IcMarker />
@@ -56,7 +61,7 @@ onMounted(() => {
         <div class="w-[1px] h-6 bg-grey-300" />
         <div class="rounded-full w-4 h-4 bg-green-600" />
         <p>Online</p>
-        <button class="border border-[#D32E36] p-[10px] rounded-xs">
+        <button class="border border-[#D32E36] p-[10px] rounded-sm">
           <IcBell class="" />
         </button>
         <button class="bg-[#D32E36] p-[10px] rounded-full">

@@ -13,7 +13,7 @@ const isAuthPage = computed(() => route.path === "/signin");
     <LayoutsDashboardNavbar />
     <div class="flex flex-1 overflow-hidden gap-3">
       <LayoutsDashboardSidebar v-if="!isAuthPage" />
-      <div class="flex-1 overflow-auto mr-6">
+      <div :class="['flex-1 overflow-auto', isAuthPage ? 'mr-0' : 'mr-6']">
         <slot></slot>
       </div>
     </div>
