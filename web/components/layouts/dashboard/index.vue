@@ -8,7 +8,7 @@ const isAuthPage = computed(() => route.path === "/signin");
 
 <template>
   <div
-    class="h-screen flex flex-col justify-center overflow-hidden bg-[#E2E1DF]"
+    class="h-screen flex flex-col justify-center overflow-hidden max-w-[90rem] mx-auto"
   >
     <LayoutsDashboardNavbar />
     <div class="flex flex-1 overflow-hidden gap-3">
