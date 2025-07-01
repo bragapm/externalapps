@@ -5,6 +5,19 @@ import IcUser from "@/assets/icons/ic-user.svg";
 import IcBell from "@/assets/icons/ic-bell.svg";
 
 import Logo from "@/assets/images/logo.png";
+import type { DropdownMenuItem } from "@nuxt/ui";
+
+const authStore = useAuth();
+
+const items = ref<DropdownMenuItem[]>([
+  {
+    label: "Logout",
+    icon: "i-lucide-log-out",
+    onSelect: () => {
+      authStore.signout();
+    },
+  },
+]);
 
 const city = ref("Loading...");
 
@@ -64,9 +77,21 @@ onMounted(() => {
         <button class="border border-[#D32E36] p-[10px] rounded-sm">
           <IcBell class="" />
         </button>
-        <button class="bg-[#D32E36] p-[10px] rounded-full">
-          <IcUser class="text-white" />
-        </button>
+        <UDropdownMenu
+          :items="items"
+          :content="{
+            align: 'end',
+            side: 'bottom',
+          }"
+          :ui="{
+            content: 'w-48',
+          }"
+        >
+          <!-- <UButton icon="i-lucide-menu" color="neutral" variant="outline" /> -->
+          <button class="bg-[#D32E36] p-[10px] rounded-full">
+            <IcUser class="text-white" />
+          </button>
+        </UDropdownMenu>
       </section>
     </div>
   </nav>

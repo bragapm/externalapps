@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+definePageMeta({
+  middleware: "auth",
+});
 import { h, ref, resolveComponent } from "vue";
 import type { TableColumn, TableRow } from "@nuxt/ui";
 

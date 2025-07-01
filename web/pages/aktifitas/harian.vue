@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+definePageMeta({
+  middleware: "auth",
+});
 import { useQuery } from "@tanstack/vue-query";
 import { h, ref, resolveComponent } from "vue";
 import type { TableColumn, TableRow } from "@nuxt/ui";
@@ -265,7 +268,11 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
     >
       <template #slideover-button>
         <USlideover title="Review Daily Activity" :ui="{ content: 'm-9' }">
-          <UButton icon="i-heroicons-plus" label="Create Daily Activity" size="xl" />
+          <UButton
+            icon="i-heroicons-plus"
+            label="Create Daily Activity"
+            size="xl"
+          />
 
           <template #body>
             <div>form daily activity</div>

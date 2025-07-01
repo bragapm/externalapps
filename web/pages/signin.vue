@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import * as z from "zod";
+import type { FormSubmitEvent } from "@nuxt/ui";
 import IcAction from "~/assets/icons/ic-action.svg";
 import IcEye from "~/assets/icons/ic-eye.svg";
 import IcEyeCrossed from "~/assets/icons/ic-eye-crossed.svg";
@@ -9,12 +11,25 @@ import { useGeneralSettings, useMapData } from "~/utils";
 import Logo from "@/assets/images/logo.png";
 import Bg from "@/assets/images/login.png";
 
-import type { FormError, FormSubmitEvent } from "#ui/types";
-
 type SigninData = {
   email: string;
   password: string;
 };
+
+const schema = z.object({
+  email: z.string().email("Invalid email"),
+  password: z.string().min(8, "Must be at least 8 characters"),
+});
+
+type Schema = z.output<typeof schema>;
+
+const state = reactive<Partial<Schema>>({
+  email: undefined,
+  password: undefined,
+});
+
+const route = useRoute();
+const router = useRouter();
 
 const { data: mapData } = await useMapData();
 const { data: generalSettingsData } = await useGeneralSettings();
@@ -23,12 +38,6 @@ const generalErrorMessage = ref("");
 const showPassword = ref(false);
 const isLoading = ref(false);
 
-const validateSigninData = (state: SigninData) => {
-  const errors: FormError<keyof SigninData>[] = [];
-  if (!state.email) errors.push({ path: "email", message: "Required" });
-  if (!state.password) errors.push({ path: "password", message: "Required" });
-  return errors;
-};
 const img = useImage();
 const bgImgUrl = computed(() => {
   const fromAPI = generalSettingsData.value?.data.public_background;
@@ -38,8 +47,11 @@ const bgImgUrl = computed(() => {
   return `url('${url}')`;
 });
 
-const { signin, tryRefresh } = useAuth();
-const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
+const authStore = useAuth();
+
+const { signin, tryRefresh, getUserData } = authStore;
+const { accessToken } = storeToRefs(authStore);
+async function onSubmit(event: FormSubmitEvent<Schema>) {
   generalErrorMessage.value = "";
   isLoading.value = true;
   const { email, password } = event.data;
@@ -47,19 +59,29 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
   try {
     const { data } = await $fetch<{ data: AuthPayload }>("/panel/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, mode: "cookie" }),
     });
+    console.log("data", data);
     signin(data.access_token);
+    getUserData(data.access_token);
     setTimeout(() => {
       tryRefresh();
     }, data.expires - 1000);
-    await navigateTo("/");
+
+    const redirectPath = route.query.redirect || "/"; // Redirect ke tujuan awal atau default ke "/map"
+    router.push(redirectPath as string);
   } catch (error) {
     generalErrorMessage.value =
       "Signin information is incorrect. Make sure the email and password is correct and try again.";
     isLoading.value = false;
   }
-};
+}
+
+onMounted(() => {
+  if (accessToken.value !== null && accessToken.value !== "") {
+    router.push("/");
+  }
+});
 </script>
 
 <template>
@@ -76,10 +98,6 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
           class="flex flex-col bg-grey-200 rounded-lg h-full px-20 py-8 overflow-y-auto justify-center"
         >
           <div class="flex flex-col text-center space-y-5 mb-16">
-            <!-- <IcLogoGeodashboardFull
-              class="h-5 w-full text-grey-50 mb-4"
-              :fontControlled="false"
-            /> -->
             <div class="flex flex-col items-center gap-2">
               <div class="flex gap-2 mx-auto">
                 <div class="rounded-full w-8 h-8 bg-gray-800" />
@@ -92,10 +110,6 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               </div>
               <img :src="Logo" class="w-[12rem] h-auto mx-auto" />
             </div>
-
-            <!-- <h1 class="text-4xl font-medium text-grey-50">
-              Welcome to {{ mapData?.data.title || "GeoDashboard" }}
-            </h1> -->
             <div class="flex flex-col items-center gap-1">
               <h1 class="text-4xl font-medium text-grey-800">
                 Welcome to the External Apps
@@ -107,36 +121,28 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
             </div>
           </div>
           <UForm
-            ref="formRef"
-            :validate="validateSigninData"
-            :state="signinData"
+            :schema="schema"
+            :state="state"
             class="flex flex-col space-y-3 mb-5"
-            @submit="handleSignin"
+            @submit="onSubmit"
           >
-            <!-- <UFormGroup name="email">
+            <UFormField name="email">
               <UInput
-                v-model="signinData.email"
+                v-model="state.email"
                 type="email"
                 class="w-full"
-                color="gray"
                 size="xl"
                 placeholder="Email"
-                :ui="{ rounded: 'rounded-xxs' }"
                 :disabled="isLoading"
               />
-            </UFormGroup> -->
-            <!-- <UFormGroup name="password">
+            </UFormField>
+            <UFormField name="password">
               <UInput
-                v-model="signinData.password"
+                v-model="state.password"
                 :type="showPassword ? 'text' : 'password'"
                 class="w-full"
-                color="gray"
                 size="xl"
                 placeholder="Password"
-                :ui="{
-                  rounded: 'rounded-xxs',
-                  icon: { trailing: { pointer: '' } },
-                }"
                 :disabled="isLoading"
               >
                 <template #trailing>
@@ -146,13 +152,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
                   </button>
                 </template>
               </UInput>
-            </UFormGroup> -->
-            <div v-if="generalErrorMessage" class="flex space-x-2 items-center">
-              <IcAction class="text-red-500 h-full" />
-              <p class="grow text-xs text-red-500">
-                {{ generalErrorMessage }}
-              </p>
-            </div>
+            </UFormField>
             <UButton
               block
               size="xl"
@@ -167,8 +167,8 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
               />
             </UButton>
           </UForm>
-          <USeparator color="secondary" class="opacity-25"/>
-   
+          <USeparator color="secondary" class="opacity-25" />
+
           <!-- <div class="w-full border border-grey-600 mb-7" />
           <UButton
             block
@@ -187,8 +187,8 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
             </template>
           </UButton> -->
           <p class="text-center text-grey-500 text-sm mt-5">
-            ©{{ new Date().getFullYear() }} Provided by DigiTech - External
-            Apps Powered by Braga Technologies
+            ©{{ new Date().getFullYear() }} Provided by DigiTech - External Apps
+            Powered by Braga Technologies
           </p>
         </div>
       </div>

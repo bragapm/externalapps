@@ -13,10 +13,6 @@ useSeoMeta({
     ? `/panel/assets/${data.value.data.public_favicon}`
     : "",
 });
-
-onMounted(() => {
-  authStore.tryRefresh();
-});
 </script>
 
 <template>

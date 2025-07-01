@@ -2,12 +2,12 @@
 @import "@nuxt/ui";
 
 :root {
-  --ui-bg: var(--color-grey-200);
   --ui-secondary: var(--color-grey-400);
 }
 
 body {
   font-family: "Inter", sans-serif;
+  background: var(--color-grey-200);
 }
 
 @theme static {
