@@ -116,8 +116,8 @@ devDependencies:
     specifier: ^3.17.5
     version: 3.17.5(typescript@5.8.3)(vite@6.3.5)(vue-tsc@2.2.10)
   nuxt-svgo:
-    specifier: ^4.0.6
-    version: 4.0.6(vue@3.5.17)
+    specifier: ^4.2.2
+    version: 4.2.2(vue@3.5.17)
   rollup-plugin-node-builtins:
     specifier: ^2.1.2
     version: 2.1.2
@@ -9516,8 +9516,8 @@ packages:
     dependencies:
       boolbase: 1.0.0
 
-  /nuxt-svgo@4.0.6(vue@3.5.17):
-    resolution: {integrity: sha512-23piTK/Dv+6gqZBLf3TyZLc03CmZj9M191D/qol6dN/tc/pikFz1FOOBTe4LqXoRiE2ZbRB7/VypE+Y0kuwH1A==}
+  /nuxt-svgo@4.2.2(vue@3.5.17):
+    resolution: {integrity: sha512-IOQQc5CpHmTWff5zIcQ81cJHSizaH691JyY/XCil83F+f6nwizkx9k7maaLixZi+dEVuiMZ3nJ1usAmMsSylNQ==}
     peerDependencies:
       svgo-loader: ^4.0.0
       vue: '>=3.2.13'
@@ -9531,15 +9531,12 @@ packages:
       vue-svg-loader:
         optional: true
     dependencies:
-      '@nuxt/kit': 3.13.2(magicast@0.3.5)
+      '@nuxt/kit': 3.17.5(magicast@0.3.5)
       mini-svg-data-uri: 1.4.4
       svgo: 3.0.2
       vue: 3.5.17(typescript@5.8.3)
     transitivePeerDependencies:
       - magicast
-      - rollup
-      - supports-color
-      - webpack-sources
     dev: true
 
   /nuxt@3.17.5(typescript@5.8.3)(vite@6.3.5)(vue-tsc@2.2.10):
@@ -10046,10 +10043,6 @@ packages:
 
   /perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
-
-  /picocolors@1.1.0:
-    resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
-    dev: true
 
   /picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -11555,7 +11548,7 @@ packages:
       css-select: 5.1.0
       css-tree: 2.3.1
       csso: 5.0.5
-      picocolors: 1.1.0
+      picocolors: 1.1.1
     dev: true
 
   /svgo@3.3.2:

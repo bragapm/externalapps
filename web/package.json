@@ -17,7 +17,7 @@
     "@types/mapbox__mapbox-gl-draw": "^1.4.6",
     "@types/markdown-it": "^13.0.7",
     "nuxt": "^3.17.5",
-    "nuxt-svgo": "^4.0.6",
+    "nuxt-svgo": "^4.2.2",
     "rollup-plugin-node-builtins": "^2.1.2",
     "typescript": "^5.8.3",
     "vue": "^3.5.13",

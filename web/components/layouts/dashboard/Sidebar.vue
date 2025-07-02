@@ -9,6 +9,13 @@ import IcMap from "@/assets/icons/ic-tracking.svg";
 import IcUser from "@/assets/icons/ic-user.svg";
 import IcFile from "@/assets/icons/ic-file.svg";
 
+const props = withDefaults(
+  defineProps<{
+    height?: string;
+  }>(),
+  { height: "h-[calc(100vh-8rem)]" }
+);
+
 interface MenuChild {
   label: string;
   to: string;
@@ -185,8 +192,9 @@ const onAfterLeave = (el: Element) => {
 <template>
   <div
     :class="[
-      'flex flex-col p-5 ml-6 shrink-0 sticky top-0 h-[calc(100vh-8rem)] overflow-auto bg-grey-100 shadow-[0px_4px_8px_0px_rgba(79,76,74,0.04)] border border-grey-200 rounded-lg transition-all duration-300',
+      'z-50 flex flex-col p-5 ml-6 shrink-0 sticky top-0 overflow-auto bg-grey-100 shadow-[0px_4px_8px_0px_rgba(79,76,74,0.04)] border border-grey-200 rounded-lg transition-all duration-300',
       isCollapsed ? 'w-16 p-2' : 'w-[13.875rem]',
+      height,
     ]"
   >
     <div class="flex justify-between items-center mb-4">

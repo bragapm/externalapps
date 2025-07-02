@@ -1,13 +1,8 @@
 import { defineStore } from "pinia";
 import type { PopupItem } from "@/components/map/Popup.vue";
 
-export type rightSidebarEnum =
-  | "mapinfo"
-  | "feature"
-  | "3d-feature"
-  | "geoprocessing"
-  | "";
-export type mapInfoEnum = "info" | "analytic" | "";
+export type rightSidebarEnum = "mapinfo" | "feature" | "";
+export type mapInfoEnum = "info" | "";
 
 export const useFeature = defineStore("feature", () => {
   const feature = ref<PopupItem>();

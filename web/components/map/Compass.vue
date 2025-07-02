@@ -15,13 +15,13 @@ watchEffect(async () => {
 </script>
 
 <template>
-  <div class="flex gap-2 bg-black/30 rounded-xs p-2">
+  <div class="flex gap-2 bg-white/45 rounded-lg p-2">
     <button
       @click="() => map && map.easeTo({ bearing: 0 })"
-      class="bg-transparent hover:bg-black p-2 rounded-xs"
+      class="bg-transparent hover:bg-white/50 p-2 rounded-sm"
     >
       <IcCompass
-        class="w-5 h-5 text-white"
+        class="w-5 h-5 text-grey-700"
         :fontControlled="false"
         :style="{
           transform: 'rotate(' + bearing + 'deg)',

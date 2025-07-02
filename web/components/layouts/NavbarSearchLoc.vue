@@ -112,7 +112,7 @@ watch(selected, (newValue) => {
         placeholder="Search Location"
         @change="handleDebounceQuery($event.target.value)"
         :display-value="(value: any)=>  value?.properties?.name"
-        :class="'h-8 w-48 rounded-xxs border border-grey-600 bg-grey-700 pr-8 pl-2 text-sm text-grey-200 focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'"
+        :class="'h-8 w-48 placeholder:text-grey-800 rounded-sm border border-grey-500 bg-grey-50 pr-8 pl-2 text-sm text-grey-800 focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'"
       />
       <button
         @click="
@@ -127,13 +127,13 @@ watch(selected, (newValue) => {
         <IcSearch
           v-if="!activeSearched"
           :fontControlled="false"
-          class="w-4 h-4 text-grey-500"
+          class="w-4 h-4 text-grey-800"
         />
         <IcCross v-else :fontControlled="false" class="w-3 h-3 text-grey-500" />
       </button>
     </div>
     <ComboboxOptions
-      :class="'absolute top-10 rounded-xxs border border-grey-600 bg-grey-700 p-2 w-52 max-w-52 space-y-1'"
+      :class="'absolute top-10 rounded-sm border border-grey-500 bg-grey-50 p-2 w-52 max-w-52 space-y-1'"
     >
       <USkeleton
         v-if="isFetching"
@@ -149,7 +149,7 @@ watch(selected, (newValue) => {
         :value="feature"
       >
         <div
-          class="text-sm text-grey-200 hover:bg-grey-400 hover:text-grey-800 rounded-xxs cursor-pointer px-1"
+          class="text-sm text-grey-800 hover:bg-grey-400 hover:text-grey-800 rounded-xxs cursor-pointer px-1"
         >
           {{
             feature?.properties?.name +
@@ -161,7 +161,7 @@ watch(selected, (newValue) => {
       </ComboboxOption>
       <p
         v-if="!isFetching && features && features.length === 0"
-        class="text-sm text-grey-200 text-center"
+        class="text-sm text-grey-800 text-center"
       >
         No Data
       </p>
