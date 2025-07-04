@@ -6,12 +6,12 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="p-2 rounded-xs bg-black/30">
+  <div class="p-2 rounded-lg">
     <UButton
       @click="onClick"
       size="sm"
-      :class="active ? 'text-brand-500 bg-brand-950' : 'bg-transparent'"
-      class="hover:bg-black p-2 rounded-xs"
+      :class="active ? 'text-brand-500 bg-brand-50' : 'text-grey-700 bg-transparent'"
+      class="hover:bg-brand-50 hover:text-brand-500 p-2 rounded-lg"
     >
       <slot></slot>
     </UButton>

@@ -4,7 +4,7 @@ import type { LngLatBoundsLike, StyleSpecification } from "maplibre-gl";
 import type { Raw } from "vue";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
 import { useMapData, useSharedMap } from "~/utils";
-import addRasterColorProtocol from "~/utils/addRasterColorProtocol.ts";
+import addRasterColorProtocol from "~/utils/addRasterColorProtocol";
 import bbox from "@turf/bbox";
 
 const { isLoading, data: mapData } = await useMapData();
@@ -106,8 +106,8 @@ fetchActiveLayers();
         alt="MapTiler logo"
     /></a> -->
     <div class="map" ref="mapContainer"></div>
-    <MapLayer v-if="store.mapLoad" />
-    <MapPopup />
+    <MapLayerPoi v-if="store.mapLoad" />
+    <MapPopupPoi />
   </div>
 </template>
 
