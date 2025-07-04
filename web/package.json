@@ -43,7 +43,6 @@
     "@turf/buffer": "^7.1.0",
     "@turf/helpers": "^7.1.0",
     "@turf/length": "^7.1.0",
-    "@xeokit/xeokit-sdk": "2.6.0-beta-10",
     "chart.js": "^4.5.0",
     "deck.gl": "^9.1.12",
     "keen-slider": "^6.8.6",
