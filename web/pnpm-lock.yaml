@@ -11,6 +11,18 @@ dependencies:
   '@floating-ui/vue':
     specifier: ^1.1.6
     version: 1.1.6(vue@3.5.17)
+  '@fullcalendar/core':
+    specifier: ^6.1.18
+    version: 6.1.18
+  '@fullcalendar/daygrid':
+    specifier: ^6.1.18
+    version: 6.1.18(@fullcalendar/core@6.1.18)
+  '@fullcalendar/interaction':
+    specifier: ^6.1.18
+    version: 6.1.18(@fullcalendar/core@6.1.18)
+  '@fullcalendar/vue3':
+    specifier: ^6.1.18
+    version: 6.1.18(@fullcalendar/core@6.1.18)(vue@3.5.17)
   '@headlessui/vue':
     specifier: ^1.7.23
     version: 1.7.23(vue@3.5.17)
@@ -1355,6 +1367,38 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+    dev: false
+
+  /@fullcalendar/core@6.1.18:
+    resolution: {integrity: sha512-cD7XtZIZZ87Cg2+itnpsONCsZ89VIfLLDZ22pQX4IQVWlpYUB3bcCf878DhWkqyEen6dhi5ePtBoqYgm5K+0fQ==}
+    dependencies:
+      preact: 10.12.1
+    dev: false
+
+  /@fullcalendar/daygrid@6.1.18(@fullcalendar/core@6.1.18):
+    resolution: {integrity: sha512-s452Zle1SdMEzZDw+pDczm8m3JLIZzS9ANMThXTnqeqJewW1gqNFYas18aHypJSgF9Fh9rDJjTSUw04BpXB/Mg==}
+    peerDependencies:
+      '@fullcalendar/core': ~6.1.18
+    dependencies:
+      '@fullcalendar/core': 6.1.18
+    dev: false
+
+  /@fullcalendar/interaction@6.1.18(@fullcalendar/core@6.1.18):
+    resolution: {integrity: sha512-f/mD5RTjzw+Q6MGTMZrLCgIrQLIUUO9NV/58aM2J6ZBQZeRlNizDqmqldqyG+j49zj2vFhUfZibPrVKWm5yA4Q==}
+    peerDependencies:
+      '@fullcalendar/core': ~6.1.18
+    dependencies:
+      '@fullcalendar/core': 6.1.18
+    dev: false
+
+  /@fullcalendar/vue3@6.1.18(@fullcalendar/core@6.1.18)(vue@3.5.17):
+    resolution: {integrity: sha512-YMagwTumxsIx3GFYWLa9Yr73EMA+JuH6S3EeZGS+rEjvG5fDGdf+33rxGMzmw+LdO7SWi3ctbzRnJlv3fnm3RQ==}
+    peerDependencies:
+      '@fullcalendar/core': ~6.1.18
+      vue: ^3.0.11
+    dependencies:
+      '@fullcalendar/core': 6.1.18
+      vue: 3.5.17(typescript@5.8.3)
     dev: false
 
   /@gerhobbelt/linewrap@0.2.2-3:
@@ -10247,6 +10291,10 @@ packages:
 
   /potpack@2.0.0:
     resolution: {integrity: sha512-Q+/tYsFU9r7xoOJ+y/ZTtdVQwTWfzjbiXBDMM/JKUux3+QPP02iUuIoeBQ+Ot6oEDlC+/PGjB/5A3K7KKb7hcw==}
+    dev: false
+
+  /preact@10.12.1:
+    resolution: {integrity: sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==}
     dev: false
 
   /preact@10.20.1:

@@ -27,6 +27,10 @@
   "dependencies": {
     "@deck.gl/mapbox": "^9.1.12",
     "@floating-ui/vue": "^1.1.6",
+    "@fullcalendar/core": "^6.1.18",
+    "@fullcalendar/daygrid": "^6.1.18",
+    "@fullcalendar/interaction": "^6.1.18",
+    "@fullcalendar/vue3": "^6.1.18",
     "@headlessui/vue": "^1.7.23",
     "@loaders.gl/flatgeobuf": "^4.1.4",
     "@loaders.gl/geopackage": "^4.1.4",
