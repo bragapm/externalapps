@@ -84,28 +84,34 @@ const emit = defineEmits<{
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 const chartContainer = ref<HTMLDivElement | null>(null);
 let chartInstance: ChartJS | null = null;
+let resizeObserver: ResizeObserver | null = null;
 const selectedPeriod = ref(props.periodOptions[0]?.value || "Default");
 
 const createChart = async () => {
-  // Wait for DOM to be ready
+  console.log("Creating chart...");
+
+  // Multiple DOM readiness checks
   await nextTick();
 
   if (!chartCanvas.value || !chartContainer.value) {
-    console.warn("Chart canvas or container not available");
+    console.warn("Chart canvas or container not available, retrying...");
+    setTimeout(createChart, 200);
     return;
   }
 
-  // Check if container is visible
+  // Check if container is visible and has dimensions
   const containerRect = chartContainer.value.getBoundingClientRect();
+  console.log("Container dimensions:", containerRect);
+
   if (containerRect.width === 0 || containerRect.height === 0) {
-    console.warn("Chart container has zero dimensions");
-    // Retry after a short delay
-    setTimeout(createChart, 100);
+    console.warn("Chart container has zero dimensions, retrying...");
+    setTimeout(createChart, 200);
     return;
   }
 
   // Destroy previous chart if exists
   if (chartInstance) {
+    console.log("Destroying previous chart instance");
     chartInstance.destroy();
     chartInstance = null;
   }
@@ -116,13 +122,27 @@ const createChart = async () => {
     return;
   }
 
+  console.log("Chart data:", props.data);
+
   try {
+    // Force canvas dimensions
+    const canvas = chartCanvas.value;
+    canvas.width = containerRect.width;
+    canvas.height = containerRect.height;
+
     const config: ChartConfiguration = {
       type: "line",
-      data: props.data,
+      data: {
+        labels: props.data.labels,
+        datasets: props.data.datasets.map((dataset) => ({
+          ...dataset,
+          tension: 0.1,
+        })),
+      },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        devicePixelRatio: window.devicePixelRatio || 1,
         plugins: {
           legend: {
             display: true,
@@ -171,18 +191,18 @@ const createChart = async () => {
           axis: "x",
           intersect: false,
         },
-
-        animation: {
-          duration: 1000,
-          easing: "easeInOutQuad",
-        },
       },
     };
 
-    chartInstance = new ChartJS(chartCanvas.value, config);
-    console.log("Line chart created successfully");
+    chartInstance = new ChartJS(canvas, config);
+    console.log("Line chart created successfully:", chartInstance);
   } catch (error) {
     console.error("Error creating line chart:", error);
+    console.error("Chart.js available:", !!ChartJS);
+    console.error(
+      "Canvas context available:",
+      !!chartCanvas.value?.getContext("2d")
+    );
   }
 };
 
@@ -199,12 +219,41 @@ watch(selectedPeriod, (value) => {
 });
 
 onMounted(async () => {
+  console.log("Component mounted");
   await nextTick();
-  // Small delay to ensure DOM is fully rendered
-  setTimeout(createChart, 50);
+
+  // Set up ResizeObserver to handle dynamic container sizing
+  if (chartContainer.value && typeof ResizeObserver !== "undefined") {
+    resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+          console.log("Container resized, creating chart");
+          createChart();
+        }
+      }
+    });
+    resizeObserver.observe(chartContainer.value);
+  }
+
+  // Multiple attempts with increasing delays
+  const attempts = [100, 300, 500, 1000];
+
+  for (const delay of attempts) {
+    setTimeout(() => {
+      if (!chartInstance) {
+        console.log(`Attempting to create chart (delay: ${delay}ms)`);
+        createChart();
+      }
+    }, delay);
+  }
 });
 
 onUnmounted(() => {
+  console.log("Component unmounting");
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+    resizeObserver = null;
+  }
   if (chartInstance) {
     chartInstance.destroy();
     chartInstance = null;
