@@ -51,6 +51,11 @@ const menuItems = computed((): MenuItem[] => [
         to: "/report",
         isActive: route.path === "/report",
       },
+      {
+        label: "Kalendar Kerja",
+        to: "/kalendar",
+        isActive: route.path === "/kalendar",
+      },
     ],
   },
   {
