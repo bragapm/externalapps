@@ -93,7 +93,7 @@ watchEffect((onCleanup) => {
       leave="transition-all duration-300"
       leave-from="mr-0 opacity-100"
       leave-to="-mr-8 opacity-0"
-      class="z-10 absolute top-[5.5rem] right-[1.5rem] bg-white w-[18.5rem] rounded-lg h-[calc(100%-12rem)] overflow-hidden flex flex-col"
+      class="z-10 absolute top-[5.5rem] right-[1.5rem] bg-white w-[23rem] rounded-lg h-[calc(100%-12rem)] overflow-hidden flex flex-col"
     >
       <MapFeatureDetail />
     </TransitionRoot>
@@ -102,7 +102,7 @@ watchEffect((onCleanup) => {
     <div
       :class="
         ['feature'].includes(featureStore.rightSidebar)
-          ? 'right-[20.5rem]'
+          ? 'right-[25rem]'
           : 'right-[1.5rem]'
       "
       class="rounded-lg bg-white/45 z-10 absolute flex flex-col gap-2 shrink top-[5.5rem] right-6 transition-all ease-in-out duration-300"

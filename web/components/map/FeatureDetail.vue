@@ -16,6 +16,7 @@ import {
 } from "@headlessui/vue";
 import type { GeoJSONSource } from "maplibre-gl";
 import { useQuery } from "@tanstack/vue-query";
+import DummyImage from "@/assets/images/catalogue-item.jpeg";
 
 type DetailData = {
   markdown: string | null;
@@ -124,7 +125,7 @@ const clearSelection = () => {
   <div
     class="flex justify-between items-center mx-4 mt-3 pb-2 border-b border-grey-300"
   >
-    <h2 class="text-grey-950 font-medium">Profile Desa</h2>
+    <h2 class="text-grey-950 font-medium">Detail POI</h2>
     <IcCross
       role="button"
       @click="featureStore.setRightSidebar('')"
@@ -132,7 +133,58 @@ const clearSelection = () => {
       class="w-3 h-3 rotate-180 text-grey-500"
     />
   </div>
-  <div class="px-4 py-3 overflow-y-auto">content</div>
+  <div class="px-4 py-3 overflow-y-auto space-y-3">
+    <img :src="DummyImage" class="w-full h-72 object-cover rounded-sm" />
+    <!-- <NuxtImg
+      class="w-full h-72 object-cover rounded-sm"
+          provider="directus"
+      :src="DummyImage"
+    /> -->
+    <article class="space-y-1">
+      <p class="text-grey-950 font-medium mb-2">Gugun Gunawan</p>
+      <div class="grid grid-cols-12 text-grey-600 space-x-2 text-sm">
+        <p class="col-span-3 font-medium">Jabatan</p>
+        <p>:</p>
+        <p class="col-span-8">Site Manager</p>
+      </div>
+      <div class="grid grid-cols-12 text-grey-600 space-x-2 text-sm">
+        <p class="col-span-3 font-medium">Organisasi</p>
+        <p>:</p>
+        <p class="col-span-8">Organic</p>
+      </div>
+      <div class="grid grid-cols-12 text-grey-600 space-x-2 text-sm">
+        <p class="col-span-3 font-medium">Alamat</p>
+        <p>:</p>
+        <p class="col-span-8">Jl. Kaler Rimbe Desa. Kalimalang</p>
+      </div>
+      <div class="grid grid-cols-12 text-grey-600 space-x-2 text-sm">
+        <p class="col-span-3 font-medium">Nomer Hp</p>
+        <p>:</p>
+        <p class="col-span-8">09876858</p>
+      </div>
+      <div class="grid grid-cols-12 text-grey-600 space-x-2 text-sm">
+        <p class="col-span-3 font-medium">Email</p>
+        <p>:</p>
+        <p class="col-span-8">gugungunawan@gmail.com</p>
+      </div>
+      <div class="grid grid-cols-12 text-grey-600 space-x-2 text-sm">
+        <p class="col-span-3 font-medium">Status:</p>
+        <p>:</p>
+        <div class="col-span-8">
+          <div
+            class="w-fit p-1 border border-brand-400 rounded-sm text-2xs text-brand-400 font-medium"
+          >
+            Negative
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-12 text-grey-600 space-x-2 text-sm">
+        <p class="col-span-3 font-medium">Dokumen</p>
+        <p>:</p>
+        <p class="col-span-8">gugungunawan.pdf</p>
+      </div>
+    </article>
+  </div>
 </template>
 
 <style>
