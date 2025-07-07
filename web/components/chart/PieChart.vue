@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed } from "vue";
+import { ref, onMounted, onUnmounted, watch, computed, nextTick } from "vue";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -28,52 +28,93 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
+const chartContainer = ref<HTMLDivElement | null>(null);
 let chartInstance: ChartJS | null = null;
 
 const total = computed(() =>
   props.data.reduce((sum, item) => sum + item.value, 0)
 );
 
-const createChart = () => {
-  if (!chartCanvas.value) return;
+const createChart = async () => {
+  // Wait for DOM to be ready
+  await nextTick();
+
+  if (!chartCanvas.value || !chartContainer.value) {
+    console.warn("Chart canvas or container not available");
+    return;
+  }
+
+  // Check if container is visible
+  const containerRect = chartContainer.value.getBoundingClientRect();
+  if (containerRect.width === 0 || containerRect.height === 0) {
+    console.warn("Chart container has zero dimensions");
+    // Retry after a short delay
+    setTimeout(createChart, 100);
+    return;
+  }
 
   if (chartInstance) {
     chartInstance.destroy();
+    chartInstance = null;
   }
 
-  const config: ChartConfiguration = {
-    type: "pie",
-    data: {
-      labels: props.data.map((d) => d.label),
-      datasets: [
-        {
-          data: props.data.map((d) => d.value),
-          backgroundColor: props.data.map((d) => d.color),
-          borderWidth: 2,
-          borderColor: "#ffffff",
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (context) => `${context.label}: ${context.formattedValue}`,
+  // Ensure we have data
+  if (!props.data || props.data.length === 0) {
+    console.warn("No data available for chart");
+    return;
+  }
+
+  try {
+    const config: ChartConfiguration = {
+      type: "pie",
+      data: {
+        labels: props.data.map((d) => d.label),
+        datasets: [
+          {
+            data: props.data.map((d) => d.value),
+            backgroundColor: props.data.map((d) => d.color),
+            borderWidth: 2,
+            borderColor: "#ffffff",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.label}: ${context.formattedValue}`,
+            },
           },
         },
       },
-    },
-  };
+    };
 
-  chartInstance = new ChartJS(chartCanvas.value, config);
+    chartInstance = new ChartJS(chartCanvas.value, config);
+    console.log("Chart created successfully");
+  } catch (error) {
+    console.error("Error creating chart:", error);
+  }
 };
 
-watch(() => props.data, createChart, { deep: true });
-onMounted(createChart);
-onUnmounted(() => chartInstance?.destroy());
+// Watch for data changes with immediate flag
+watch(() => props.data, createChart, { deep: true, immediate: false });
+
+// Use multiple lifecycle hooks for better compatibility
+onMounted(async () => {
+  // Small delay to ensure DOM is fully rendered
+  await nextTick();
+  setTimeout(createChart, 50);
+});
+
+onUnmounted(() => {
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
+});
 </script>
 
 <template>
@@ -81,8 +122,8 @@ onUnmounted(() => chartInstance?.destroy());
     <h2 class="text-lg font-semibold text-gray-900 mb-8">{{ title }}</h2>
     <!-- Chart Section -->
     <div class="flex gap-4">
-      <div class="relative w-52 h-52">
-        <canvas ref="chartCanvas" />
+      <div ref="chartContainer" class="relative w-52 h-52">
+        <canvas ref="chartCanvas" :style="{ width: '100%', height: '100%' }" />
       </div>
       <!-- Summary Section -->
       <div class="">

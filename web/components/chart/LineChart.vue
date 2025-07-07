@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -81,74 +81,109 @@ const emit = defineEmits<{
   periodChange: [value: string];
 }>();
 
-const chartCanvas = ref<HTMLCanvasElement>();
+const chartCanvas = ref<HTMLCanvasElement | null>(null);
+const chartContainer = ref<HTMLDivElement | null>(null);
 let chartInstance: ChartJS | null = null;
 const selectedPeriod = ref(props.periodOptions[0]?.value || "Default");
 
-const createChart = () => {
-  if (!chartCanvas.value) return;
+const createChart = async () => {
+  // Wait for DOM to be ready
+  await nextTick();
+
+  if (!chartCanvas.value || !chartContainer.value) {
+    console.warn("Chart canvas or container not available");
+    return;
+  }
+
+  // Check if container is visible
+  const containerRect = chartContainer.value.getBoundingClientRect();
+  if (containerRect.width === 0 || containerRect.height === 0) {
+    console.warn("Chart container has zero dimensions");
+    // Retry after a short delay
+    setTimeout(createChart, 100);
+    return;
+  }
 
   // Destroy previous chart if exists
-  if (chartInstance) chartInstance.destroy();
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
 
-  const config: ChartConfiguration = {
-    type: "line",
-    data: props.data,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
-          position: "bottom",
-          labels: {
-            usePointStyle: true,
-            pointStyle: "circle",
-            padding: 16,
-            boxWidth: 6,
-            boxHeight: 6,
-            font: { size: 12 },
+  // Ensure we have data
+  if (!props.data || !props.data.labels || props.data.labels.length === 0) {
+    console.warn("No data available for chart");
+    return;
+  }
+
+  try {
+    const config: ChartConfiguration = {
+      type: "line",
+      data: props.data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: "bottom",
+            labels: {
+              usePointStyle: true,
+              pointStyle: "circle",
+              padding: 16,
+              boxWidth: 6,
+              boxHeight: 6,
+              font: { size: 12 },
+            },
+          },
+          tooltip: {
+            mode: "index",
+            intersect: false,
           },
         },
-        tooltip: {
-          mode: "index",
+        scales: {
+          x: {
+            display: true,
+            grid: { display: true, color: "#E5E7EB" },
+            ticks: { font: { size: 11 }, color: "#6B7280" },
+          },
+          y: {
+            display: true,
+            beginAtZero: true,
+            max: 25,
+            grid: { display: true, color: "#E5E7EB" },
+            ticks: { stepSize: 5, font: { size: 11 }, color: "#6B7280" },
+          },
+        },
+        elements: {
+          line: {
+            borderWidth: 2,
+            tension: 0.1,
+          },
+          point: {
+            radius: 1,
+            hoverRadius: 3,
+            borderWidth: 1,
+          },
+        },
+        interaction: {
+          mode: "nearest",
+          axis: "x",
           intersect: false,
         },
-      },
-      scales: {
-        x: {
-          display: true,
-          grid: { display: true, color: "#E5E7EB" },
-          ticks: { font: { size: 11 }, color: "#6B7280" },
-        },
-        y: {
-          display: true,
-          beginAtZero: true,
-          max: 25,
-          grid: { display: true, color: "#E5E7EB" },
-          ticks: { stepSize: 5, font: { size: 11 }, color: "#6B7280" },
-        },
-      },
-      elements: {
-        line: {
-          borderWidth: 2,
-          tension: 0.1,
-        },
-        point: {
-          radius: 1,
-          hoverRadius: 3,
-          borderWidth: 1,
-        },
-      },
-      interaction: {
-        mode: "nearest",
-        axis: "x",
-        intersect: false,
-      },
-    },
-  };
 
-  chartInstance = new ChartJS(chartCanvas.value, config);
+        animation: {
+          duration: 1000,
+          easing: "easeInOutQuad",
+        },
+      },
+    };
+
+    chartInstance = new ChartJS(chartCanvas.value, config);
+    console.log("Line chart created successfully");
+  } catch (error) {
+    console.error("Error creating line chart:", error);
+  }
 };
 
 watch(
@@ -165,11 +200,15 @@ watch(selectedPeriod, (value) => {
 
 onMounted(async () => {
   await nextTick();
-  createChart();
+  // Small delay to ensure DOM is fully rendered
+  setTimeout(createChart, 50);
 });
 
 onUnmounted(() => {
-  if (chartInstance) chartInstance.destroy();
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
 });
 </script>
 
@@ -185,8 +224,11 @@ onUnmounted(() => {
         class="w-32 border-gray-300 py-2 border text-xs text-gray-900"
       />
     </div>
-    <div class="relative" :class="height">
-      <canvas ref="chartCanvas"></canvas>
+    <div ref="chartContainer" class="relative" :class="height">
+      <canvas
+        ref="chartCanvas"
+        :style="{ width: '100%', height: '100%' }"
+      ></canvas>
     </div>
   </div>
 </template>
