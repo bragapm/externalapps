@@ -163,8 +163,9 @@ watch(selectedPeriod, (value) => {
   emit("periodChange", value);
 });
 
-onMounted(() => {
-  setTimeout(createChart, 100);
+onMounted(async () => {
+  await nextTick();
+  createChart();
 });
 
 onUnmounted(() => {
