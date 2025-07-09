@@ -41,8 +41,8 @@ const events = [
   },
   {
     id: "3",
-    title: "PDC - Anggil I Jadal Rencana Kerja",
-    start: "2025-07-07",
+    title: "PDC - Anggil I Jadal Test Juni",
+    start: "2025-06-09",
     backgroundColor: "#10B981",
     borderColor: "#10B981",
     textColor: "#ffffff",
@@ -71,9 +71,9 @@ onMounted(async () => {
     calendar = new Calendar(calendarEl.value, {
       plugins: [dayGridPlugin, interactionPlugin],
       initialView: "dayGridMonth",
-      headerToolbar: false, // We'll use our custom header
-      locale: "id", // Indonesian locale
-      firstDay: 1, // Monday as first day
+      headerToolbar: false,
+      locale: "id",
+      firstDay: 1,
       height: "auto",
       events: events,
       dayHeaderFormat: { weekday: "long" },
@@ -91,8 +91,7 @@ onMounted(async () => {
         console.log("Date clicked:", info.dateStr);
       },
       datesSet: function (info) {
-        // Update month/year display when view changes
-        updateMonthYear(info.start);
+        updateMonthYear(calendar.getDate());
       },
       // Custom day header content
       dayHeaderContent: function (arg) {
@@ -114,7 +113,7 @@ onMounted(async () => {
     });
 
     calendar.render();
-    updateMonthYear(calendar.getDate());
+    // updateMonthYear(calendar.getDate());
   } catch (error) {
     console.error("Error initializing calendar:", error);
   }
