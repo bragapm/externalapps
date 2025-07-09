@@ -63,16 +63,21 @@ const exportData = async () => {
 <template>
   <div class="flex justify-between gap-2">
     <div class="flex gap-2">
-      <UInput v-model="startDate" type="date" size="xl" />
-      <UInput v-model="endDate" type="date" size="xl" />
-      <UButton @click="applyDateFilter" label="Tampilkan" size="xl" />
+      <UInput v-model="startDate" type="date" size="lg" />
+      <UInput v-model="endDate" type="date" size="lg" />
+      <UButton
+        @click="applyDateFilter"
+        label="Tampilkan"
+        size="lg"
+        class="text-sm"
+      />
     </div>
     <div class="flex gap-2">
       <UInput
         v-model="searchInput"
         trailing-icon="i-heroicons-magnifying-glass"
         placeholder="Search by"
-        size="xl"
+        size="lg"
       />
       <USelectMenu
         v-model="intervalValue"
@@ -83,7 +88,7 @@ const exportData = async () => {
       <UButton
         @click="exportData"
         icon="i-heroicons-arrow-down-tray"
-        size="xl"
+        size="lg"
         color="neutral"
         variant="outline"
       />

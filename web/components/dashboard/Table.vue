@@ -18,17 +18,18 @@ function onSelect(row: TableRow<Record<string, any>>, e?: Event) {
 }
 
 //pagination
-const currentPage =  defineModel<number>('page');
+const currentPage = defineModel<number>("page");
 const pageSizeItems = ref(["10", "20", "50"]);
-const pageSize = defineModel<string>('pageSize');
+const pageSize = defineModel<string>("pageSize");
 </script>
 
 <template>
   <div>
     <UTable
       ref="table"
+      class="rounded-lg border border-gray-300"
       :ui="{
-        th: 'bg-[#E2E1DF]  px-3 py-2 text-left font-medium text-grey-800 text-xs border-b border-gray-300',
+        th: 'bg-[#E2E1DF]  px-3 py-2 text-left font-medium text-grey-800 text-xs border-b border-gray-300 rounded-',
         td: 'px-3 py-2 align-middle text-xs text-gray-700 border-b border-gray-100 text-grey-800',
         tr: 'odd:bg-white even:bg-[#F9FAFB]',
       }"
