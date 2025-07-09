@@ -36,7 +36,6 @@ const total = computed(() =>
 );
 
 const createChart = async () => {
-  // Wait for DOM to be ready
   await nextTick();
 
   if (!chartCanvas.value || !chartContainer.value) {
@@ -44,21 +43,19 @@ const createChart = async () => {
     return;
   }
 
-  // Check if container is visible
   const containerRect = chartContainer.value.getBoundingClientRect();
   if (containerRect.width === 0 || containerRect.height === 0) {
     console.warn("Chart container has zero dimensions");
-    // Retry after a short delay
     setTimeout(createChart, 100);
     return;
   }
 
-  if (chartInstance) {
-    chartInstance.destroy();
-    chartInstance = null;
+  // ✅ Safely destroy any chart already mounted to this canvas
+  const existingChart = ChartJS.getChart(chartCanvas.value);
+  if (existingChart) {
+    existingChart.destroy();
   }
 
-  // Ensure we have data
   if (!props.data || props.data.length === 0) {
     console.warn("No data available for chart");
     return;
