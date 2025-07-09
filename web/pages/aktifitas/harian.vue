@@ -259,7 +259,7 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
 </script>
 
 <template>
-  <div class="p-6 bg-grey-100 rounded-xs space-y-3">
+  <div class="p-6 bg-grey-100 space-y-3 rounded-lg">
     <DashboardTableHeaderControls
       v-model:search="search"
       @update-date="handleDateUpdate"
@@ -271,7 +271,8 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
           <UButton
             icon="i-heroicons-plus"
             label="Create Daily Activity"
-            size="xl"
+            size="lg"
+            class="text-sm"
           />
 
           <template #body>
@@ -281,6 +282,34 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
         </USlideover>
       </template>
     </DashboardTableHeaderControls>
+    <ChartBarChart
+      class="w-full"
+      title="Report Status"
+      :stacked="false"
+      :labels="[
+        'Issue A',
+        'Issue B',
+        'Issue C',
+        'Issue D',
+        'Issue E',
+        'Issue F',
+        'Agenda A',
+        'Agenda B',
+        'Agenda C',
+      ]"
+      :datasets="[
+        {
+          label: 'Open',
+          data: [18, 14, 7, 7, 7, 7, 7, 7, 7],
+          backgroundColor: '#3B82F6',
+        },
+        {
+          label: 'Close',
+          data: [12, 8, 18, 18, 18, 18, 18, 18, 18],
+          backgroundColor: '#22C55E',
+        },
+      ]"
+    />
     <DashboardTable
       v-model:pageSize="pageSize"
       v-model:page="page"
