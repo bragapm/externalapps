@@ -88,47 +88,22 @@ let resizeObserver: ResizeObserver | null = null;
 const selectedPeriod = ref(props.periodOptions[0]?.value || "Default");
 
 const createChart = async () => {
-  console.log("Creating chart...");
-
-  // Multiple DOM readiness checks
   await nextTick();
 
-  if (!chartCanvas.value || !chartContainer.value) {
-    console.warn("Chart canvas or container not available, retrying...");
-    setTimeout(createChart, 200);
-    return;
+  if (!chartCanvas.value || !chartContainer.value) return;
+
+  // Destroy any chart already attached to this canvas
+  const existingChart = ChartJS.getChart(chartCanvas.value);
+  if (existingChart) {
+    console.log("Destroying existing chart from canvas directly");
+    existingChart.destroy();
   }
 
-  // Check if container is visible and has dimensions
-  const containerRect = chartContainer.value.getBoundingClientRect();
-  console.log("Container dimensions:", containerRect);
-
-  if (containerRect.width === 0 || containerRect.height === 0) {
-    console.warn("Chart container has zero dimensions, retrying...");
-    setTimeout(createChart, 200);
-    return;
-  }
-
-  // Destroy previous chart if exists
-  if (chartInstance) {
-    console.log("Destroying previous chart instance");
-    chartInstance.destroy();
-    chartInstance = null;
-  }
-
-  // Ensure we have data
-  if (!props.data || !props.data.labels || props.data.labels.length === 0) {
-    console.warn("No data available for chart");
-    return;
-  }
-
-  console.log("Chart data:", props.data);
-
+  // Continue to create chart
   try {
-    // Force canvas dimensions
-    const canvas = chartCanvas.value;
-    canvas.width = containerRect.width;
-    canvas.height = containerRect.height;
+    const containerRect = chartContainer.value.getBoundingClientRect();
+    chartCanvas.value.width = containerRect.width;
+    chartCanvas.value.height = containerRect.height;
 
     const config: ChartConfiguration = {
       type: "line",
@@ -142,7 +117,6 @@ const createChart = async () => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        devicePixelRatio: window.devicePixelRatio || 1,
         plugins: {
           legend: {
             display: true,
@@ -194,15 +168,10 @@ const createChart = async () => {
       },
     };
 
-    chartInstance = new ChartJS(canvas, config);
-    console.log("Line chart created successfully:", chartInstance);
+    chartInstance = new ChartJS(chartCanvas.value, config);
+    console.log("Line chart created successfully");
   } catch (error) {
     console.error("Error creating line chart:", error);
-    console.error("Chart.js available:", !!ChartJS);
-    console.error(
-      "Canvas context available:",
-      !!chartCanvas.value?.getContext("2d")
-    );
   }
 };
 
