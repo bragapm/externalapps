@@ -101,16 +101,16 @@ const menuItems = computed((): MenuItem[] => [
         to: "/aktifitas/mingguan",
         isActive: route.path === "/aktifitas/mingguan",
       },
-      {
-        label: "Laporan",
-        to: "/aktifitas/laporan",
-        isActive: route.path === "/aktifitas/laporan",
-      },
-      {
-        label: "Rencana Kerja",
-        to: "/aktifitas/rencana-kerja",
-        isActive: route.path === "/aktifitas/rencana-kerja",
-      },
+      // {
+      //   label: "Laporan",
+      //   to: "/aktifitas/laporan",
+      //   isActive: route.path === "/aktifitas/laporan",
+      // },
+      // {
+      //   label: "Rencana Kerja",
+      //   to: "/aktifitas/rencana-kerja",
+      //   isActive: route.path === "/aktifitas/rencana-kerja",
+      // },
     ],
   },
   {
