@@ -39,7 +39,11 @@ const menuItems = computed((): MenuItem[] => [
     label: "Dashboard",
     icon: IcHome,
     isActive: route.path === "/" || route.path === "/report",
-    isExpanded: ref(route.path === "/" || route.path === "/report"),
+    isExpanded: ref(
+      route.path === "/" ||
+        route.path === "/report" ||
+        route.path === "/kalendar"
+    ),
     children: [
       {
         label: "Absensi",
