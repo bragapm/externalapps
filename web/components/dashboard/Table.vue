@@ -29,9 +29,9 @@ const pageSize = defineModel<string>("pageSize");
       ref="table"
       class="rounded-lg border border-gray-300"
       :ui="{
-        th: 'bg-[#E2E1DF]  px-3 py-2 text-left font-medium text-grey-800 text-xs border-b border-gray-300 rounded-',
-        td: 'px-3 py-2 align-middle text-xs text-gray-700 border-b border-gray-100 text-grey-800',
-        tr: 'odd:bg-white even:bg-[#F9FAFB]',
+        th: 'bg-[#E2E1DF]  px-3 py-3 text-left font-medium text-grey-800 text-xs border-b border-gray-300',
+        td: 'px-3 py-3 align-middle text-xs text-gray-700 border-b border-gray-100 text-grey-800',
+        tr: 'odd:bg-white even:bg-[#F9FAFB]  hover:bg-gray-100',
       }"
       v-model:row-selection="rowSelection"
       :data="data"
