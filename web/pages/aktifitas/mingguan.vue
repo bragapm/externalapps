@@ -5,6 +5,7 @@ definePageMeta({
 import { useQuery } from "@tanstack/vue-query";
 import { h, ref, resolveComponent } from "vue";
 import type { TableColumn, TableRow } from "@nuxt/ui";
+import { AktifitasFormWeeklyActivity } from "#components";
 
 const page = ref(1);
 const pageSize = ref<string>("10");
@@ -278,13 +279,12 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
           <UButton
             icon="i-heroicons-plus"
             label="Buat Weekly Activity"
-            size="xl"
             class="text-sm"
           />
 
           <template #body>
             <div class="w-full">
-              <FormWeeklyActivity />
+              <AktifitasFormWeeklyActivity />
             </div>
           </template>
         </USlideover>

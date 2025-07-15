@@ -91,6 +91,8 @@ const {
         throw err; // re-throw to let useQuery handle it if needed
       });
 
+    console.log(r);
+
     return r;
   },
 });
@@ -256,13 +258,12 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
           <UButton
             icon="i-heroicons-plus"
             label="Buat Daily Activity"
-            size="xl"
             class="text-sm"
           />
 
           <template #body>
             <div class="w-full">
-              <FormDailyActivity />
+              <AktifitasFormDailyActivity />
             </div>
           </template>
         </USlideover>

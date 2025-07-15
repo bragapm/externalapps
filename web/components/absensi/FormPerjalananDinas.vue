@@ -68,7 +68,11 @@ const open = ref(false);
     title="Ajukan Perjalanan Dinas"
     :ui="{ content: 'm-9' }"
   >
-    <UButton icon="i-heroicons-plus" label="Buat Perjalanan Dinas" size="xl" />
+    <UButton
+      icon="i-heroicons-plus"
+      label="Buat Perjalanan Dinas"
+      class="text-sm"
+    />
     <template #body>
       <UForm
         id="perjalanan-dinas-form"
@@ -119,7 +123,11 @@ const open = ref(false);
     </template>
     <template #footer>
       <div class="w-full space-y-3">
-        <UButton type="submit" form="perjalanan-dinas-form" class="w-full justify-center">
+        <UButton
+          type="submit"
+          form="perjalanan-dinas-form"
+          class="w-full justify-center"
+        >
           Submit
         </UButton>
         <UButton
