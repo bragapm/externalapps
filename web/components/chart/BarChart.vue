@@ -1,24 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from "vue";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  type ChartConfiguration,
-} from "chart.js";
+import { registerChartJS, ChartJS } from "@/utils/chartjs";
+import type { ChartConfiguration } from "chart.js";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+registerChartJS();
 
 interface Dataset {
   label: string;

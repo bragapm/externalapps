@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, computed, nextTick } from "vue";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  type ChartConfiguration,
-} from "chart.js";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+import { registerChartJS, ChartJS } from "@/utils/chartjs";
+import type { ChartConfiguration } from "chart.js";
+
+registerChartJS();
 
 interface DataItem {
   label: string;
@@ -82,7 +78,8 @@ const createChart = async () => {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (context) => `${context.label}: ${context.formattedValue}`,
+              label: (context: any) =>
+                `${context.label}: ${context.formattedValue}`,
             },
           },
         },
