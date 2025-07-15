@@ -259,7 +259,7 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
 </script>
 
 <template>
-  <div class="p-6 bg-grey-100 rounded-xs space-y-3">
+  <div class="p-6 bg-grey-100 space-y-3 rounded-lg">
     <DashboardTableHeaderControls
       v-model:search="search"
       @update-date="handleDateUpdate"

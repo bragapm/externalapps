@@ -266,7 +266,7 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
       :collection="'business_trips'"
       :queryParams="currentQueryParams"
     >
-      <template #slideover-button>
+      <!-- <template #slideover-button>
         <USlideover title="Tambah Absensi" :ui="{ content: 'm-9' }">
           <UButton icon="i-heroicons-plus" label="Check In" size="xl" />
 
@@ -275,7 +275,7 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
           </template>
           <template #footer>form submit</template>
         </USlideover>
-      </template>
+      </template> -->
     </DashboardTableHeaderControls>
     <DashboardTable
       v-model:pageSize="pageSize"

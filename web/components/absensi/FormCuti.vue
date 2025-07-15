@@ -53,8 +53,8 @@ const open = ref(false);
 </script>
 
 <template>
-  <USlideover v-model:open="open"  title="Ajukan Cuti" :ui="{ content: 'm-9' }">
-    <UButton icon="i-heroicons-plus" label="Ajukan Cuti" size="xl" />
+  <USlideover v-model:open="open" title="Ajukan Cuti" :ui="{ content: 'm-9' }">
+    <UButton icon="i-heroicons-plus" label="Ajukan Cuti" />
     <template #body>
       <UForm
         id="cuti-form"
