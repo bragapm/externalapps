@@ -1,2 +1,1 @@
-FROM directus/directus:10.8.2
-COPY ./dist /directus/extensions
+FROM directus/directus:11.9.3
