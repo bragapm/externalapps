@@ -99,28 +99,6 @@ const UCheckbox = resolveComponent("UCheckbox");
 
 type submissionStatus = "in_progress" | "approved" | "draft";
 
-// const data = ref<Record<string, any>[]>([
-//   {
-//     id: "1",
-//     name: "Priya Nair",
-//     role: "Dept Head",
-//     status: "Perjalanan Dinas",
-//   },
-//   { id: "2", name: "Puteri Aprilia", role: "Admin", status: "sakit" },
-//   { id: "3", name: "Angelica", role: "Non-Organic", status: "Cuti" },
-//   { id: "4", name: "Maria", role: "Organic", status: "Hadir" },
-//   {
-//     id: "5",
-//     name: "Santa Sitorius",
-//     role: "Organic",
-//     status: "Perjalanan Dinas",
-//   },
-//   { id: "6", name: "Alma", role: "Organic", status: "sakit" },
-//   { id: "7", name: "Adi Subrata", role: "Non-Organic", status: "Cuti" },
-//   { id: "8", name: "Fahmi", role: "Organic", status: "sakit" },
-//   { id: "9", name: "Yasmin", role: "Non-Organic", status: "Cuti" },
-// ]);
-
 const columns: TableColumn<Record<string, any>>[] = [
   {
     id: "select",
@@ -267,18 +245,26 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
       :queryParams="currentQueryParams"
     >
       <template #slideover-button>
-        <USlideover title="Review Daily Activity" :ui="{ content: 'm-9' }">
+        <USlideover
+          title="Buat Daily Activity"
+          :ui="{
+            content: 'w-full max-w-[40vw] m-9 rounded-lg',
+            body: 'relative',
+            title: 'text-sm font-semibold text-gray-900',
+          }"
+        >
           <UButton
             icon="i-heroicons-plus"
-            label="Create Daily Activity"
-            size="lg"
+            label="Buat Daily Activity"
+            size="xl"
             class="text-sm"
           />
 
           <template #body>
-            <div>form daily activity</div>
+            <div class="w-full">
+              <FormDailyActivity />
+            </div>
           </template>
-          <template #footer>form submit</template>
         </USlideover>
       </template>
     </DashboardTableHeaderControls>

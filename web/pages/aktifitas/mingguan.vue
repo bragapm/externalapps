@@ -266,6 +266,29 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
       :collection="'business_trips'"
       :queryParams="currentQueryParams"
     >
+      <template #slideover-button>
+        <USlideover
+          title="Buat Weekly Activity"
+          :ui="{
+            content: 'w-full max-w-[40vw] m-9 rounded-lg ',
+            body: 'flex-1 overflow-y-auto relative',
+            title: 'text-sm font-semibold text-gray-900',
+          }"
+        >
+          <UButton
+            icon="i-heroicons-plus"
+            label="Buat Weekly Activity"
+            size="xl"
+            class="text-sm"
+          />
+
+          <template #body>
+            <div class="w-full">
+              <FormWeeklyActivity />
+            </div>
+          </template>
+        </USlideover>
+      </template>
     </DashboardTableHeaderControls>
     <DashboardTable
       v-model:pageSize="pageSize"
