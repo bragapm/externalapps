@@ -7,6 +7,7 @@ import { h, ref, resolveComponent } from "vue";
 import type { TableColumn, TableRow } from "@nuxt/ui";
 import { AktifitasFormWeeklyActivity } from "#components";
 
+const authStore = useAuth();
 const page = ref(1);
 const pageSize = ref<string>("10");
 const startDate = ref();
@@ -86,7 +87,11 @@ const {
     const r = await $fetch<{
       data: Record<string, any>[];
       meta: { filter_count: number };
-    }>(`/panel/items/business_trips?` + new URLSearchParams(queryParams))
+    }>(`/panel/items/business_trips?` + new URLSearchParams(queryParams), {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    })
       .then((r) => r)
       .catch((err) => {
         throw err; // re-throw to let useQuery handle it if needed
