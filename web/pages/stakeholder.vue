@@ -18,177 +18,103 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
 }
 
 const UCheckbox = resolveComponent("UCheckbox");
-type submissionStatus = "in_progress" | "approved" | "draft";
 
-// Updated dummy data to match your table structure
 const data = ref<Record<string, any>[]>([
   {
     id: "1",
-    user: { first_name: "Ajip", last_name: "Rosyadi" },
-    start_date: "2025-02-10",
-    end_date: "2025-02-15",
-    destination: "Bandung",
-    transportation: "Mobil Dinas",
-    status: "approved" as submissionStatus,
-    document: {
-      id: "doc1",
-      title: "Travel Document",
-      filename_download: "travel_doc_1.pdf",
-    },
+    name: "Ajip Rosyadi",
+    jabatan: "Sekertaris",
+    organisasi: "Ormas A",
+    alamat: "Desa Kalimantan Barat",
+    no_hp: "081563225190",
+    email: "ajip.rosyadi@gmail.com",
+    sentimen: "Negatif",
+    dokumen: "Dokumen.pdf",
+    last_update: "12 Feb 2025, 10:30",
   },
   {
     id: "2",
-    user: { first_name: "Kamala", last_name: "Husain" },
-    start_date: "2025-02-12",
-    end_date: "2025-02-18",
-    destination: "Jakarta",
-    transportation: "Pesawat",
-    status: "in_progress" as submissionStatus,
-    document: {
-      id: "doc2",
-      title: "Business Trip Report",
-      filename_download: "business_trip_2.pdf",
-    },
+    name: "Kamala Husain",
+    jabatan: "Ketua",
+    organisasi: "Ormas A",
+    alamat: "Desa Kalimantan Barat",
+    no_hp: "082145678890",
+    email: "kamala.husain@yahoo.com",
+    sentimen: "Positif",
+    dokumen: "Dokumen.pdf",
+    last_update: "12 Feb 2025, 11:00",
   },
   {
     id: "3",
-    user: { first_name: "Ridwan", last_name: "AKBP" },
-    start_date: "2025-02-14",
-    end_date: "2025-02-20",
-    destination: "Surabaya",
-    transportation: "Kereta Api",
-    status: "draft" as submissionStatus,
-    document: {
-      id: "doc3",
-      title: "Official Visit Document",
-      filename_download: "official_visit_3.pdf",
-    },
+    name: "Ridwan",
+    jabatan: "AKBP",
+    organisasi: "Polisi",
+    alamat: "Desa Kalimantan Barat",
+    no_hp: "081277889911",
+    email: "ridwan.akbp@polri.go.id",
+    sentimen: "Negatif",
+    dokumen: "Dokumen.pdf",
+    last_update: "12 Feb 2025, 11:45",
   },
   {
     id: "4",
-    user: { first_name: "Asep", last_name: "Personil" },
-    start_date: "2025-02-16",
-    end_date: "2025-02-22",
-    destination: "Yogyakarta",
-    transportation: "Bus",
-    status: "approved" as submissionStatus,
-    document: {
-      id: "doc4",
-      title: "Training Document",
-      filename_download: "training_doc_4.pdf",
-    },
+    name: "Asep",
+    jabatan: "Personil",
+    organisasi: "TNI",
+    alamat: "Desa Kalimantan Barat",
+    no_hp: "085211223344",
+    email: "asep.tni@mil.id",
+    sentimen: "Positif",
+    dokumen: "Dokumen.pdf",
+    last_update: "12 Feb 2025, 12:15",
   },
   {
     id: "5",
-    user: { first_name: "Maulana", last_name: "Ketua" },
-    start_date: "2025-02-18",
-    end_date: "2025-02-25",
-    destination: "Medan",
-    transportation: "Mobil Pribadi",
-    status: "in_progress" as submissionStatus,
-    document: {
-      id: "doc5",
-      title: "Conference Document",
-      filename_download: "conference_5.pdf",
-    },
+    name: "Maulana",
+    jabatan: "Ketua",
+    organisasi: "Ormas C",
+    alamat: "Desa Kalimantan Barat",
+    no_hp: "081399887766",
+    email: "maulana.ketua@ormasc.org",
+    sentimen: "Negatif",
+    dokumen: "Dokumen.pdf",
+    last_update: "12 Feb 2025, 13:00",
   },
   {
     id: "6",
-    user: { first_name: "Adi", last_name: "Subrata" },
-    start_date: "2025-02-20",
-    end_date: "2025-02-26",
-    destination: "Makassar",
-    transportation: "Pesawat",
-    status: "approved" as submissionStatus,
-    document: {
-      id: "doc6",
-      title: "Meeting Document",
-      filename_download: "meeting_doc_6.pdf",
-    },
+    name: "Adi Subrata",
+    jabatan: "Ketua",
+    organisasi: "Ormas C",
+    alamat: "Desa Kalimantan Barat",
+    no_hp: "082233445566",
+    email: "adi.subrata@ormasc.org",
+    sentimen: "Positif",
+    dokumen: "Dokumen.pdf",
+    last_update: "12 Feb 2025, 13:40",
   },
   {
     id: "7",
-    user: { first_name: "Rian", last_name: "Ketua" },
-    start_date: "2025-02-22",
-    end_date: "2025-02-28",
-    destination: "Palembang",
-    transportation: "Mobil Dinas",
-    status: "draft" as submissionStatus,
-    document: {
-      id: "doc7",
-      title: "Inspection Document",
-      filename_download: "inspection_7.pdf",
-    },
+    name: "Rian",
+    jabatan: "Ketua",
+    organisasi: "Ormas C",
+    alamat: "Desa Kalimantan Barat",
+    no_hp: "081966554433",
+    email: "rian.ketua@ormasc.org",
+    sentimen: "Negatif",
+    dokumen: "Dokumen.pdf",
+    last_update: "12 Feb 2025, 14:20",
   },
   {
     id: "8",
-    user: { first_name: "Anggi", last_name: "Bendahara" },
-    start_date: "2025-02-24",
-    end_date: "2025-03-02",
-    destination: "Bali",
-    transportation: "Pesawat",
-    status: "approved" as submissionStatus,
-    document: {
-      id: "doc8",
-      title: "Audit Document",
-      filename_download: "audit_doc_8.pdf",
-    },
-  },
-  {
-    id: "9",
-    user: { first_name: "Santi", last_name: "Anggota" },
-    start_date: "2025-01-08",
-    end_date: "2025-01-12",
-    destination: "Semarang",
-    transportation: "Kereta Api",
-    status: "in_progress" as submissionStatus,
-    document: {
-      id: "doc9",
-      title: "Workshop Document",
-      filename_download: "workshop_9.pdf",
-    },
-  },
-  {
-    id: "10",
-    user: { first_name: "Deni", last_name: "Kepala Bagian" },
-    start_date: "2025-03-03",
-    end_date: "2025-03-08",
-    destination: "Lombok",
-    transportation: "Mobil Dinas",
-    status: "approved" as submissionStatus,
-    document: {
-      id: "doc10",
-      title: "Policy Review Document",
-      filename_download: "policy_review_10.pdf",
-    },
-  },
-  {
-    id: "11",
-    user: { first_name: "Budi", last_name: "Santoso" },
-    start_date: "2025-03-30",
-    end_date: "2025-04-03",
-    destination: "Batam",
-    transportation: "Pesawat",
-    status: "draft" as submissionStatus,
-    document: {
-      id: "doc11",
-      title: "Contract Review",
-      filename_download: "contract_review_11.pdf",
-    },
-  },
-  {
-    id: "12",
-    user: { first_name: "Citra", last_name: "Dewi" },
-    start_date: "2025-02-18",
-    end_date: "2025-02-22",
-    destination: "Pontianak",
-    transportation: "Pesawat",
-    status: "in_progress" as submissionStatus,
-    document: {
-      id: "doc12",
-      title: "Quarterly Report",
-      filename_download: "quarterly_report_12.pdf",
-    },
+    name: "Anggi",
+    jabatan: "Bendahara",
+    organisasi: "Ormas C",
+    alamat: "Desa Kalimantan Barat",
+    no_hp: "087812345678",
+    email: "anggi.bendahara@ormasc.org",
+    sentimen: "Positif",
+    dokumen: "Dokumen.pdf",
+    last_update: "12 Feb 2025, 15:00",
   },
 ]);
 
@@ -203,7 +129,7 @@ const columns: TableColumn<Record<string, any>>[] = [
         "onUpdate:modelValue": (value: boolean | "indeterminate") =>
           table.toggleAllPageRowsSelected(!!value),
         "aria-label": "Select all",
-        ui: { base: "rounded-2xs ring-grey-500" },
+        ui: { base: "rounded-sm ring-grey-500" },
       }),
     cell: ({ row }) =>
       h(UCheckbox, {
@@ -211,111 +137,124 @@ const columns: TableColumn<Record<string, any>>[] = [
         "onUpdate:modelValue": (value: boolean | "indeterminate") =>
           row.toggleSelected(!!value),
         "aria-label": "Select row",
-        ui: { base: "rounded-2xs ring-grey-500" },
+        ui: { base: "rounded-sm ring-grey-500" },
       }),
   },
   {
-    accessorKey: "user",
-    header: "Nama",
+    accessorKey: "name",
+    header: "Name",
+  },
+  {
+    accessorKey: "jabatan",
+    header: "Jabatan",
+  },
+  {
+    accessorKey: "organisasi",
+    header: "Organisasi",
+  },
+  {
+    accessorKey: "alamat",
+    header: "Alamat",
+  },
+  {
+    accessorKey: "no_hp",
+    header: "No Hp",
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
     cell: ({ row }) => {
-      const user: { first_name: string; last_name: string } =
-        row.getValue("user");
-
-      return h(
-        "span",
-        {
-          class: "",
-        },
-        user.first_name + " " + user.last_name
-      );
-    },
-  },
-  {
-    accessorKey: "start_date",
-    header: "Start Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("start_date"));
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(date);
-    },
-  },
-  {
-    accessorKey: "end_date",
-    header: "End Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("end_date"));
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(date);
-    },
-  },
-  {
-    accessorKey: "destination",
-    header: "Tujuan",
-  },
-  {
-    accessorKey: "transportation",
-    header: "Transport",
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as submissionStatus;
-
-      const badgeStyles: Record<submissionStatus, string> = {
-        in_progress: "text-[#E1CB0D] border-[#E1CB0D] rounded-lg",
-        draft: "text-red-500 border-red-500 rounded-lg",
-        approved: "text-blue-500 border-blue-500 rounded-lg",
-      };
-
-      return h(
-        "span",
-        {
-          class: `text-2xs leading-4 border p-2 rounded-2xs font-medium capitalize ${badgeStyles[status]}`,
-        },
-        status.replace("_", " ")
-      );
-    },
-  },
-  {
-    accessorKey: "document",
-    header: "Dokumen",
-    cell: ({ row }) => {
-      const file: { id: string; title: string; filename_download: string } =
-        row.getValue("document");
-      if (!file || typeof file !== "object") return "No file";
-
-      const url = `/panel/assets/${file.id}?download`;
-
+      const email = row.getValue("email");
       return h(
         "a",
         {
-          href: url,
-          target: "_blank",
-          download: true,
+          href: `mailto:${email}`,
+          class: "text-blue-600 underline",
+        },
+        { default: () => email }
+      );
+    },
+  },
+  {
+    accessorKey: "sentimen",
+    header: "Sentimen",
+    cell: ({ row }) => {
+      const sentimen = row.getValue("sentimen");
+      const isPositive = sentimen === "Positif";
+
+      return h(
+        "span",
+        {
+          class: `px-2 py-1 rounded text-xs font-medium ${
+            isPositive
+              ? "text-green-500 border border-green-500"
+              : "text-red-500 border border-red-500"
+          }`,
+        },
+        { default: () => sentimen }
+      );
+    },
+  },
+  {
+    accessorKey: "dokumen",
+    header: "Dokumen",
+    cell: ({ row }) => {
+      const dokumen = row.getValue("dokumen");
+      return h(
+        "a",
+        {
+          href: "#",
           class: "text-blue-600 underline text-xs",
         },
-        file.filename_download || file.title || "Download"
+        { default: () => dokumen }
+      );
+    },
+  },
+  {
+    accessorKey: "last_update",
+    header: "Last Update",
+    cell: ({ row }) => {
+      const lastUpdate = row.getValue("last_update");
+      return h(
+        "span",
+        {
+          class: "text-xs text-gray-600",
+        },
+        { default: () => lastUpdate }
       );
     },
   },
   {
     id: "action",
-    header: "Action",
+    header: "Aksi",
     cell: ({ row }) => {
       return h(
-        "button",
+        "div",
         {
-          class: "text-blue-600 underline text-xs",
-          onClick: () => (openReview.value = !openReview.value),
+          class: "flex items-center gap-2",
         },
-        "Review"
+        [
+          h(
+            "button",
+            {
+              class: "text-gray-600 hover:text-gray-800",
+              onClick: () => console.log("View", row.original),
+            },
+            [
+              h("i", {
+                class: "i-heroicons-eye w-4 h-4",
+              }),
+            ]
+          ),
+          h(
+            "button",
+            {
+              class: "text-gray-600 hover:text-gray-800",
+              onClick: () => console.log("More", row.original),
+            },
+            "⋮"
+          ),
+        ]
       );
     },
   },
