@@ -127,7 +127,7 @@ const menuItems = computed((): MenuItem[] => [
       {
         label: "Jenis Report",
         to: "/data/jenis-report",
-        isActive: route.path === "/jenis-report",
+        isActive: route.path === "/data/jenis-report",
       },
       {
         label: "Profil Desa",
