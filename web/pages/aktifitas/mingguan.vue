@@ -1,131 +1,84 @@
 <script lang="ts" setup>
-definePageMeta({
-  middleware: "auth",
-});
-import { useQuery } from "@tanstack/vue-query";
-import { h, ref, resolveComponent } from "vue";
-import type { TableColumn, TableRow } from "@nuxt/ui";
-import { AktifitasFormWeeklyActivity } from "#components";
+definePageMeta({ middleware: "auth" });
 
-const authStore = useAuth();
-const page = ref(1);
-const pageSize = ref<string>("10");
+import { h, ref, resolveComponent } from "vue";
+import { useQuery } from "@tanstack/vue-query";
+import type { TableColumn } from "@nuxt/ui";
+
+const UIcon = resolveComponent("UIcon");
+const UCheckbox = resolveComponent("UCheckbox");
+
 const startDate = ref();
 const endDate = ref();
 const search = ref("");
 const currentQueryParams = ref<Record<string, string>>();
 
-const {
-  data: tableData,
-  error: tableError,
-  isFetching: isTableFetching,
-  isError: isTableError,
-} = useQuery({
-  queryKey: computed(() => [
-    "table-data",
-    page.value,
-    pageSize.value,
-    startDate.value,
-    endDate.value,
-    search.value,
-  ]),
-  queryFn: async ({ queryKey }) => {
-    const filters: any[] = [];
-    if (startDate.value) {
-      const date = new Date(startDate.value);
-      date.setHours(0, 0, 0);
-      filters.push({
-        start_date: {
-          _gte: date,
-        },
-      });
-    }
-    if (endDate.value) {
-      const date = new Date(endDate.value);
-      date.setHours(23, 59, 59);
-      filters.push({
-        end_date: {
-          _lte: date,
-        },
-      });
-    }
-    if (search.value) {
-      const searchWords = search.value.trim().split(/\s+/);
-      const orConditions = searchWords.map((word) => ({
-        _or: [
-          {
-            user: {
-              first_name: {
-                _icontains: word,
-              },
-            },
-          },
-          {
-            user: {
-              last_name: {
-                _icontains: word,
-              },
-            },
-          },
-        ],
-      }));
+const page = ref(1);
+const pageSize = ref("10");
+const auth = useAuth();
+const selectedId = ref<string | null>(null);
+const openReview = ref(false);
 
-      filters.push(...orConditions);
+const { data: tableData, isFetching } = useQuery({
+  queryKey: ["weekly-activities", page, pageSize, startDate, endDate, search], // Add filter dependencies
+  queryFn: async () => {
+    const filters: any[] = [];
+
+    if (startDate.value) {
+      filters.push({
+        date_created: { _gte: startDate.value },
+      });
+    }
+
+    if (endDate.value) {
+      filters.push({
+        date_created: { _lte: endDate.value },
+      });
+    }
+
+    if (search.value) {
+      filters.push({
+        _or: [
+          { title: { _icontains: search.value } },
+          { summary: { _icontains: search.value } },
+        ],
+      });
     }
 
     const queryParams: Record<string, string> = {
-      limit: String(pageSize.value),
+      fields: [
+        "*",
+        "user_created.first_name",
+        "user_created.last_name",
+        "documents.directus_files_id",
+        "pics.directus_users_id.first_name",
+        "pics.directus_users_id.last_name",
+      ].join(","),
+      limit: pageSize.value,
       page: String(page.value),
-      fields:
-        "id,user.first_name,user.last_name,destination,transportation,status,document.id,document.filename_download,document.title,start_date,end_date",
-      filter: JSON.stringify({
-        _and: filters,
-      }),
       meta: "filter_count",
     };
-    currentQueryParams.value = queryParams;
-    const r = await $fetch<{
-      data: Record<string, any>[];
-      meta: { filter_count: number };
-    }>(`/panel/items/business_trips?` + new URLSearchParams(queryParams), {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    })
-      .then((r) => r)
-      .catch((err) => {
-        throw err; // re-throw to let useQuery handle it if needed
-      });
 
-    return r;
+    if (filters.length > 0) {
+      if (filters.length === 1) {
+        queryParams.filter = JSON.stringify(filters[0]);
+      } else {
+        queryParams.filter = JSON.stringify({ _and: filters });
+      }
+    }
+
+    currentQueryParams.value = queryParams;
+
+    return await $fetch<{
+      data: any[];
+      meta: { filter_count: number };
+    }>(`/panel/items/weekly_activities?${new URLSearchParams(queryParams)}`, {
+      headers: {
+        Authorization: `Bearer ${auth.accessToken}`,
+      },
+    });
   },
 });
-
-const UCheckbox = resolveComponent("UCheckbox");
-
-type submissionStatus = "in_progress" | "approved" | "draft";
-
-// const data = ref<Record<string, any>[]>([
-//   {
-//     id: "1",
-//     name: "Priya Nair",
-//     role: "Dept Head",
-//     status: "Perjalanan Dinas",
-//   },
-//   { id: "2", name: "Puteri Aprilia", role: "Admin", status: "sakit" },
-//   { id: "3", name: "Angelica", role: "Non-Organic", status: "Cuti" },
-//   { id: "4", name: "Maria", role: "Organic", status: "Hadir" },
-//   {
-//     id: "5",
-//     name: "Santa Sitorius",
-//     role: "Organic",
-//     status: "Perjalanan Dinas",
-//   },
-//   { id: "6", name: "Alma", role: "Organic", status: "sakit" },
-//   { id: "7", name: "Adi Subrata", role: "Non-Organic", status: "Cuti" },
-//   { id: "8", name: "Fahmi", role: "Organic", status: "sakit" },
-//   { id: "9", name: "Yasmin", role: "Non-Organic", status: "Cuti" },
-// ]);
 
 const columns: TableColumn<Record<string, any>>[] = [
   {
@@ -135,128 +88,97 @@ const columns: TableColumn<Record<string, any>>[] = [
         modelValue: table.getIsSomePageRowsSelected()
           ? "indeterminate"
           : table.getIsAllPageRowsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
+        "onUpdate:modelValue": (value: any) =>
           table.toggleAllPageRowsSelected(!!value),
         "aria-label": "Select all",
-        ui: { base: "rounded-2xs ring-grey-500" },
       }),
     cell: ({ row }) =>
       h(UCheckbox, {
         modelValue: row.getIsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          row.toggleSelected(!!value),
+        "onUpdate:modelValue": (value: any) => row.toggleSelected(!!value),
         "aria-label": "Select row",
-        ui: { base: "rounded-2xs ring-grey-500" },
       }),
   },
   {
-    accessorKey: "user",
-    header: "Nama",
+    accessorKey: "title",
+    header: "Report Weekly",
+    cell: ({ row }) => row.getValue("title") || "-",
+  },
+  {
+    accessorKey: "summary",
+    header: "Kesimpulan Weekly",
     cell: ({ row }) => {
-      const user: { first_name: string; last_name: string } =
-        row.getValue("user");
-
-      return h(
-        "span",
-        {
-          class: "",
-        },
-        user.first_name + " " + user.last_name
-      );
+      const val = String(row.getValue("summary") || "-");
+      return h("span", { class: "truncate max-w-[200px]" }, val);
     },
   },
   {
-    accessorKey: "start_date",
-    header: "Start Date",
+    id: "diunggah_oleh",
+    header: "Diunggah Oleh",
     cell: ({ row }) => {
-      const date = new Date(row.getValue("start_date"));
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(date);
+      const u = row.original.user_created;
+      return `${u?.first_name || ""} ${u?.last_name || ""}`.trim() || "-";
     },
   },
   {
-    accessorKey: "end_date",
-    header: "End Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("end_date"));
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(date);
-    },
-  },
-  {
-    accessorKey: "destination",
-    header: "Tujuan",
-  },
-  {
-    accessorKey: "transportation",
-    header: "Transport",
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as submissionStatus;
-
-      const badgeStyles: Record<submissionStatus, string> = {
-        in_progress: "text-[#E1CB0D] border-[#E1CB0D]",
-        draft: "text-red-500",
-        approved: "text-blue-500",
-      };
-
-      return h(
-        "span",
-        {
-          class: `text-2xs leading-4 border p-2 rounded-2xs font-medium capitalize ${badgeStyles[status]}`,
-        },
-        status
-      );
-    },
-  },
-  {
-    accessorKey: "document",
+    id: "dokumen",
     header: "Dokumen",
     cell: ({ row }) => {
-      const file: { id: string; title: string; filename_download: string } =
-        row.getValue("document");
-      if (!file || typeof file !== "object") return "No file";
-
-      const url = `/panel/assets/${file.id}?download`;
-
+      const docs = row.original.documents;
+      if (!docs?.length) return "-";
+      const fileId = docs[0]?.directus_files_id;
       return h(
         "a",
         {
-          href: url,
+          href: `/panel/assets/${fileId}`,
           target: "_blank",
-          download: true,
-          class: "text-blue-600 underline text-xs",
+          class: "text-blue-600 hover:underline",
         },
-        file.filename_download || file.title || "Download"
+        "Dokumen"
       );
     },
   },
   {
-    id: "action",
+    id: "updated",
+    header: "Last Update",
+    cell: ({ row }) => {
+      const raw = row.original.date_updated;
+      return raw
+        ? new Date(raw).toLocaleString("id-ID", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "-";
+    },
+  },
+  {
+    id: "aksi",
     header: "Action",
     cell: ({ row }) => {
-      return h(
-        "button",
-        {
-          class: "text-blue-600 underline text-xs",
-          onClick: () => (openReview.value = !openReview.value),
-        },
-        "Review"
-      );
+      return h("div", { class: "flex items-center gap-2" }, [
+        h(UIcon, {
+          name: "lucide:eye",
+          class: "w-4 h-4 cursor-pointer hover:text-gray-700",
+          onClick: () => {
+            selectedId.value = row.original.id;
+            openReview.value = true;
+          },
+        }),
+        h(UIcon, {
+          name: "lucide:download",
+          class: "w-4 h-4 cursor-pointer hover:text-gray-700",
+          onClick: () => {
+            const fileId = row.original.documents?.[0]?.directus_files_id;
+            if (fileId) window.open(`/panel/assets/${fileId}`, "_blank");
+          },
+        }),
+      ]);
     },
   },
 ];
-
-const openReview = ref(false);
 
 function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
   startDate.value = startDateInput ?? null;
@@ -265,7 +187,7 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
 </script>
 
 <template>
-  <div class="p-6 bg-grey-100 rounded-xs space-y-3">
+  <div class="p-6 bg-white rounded-lg shadow space-y-4">
     <DashboardTableHeaderControls
       v-model:search="search"
       @update-date="handleDateUpdate"
@@ -276,8 +198,8 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
         <USlideover
           title="Buat Weekly Activity"
           :ui="{
-            content: 'w-full max-w-[40vw] m-9 rounded-lg ',
-            body: 'flex-1 overflow-y-auto relative',
+            content: 'w-full max-w-[40vw] m-9 rounded-lg',
+            body: 'relative',
             title: 'text-sm font-semibold text-gray-900',
           }"
         >
@@ -296,17 +218,22 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
       </template>
     </DashboardTableHeaderControls>
     <DashboardTable
-      v-model:pageSize="pageSize"
       v-model:page="page"
-      :data="tableData?.data"
+      v-model:pageSize="pageSize"
       :columns="columns"
+      :data="tableData?.data"
       :totalData="tableData?.meta?.filter_count"
     />
   </div>
+
   <USlideover
     v-model:open="openReview"
-    title="Review Perjalanan Dinas"
-    :ui="{ content: 'm-9' }"
+    :title="`Review Weekly Activity`"
+    :ui="{
+      content: 'w-full max-w-[30vw] m-9 rounded-lg',
+      body: 'relative',
+      title: 'text-sm font-semibold text-gray-900',
+    }"
   >
     <template #body> </template>
   </USlideover>

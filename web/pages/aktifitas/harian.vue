@@ -2,16 +2,23 @@
 definePageMeta({
   middleware: "auth",
 });
+
 import { useQuery } from "@tanstack/vue-query";
 import { h, ref, resolveComponent } from "vue";
 import type { TableColumn, TableRow } from "@nuxt/ui";
 
+const UCheckbox = resolveComponent("UCheckbox");
+const UIcon = resolveComponent("UIcon");
+
+const authStore = useAuth();
 const page = ref(1);
 const pageSize = ref<string>("10");
 const startDate = ref();
 const endDate = ref();
 const search = ref("");
 const currentQueryParams = ref<Record<string, string>>();
+const selectedId = ref<string | null>(null);
+const selectedDate = ref<string | null>(null);
 
 const {
   data: tableData,
@@ -30,52 +37,32 @@ const {
   queryFn: async ({ queryKey }) => {
     const filters: any[] = [];
     if (startDate.value) {
-      const date = new Date(startDate.value);
-      date.setHours(0, 0, 0);
       filters.push({
-        start_date: {
-          _gte: date,
+        date: {
+          _gte: startDate.value,
         },
       });
     }
     if (endDate.value) {
-      const date = new Date(endDate.value);
-      date.setHours(23, 59, 59);
       filters.push({
-        end_date: {
-          _lte: date,
+        date: {
+          _lte: endDate.value,
         },
       });
     }
     if (search.value) {
-      const searchWords = search.value.trim().split(/\s+/);
-      const orConditions = searchWords.map((word) => ({
-        _or: [
-          {
-            user: {
-              first_name: {
-                _icontains: word,
-              },
-            },
-          },
-          {
-            user: {
-              last_name: {
-                _icontains: word,
-              },
-            },
-          },
-        ],
-      }));
-
-      filters.push(...orConditions);
+      filters.push({
+        title: {
+          _icontains: search.value.trim(),
+        },
+      });
     }
 
     const queryParams: Record<string, string> = {
       limit: String(pageSize.value),
       page: String(page.value),
       fields:
-        "id,user.first_name,user.last_name,destination,transportation,status,document.id,document.filename_download,document.title,start_date,end_date",
+        "id,user_created.*,report_type.name,pics.directus_users_id.first_name,location,title,status,start_time,date",
       filter: JSON.stringify({
         _and: filters,
       }),
@@ -85,7 +72,11 @@ const {
     const r = await $fetch<{
       data: Record<string, any>[];
       meta: { filter_count: number };
-    }>(`/panel/items/business_trips?` + new URLSearchParams(queryParams))
+    }>(`/panel/items/daily_activities?` + new URLSearchParams(queryParams), {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    })
       .then((r) => r)
       .catch((err) => {
         throw err; // re-throw to let useQuery handle it if needed
@@ -97,135 +88,117 @@ const {
   },
 });
 
-const UCheckbox = resolveComponent("UCheckbox");
-
 type submissionStatus = "in_progress" | "approved" | "draft";
 
 const columns: TableColumn<Record<string, any>>[] = [
   {
-    id: "select",
-    header: ({ table }) =>
-      h(UCheckbox, {
-        modelValue: table.getIsSomePageRowsSelected()
-          ? "indeterminate"
-          : table.getIsAllPageRowsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          table.toggleAllPageRowsSelected(!!value),
-        "aria-label": "Select all",
-        ui: { base: "rounded-2xs ring-grey-500" },
-      }),
-    cell: ({ row }) =>
-      h(UCheckbox, {
-        modelValue: row.getIsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          row.toggleSelected(!!value),
-        "aria-label": "Select row",
-        ui: { base: "rounded-2xs ring-grey-500" },
-      }),
+    accessorKey: "isafe_number",
+    header: "iSafe Number",
+    cell: () => "090909",
   },
   {
-    accessorKey: "user",
-    header: "Nama",
+    accessorKey: "nik",
+    header: "NIK",
+    // just a placeholder – you could hash `user_created.id` if needed
+    cell: () => "1234675289001",
+  },
+  {
+    accessorKey: "pics",
+    header: "PIC",
     cell: ({ row }) => {
-      const user: { first_name: string; last_name: string } =
-        row.getValue("user");
+      const pics = row.getValue("pics") as {
+        directus_users_id: { first_name: string };
+      }[];
 
+      const names = (pics || [])
+        .map((p) => p.directus_users_id?.first_name)
+        .filter(Boolean);
+      return names.join(", ") || "-";
+    },
+  },
+  {
+    accessorKey: "start_time",
+    header: "Start Time",
+    cell: ({ row }) => row.getValue("start_time") || "-",
+  },
+  {
+    accessorKey: "location",
+    header: "Lokasi",
+    cell: ({ row }) => row.getValue("location") || "-",
+  },
+  {
+    accessorKey: "report_type",
+    header: "Report",
+    cell: ({ row }) => {
+      const report = row.getValue("report_type") as { name?: string };
+      return report?.name || "-";
+    },
+  },
+  {
+    accessorKey: "title",
+    header: "Judul Report",
+    cell: ({ row }) => {
+      const title = String(row.getValue("title") || "-");
       return h(
         "span",
-        {
-          class: "",
-        },
-        user.first_name + " " + user.last_name
+        { class: "whitespace-nowrap truncate max-w-[150px]" },
+        title
       );
     },
-  },
-  {
-    accessorKey: "start_date",
-    header: "Start Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("start_date"));
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(date);
-    },
-  },
-  {
-    accessorKey: "end_date",
-    header: "End Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("end_date"));
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(date);
-    },
-  },
-  {
-    accessorKey: "destination",
-    header: "Tujuan",
-  },
-  {
-    accessorKey: "transportation",
-    header: "Transport",
   },
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as submissionStatus;
+      const raw = String(row.getValue("status") || "").toLowerCase();
+      const labelMap: Record<string, string> = {
+        approved: "Approved",
+        in_progress: "In Progress",
+        draft: "draft",
+        closed: "Closed",
+        reject: "Reject",
+        rejected: "Reject",
+      };
+      const label = labelMap[raw] || raw;
 
-      const badgeStyles: Record<submissionStatus, string> = {
-        in_progress: "text-[#E1CB0D] border-[#E1CB0D]",
-        draft: "text-red-500",
-        approved: "text-blue-500",
+      const styleMap: Record<string, string> = {
+        in_progress: "text-blue-600 border border-blue-300 bg-blue-50",
+        draft: "text-orange-600 border border-orange-300 bg-orange-50",
+        closed: "text-green-600 border border-green-300 bg-green-50",
+        approved: "text-yellow-700 border border-yellow-300 bg-yellow-50",
+        reject: "text-red-600 border border-red-300 bg-red-50",
       };
 
       return h(
         "span",
         {
-          class: `text-2xs leading-4 border p-2 rounded-2xs font-medium capitalize ${badgeStyles[status]}`,
+          class: `inline-flex items-center text-xs px-2 py-1 rounded-md font-medium ${
+            styleMap[raw] || ""
+          }`,
         },
-        status
+        [h("span", { class: "i-heroicons-check-circle-16 mr-1" }), label]
       );
     },
   },
   {
-    accessorKey: "document",
-    header: "Dokumen",
+    id: "aksi",
+    header: "Aksi",
     cell: ({ row }) => {
-      const file: { id: string; title: string; filename_download: string } =
-        row.getValue("document");
-      if (!file || typeof file !== "object") return "No file";
-
-      const url = `/panel/assets/${file.id}?download`;
-
-      return h(
-        "a",
-        {
-          href: url,
-          target: "_blank",
-          download: true,
-          class: "text-blue-600 underline text-xs",
-        },
-        file.filename_download || file.title || "Download"
-      );
-    },
-  },
-  {
-    id: "action",
-    header: "Action",
-    cell: ({ row }) => {
-      return h(
-        "button",
-        {
-          class: "text-blue-600 underline text-xs",
-          onClick: () => (openReview.value = !openReview.value),
-        },
-        "Review"
-      );
+      return h("div", { class: "flex items-center gap-2" }, [
+        h(UIcon, {
+          name: "lucide:eye",
+          class: "w-4 h-4 cursor-pointer text-gray-600 hover:text-gray-800",
+          onClick: () => {
+            selectedId.value = row.original.id;
+            selectedDate.value = row.original.date;
+            openReview.value = true;
+          },
+        }),
+        h(UIcon, {
+          name: "lucide:pencil",
+          class: "w-4 h-4 cursor-pointer text-gray-600 hover:text-gray-800",
+        }),
+      ]);
     },
   },
 ];
@@ -307,9 +280,16 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
   </div>
   <USlideover
     v-model:open="openReview"
-    title="Review Perjalanan Dinas"
-    :ui="{ content: 'm-9' }"
+    :title="`Review Daily Activity, ${selectedDate}`"
+    :ui="{
+      content: 'w-full max-w-[30vw] m-9 rounded-lg',
+      body: 'relative',
+      title: 'text-sm font-semibold text-gray-900',
+    }"
   >
-    <template #body> </template>
+    <template #body>
+      <AktifitasDetailDailyActivity v-if="selectedId" :id="selectedId" />
+    </template>
   </USlideover>
 </template>
+;
