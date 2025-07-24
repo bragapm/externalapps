@@ -338,4 +338,3 @@ watch(chartData, (data) => {
     </template>
   </USlideover>
 </template>
-;
