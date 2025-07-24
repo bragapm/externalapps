@@ -1,125 +1,109 @@
 <script lang="ts" setup>
-definePageMeta({
-  middleware: "auth",
-});
-import { useQuery } from "@tanstack/vue-query";
+definePageMeta({ middleware: "auth" });
+
 import { h, ref, resolveComponent } from "vue";
-import type { TableColumn, TableRow } from "@nuxt/ui";
+import { useQuery } from "@tanstack/vue-query";
+import type { TableColumn } from "@nuxt/ui";
+
+const UIcon = resolveComponent("UIcon");
+const UCheckbox = resolveComponent("UCheckbox");
+
+// Define proper types
+interface User {
+  first_name?: string;
+  last_name?: string;
+}
+
+interface LeaveRequest {
+  id: string;
+  user: User;
+  start_date: string;
+  end_date: string;
+  leave_type?: string;
+  reason?: string;
+  status: "waiting" | "approved" | "rejected";
+  total_days?: number;
+}
+
+interface ApiResponse {
+  data: LeaveRequest[];
+  meta: {
+    filter_count: number;
+  };
+}
 
 const page = ref(1);
-const pageSize = ref<string>("10");
-const startDate = ref();
-const endDate = ref();
+const pageSize = ref("10");
 const search = ref("");
+const startDate = ref<string | null>(null);
+const endDate = ref<string | null>(null);
+const auth = useAuth();
 const currentQueryParams = ref<Record<string, string>>();
 
-const {
-  data: tableData,
-  error: tableError,
-  isFetching: isTableFetching,
-  isError: isTableError,
-} = useQuery({
-  queryKey: computed(() => [
-    "table-data",
-    page.value,
-    pageSize.value,
-    startDate.value,
-    endDate.value,
-    search.value,
-  ]),
-  queryFn: async ({ queryKey }) => {
-    const filters: any[] = [];
-    if (startDate.value) {
-      const date = new Date(startDate.value);
-      date.setHours(0, 0, 0);
-      filters.push({
-        start_date: {
-          _gte: date,
-        },
-      });
-    }
-    if (endDate.value) {
-      const date = new Date(endDate.value);
-      date.setHours(23, 59, 59);
-      filters.push({
-        end_date: {
-          _lte: date,
-        },
-      });
-    }
-    if (search.value) {
-      const searchWords = search.value.trim().split(/\s+/);
-      const orConditions = searchWords.map((word) => ({
-        _or: [
-          {
-            user: {
-              first_name: {
-                _icontains: word,
-              },
-            },
-          },
-          {
-            user: {
-              last_name: {
-                _icontains: word,
-              },
-            },
-          },
-        ],
-      }));
+const selectedId = ref<string | null>(null);
+const openReview = ref(false);
 
-      filters.push(...orConditions);
+const { data: tableData, isFetching } = useQuery<ApiResponse>({
+  queryKey: ["leave-requests", page, pageSize, startDate, endDate, search],
+  queryFn: async (): Promise<ApiResponse> => {
+    const filters: any[] = [];
+
+    if (startDate.value) {
+      filters.push({ start_date: { _gte: startDate.value } });
+    }
+
+    if (endDate.value) {
+      filters.push({ end_date: { _lte: endDate.value } });
+    }
+
+    if (search.value) {
+      filters.push({
+        _or: [
+          { reason: { _icontains: search.value } },
+          { leave_type: { _icontains: search.value } },
+        ],
+      });
     }
 
     const queryParams: Record<string, string> = {
-      limit: String(pageSize.value),
+      fields: "*,user.first_name,user.last_name",
+      limit: pageSize.value,
       page: String(page.value),
-      fields:
-        "id,user.first_name,user.last_name,destination,transportation,status,document.id,document.filename_download,document.title,start_date,end_date",
-      filter: JSON.stringify({
-        _and: filters,
-      }),
       meta: "filter_count",
     };
-    currentQueryParams.value = queryParams;
-    const r = await $fetch<{
-      data: Record<string, any>[];
-      meta: { filter_count: number };
-    }>(`/panel/items/business_trips?` + new URLSearchParams(queryParams))
-      .then((r) => r)
-      .catch((err) => {
-        throw err; // re-throw to let useQuery handle it if needed
-      });
 
-    return r;
+    if (filters.length === 1) {
+      queryParams.filter = JSON.stringify(filters[0]);
+    } else if (filters.length > 1) {
+      queryParams.filter = JSON.stringify({ _and: filters });
+    }
+
+    currentQueryParams.value = queryParams;
+
+    return await $fetch<ApiResponse>(
+      `/panel/items/leave_requests?${new URLSearchParams(queryParams)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${auth.accessToken}`,
+        },
+      }
+    );
   },
 });
 
-const UCheckbox = resolveComponent("UCheckbox");
+function handleDateUpdate(start?: string, end?: string) {
+  startDate.value = start ?? null;
+  endDate.value = end ?? null;
+}
 
-type submissionStatus = "in_progress" | "approved" | "draft";
-
-// const data = ref<Record<string, any>[]>([
-//   {
-//     id: "1",
-//     name: "Priya Nair",
-//     role: "Dept Head",
-//     status: "Perjalanan Dinas",
-//   },
-//   { id: "2", name: "Puteri Aprilia", role: "Admin", status: "sakit" },
-//   { id: "3", name: "Angelica", role: "Non-Organic", status: "Cuti" },
-//   { id: "4", name: "Maria", role: "Organic", status: "Hadir" },
-//   {
-//     id: "5",
-//     name: "Santa Sitorius",
-//     role: "Organic",
-//     status: "Perjalanan Dinas",
-//   },
-//   { id: "6", name: "Alma", role: "Organic", status: "sakit" },
-//   { id: "7", name: "Adi Subrata", role: "Non-Organic", status: "Cuti" },
-//   { id: "8", name: "Fahmi", role: "Organic", status: "sakit" },
-//   { id: "9", name: "Yasmin", role: "Non-Organic", status: "Cuti" },
-// ]);
+// Function to calculate total days between dates
+function calculateTotalDays(startDate: string, endDate: string): string {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  return `${diffDays} Hari`;
+}
 
 const columns: TableColumn<Record<string, any>>[] = [
   {
@@ -129,133 +113,124 @@ const columns: TableColumn<Record<string, any>>[] = [
         modelValue: table.getIsSomePageRowsSelected()
           ? "indeterminate"
           : table.getIsAllPageRowsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          table.toggleAllPageRowsSelected(!!value),
-        "aria-label": "Select all",
-        ui: { base: "rounded-2xs ring-grey-500" },
+        "onUpdate:modelValue": (v: any) => table.toggleAllPageRowsSelected(!!v),
       }),
     cell: ({ row }) =>
       h(UCheckbox, {
         modelValue: row.getIsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          row.toggleSelected(!!value),
-        "aria-label": "Select row",
-        ui: { base: "rounded-2xs ring-grey-500" },
+        "onUpdate:modelValue": (v: any) => row.toggleSelected(!!v),
       }),
   },
   {
-    accessorKey: "user",
+    accessorKey: "iSafe",
+    header: "iSafe",
+    cell: () => "IDT01A5",
+  },
+  {
+    accessorKey: "nik",
+    header: "NIK",
+    cell: () => "IDT01A5JWADPKZA999",
+  },
+  {
+    id: "name",
     header: "Nama",
     cell: ({ row }) => {
-      const user: { first_name: string; last_name: string } =
-        row.getValue("user");
+      const user = row.original.user;
+      return `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "-";
+    },
+  },
+  {
+    id: "start_date",
+    header: "Tanggal Mulai",
+    cell: ({ row }) => {
+      try {
+        return new Date(row.original.start_date).toLocaleDateString("id-ID");
+      } catch {
+        return "-";
+      }
+    },
+  },
+  {
+    id: "end_date",
+    header: "Tanggal Selesai",
+    cell: ({ row }) => {
+      try {
+        return new Date(row.original.end_date).toLocaleDateString("id-ID");
+      } catch {
+        return "-";
+      }
+    },
+  },
+  {
+    id: "leave_type",
+    header: "Jenis Cuti",
+    cell: ({ row }) => row.original.leave_type || "-",
+  },
+  {
+    id: "reason",
+    header: "Alasan",
+    cell: ({ row }) => row.original.reason || "-",
+  },
+  {
+    id: "total_days",
+    header: "Total Cuti",
+    cell: ({ row }) => {
+      if (row.original.total_days) {
+        return `${row.original.total_days} Hari`;
+      }
+      // Calculate from start and end dates if total_days is not provided
+      if (row.original.start_date && row.original.end_date) {
+        return calculateTotalDays(
+          row.original.start_date,
+          row.original.end_date
+        );
+      }
+      return "-"; // fallback
+    },
+  },
 
-      return h(
-        "span",
-        {
-          class: "",
-        },
-        user.first_name + " " + user.last_name
-      );
-    },
-  },
   {
-    accessorKey: "start_date",
-    header: "Start Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("start_date"));
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(date);
-    },
-  },
-  {
-    accessorKey: "end_date",
-    header: "End Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("end_date"));
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(date);
-    },
-  },
-  {
-    accessorKey: "destination",
-    header: "Tujuan",
-  },
-  {
-    accessorKey: "transportation",
-    header: "Transport",
-  },
-  {
-    accessorKey: "status",
+    id: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as submissionStatus;
-
-      const badgeStyles: Record<submissionStatus, string> = {
-        in_progress: "text-[#E1CB0D] border-[#E1CB0D]",
-        draft: "text-red-500",
-        approved: "text-blue-500",
+      const status = row.original.status;
+      const colorMap: Record<string, string> = {
+        waiting: "bg-yellow-100 text-yellow-800",
+        approved: "bg-green-100 text-green-800",
+        rejected: "bg-red-100 text-red-800",
+        in_progress: "bg-blue-100 text-blue-800",
       };
+
+      const formattedStatus = status
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c: string) => c.toUpperCase());
 
       return h(
         "span",
         {
-          class: `text-2xs leading-4 border p-2 rounded-2xs font-medium capitalize ${badgeStyles[status]}`,
+          class: `text-xs font-medium px-2 py-1 rounded ${
+            colorMap[status] || "bg-gray-100 text-gray-800"
+          }`,
         },
-        status
+        formattedStatus
       );
     },
   },
-  {
-    accessorKey: "document",
-    header: "Dokumen",
-    cell: ({ row }) => {
-      const file: { id: string; title: string; filename_download: string } =
-        row.getValue("document");
-      if (!file || typeof file !== "object") return "No file";
 
-      const url = `/panel/assets/${file.id}?download`;
-
-      return h(
-        "a",
-        {
-          href: url,
-          target: "_blank",
-          download: true,
-          class: "text-blue-600 underline text-xs",
-        },
-        file.filename_download || file.title || "Download"
-      );
-    },
-  },
   {
     id: "action",
     header: "Action",
-    cell: ({ row }) => {
-      return h(
-        "button",
-        {
-          class: "text-blue-600 underline text-xs",
-          onClick: () => (openReview.value = !openReview.value),
+    cell: ({ row }) =>
+      h(UIcon, {
+        name: "lucide:eye",
+        class: "w-4 h-4 text-gray-600 hover:text-black cursor-pointer",
+        onClick: () => {
+          selectedId.value = row.original.id;
+          openReview.value = true;
         },
-        "Review"
-      );
-    },
+      }),
   },
 ];
-
-const openReview = ref(false);
-
-function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
-  startDate.value = startDateInput ?? null;
-  endDate.value = endDateInput ?? null;
-}
 </script>
 
 <template>
@@ -263,7 +238,7 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
     <DashboardTableHeaderControls
       v-model:search="search"
       @update-date="handleDateUpdate"
-      :collection="'business_trips'"
+      :collection="'leave-requests'"
       :queryParams="currentQueryParams"
     >
       <template #slideover-button>
@@ -271,20 +246,24 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
       </template>
     </DashboardTableHeaderControls>
     <DashboardTable
-      v-model:pageSize="pageSize"
       v-model:page="page"
-      :data="tableData?.data"
+      v-model:pageSize="pageSize"
       :columns="columns"
+      :data="tableData?.data"
       :totalData="tableData?.meta?.filter_count"
     />
   </div>
   <USlideover
     v-model:open="openReview"
     title="Review Pengajuan Cuti"
-    :ui="{ content: 'm-9' }"
+    :ui="{
+      content: 'w-full max-w-[30vw] m-9 rounded-lg',
+      body: 'relative',
+      title: 'text-sm font-semibold text-gray-900',
+    }"
   >
     <template #body>
-      <AbsensiReviewCuti />
+      <AbsensiDetailCuti v-if="selectedId" :id="selectedId" />
     </template>
   </USlideover>
 </template>
