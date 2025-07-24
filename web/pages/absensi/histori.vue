@@ -155,7 +155,7 @@ const columns: TableColumn<Record<string, any>>[] = [
         {
           class: "",
         },
-        user.first_name + " " + user.last_name
+        user.first_name + " " + user.last_name || "-"
       );
     },
   },
