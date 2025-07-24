@@ -209,6 +209,73 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
   startDate.value = startDateInput ?? null;
   endDate.value = endDateInput ?? null;
 }
+
+// Chart Data
+
+const {
+  data: chartData,
+  isFetching: isChartLoading,
+  isError: isChartError,
+} = useQuery({
+  queryKey: ["chart-data"],
+  queryFn: async () => {
+    const response = await $fetch<{
+      data: {
+        report_type: { name: string };
+        status: string;
+      }[];
+    }>(
+      "/panel/items/daily_activities?fields=report_type.name,status&limit=-1",
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+
+    return response.data;
+  },
+});
+
+const chartLabels = ref<string[]>([]);
+const chartDatasets = ref<
+  { label: string; data: number[]; backgroundColor: string }[]
+>([]);
+
+watch(chartData, (data) => {
+  if (!data) return;
+
+  const grouped: Record<string, { open: number; close: number }> = {};
+
+  data.forEach((item) => {
+    const reportName = item.report_type?.name ?? "Unknown";
+    const status = item.status?.toLowerCase();
+
+    if (!grouped[reportName]) {
+      grouped[reportName] = { open: 0, close: 0 };
+    }
+
+    if (status === "in_progress" || status === "open") {
+      grouped[reportName].open++;
+    } else if (status === "closed") {
+      grouped[reportName].close++;
+    }
+  });
+
+  chartLabels.value = Object.keys(grouped);
+  chartDatasets.value = [
+    {
+      label: "Open",
+      data: chartLabels.value.map((label) => grouped[label].open),
+      backgroundColor: "#3B82F6",
+    },
+    {
+      label: "Close",
+      data: chartLabels.value.map((label) => grouped[label].close),
+      backgroundColor: "#22C55E",
+    },
+  ];
+});
 </script>
 
 <template>
@@ -246,29 +313,8 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
       class="w-full"
       title="Report Status"
       :stacked="false"
-      :labels="[
-        'Issue A',
-        'Issue B',
-        'Issue C',
-        'Issue D',
-        'Issue E',
-        'Issue F',
-        'Agenda A',
-        'Agenda B',
-        'Agenda C',
-      ]"
-      :datasets="[
-        {
-          label: 'Open',
-          data: [18, 14, 7, 7, 7, 7, 7, 7, 7],
-          backgroundColor: '#3B82F6',
-        },
-        {
-          label: 'Close',
-          data: [12, 8, 18, 18, 18, 18, 18, 18, 18],
-          backgroundColor: '#22C55E',
-        },
-      ]"
+      :labels="chartLabels"
+      :datasets="chartDatasets"
     />
     <DashboardTable
       v-model:pageSize="pageSize"
