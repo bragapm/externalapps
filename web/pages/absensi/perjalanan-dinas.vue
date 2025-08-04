@@ -1,125 +1,93 @@
 <script lang="ts" setup>
-definePageMeta({
-  middleware: "auth",
-});
-import { useQuery } from "@tanstack/vue-query";
+definePageMeta({ middleware: "auth" });
+
 import { h, ref, resolveComponent } from "vue";
-import type { TableColumn, TableRow } from "@nuxt/ui";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import type { TableColumn } from "@nuxt/ui";
+
+const UIcon = resolveComponent("UIcon");
+const UCheckbox = resolveComponent("UCheckbox");
+
+interface User {
+  first_name?: string;
+  last_name?: string;
+}
+
+interface BusinessTrip {
+  id: string;
+  user: User | null;
+  start_date: string;
+  end_date: string;
+  destination: string | null;
+  purpose: string | null;
+  transportation: string | null;
+  status: "waiting" | "approved" | "rejected" | "in_progress";
+}
+
+interface ApiResponse {
+  data: BusinessTrip[];
+  meta: {
+    filter_count: number;
+  };
+}
 
 const page = ref(1);
 const pageSize = ref<string>("10");
-const startDate = ref();
-const endDate = ref();
 const search = ref("");
+const startDate = ref<string | null>(null);
+const endDate = ref<string | null>(null);
+const auth = useAuth();
 const currentQueryParams = ref<Record<string, string>>();
+const selectedId = ref<string | null>(null);
+const openReview = ref(false);
 
-const {
-  data: tableData,
-  error: tableError,
-  isFetching: isTableFetching,
-  isError: isTableError,
-} = useQuery({
-  queryKey: computed(() => [
-    "table-data",
-    page.value,
-    pageSize.value,
-    startDate.value,
-    endDate.value,
-    search.value,
-  ]),
-  queryFn: async ({ queryKey }) => {
+const { data: tableData, isFetching } = useQuery<ApiResponse>({
+  queryKey: ["business-trips", page, pageSize, startDate, endDate, search],
+  queryFn: async (): Promise<ApiResponse> => {
     const filters: any[] = [];
-    if (startDate.value) {
-      const date = new Date(startDate.value);
-      date.setHours(0, 0, 0);
-      filters.push({
-        start_date: {
-          _gte: date,
-        },
-      });
-    }
-    if (endDate.value) {
-      const date = new Date(endDate.value);
-      date.setHours(23, 59, 59);
-      filters.push({
-        end_date: {
-          _lte: date,
-        },
-      });
-    }
-    if (search.value) {
-      const searchWords = search.value.trim().split(/\s+/);
-      const orConditions = searchWords.map((word) => ({
-        _or: [
-          {
-            user: {
-              first_name: {
-                _icontains: word,
-              },
-            },
-          },
-          {
-            user: {
-              last_name: {
-                _icontains: word,
-              },
-            },
-          },
-        ],
-      }));
 
-      filters.push(...orConditions);
+    if (startDate.value)
+      filters.push({ start_date: { _gte: startDate.value } });
+    if (endDate.value) filters.push({ end_date: { _lte: endDate.value } });
+    if (search.value) {
+      filters.push({
+        _or: [
+          { purpose: { _icontains: search.value } },
+          { destination: { _icontains: search.value } },
+        ],
+      });
     }
 
     const queryParams: Record<string, string> = {
-      limit: String(pageSize.value),
+      fields: "*,user.first_name,user.last_name",
+      limit: pageSize.value,
       page: String(page.value),
-      fields:
-        "id,user.first_name,user.last_name,destination,transportation,status,document.id,document.filename_download,document.title,start_date,end_date",
-      filter: JSON.stringify({
-        _and: filters,
-      }),
       meta: "filter_count",
     };
-    currentQueryParams.value = queryParams;
-    const r = await $fetch<{
-      data: Record<string, any>[];
-      meta: { filter_count: number };
-    }>(`/panel/items/business_trips?` + new URLSearchParams(queryParams))
-      .then((r) => r)
-      .catch((err) => {
-        throw err; // re-throw to let useQuery handle it if needed
-      });
 
-    return r;
+    if (filters.length === 1) queryParams.filter = JSON.stringify(filters[0]);
+    else if (filters.length > 1)
+      queryParams.filter = JSON.stringify({ _and: filters });
+
+    currentQueryParams.value = queryParams;
+
+    return await $fetch<ApiResponse>(
+      `/panel/items/business_trips?${new URLSearchParams(queryParams)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${auth.accessToken}`,
+        },
+      }
+    ).then((res) => {
+      return res;
+    });
   },
 });
 
-const UCheckbox = resolveComponent("UCheckbox");
-
-type submissionStatus = "in_progress" | "approved" | "draft";
-
-// const data = ref<Record<string, any>[]>([
-//   {
-//     id: "1",
-//     name: "Priya Nair",
-//     role: "Dept Head",
-//     status: "Perjalanan Dinas",
-//   },
-//   { id: "2", name: "Puteri Aprilia", role: "Admin", status: "sakit" },
-//   { id: "3", name: "Angelica", role: "Non-Organic", status: "Cuti" },
-//   { id: "4", name: "Maria", role: "Organic", status: "Hadir" },
-//   {
-//     id: "5",
-//     name: "Santa Sitorius",
-//     role: "Organic",
-//     status: "Perjalanan Dinas",
-//   },
-//   { id: "6", name: "Alma", role: "Organic", status: "sakit" },
-//   { id: "7", name: "Adi Subrata", role: "Non-Organic", status: "Cuti" },
-//   { id: "8", name: "Fahmi", role: "Organic", status: "sakit" },
-//   { id: "9", name: "Yasmin", role: "Non-Organic", status: "Cuti" },
-// ]);
+function handleDateUpdate(start?: string, end?: string) {
+  startDate.value = start ?? null;
+  endDate.value = end ?? null;
+}
 
 const columns: TableColumn<Record<string, any>>[] = [
   {
@@ -129,162 +97,150 @@ const columns: TableColumn<Record<string, any>>[] = [
         modelValue: table.getIsSomePageRowsSelected()
           ? "indeterminate"
           : table.getIsAllPageRowsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          table.toggleAllPageRowsSelected(!!value),
-        "aria-label": "Select all",
-        ui: { base: "rounded-2xs ring-grey-500" },
+        "onUpdate:modelValue": (v: any) => table.toggleAllPageRowsSelected(!!v),
       }),
     cell: ({ row }) =>
       h(UCheckbox, {
         modelValue: row.getIsSelected(),
-        "onUpdate:modelValue": (value: boolean | "indeterminate") =>
-          row.toggleSelected(!!value),
-        "aria-label": "Select row",
-        ui: { base: "rounded-2xs ring-grey-500" },
+        "onUpdate:modelValue": (v: any) => row.toggleSelected(!!v),
       }),
   },
+  { accessorKey: "iSafe", header: "iSafe ID", cell: () => "IDT01A5" },
+  { accessorKey: "nik", header: "NIK", cell: () => "1234567890111" },
   {
-    accessorKey: "user",
-    header: "Nama",
+    id: "start_date",
+    header: "Tanggal Mulai",
     cell: ({ row }) => {
-      const user: { first_name: string; last_name: string } =
-        row.getValue("user");
-
-      return h(
-        "span",
-        {
-          class: "",
-        },
-        user.first_name + " " + user.last_name
-      );
+      try {
+        // Handle null start_date
+        if (!row.original.start_date) return "-";
+        return new Date(row.original.start_date).toLocaleDateString("id-ID");
+      } catch (error) {
+        return "-";
+      }
     },
   },
   {
-    accessorKey: "start_date",
-    header: "Start Date",
+    id: "end_date",
+    header: "Tanggal Selesai",
     cell: ({ row }) => {
-      const date = new Date(row.getValue("start_date"));
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(date);
+      try {
+        // Handle null end_date
+        if (!row.original.end_date) return "-";
+        return new Date(row.original.end_date).toLocaleDateString("id-ID");
+      } catch (error) {
+        return "-";
+      }
     },
   },
   {
-    accessorKey: "end_date",
-    header: "End Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("end_date"));
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(date);
-    },
-  },
-  {
-    accessorKey: "destination",
+    id: "destination",
     header: "Tujuan",
+    cell: ({ row }) => row.original.destination || "-",
   },
   {
-    accessorKey: "transportation",
+    id: "transportation",
     header: "Transport",
+    cell: ({ row }) => row.original.transportation || "-",
   },
   {
-    accessorKey: "status",
+    id: "purpose",
+    header: "Jenis Perjalanan Dinas",
+    cell: ({ row }) => row.original.purpose || "-",
+  },
+  {
+    id: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as submissionStatus;
+      const status = row.original.status;
 
-      const badgeStyles: Record<submissionStatus, string> = {
-        in_progress: "text-[#E1CB0D] border-[#E1CB0D]",
-        draft: "text-red-500",
-        approved: "text-blue-500",
+      // Handle null status
+      if (!status) {
+        return h(
+          "span",
+          {
+            class:
+              "text-xs font-medium px-2 py-1 rounded bg-gray-100 text-gray-800",
+          },
+          "No Status"
+        );
+      }
+
+      const colorMap: Record<string, string> = {
+        waiting: "bg-yellow-100 text-yellow-800",
+        approved: "bg-green-100 text-green-800",
+        rejected: "bg-red-100 text-red-800",
+        in_progress: "bg-blue-100 text-blue-800",
       };
+
+      const label = status
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c: string) => c.toUpperCase());
 
       return h(
         "span",
         {
-          class: `text-2xs leading-4 border p-2 rounded-2xs font-medium capitalize ${badgeStyles[status]}`,
+          class: `text-xs font-medium px-2 py-1 rounded ${
+            colorMap[status] || "bg-gray-100 text-gray-800"
+          }`,
         },
-        status
-      );
-    },
-  },
-  {
-    accessorKey: "document",
-    header: "Dokumen",
-    cell: ({ row }) => {
-      const file: { id: string; title: string; filename_download: string } =
-        row.getValue("document");
-      if (!file || typeof file !== "object") return "No file";
-
-      const url = `/panel/assets/${file.id}?download`;
-
-      return h(
-        "a",
-        {
-          href: url,
-          target: "_blank",
-          download: true,
-          class: "text-blue-600 underline text-xs",
-        },
-        file.filename_download || file.title || "Download"
+        label
       );
     },
   },
   {
     id: "action",
     header: "Action",
-    cell: ({ row }) => {
-      return h(
-        "button",
-        {
-          class: "text-blue-600 underline text-xs",
-          onClick: () => (openReview.value = !openReview.value),
+    cell: ({ row }) =>
+      h(UIcon, {
+        name: "lucide:eye",
+        class: "w-4 h-4 text-gray-600 hover:text-black cursor-pointer",
+        onClick: () => {
+          selectedId.value = row.original.id;
+          openReview.value = true;
         },
-        "Review"
-      );
-    },
+      }),
   },
 ];
 
-const openReview = ref(false);
-
-function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
-  startDate.value = startDateInput ?? null;
-  endDate.value = endDateInput ?? null;
+const queryClient = useQueryClient();
+function refetchBusinessTrips() {
+  queryClient.invalidateQueries({ queryKey: ["business-trips"] });
 }
 </script>
 
 <template>
-  <div class="p-6 bg-grey-100 space-y-3 rounded-lg">
+  <div class="p-6 bg-grey-100 rounded-xs space-y-3">
     <DashboardTableHeaderControls
       v-model:search="search"
       @update-date="handleDateUpdate"
-      :collection="'business_trips'"
+      :collection="'business-trips'"
       :queryParams="currentQueryParams"
     >
       <template #slideover-button>
-        <AbsensiFormPerjalananDinas />
+        <AbsensiFormPerjalananDinas @submitted="refetchBusinessTrips" />
       </template>
     </DashboardTableHeaderControls>
     <DashboardTable
-      v-model:pageSize="pageSize"
       v-model:page="page"
-      :data="tableData?.data"
+      v-model:pageSize="pageSize"
       :columns="columns"
+      :data="tableData?.data"
       :totalData="tableData?.meta?.filter_count"
     />
   </div>
+
   <USlideover
     v-model:open="openReview"
-    title="Review Perjalanan Dinas"
-    :ui="{ content: 'm-9' }"
+    title="Detail Perjalanan Dinas"
+    :ui="{
+      content: 'w-full max-w-[30vw] m-9 rounded-lg',
+      body: 'relative',
+      title: 'text-sm font-semibold text-gray-900',
+    }"
   >
     <template #body>
-      <AbsensiReviewPerjalananDinas />
+      <AbsensiDetailPerjalanDinas v-if="selectedId" :id="selectedId" />
     </template>
   </USlideover>
 </template>

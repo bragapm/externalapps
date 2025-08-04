@@ -2,13 +2,17 @@
 import * as z from "zod";
 import type { FormSubmitEvent } from "@nuxt/ui";
 
+const authStore = useAuth();
+const toast = useToast();
+const emit = defineEmits(["submitted"]);
+
 const schema = z
   .object({
     start_date: z.string(),
     end_date: z.string(),
     location: z.string(),
     tujuan: z.string(),
-    agenda: z.string(),
+    agenda: z.string().optional(), // agenda is not in API but kept for UI
     transportation: z.string({
       required_error: "Jenis transportasi wajib dipilih",
     }),
@@ -49,17 +53,98 @@ const transportOptions = [
   { label: "Pesawat", value: "pesawat" },
 ];
 
-const toast = useToast();
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  console.log(event.data);
-  toast.add({
-    title: "Success",
-    description: "The form has been submitted.",
-    color: "success",
-  });
-}
-
 const open = ref(false);
+
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  const token = authStore.accessToken;
+
+  if (!token) {
+    toast.add({
+      title: "Error",
+      description: "Token tidak tersedia. Silakan login ulang.",
+    });
+    return;
+  }
+
+  let uploadedAssetId: string | null = null;
+
+  // Step 1: Upload file to /assets
+  if (event.data.attachment) {
+    try {
+      const formData = new FormData();
+      formData.append("file", event.data.attachment);
+
+      const uploadRes = await fetch(
+        "https://externalapps.braga.co.id/panel/files",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      const result = await uploadRes.json();
+
+      if (!uploadRes.ok || !result.data?.id) {
+        throw new Error("Gagal mengunggah dokumen");
+      }
+
+      uploadedAssetId = result.data.id;
+    } catch (err: any) {
+      toast.add({
+        title: "Upload Gagal",
+        description: err.message || "Terjadi kesalahan saat mengunggah dokumen",
+      });
+      return;
+    }
+  }
+
+  // Step 2: Submit to business_trips
+  try {
+    const res = await fetch(
+      "https://externalapps.braga.co.id/panel/items/business_trips",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          start_date: event.data.start_date,
+          end_date: event.data.end_date,
+          destination: event.data.location,
+          purpose: event.data.tujuan,
+          transportation: event.data.transportation,
+          status: "in_progress",
+          document: uploadedAssetId,
+        }),
+      }
+    );
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        result?.errors?.[0]?.message || "Gagal mengirim data perjalanan dinas"
+      );
+    }
+
+    toast.add({
+      title: "Berhasil",
+      description: "Perjalanan dinas berhasil dikirim.",
+    });
+
+    open.value = false;
+    emit("submitted");
+  } catch (err: any) {
+    toast.add({
+      title: "Gagal",
+      description: err.message || "Terjadi kesalahan saat menyimpan data",
+    });
+  }
+}
 </script>
 
 <template>
@@ -72,6 +157,7 @@ const open = ref(false);
       icon="i-heroicons-plus"
       label="Buat Perjalanan Dinas"
       class="text-sm"
+      @click="open = true"
     />
     <template #body>
       <UForm
@@ -131,13 +217,8 @@ const open = ref(false);
           Submit
         </UButton>
         <UButton
-          @click="
-            () => {
-              open = false;
-            }
-          "
+          @click="open = false"
           type="button"
-          form="perjalanan-dinas-form"
           class="w-full justify-center"
           variant="outline"
         >
