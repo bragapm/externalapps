@@ -2,7 +2,7 @@
 definePageMeta({ middleware: "auth" });
 
 import { h, ref, resolveComponent } from "vue";
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import type { TableColumn } from "@nuxt/ui";
 
 const UIcon = resolveComponent("UIcon");
@@ -42,6 +42,8 @@ const currentQueryParams = ref<Record<string, string>>();
 
 const selectedId = ref<string | null>(null);
 const openReview = ref(false);
+
+const queryClient = useQueryClient();
 
 const { data: tableData, isFetching } = useQuery<ApiResponse>({
   queryKey: ["leave-requests", page, pageSize, startDate, endDate, search],
@@ -94,6 +96,11 @@ const { data: tableData, isFetching } = useQuery<ApiResponse>({
 function handleDateUpdate(start?: string, end?: string) {
   startDate.value = start ?? null;
   endDate.value = end ?? null;
+}
+
+function handleLeaveRequestSuccess() {
+  //  Refetch Fucntion After Submit
+  queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
 }
 
 // Function to calculate total days between dates
@@ -242,7 +249,7 @@ const columns: TableColumn<Record<string, any>>[] = [
       :queryParams="currentQueryParams"
     >
       <template #slideover-button>
-        <AbsensiFormCuti />
+        <AbsensiFormCuti @success="handleLeaveRequestSuccess" />
       </template>
     </DashboardTableHeaderControls>
     <DashboardTable
