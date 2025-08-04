@@ -1,7 +1,14 @@
 <script lang="ts" setup>
 import * as z from "zod";
 import type { FormSubmitEvent } from "@nuxt/ui";
+import { ref, reactive } from "vue";
 
+const authStore = useAuth();
+
+const open = ref(false);
+const emit = defineEmits(["success"]);
+
+// Schema validation
 const schema = z
   .object({
     start_date: z.string(),
@@ -39,22 +46,81 @@ const leaveTypeOptions = [
   { label: "Cuti Melahirkan", value: "cuti_melahirkan" },
 ];
 
-const toast = useToast();
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  console.log(event.data);
-  toast.add({
-    title: "Success",
-    description: "The form has been submitted.",
-    color: "success",
-  });
-}
+  const token = authStore.accessToken;
 
-const open = ref(false);
+  let uploadedAssetId: string | null = null;
+
+  // Step 1: Upload attachment to /assets
+  if (event.data.attachment) {
+    try {
+      const assetForm = new FormData();
+      assetForm.append("file", event.data.attachment);
+
+      const uploadRes = await fetch(
+        "https://externalapps.braga.co.id/panel/files",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: assetForm,
+        }
+      );
+
+      const uploadResult = await uploadRes.json();
+
+      if (!uploadRes.ok || !uploadResult.data?.id) {
+        throw new Error("Gagal mengunggah file");
+      }
+
+      uploadedAssetId = uploadResult.data.id;
+    } catch (err: any) {
+      return;
+    }
+  }
+
+  // Step 2: Submit leave request
+  try {
+    const res = await fetch(
+      "https://externalapps.braga.co.id/panel/items/leave_requests",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          start_date: event.data.start_date,
+          end_date: event.data.end_date,
+          reason: event.data.reason,
+          leave_type: event.data.leave_type,
+          status: "waiting", // default status
+          document: uploadedAssetId,
+        }),
+      }
+    );
+
+    const result = await res.json();
+    emit("success");
+
+    if (!res.ok) {
+      throw new Error(
+        result?.errors?.[0]?.message || "Gagal menyimpan pengajuan cuti"
+      );
+    }
+
+    open.value = false;
+  } catch (err: any) {}
+}
 </script>
 
 <template>
   <USlideover v-model:open="open" title="Ajukan Cuti" :ui="{ content: 'm-9' }">
-    <UButton icon="i-heroicons-plus" label="Ajukan Cuti" />
+    <!-- Trigger Button -->
+    <UButton icon="i-heroicons-plus" label="Ajukan Cuti" @click="open = true" />
+
+    <!-- Form Body -->
     <template #body>
       <UForm
         id="cuti-form"
@@ -72,6 +138,7 @@ const open = ref(false);
             <UInput v-model="state.end_date" type="date" class="w-full" />
           </UFormField>
         </div>
+
         <UFormField label="Jenis Cuti" name="leave_type">
           <USelect
             v-model="state.leave_type"
@@ -80,9 +147,11 @@ const open = ref(false);
             class="w-full"
           />
         </UFormField>
+
         <UFormField label="Alasan" name="reason">
           <UTextarea v-model="state.reason" :rows="5" class="w-full" />
         </UFormField>
+
         <CoreCustomFileInput
           v-model="state.attachment"
           name="attachment"
@@ -92,21 +161,18 @@ const open = ref(false);
         />
       </UForm>
     </template>
+
+    <!-- Form Footer -->
     <template #footer>
       <div class="w-full space-y-3">
         <UButton type="submit" form="cuti-form" class="w-full justify-center">
           Submit
         </UButton>
         <UButton
-          @click="
-            () => {
-              open = false;
-            }
-          "
           type="button"
-          form="cuti-form"
           class="w-full justify-center"
           variant="outline"
+          @click="open = false"
         >
           Cancel
         </UButton>
