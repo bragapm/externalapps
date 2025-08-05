@@ -2,8 +2,7 @@
 definePageMeta({
   middleware: "auth",
 });
-
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { h, ref, resolveComponent } from "vue";
 import type { TableColumn, TableRow } from "@nuxt/ui";
 
@@ -276,6 +275,13 @@ watch(chartData, (data) => {
     },
   ];
 });
+
+const queryClient = useQueryClient();
+
+function handleLeaveRequestSuccess() {
+  //  Refetch Fucntion After Submit
+  queryClient.invalidateQueries({ queryKey: ["table-data"] });
+}
 </script>
 
 <template>
@@ -303,7 +309,9 @@ watch(chartData, (data) => {
 
           <template #body>
             <div class="w-full">
-              <AktifitasFormDailyActivity />
+              <AktifitasFormDailyActivity
+                @success="handleLeaveRequestSuccess"
+              />
             </div>
           </template>
         </USlideover>
