@@ -12,6 +12,13 @@ const searchTerm = ref("");
 const authStore = useAuth();
 const queryClient = useQueryClient();
 
+const selectedId = ref<string | null>(null);
+const openReview = ref(false);
+// 🆕 Add edit-related reactive refs
+const selectedEditId = ref<string | null>(null);
+const openEdit = ref(false);
+const editData = ref<VillageProfileData | null>(null);
+
 const openFilterPanel = () => {
   // logic to open filter slideover or dropdown
 };
@@ -78,6 +85,21 @@ const {
   },
 });
 
+// 🆕 Fetch single village profile for editing
+const fetchVillageProfile = async (id: number): Promise<VillageProfileData> => {
+  const res = await $fetch<{ data: VillageProfileData }>(
+    `/panel/items/village_profiles/${id}`,
+    {
+      method: "GET",
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      params: {
+        fields: "*",
+      },
+    }
+  );
+  return res.data;
+};
+
 // 🔄 Toggle status mutation (if you want to add status functionality)
 const { mutate: toggleStatus } = useMutation({
   mutationFn: async ({ id, newValue }: { id: number; newValue: boolean }) => {
@@ -109,6 +131,33 @@ const handleDelete = (id: number) => {
   if (confirm("Apakah Anda yakin ingin menghapus profil desa ini?")) {
     deleteVillageProfile(id);
   }
+};
+
+const handleViewDetail = (id: number) => {
+  selectedId.value = id.toString();
+  openReview.value = true;
+};
+
+// 🆕 Handle edit - fetch data and open edit form
+const handleEdit = async (id: number) => {
+  try {
+    // Fetch the specific village profile data
+    const data = await fetchVillageProfile(id);
+    editData.value = data;
+    selectedEditId.value = id.toString();
+    openEdit.value = true;
+  } catch (error) {
+    console.error("Error fetching village profile for edit:", error);
+    // You might want to show a toast notification here
+  }
+};
+
+// 🆕 Handle successful edit - close modal and refresh data
+const handleEditSuccess = () => {
+  openEdit.value = false;
+  selectedEditId.value = null;
+  editData.value = null;
+  queryClient.invalidateQueries({ queryKey: ["village-profiles"] });
 };
 
 // Transform API data for table display
@@ -238,10 +287,11 @@ const locationColumns = [
           fill: "none",
           viewBox: "0 0 24 24",
           stroke: "currentColor",
+          onClick: () => handleViewDetail(id),
           innerHTML: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`,
           title: "View",
         }),
-        // Edit icon
+        // Edit icon - 🆕 UPDATED WITH NEW CLICK HANDLER
         h("svg", {
           xmlns: "http://www.w3.org/2000/svg",
           class:
@@ -249,6 +299,7 @@ const locationColumns = [
           fill: "none",
           viewBox: "0 0 24 24",
           stroke: "currentColor",
+          onClick: () => handleEdit(id), // 🆕 Changed to handleEdit
           innerHTML: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>`,
           title: "Edit",
         }),
@@ -278,6 +329,7 @@ const locationColumns = [
       @updateSearch="(val) => (searchTerm = val)"
     >
       <template #slideover-button>
+        <!-- Add New Village Profile Slideover -->
         <USlideover
           v-model="isSlideoverOpen"
           title="Tambah Profil Desa"
@@ -306,6 +358,43 @@ const locationColumns = [
                     });
                   }
                 "
+              />
+            </div>
+          </template>
+        </USlideover>
+
+        <!-- Review Village Profile Slideover -->
+        <USlideover
+          v-model:open="openReview"
+          title="Review Profil Desa"
+          :ui="{
+            content: 'w-full max-w-[30vw] m-9 rounded-lg',
+            body: 'relative',
+            title: 'text-sm font-semibold text-gray-900',
+          }"
+        >
+          <template #body>
+            <DataDetailProfilDesa v-if="selectedId" :id="selectedId" />
+          </template>
+        </USlideover>
+
+        <!-- 🆕 Edit Village Profile Slideover -->
+        <USlideover
+          v-model:open="openEdit"
+          title="Edit Profil Desa"
+          :ui="{
+            content: 'w-full max-w-[40vw] m-9 rounded-lg ',
+            body: 'flex-1 overflow-y-auto relative',
+            title: 'text-sm font-semibold text-gray-900',
+          }"
+        >
+          <template #body>
+            <div class="w-full">
+              <DataFormProfilDesa
+                v-if="editData"
+                :editData="editData"
+                :isEdit="true"
+                @success="handleEditSuccess"
               />
             </div>
           </template>
