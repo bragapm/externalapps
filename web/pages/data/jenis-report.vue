@@ -18,8 +18,9 @@ const pageSize = ref("10");
 const searchTerm = ref("");
 const queryClient = useQueryClient();
 
-const newReportType = ref(""); // Form input
-const isSlideoverOpen = ref(false); // Slideover open state
+const newReportType = ref("");
+const isSlideoverOpen = ref(false);
+const editingItem = ref<StatusData | null>(null);
 
 // 🟢 Fetch report types from Directus
 const { data: statusData, isLoading } = useQuery<StatusData[]>({
@@ -69,6 +70,24 @@ const { mutate: toggleStatus } = useMutation({
   },
 });
 
+// Edit Mutation
+
+const { mutate: toggleUpdate, isPending: isUpdating } = useMutation({
+  mutationFn: async ({ id, name }: { id: number; name: string }) => {
+    await $fetch(`/panel/items/report_types/${id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: { name },
+    });
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["report-types"] });
+    newReportType.value = "";
+    editingItem.value = null;
+    isSlideoverOpen.value = false;
+  },
+});
+
 // 🗑️ Delete mutation
 const { mutate: deleteReportType, isPending: isDeleting } = useMutation({
   mutationFn: async (id: number) => {
@@ -82,15 +101,22 @@ const { mutate: deleteReportType, isPending: isDeleting } = useMutation({
   },
 });
 
-// Form handlers
 const handleSubmit = () => {
-  if (newReportType.value.trim()) {
-    createReportType({ name: newReportType.value.trim() });
+  const trimmed = newReportType.value.trim();
+  if (!trimmed) return;
+
+  if (editingItem.value) {
+    // Edit mode
+    toggleUpdate({ id: editingItem.value.id, name: trimmed });
+  } else {
+    // Create mode
+    createReportType({ name: trimmed });
   }
 };
 
 const handleCancel = () => {
   newReportType.value = "";
+  editingItem.value = null;
   isSlideoverOpen.value = false;
 };
 
