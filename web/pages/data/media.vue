@@ -3,82 +3,110 @@ definePageMeta({
   middleware: "auth",
 });
 
-import { ref, h } from "vue";
+import { ref, h, computed } from "vue";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import type { Table, Row } from "@tanstack/vue-table";
 import { UCheckbox } from "#components";
 
 const searchTerm = ref("");
+const queryClient = useQueryClient();
+const authStore = useAuth();
 
-const openFilterPanel = () => {
-  // logic to open filter slideover or dropdown
-};
-
-const exportCSV = () => {
-  // logic to download CSV
-};
-
-// Define the data structure
-interface MediaPartnerData {
-  id: number;
-  namaMedia: string;
-  pic: string;
-  jabatan: string;
-  kontak: string;
-  status: boolean;
-}
-
-// Pagination and data state
 const page = ref(1);
 const pageSize = ref("10");
 
-const mediaPartnerData = ref<MediaPartnerData[]>([
-  {
-    id: 1,
-    namaMedia: "Kompas",
-    pic: "Ridwan",
-    jabatan: "Ketua",
-    kontak: "kompastiar@gmail.com",
-    status: true,
-  },
-  {
-    id: 2,
-    namaMedia: "Pos Jawa",
-    pic: "Hilmi",
-    jabatan: "Jurnalis",
-    kontak: "kompastiar@gmail.com",
-    status: false,
-  },
-  {
-    id: 3,
-    namaMedia: "Pos Solo",
-    pic: "Tubagus",
-    jabatan: "Jurnalis",
-    kontak: "kompastiar@gmail.com",
-    status: true,
-  },
-  {
-    id: 4,
-    namaMedia: "Republika",
-    pic: "Najib",
-    jabatan: "Jurnalis",
-    kontak: "kompastiar@gmail.com",
-    status: false,
-  },
-  {
-    id: 5,
-    namaMedia: "Metro tv",
-    pic: "Angel",
-    jabatan: "Jurnalis",
-    kontak: "kompastiar@gmail.com",
-    status: true,
-  },
-]);
+// Types
+interface MediaPartner {
+  id?: number;
+  name: string;
+  role: string;
+  pic: string;
+  phone_number: string;
+  email: string | null;
+}
 
+// Form State
+const form = ref<MediaPartner>({
+  name: "",
+  role: "",
+  pic: "",
+  phone_number: "",
+  email: "",
+});
+const formMode = ref<"create" | "edit">("create");
+const selectedItem = ref<MediaPartner | null>(null);
+
+// Fetch data
+const { data: medias, isLoading } = useQuery({
+  queryKey: ["medias"],
+  queryFn: async () => {
+    const res = await $fetch("/panel/items/medias", {
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+    });
+    return res.data;
+  },
+});
+
+// Create
+const createMedia = useMutation({
+  mutationFn: async (payload: MediaPartner) => {
+    return await $fetch("/panel/items/medias", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: payload,
+    });
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["medias"] });
+    resetForm();
+  },
+});
+
+// Update
+const updateMedia = useMutation({
+  mutationFn: async (payload: MediaPartner) => {
+    return await $fetch(`/panel/items/medias/${payload.id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: payload,
+    });
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["medias"] });
+    resetForm();
+  },
+});
+
+const handleSubmit = async () => {
+  if (formMode.value === "create") {
+    await createMedia.mutateAsync(form.value);
+  } else if (formMode.value === "edit" && form.value.id) {
+    await updateMedia.mutateAsync(form.value);
+  }
+};
+
+const resetForm = () => {
+  formMode.value = "create";
+  selectedItem.value = null;
+  form.value = {
+    name: "",
+    role: "",
+    pic: "",
+    phone_number: "",
+    email: "",
+  };
+};
+
+// Open slideover programmatically (optional)
+const openFilterPanel = () => {};
+const exportCSV = () => {};
+
+// Columns
 const mediaPartnerColumns = [
   {
     id: "select",
     display: true,
-    header: ({ table }: { table: Table<MediaPartnerData> }) =>
+    header: ({ table }: { table: Table<MediaPartner> }) =>
       h(UCheckbox, {
         modelValue: table.getIsSomePageRowsSelected()
           ? "indeterminate"
@@ -87,7 +115,7 @@ const mediaPartnerColumns = [
           table.toggleAllPageRowsSelected(!!value),
         "aria-label": "Select all",
       }),
-    cell: ({ row }: { row: Row<MediaPartnerData> }) =>
+    cell: ({ row }: { row: Row<MediaPartner> }) =>
       h(UCheckbox, {
         modelValue: row.getIsSelected(),
         "onUpdate:modelValue": (value: boolean | "indeterminate") =>
@@ -96,7 +124,7 @@ const mediaPartnerColumns = [
       }),
   },
   {
-    accessorKey: "namaMedia",
+    accessorKey: "name",
     header: "Nama Media Partner",
   },
   {
@@ -104,70 +132,39 @@ const mediaPartnerColumns = [
     header: "PIC",
   },
   {
-    accessorKey: "jabatan",
+    accessorKey: "role",
     header: "Jabatan",
   },
   {
-    accessorKey: "kontak",
+    accessorKey: "phone_number",
     header: "Kontak",
-    cell: ({ row }: { row: Row<MediaPartnerData> }) => {
-      return h("span", `CP - ${row.getValue("kontak")}`);
-    },
+    cell: ({ row }: { row: Row<MediaPartner> }) =>
+      h("span", `CP - ${row.getValue("phone_number")}`),
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }: { row: Row<MediaPartnerData> }) => {
-      const status = row.getValue("status") as boolean;
-      return h("div", { class: "flex items-center gap-2" }, [
-        h(
-          "button",
-          {
-            class: `relative w-10 h-5 rounded-full transition duration-300 ${
-              status ? "bg-red-600" : "bg-gray-500"
-            }`,
-            onClick: () => {
-              row.original.status = !row.original.status;
-            },
-          },
-          [
-            h("div", {
-              class: `bg-white w-4 h-4 rounded-full shadow-md transform transition duration-300 ${
-                status ? "translate-x-5" : ""
-              }`,
-            }),
-          ]
-        ),
-        h("span", { class: "text-sm" }, status ? "Aktif" : "Tidak Aktif"),
-      ]);
-    },
+    accessorKey: "email",
+    header: "Email",
   },
   {
     id: "aksi",
     header: "Aksi",
-    cell: () =>
+    cell: ({ row }: { row: Row<MediaPartner> }) =>
       h("div", { class: "flex gap-2 items-center" }, [
-        h("svg", {
-          xmlns: "http://www.w3.org/2000/svg",
-          class: "w-4 h-4 text-gray-600 cursor-pointer hover:text-gray-800",
-          fill: "none",
-          viewBox: "0 0 24 24",
-          stroke: "currentColor",
-          innerHTML: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`,
-          title: "View",
-        }),
-        h("svg", {
-          xmlns: "http://www.w3.org/2000/svg",
-          class: "w-4 h-4 text-gray-600 cursor-pointer hover:text-gray-800",
-          fill: "none",
-          viewBox: "0 0 24 24",
-          stroke: "currentColor",
-          innerHTML: `<circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>`,
-          title: "More actions",
-        }),
+        h(
+          "button",
+          {
+            class: "text-blue-600 text-sm hover:underline",
+            onClick: () => {
+              formMode.value = "edit";
+              form.value = { ...row.original };
+              selectedItem.value = row.original;
+            },
+          },
+          "Edit"
+        ),
       ]),
   },
-] as any;
+];
 </script>
 
 <template>
@@ -181,7 +178,7 @@ const mediaPartnerColumns = [
         <USlideover
           title="Tambah Media & Publikasi"
           :ui="{
-            content: 'w-full max-w-[40vw] m-9 rounded-lg ',
+            content: 'w-full max-w-[40vw] m-9 rounded-lg',
             body: 'flex-1 overflow-y-auto relative',
             title: 'text-sm font-semibold text-gray-900',
           }"
@@ -197,19 +194,23 @@ const mediaPartnerColumns = [
             <div class="flex flex-col h-full">
               <div class="flex-1 overflow-y-auto space-y-2">
                 <UFormField label="Media Partner">
-                  <UInput size="lg" class="w-full" />
+                  <UInput v-model="form.name" size="lg" class="w-full" />
                 </UFormField>
                 <UFormField label="Jabatan">
-                  <UInput size="lg" class="w-full" />
+                  <UInput v-model="form.role" size="lg" class="w-full" />
                 </UFormField>
                 <UFormField label="PIC">
-                  <UInput size="lg" class="w-full" />
+                  <UInput v-model="form.pic" size="lg" class="w-full" />
                 </UFormField>
                 <UFormField label="No Hp">
-                  <UInput size="lg" class="w-full" />
+                  <UInput
+                    v-model="form.phone_number"
+                    size="lg"
+                    class="w-full"
+                  />
                 </UFormField>
                 <UFormField label="Email">
-                  <UInput size="lg" class="w-full" />
+                  <UInput v-model="form.email" size="lg" class="w-full" />
                 </UFormField>
               </div>
 
@@ -218,6 +219,7 @@ const mediaPartnerColumns = [
                   color="primary"
                   size="xl"
                   class="w-full justify-center flex"
+                  @click="handleSubmit"
                 >
                   Simpan
                 </UButton>
@@ -226,6 +228,7 @@ const mediaPartnerColumns = [
                   size="xl"
                   class="w-full justify-center flex"
                   variant="outline"
+                  @click="resetForm"
                 >
                   Batal
                 </UButton>
@@ -235,10 +238,11 @@ const mediaPartnerColumns = [
         </USlideover>
       </template>
     </DashboardFilterTableHeader>
+
     <DashboardTable
-      :data="mediaPartnerData"
+      :data="medias || []"
       :columns="mediaPartnerColumns"
-      :totalData="mediaPartnerData.length"
+      :totalData="(medias || []).length"
       v-model:page="page"
       v-model:pageSize="pageSize"
     />
