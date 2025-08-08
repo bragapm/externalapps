@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ middleware: "auth" });
 
-import { ref, h } from "vue";
+import { ref, h, computed } from "vue";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import type { Table, Row } from "@tanstack/vue-table";
 import { UCheckbox } from "#components";
@@ -12,6 +12,7 @@ interface StatusData {
   name: string;
   active: boolean;
 }
+
 const authStore = useAuth();
 const page = ref(1);
 const pageSize = ref("10");
@@ -20,7 +21,9 @@ const queryClient = useQueryClient();
 
 const newReportType = ref("");
 const isSlideoverOpen = ref(false);
+const openEdit = ref(false);
 const editingItem = ref<StatusData | null>(null);
+const formMode = ref<"create" | "edit">("create");
 
 // 🟢 Fetch report types from Directus
 const { data: statusData, isLoading } = useQuery<StatusData[]>({
@@ -50,9 +53,9 @@ const { mutate: createReportType, isPending: isCreating } = useMutation({
     });
   },
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["report-types"] }); // Refresh table
-    newReportType.value = ""; // Clear input
-    isSlideoverOpen.value = false; // Close modal
+    queryClient.invalidateQueries({ queryKey: ["report-types"] });
+    resetForm();
+    isSlideoverOpen.value = false;
   },
 });
 
@@ -71,8 +74,7 @@ const { mutate: toggleStatus } = useMutation({
 });
 
 // Edit Mutation
-
-const { mutate: toggleUpdate, isPending: isUpdating } = useMutation({
+const { mutate: updateReportType, isPending: isUpdating } = useMutation({
   mutationFn: async ({ id, name }: { id: number; name: string }) => {
     await $fetch(`/panel/items/report_types/${id}`, {
       method: "PATCH",
@@ -82,9 +84,8 @@ const { mutate: toggleUpdate, isPending: isUpdating } = useMutation({
   },
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["report-types"] });
-    newReportType.value = "";
-    editingItem.value = null;
-    isSlideoverOpen.value = false;
+    resetForm();
+    openEdit.value = false;
   },
 });
 
@@ -101,23 +102,41 @@ const { mutate: deleteReportType, isPending: isDeleting } = useMutation({
   },
 });
 
+// Form Handlers
 const handleSubmit = () => {
   const trimmed = newReportType.value.trim();
   if (!trimmed) return;
 
-  if (editingItem.value) {
-    // Edit mode
-    toggleUpdate({ id: editingItem.value.id, name: trimmed });
+  if (formMode.value === "edit" && editingItem.value) {
+    updateReportType({ id: editingItem.value.id, name: trimmed });
   } else {
-    // Create mode
     createReportType({ name: trimmed });
   }
 };
 
-const handleCancel = () => {
+const resetForm = () => {
   newReportType.value = "";
   editingItem.value = null;
+  formMode.value = "create";
+};
+
+const openCreateModal = () => {
+  resetForm();
+  formMode.value = "create";
+  isSlideoverOpen.value = true;
+};
+
+const openEditModal = (item: StatusData) => {
+  formMode.value = "edit";
+  newReportType.value = item.name;
+  editingItem.value = item;
+  openEdit.value = true;
+};
+
+const handleCancel = () => {
+  resetForm();
   isSlideoverOpen.value = false;
+  openEdit.value = false;
 };
 
 const handleDelete = (id: number) => {
@@ -129,11 +148,16 @@ const handleDelete = (id: number) => {
 const openFilterPanel = () => {};
 const exportCSV = () => {};
 
+// Computed Properties
+const slideoverTitle = computed(() =>
+  formMode.value === "create" ? "Tambah Jenis Report" : "Edit Jenis Report"
+);
+
 // ✅ Columns config
 const statusColumns = [
   {
     id: "select",
-    header: ({ table }: { table: Table<StatusData> }) =>
+    header: ({ table }: { table: Table<any> }) =>
       h(UCheckbox, {
         modelValue: table.getIsSomePageRowsSelected()
           ? "indeterminate"
@@ -142,7 +166,7 @@ const statusColumns = [
           table.toggleAllPageRowsSelected(!!value),
         "aria-label": "Select all",
       }),
-    cell: ({ row }: { row: Row<StatusData> }) =>
+    cell: ({ row }: { row: Row<any> }) =>
       h(UCheckbox, {
         modelValue: row.getIsSelected(),
         "onUpdate:modelValue": (value: boolean | "indeterminate") =>
@@ -157,7 +181,7 @@ const statusColumns = [
   {
     accessorKey: "active",
     header: "Status",
-    cell: ({ row }: { row: Row<StatusData> }) => {
+    cell: ({ row }: { row: Row<any> }) => {
       const isActive = row.getValue("active") as boolean;
       const id = row.original.id;
 
@@ -187,19 +211,20 @@ const statusColumns = [
   {
     id: "aksi",
     header: "Aksi",
-    cell: ({ row }: { row: Row<StatusData> }) => {
+    cell: ({ row }: { row: Row<any> }) => {
       const id = row.original.id;
 
       return h("div", { class: "flex gap-2 items-center" }, [
-        // View/Edit icon
+        // Edit icon
         h("svg", {
           xmlns: "http://www.w3.org/2000/svg",
           class:
-            "w-4 h-4 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors",
+            "w-4 h-4 text-blue-600 cursor-pointer hover:text-blue-800 transition-colors",
           fill: "none",
           viewBox: "0 0 24 24",
           stroke: "currentColor",
-          innerHTML: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`,
+          onClick: () => openEditModal(row.original),
+          innerHTML: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>`,
         }),
         // Delete icon
         h("svg", {
@@ -215,7 +240,7 @@ const statusColumns = [
       ]);
     },
   },
-] as any;
+];
 </script>
 
 <template>
@@ -226,11 +251,12 @@ const statusColumns = [
       @updateSearch="(val) => (searchTerm = val)"
     >
       <template #slideover-button>
+        <!-- Create Slideover -->
         <USlideover
           v-model="isSlideoverOpen"
-          title="Tambah Jenis Report"
+          :title="slideoverTitle"
           :ui="{
-            content: 'w-full max-w-[40vw] m-9 rounded-lg ',
+            content: 'w-full max-w-[40vw] m-9 rounded-lg',
             body: 'flex-1 overflow-y-auto relative',
             title: 'text-sm font-semibold text-gray-900',
           }"
@@ -240,33 +266,35 @@ const statusColumns = [
             label="Tambah Jenis Report"
             class="text-sm"
             size="lg"
-            @click="isSlideoverOpen = true"
+            @click="openCreateModal"
           />
 
           <template #body>
             <form @submit.prevent="handleSubmit" class="flex flex-col h-full">
-              <div class="flex-1 overflow-y-auto space-y-2">
+              <div class="flex-1 overflow-y-auto space-y-4 pr-2">
                 <UFormField label="Jenis Report" required>
                   <UInput
                     v-model="newReportType"
                     size="lg"
                     class="w-full"
                     placeholder="Masukkan jenis report"
-                    :disabled="isCreating"
+                    :disabled="isCreating || isUpdating"
                   />
                 </UFormField>
               </div>
 
-              <div class="absolute left-6 right-6 bottom-6 pt-4 mt-4 space-y-4">
+              <div
+                class="absolute left-6 right-6 bottom-6 pt-4 mt-4 space-y-4 bg-white border-t"
+              >
                 <UButton
                   type="submit"
                   color="primary"
                   size="xl"
                   class="w-full justify-center flex"
-                  :loading="isCreating"
-                  :disabled="!newReportType.trim() || isCreating"
+                  :loading="isCreating || isUpdating"
+                  :disabled="!newReportType.trim() || isCreating || isUpdating"
                 >
-                  {{ isCreating ? "Menyimpan..." : "Simpan" }}
+                  {{ formMode === "create" ? "Simpan" : "Update" }}
                 </UButton>
 
                 <UButton
@@ -274,8 +302,61 @@ const statusColumns = [
                   size="xl"
                   class="w-full justify-center flex"
                   variant="outline"
-                  @click="handleCancel"
-                  :disabled="isCreating"
+                  @click="isSlideoverOpen = false"
+                  :disabled="isCreating || isUpdating"
+                >
+                  Batal
+                </UButton>
+              </div>
+            </form>
+          </template>
+        </USlideover>
+
+        <!-- Edit Slideover -->
+        <USlideover
+          v-model:open="openEdit"
+          title="Edit Jenis Report"
+          :ui="{
+            content: 'w-full max-w-[40vw] m-9 rounded-lg',
+            body: 'flex-1 overflow-y-auto relative',
+            title: 'text-sm font-semibold text-gray-900',
+          }"
+        >
+          <template #body>
+            <form @submit.prevent="handleSubmit" class="flex flex-col h-full">
+              <div class="flex-1 overflow-y-auto space-y-4 pr-2">
+                <UFormField label="Jenis Report" required>
+                  <UInput
+                    v-model="newReportType"
+                    size="lg"
+                    class="w-full"
+                    placeholder="Masukkan jenis report"
+                    :disabled="isCreating || isUpdating"
+                  />
+                </UFormField>
+              </div>
+
+              <div
+                class="absolute left-6 right-6 bottom-6 pt-4 mt-4 space-y-4 bg-white border-t"
+              >
+                <UButton
+                  type="submit"
+                  color="primary"
+                  size="xl"
+                  class="w-full justify-center flex"
+                  :loading="isCreating || isUpdating"
+                  :disabled="!newReportType.trim() || isCreating || isUpdating"
+                >
+                  {{ formMode === "create" ? "Simpan" : "Update" }}
+                </UButton>
+
+                <UButton
+                  type="button"
+                  size="xl"
+                  class="w-full justify-center flex"
+                  variant="outline"
+                  @click="openEdit = false"
+                  :disabled="isCreating || isUpdating"
                 >
                   Batal
                 </UButton>
