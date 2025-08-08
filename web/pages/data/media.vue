@@ -8,10 +8,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import type { Table, Row } from "@tanstack/vue-table";
 import { UCheckbox } from "#components";
 
+// State Management
 const searchTerm = ref("");
 const queryClient = useQueryClient();
 const authStore = useAuth();
-
 const page = ref(1);
 const pageSize = ref("10");
 
@@ -25,6 +25,10 @@ interface MediaPartner {
   email: string | null;
 }
 
+interface ApiResponse {
+  data: MediaPartner[];
+}
+
 // Form State
 const form = ref<MediaPartner>({
   name: "",
@@ -33,21 +37,24 @@ const form = ref<MediaPartner>({
   phone_number: "",
   email: "",
 });
+
 const formMode = ref<"create" | "edit">("create");
 const selectedItem = ref<MediaPartner | null>(null);
+const isSlideoverOpen = ref(false);
+const openEdit = ref(false);
 
-// Fetch data
+// API Queries
 const { data: medias, isLoading } = useQuery({
   queryKey: ["medias"],
-  queryFn: async () => {
-    const res = await $fetch("/panel/items/medias", {
+  queryFn: async (): Promise<MediaPartner[]> => {
+    const res = await $fetch<ApiResponse>("/panel/items/medias", {
       headers: { Authorization: `Bearer ${authStore.accessToken}` },
     });
     return res.data;
   },
 });
 
-// Create
+// Mutations
 const createMedia = useMutation({
   mutationFn: async (payload: MediaPartner) => {
     return await $fetch("/panel/items/medias", {
@@ -59,10 +66,10 @@ const createMedia = useMutation({
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["medias"] });
     resetForm();
+    isSlideoverOpen.value = false;
   },
 });
 
-// Update
 const updateMedia = useMutation({
   mutationFn: async (payload: MediaPartner) => {
     return await $fetch(`/panel/items/medias/${payload.id}`, {
@@ -74,9 +81,11 @@ const updateMedia = useMutation({
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["medias"] });
     resetForm();
+    openEdit.value = false;
   },
 });
 
+// Form Handlers
 const handleSubmit = async () => {
   if (formMode.value === "create") {
     await createMedia.mutateAsync(form.value);
@@ -97,16 +106,35 @@ const resetForm = () => {
   };
 };
 
-// Open slideover programmatically (optional)
+const openCreateModal = () => {
+  resetForm();
+  formMode.value = "create";
+  isSlideoverOpen.value = true;
+};
+
+const openEditModal = (item: MediaPartner) => {
+  formMode.value = "edit";
+  form.value = { ...item };
+  selectedItem.value = item;
+  openEdit.value = true;
+};
+
+// Utility Functions
 const openFilterPanel = () => {};
 const exportCSV = () => {};
 
-// Columns
+// Computed Properties
+const slideoverTitle = computed(() =>
+  formMode.value === "create"
+    ? "Tambah Media & Publikasi"
+    : "Edit Media & Publikasi"
+);
+
+// Table Columns
 const mediaPartnerColumns = [
   {
     id: "select",
-    display: true,
-    header: ({ table }: { table: Table<MediaPartner> }) =>
+    header: ({ table }: { table: Table<any> }) =>
       h(UCheckbox, {
         modelValue: table.getIsSomePageRowsSelected()
           ? "indeterminate"
@@ -115,7 +143,7 @@ const mediaPartnerColumns = [
           table.toggleAllPageRowsSelected(!!value),
         "aria-label": "Select all",
       }),
-    cell: ({ row }: { row: Row<MediaPartner> }) =>
+    cell: ({ row }: { row: Row<any> }) =>
       h(UCheckbox, {
         modelValue: row.getIsSelected(),
         "onUpdate:modelValue": (value: boolean | "indeterminate") =>
@@ -138,7 +166,7 @@ const mediaPartnerColumns = [
   {
     accessorKey: "phone_number",
     header: "Kontak",
-    cell: ({ row }: { row: Row<MediaPartner> }) =>
+    cell: ({ row }: { row: Row<any> }) =>
       h("span", `CP - ${row.getValue("phone_number")}`),
   },
   {
@@ -148,17 +176,13 @@ const mediaPartnerColumns = [
   {
     id: "aksi",
     header: "Aksi",
-    cell: ({ row }: { row: Row<MediaPartner> }) =>
+    cell: ({ row }: { row: Row<any> }) =>
       h("div", { class: "flex gap-2 items-center" }, [
         h(
           "button",
           {
-            class: "text-blue-600 text-sm hover:underline",
-            onClick: () => {
-              formMode.value = "edit";
-              form.value = { ...row.original };
-              selectedItem.value = row.original;
-            },
+            class: "text-blue-600 text-sm hover:underline font-medium",
+            onClick: () => openEditModal(row.original),
           },
           "Edit"
         ),
@@ -169,14 +193,17 @@ const mediaPartnerColumns = [
 
 <template>
   <div class="p-6 bg-white rounded-lg shadow space-y-4">
+    <!-- Header Section -->
     <DashboardFilterTableHeader
       @filterClick="openFilterPanel"
       @downloadClick="exportCSV"
       @updateSearch="(val) => (searchTerm = val)"
     >
       <template #slideover-button>
+        <!-- Create Slideover -->
         <USlideover
-          title="Tambah Media & Publikasi"
+          v-model="isSlideoverOpen"
+          :title="slideoverTitle"
           :ui="{
             content: 'w-full max-w-[40vw] m-9 rounded-lg',
             body: 'flex-1 overflow-y-auto relative',
@@ -188,47 +215,163 @@ const mediaPartnerColumns = [
             label="Tambah Media & Publikasi"
             class="text-sm"
             size="lg"
+            @click="openCreateModal"
           />
 
           <template #body>
             <div class="flex flex-col h-full">
-              <div class="flex-1 overflow-y-auto space-y-2">
+              <!-- Form Fields -->
+              <div class="flex-1 overflow-y-auto space-y-4 pr-2">
                 <UFormField label="Media Partner">
-                  <UInput v-model="form.name" size="lg" class="w-full" />
+                  <UInput
+                    v-model="form.name"
+                    size="lg"
+                    class="w-full"
+                    placeholder="Masukkan nama media partner"
+                  />
                 </UFormField>
+
                 <UFormField label="Jabatan">
-                  <UInput v-model="form.role" size="lg" class="w-full" />
+                  <UInput
+                    v-model="form.role"
+                    size="lg"
+                    class="w-full"
+                    placeholder="Masukkan jabatan"
+                  />
                 </UFormField>
+
                 <UFormField label="PIC">
-                  <UInput v-model="form.pic" size="lg" class="w-full" />
+                  <UInput
+                    v-model="form.pic"
+                    size="lg"
+                    class="w-full"
+                    placeholder="Masukkan nama PIC"
+                  />
                 </UFormField>
+
                 <UFormField label="No Hp">
                   <UInput
                     v-model="form.phone_number"
                     size="lg"
                     class="w-full"
+                    placeholder="Masukkan nomor HP"
                   />
                 </UFormField>
+
                 <UFormField label="Email">
-                  <UInput v-model="form.email" size="lg" class="w-full" />
+                  <UInput
+                    v-model="form.email"
+                    size="lg"
+                    class="w-full"
+                    placeholder="Masukkan email"
+                  />
                 </UFormField>
               </div>
 
-              <div class="absolute left-6 right-6 bottom-6 pt-4 mt-4 space-y-4">
+              <!-- Action Buttons -->
+              <div
+                class="absolute left-6 right-6 bottom-6 pt-4 mt-4 space-y-4 bg-white border-t"
+              >
                 <UButton
                   color="primary"
                   size="xl"
                   class="w-full justify-center flex"
                   @click="handleSubmit"
                 >
-                  Simpan
+                  {{ formMode === "create" ? "Simpan" : "Update" }}
                 </UButton>
 
                 <UButton
                   size="xl"
                   class="w-full justify-center flex"
                   variant="outline"
-                  @click="resetForm"
+                  @click="isSlideoverOpen = false"
+                >
+                  Batal
+                </UButton>
+              </div>
+            </div>
+          </template>
+        </USlideover>
+
+        <!-- Edit Slideover -->
+        <USlideover
+          v-model:open="openEdit"
+          title="Edit Media & Publikasi"
+          :ui="{
+            content: 'w-full max-w-[40vw] m-9 rounded-lg',
+            body: 'flex-1 overflow-y-auto relative',
+            title: 'text-sm font-semibold text-gray-900',
+          }"
+        >
+          <template #body>
+            <div class="flex flex-col h-full">
+              <!-- Form Fields -->
+              <div class="flex-1 overflow-y-auto space-y-4 pr-2">
+                <UFormField label="Media Partner">
+                  <UInput
+                    v-model="form.name"
+                    size="lg"
+                    class="w-full"
+                    placeholder="Masukkan nama media partner"
+                  />
+                </UFormField>
+
+                <UFormField label="Jabatan">
+                  <UInput
+                    v-model="form.role"
+                    size="lg"
+                    class="w-full"
+                    placeholder="Masukkan jabatan"
+                  />
+                </UFormField>
+
+                <UFormField label="PIC">
+                  <UInput
+                    v-model="form.pic"
+                    size="lg"
+                    class="w-full"
+                    placeholder="Masukkan nama PIC"
+                  />
+                </UFormField>
+
+                <UFormField label="No Hp">
+                  <UInput
+                    v-model="form.phone_number"
+                    size="lg"
+                    class="w-full"
+                    placeholder="Masukkan nomor HP"
+                  />
+                </UFormField>
+
+                <UFormField label="Email">
+                  <UInput
+                    v-model="form.email"
+                    size="lg"
+                    class="w-full"
+                    placeholder="Masukkan email"
+                  />
+                </UFormField>
+              </div>
+
+              <!-- Action Buttons -->
+              <div
+                class="absolute left-6 right-6 bottom-6 pt-4 mt-4 space-y-4 bg-white border-t"
+              >
+                <UButton
+                  color="primary"
+                  size="xl"
+                  class="w-full justify-center flex"
+                  @click="handleSubmit"
+                >
+                  {{ formMode === "create" ? "Simpan" : "Update" }}
+                </UButton>
+
+                <UButton
+                  size="xl"
+                  class="w-full justify-center flex"
+                  variant="outline"
+                  @click="openEdit = false"
                 >
                   Batal
                 </UButton>
@@ -239,6 +382,7 @@ const mediaPartnerColumns = [
       </template>
     </DashboardFilterTableHeader>
 
+    <!-- Data Table -->
     <DashboardTable
       :data="medias || []"
       :columns="mediaPartnerColumns"
