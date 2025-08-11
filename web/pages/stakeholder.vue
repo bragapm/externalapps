@@ -2,16 +2,48 @@
 definePageMeta({
   middleware: "auth",
 });
-import type { TableColumn, TableRow } from "@nuxt/ui";
 
+import { ref, h, computed } from "vue";
+import { useQuery } from "@tanstack/vue-query";
+import type { TableColumn } from "@nuxt/ui";
+import type { Table, Row } from "@tanstack/vue-table";
+
+// State Management
+const authStore = useAuth();
 const page = ref(1);
 const pageSize = ref<string>("10");
 const startDate = ref();
 const endDate = ref();
 const search = ref("");
 const currentQueryParams = ref<Record<string, string>>();
-const openReview = ref(false);
 
+// Form state
+const showAddForm = ref(false);
+const showEditForm = ref(false);
+const selectedStakeholder = ref<Stakeholder | null>(null);
+
+// Types
+interface Stakeholder {
+  id: number;
+  user_created: string;
+  date_created: string;
+  user_updated: string | null;
+  date_updated: string | null;
+  name: string;
+  organization: string;
+  address: string;
+  phone_number: string;
+  email: string;
+  sentiment: "positive" | "negative";
+  position: string;
+  location: string;
+}
+
+interface ApiResponse {
+  data: Stakeholder[];
+}
+
+// Date Handler
 function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
   startDate.value = startDateInput ?? null;
   endDate.value = endDateInput ?? null;
@@ -19,105 +51,106 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
 
 const UCheckbox = resolveComponent("UCheckbox");
 
-const data = ref<Record<string, any>[]>([
-  {
-    id: "1",
-    name: "Ajip Rosyadi",
-    jabatan: "Sekertaris",
-    organisasi: "Ormas A",
-    alamat: "Desa Kalimantan Barat",
-    no_hp: "081563225190",
-    email: "ajip.rosyadi@gmail.com",
-    sentimen: "Negatif",
-    dokumen: "Dokumen.pdf",
-    last_update: "12 Feb 2025, 10:30",
+// API Query
+const { data: stakeholders, isLoading } = useQuery({
+  queryKey: ["stakeholders"],
+  queryFn: async (): Promise<Stakeholder[]> => {
+    const res = await $fetch<ApiResponse>("/panel/items/stakeholders", {
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+    });
+    return res.data;
   },
-  {
-    id: "2",
-    name: "Kamala Husain",
-    jabatan: "Ketua",
-    organisasi: "Ormas A",
-    alamat: "Desa Kalimantan Barat",
-    no_hp: "082145678890",
-    email: "kamala.husain@yahoo.com",
-    sentimen: "Positif",
-    dokumen: "Dokumen.pdf",
-    last_update: "12 Feb 2025, 11:00",
-  },
-  {
-    id: "3",
-    name: "Ridwan",
-    jabatan: "AKBP",
-    organisasi: "Polisi",
-    alamat: "Desa Kalimantan Barat",
-    no_hp: "081277889911",
-    email: "ridwan.akbp@polri.go.id",
-    sentimen: "Negatif",
-    dokumen: "Dokumen.pdf",
-    last_update: "12 Feb 2025, 11:45",
-  },
-  {
-    id: "4",
-    name: "Asep",
-    jabatan: "Personil",
-    organisasi: "TNI",
-    alamat: "Desa Kalimantan Barat",
-    no_hp: "085211223344",
-    email: "asep.tni@mil.id",
-    sentimen: "Positif",
-    dokumen: "Dokumen.pdf",
-    last_update: "12 Feb 2025, 12:15",
-  },
-  {
-    id: "5",
-    name: "Maulana",
-    jabatan: "Ketua",
-    organisasi: "Ormas C",
-    alamat: "Desa Kalimantan Barat",
-    no_hp: "081399887766",
-    email: "maulana.ketua@ormasc.org",
-    sentimen: "Negatif",
-    dokumen: "Dokumen.pdf",
-    last_update: "12 Feb 2025, 13:00",
-  },
-  {
-    id: "6",
-    name: "Adi Subrata",
-    jabatan: "Ketua",
-    organisasi: "Ormas C",
-    alamat: "Desa Kalimantan Barat",
-    no_hp: "082233445566",
-    email: "adi.subrata@ormasc.org",
-    sentimen: "Positif",
-    dokumen: "Dokumen.pdf",
-    last_update: "12 Feb 2025, 13:40",
-  },
-  {
-    id: "7",
-    name: "Rian",
-    jabatan: "Ketua",
-    organisasi: "Ormas C",
-    alamat: "Desa Kalimantan Barat",
-    no_hp: "081966554433",
-    email: "rian.ketua@ormasc.org",
-    sentimen: "Negatif",
-    dokumen: "Dokumen.pdf",
-    last_update: "12 Feb 2025, 14:20",
-  },
-  {
-    id: "8",
-    name: "Anggi",
-    jabatan: "Bendahara",
-    organisasi: "Ormas C",
-    alamat: "Desa Kalimantan Barat",
-    no_hp: "087812345678",
-    email: "anggi.bendahara@ormasc.org",
-    sentimen: "Positif",
-    dokumen: "Dokumen.pdf",
-    last_update: "12 Feb 2025, 15:00",
-  },
-]);
+});
 
+// Chart Data Computations
+const stakeholderByLocation = computed(() => {
+  if (!stakeholders.value) return { labels: [], data: [] };
+
+  const locationCount = stakeholders.value.reduce((acc, stakeholder) => {
+    acc[stakeholder.location] = (acc[stakeholder.location] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return {
+    labels: Object.keys(locationCount),
+    data: Object.values(locationCount),
+  };
+});
+
+const stakeholderByOrganization = computed(() => {
+  if (!stakeholders.value) return { labels: [], data: [] };
+
+  const orgCount = stakeholders.value.reduce((acc, stakeholder) => {
+    acc[stakeholder.organization] = (acc[stakeholder.organization] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return {
+    labels: Object.keys(orgCount),
+    data: Object.values(orgCount),
+  };
+});
+
+const sentimentData = computed(() => {
+  if (!stakeholders.value) return [];
+
+  const sentimentCount = stakeholders.value.reduce((acc, stakeholder) => {
+    const sentiment =
+      stakeholder.sentiment === "positive" ? "Positif" : "Negatif";
+    acc[sentiment] = (acc[sentiment] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return [
+    {
+      label: "Positif",
+      value: sentimentCount["Positif"] || 0,
+      color: "#21D372",
+    },
+    {
+      label: "Negatif",
+      value: sentimentCount["Negatif"] || 0,
+      color: "#D32E36",
+    },
+  ];
+});
+
+// Format date helper
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+// Action handlers
+function handleView(stakeholder: Stakeholder) {
+  console.log("View stakeholder:", stakeholder);
+  // You can implement view modal here
+}
+
+function handleEdit(stakeholder: Stakeholder) {
+  selectedStakeholder.value = stakeholder;
+  showEditForm.value = true;
+}
+
+function handleAddNew() {
+  selectedStakeholder.value = null;
+  showAddForm.value = true;
+}
+
+function handleSuccess() {
+  // Form will auto-refetch data via TanStack Query
+  showAddForm.value = false;
+  showEditForm.value = false;
+  selectedStakeholder.value = null;
+}
+
+// Table Columns
 const columns: TableColumn<Record<string, any>>[] = [
   {
     id: "select",
@@ -145,19 +178,23 @@ const columns: TableColumn<Record<string, any>>[] = [
     header: "Name",
   },
   {
-    accessorKey: "jabatan",
+    accessorKey: "position",
     header: "Jabatan",
   },
   {
-    accessorKey: "organisasi",
+    accessorKey: "organization",
     header: "Organisasi",
   },
   {
-    accessorKey: "alamat",
+    accessorKey: "location",
+    header: "Lokasi",
+  },
+  {
+    accessorKey: "address",
     header: "Alamat",
   },
   {
-    accessorKey: "no_hp",
+    accessorKey: "phone_number",
     header: "No Hp",
   },
   {
@@ -168,19 +205,20 @@ const columns: TableColumn<Record<string, any>>[] = [
       return h(
         "a",
         {
-          href: `mailto:${email}`,
-          class: "text-blue-600 underline",
+          // href: `mailto:${email}`,
+          class: "text-blue-600 underline text-xs",
         },
         { default: () => email }
       );
     },
   },
   {
-    accessorKey: "sentimen",
+    accessorKey: "sentiment",
     header: "Sentimen",
     cell: ({ row }) => {
-      const sentimen = row.getValue("sentimen");
-      const isPositive = sentimen === "Positif";
+      const sentiment = row.getValue("sentiment");
+      const isPositive = sentiment === "positive";
+      const displayText = isPositive ? "Positif" : "Negatif";
 
       return h(
         "span",
@@ -191,116 +229,90 @@ const columns: TableColumn<Record<string, any>>[] = [
               : "text-red-500 border border-red-500"
           }`,
         },
-        { default: () => sentimen }
+        { default: () => displayText }
       );
     },
   },
   {
-    accessorKey: "dokumen",
-    header: "Dokumen",
-    cell: ({ row }) => {
-      const dokumen = row.getValue("dokumen");
-      return h(
-        "a",
-        {
-          href: "#",
-          class: "text-blue-600 underline text-xs",
-        },
-        { default: () => dokumen }
-      );
-    },
-  },
-  {
-    accessorKey: "last_update",
+    accessorKey: "date_updated",
     header: "Last Update",
     cell: ({ row }) => {
-      const lastUpdate = row.getValue("last_update");
+      const dateUpdated = row.getValue("date_updated") as string | null;
+      const dateCreated = row.getValue("date_created") as string | null;
+      const lastUpdate = dateUpdated || dateCreated;
+
       return h(
         "span",
-        {
-          class: "text-xs text-gray-600",
-        },
-        { default: () => lastUpdate }
+        { class: "text-xs text-gray-600" },
+        { default: () => (lastUpdate ? formatDate(lastUpdate) : "") }
       );
     },
   },
   {
-    id: "action",
+    id: "aksi",
     header: "Aksi",
-    cell: ({ row }) => {
-      return h(
-        "div",
-        {
-          class: "flex items-center gap-2",
-        },
-        [
-          h(
-            "button",
-            {
-              class: "text-gray-600 hover:text-gray-800",
-              onClick: () => console.log("View", row.original),
-            },
-            [
-              h("i", {
-                class: "i-heroicons-eye w-4 h-4",
-              }),
-            ]
-          ),
-          h(
-            "button",
-            {
-              class: "text-gray-600 hover:text-gray-800",
-              onClick: () => console.log("More", row.original),
-            },
-            "⋮"
-          ),
-        ]
-      );
-    },
+    cell: ({ row }: { row: Row<any> }) =>
+      h("div", { class: "flex gap-2 items-center" }, [
+        // 🖊️ Edit icon
+        h("svg", {
+          xmlns: "http://www.w3.org/2000/svg",
+          class:
+            "w-4 h-4 text-blue-600 cursor-pointer hover:text-blue-800 transition-colors",
+          fill: "none",
+          viewBox: "0 0 24 24",
+          stroke: "currentColor",
+          onClick: () => handleEdit(row.original),
+          innerHTML: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>`,
+          title: "Edit",
+        }),
+
+        // 🗑️ Delete icon
+        h("svg", {
+          xmlns: "http://www.w3.org/2000/svg",
+          class:
+            "w-4 h-4 text-red-600 cursor-pointer hover:text-red-800 transition-colors",
+          fill: "none",
+          viewBox: "0 0 24 24",
+          stroke: "currentColor",
+
+          innerHTML: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>`,
+          title: "Delete",
+        }),
+      ]),
   },
 ];
 </script>
 
 <template>
   <div class="p-6 bg-grey-100 rounded-lg space-y-3">
+    <!-- Header Controls -->
     <DashboardTableHeaderControls
       v-model:search="search"
       @update-date="handleDateUpdate"
-      :collection="'business_trips'"
+      :collection="'stakeholders'"
       :queryParams="currentQueryParams"
     >
       <template #slideover-button>
-        <USlideover
-          title="Tambah Stakeholder"
-          :ui="{
-            content: 'w-full max-w-[40vw] m-9 rounded-lg',
-            body: 'relative',
-            title: 'text-sm font-semibold text-gray-900',
-          }"
-        >
-          <UButton
-            icon="i-heroicons-plus"
-            label="Tambah Stakeholder"
-            size="xl"
-            class="text-sm"
-          />
-
-          <template #body>
-            <div class="w-full">
-              <AktifitasFormDailyActivity />
-            </div>
-          </template>
-        </USlideover>
+        <UButton
+          icon="i-heroicons-plus"
+          label="Tambah Stakeholder"
+          size="xl"
+          class="text-sm"
+          @click="handleAddNew"
+        />
       </template>
     </DashboardTableHeaderControls>
+
+    <!-- Charts Section -->
     <section class="grid grid-cols-3 gap-3">
+      <!-- Stakeholder by Location Chart -->
       <ChartBarChart
-        title="Jumlah Stakeholder"
-        :labels="['Desa A', 'Desa B', 'Desa C', 'Desa D', 'Desa E']"
+        title="Jumlah Stakeholder by Lokasi"
+        :labels="stakeholderByLocation.labels"
         :datasets="[
           {
             label: 'stakeholder',
-            data: [20, 5, 12, 8, 30],
+            data: stakeholderByLocation.data,
             backgroundColor: '#ED6C2B',
             borderRadius: 4,
           },
@@ -313,13 +325,15 @@ const columns: TableColumn<Record<string, any>>[] = [
         }
       "
       />
+
+      <!-- Stakeholder by Organization Chart -->
       <ChartBarChart
         title="Jumlah Stakeholder by Instansi"
-        :labels="['Desa A', 'Desa B', 'Desa C', 'Desa D', 'Desa E']"
+        :labels="stakeholderByOrganization.labels"
         :datasets="[
           {
             label: 'stakeholder',
-            data: [12, 5, 10, 20, 15],
+            data: stakeholderByOrganization.data,
             backgroundColor: '#ED6C2B',
             borderRadius: 4,
           },
@@ -332,21 +346,32 @@ const columns: TableColumn<Record<string, any>>[] = [
         }
       "
       />
-      <ChartPieChart
-        title="Sentimen Stakeholder"
-        :data="[
-          { label: 'Positif', value: 30, color: '#21D372' },
-          { label: 'Negatif', value: 5, color: '#D32E36' },
-        ]"
-      />
+
+      <!-- Sentiment Pie Chart -->
+      <ChartPieChart title="Sentimen Stakeholder" :data="sentimentData" />
     </section>
 
+    <!-- Data Table -->
     <DashboardTable
       v-model:pageSize="pageSize"
       v-model:page="page"
-      :data="data"
+      :data="stakeholders || []"
       :columns="columns"
-      :totalData="12"
+      :totalData="stakeholders?.length || 0"
+      :loading="isLoading"
+    />
+
+    <!-- Add Stakeholder Form -->
+    <StakeholderFormStakeholder
+      v-model="showAddForm"
+      @success="handleSuccess"
+    />
+
+    <!-- Edit Stakeholder Form -->
+    <StakeholderFormStakeholder
+      v-model="showEditForm"
+      :stakeholder="selectedStakeholder"
+      @success="handleSuccess"
     />
   </div>
 </template>
