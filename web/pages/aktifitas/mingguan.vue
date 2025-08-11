@@ -235,6 +235,8 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
       title: 'text-sm font-semibold text-gray-900',
     }"
   >
-    <template #body> </template>
+    <template #body>
+      <AktifitasDetailWeeklyActivity v-if="selectedId" :id="selectedId" />
+    </template>
   </USlideover>
 </template>
