@@ -67,17 +67,17 @@ const {
   <div v-else-if="isError" class="text-sm text-red-500">
     Failed to load data.
   </div>
-  <div v-else-if="result" class="space-y-4 text-sm text-gray-800">
+  <div v-else-if="result" class="space-y-4 text-sm text-gray-900">
     <!-- Status -->
 
     <!-- Title -->
-    <div class="text-lg font-semibold">
+    <div class="font-semibold">
       {{ result.title }}
     </div>
 
     <!-- Summary -->
     <div>
-      <strong>Summary:</strong>
+      <p class="font-medium">Summary</p>
       <p class="whitespace-pre-line">{{ result.summary || "-" }}</p>
     </div>
 
@@ -97,12 +97,12 @@ const {
 
     <!-- Linked Daily Activities -->
     <div v-if="result.daily_activities?.length" class="mt-4">
-      <h3 class="font-semibold">Daily Activities</h3>
+      <h3 class="text-sm font-medium">Daily Activities</h3>
       <ul class="mt-2 space-y-2">
         <li
           v-for="act in result.daily_activities"
           :key="act.id"
-          class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
+          class="border border-gray-300 rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
         >
           <div class="font-medium">{{ act.title }}</div>
           <div class="text-xs text-gray-500">
