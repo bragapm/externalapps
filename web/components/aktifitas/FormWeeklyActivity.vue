@@ -84,7 +84,7 @@ const handleSubmit = async () => {
       const formData = new FormData();
       formData.append("file", uploadedFile.value);
       // Directus file upload
-      const fileRes = await $fetch("/files", {
+      const fileRes = await $fetch("/panel/files", {
         method: "POST",
         body: formData,
         headers: {

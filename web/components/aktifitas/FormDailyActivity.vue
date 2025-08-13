@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as z from "zod";
 import type { FormSubmitEvent } from "@nuxt/ui";
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 
 const authStore = useAuth();
 const emit = defineEmits(["success"]);
@@ -38,7 +38,7 @@ const state = reactive<Partial<Schema>>({
   end_time: "18:00",
   pics: 1,
   location: "Kantor A",
-  report_type: 1,
+  report_type: undefined,
   title: "Headline Report",
   status: "approved",
   description: undefined,
@@ -52,17 +52,46 @@ const picOptions = [
   { label: "Rico Wijaya", value: 3 },
 ];
 
-const reportTypeOptions = [
-  { label: "Land Dispute", value: 1 },
-  { label: "Work Progress", value: 2 },
-  { label: "Incident Report", value: 3 },
-];
+// Report types fetched from API
+const reportTypeOptions = ref<{ label: string; value: number }[]>([]);
 
 const statusOptions = [
   { label: "Open", value: "open" },
   { label: "Approved", value: "approved" },
   { label: "Close", value: "close" },
 ];
+
+async function fetchReportTypes() {
+  try {
+    const res = await fetch(
+      "/panel/items/report_types?filter[active][_eq]=true",
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        result?.errors?.[0]?.message || "Gagal mengambil jenis report"
+      );
+    }
+
+    reportTypeOptions.value = result.data.map((item: any) => ({
+      label: item.name,
+      value: item.id,
+    }));
+  } catch (err) {
+    console.error("Error fetching report types:", err);
+  }
+}
+
+onMounted(() => {
+  fetchReportTypes();
+});
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   const token = authStore.accessToken;
@@ -75,16 +104,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       const documentForm = new FormData();
       documentForm.append("file", event.data.documents);
 
-      const uploadRes = await fetch(
-        "https://externalapps.braga.co.id/panel/files",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: documentForm,
-        }
-      );
+      const uploadRes = await fetch("/panel/files", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: documentForm,
+      });
 
       const uploadResult = await uploadRes.json();
 
@@ -92,8 +118,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         throw new Error("Gagal mengunggah dokumen");
       }
 
-      uploadedDocumentIds = [uploadResult.data.id]; // UUID
-    } catch (err: any) {
+      uploadedDocumentIds = [uploadResult.data.id];
+    } catch (err) {
       console.error("Upload error:", err);
       return;
     }
@@ -101,30 +127,27 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   // Submit daily activity
   try {
-    const res = await fetch(
-      "https://externalapps.braga.co.id/panel/items/daily_activities",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          date: event.data.date,
-          start_time: event.data.start_time + ":00",
-          end_time: event.data.end_time + ":00",
-          location: event.data.location,
-          title: event.data.title,
-          description: event.data.description,
-          status: event.data.status,
-          pics: [event.data.pics],
-          report_type: event.data.report_type,
-          documents: uploadedDocumentIds.map((id) => ({
-            directus_files_id: id,
-          })),
-        }),
-      }
-    );
+    const res = await fetch("panel/items/daily_activities", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        date: event.data.date,
+        start_time: event.data.start_time + ":00",
+        end_time: event.data.end_time + ":00",
+        location: event.data.location,
+        title: event.data.title,
+        description: event.data.description,
+        status: event.data.status,
+        pics: [event.data.pics],
+        report_type: event.data.report_type,
+        documents: uploadedDocumentIds.map((id) => ({
+          directus_files_id: id,
+        })),
+      }),
+    });
 
     const result = await res.json();
 
@@ -143,13 +166,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       end_time: "18:00",
       pics: 1,
       location: "Kantor A",
-      report_type: 1,
+      report_type: undefined,
       title: "Headline Report",
       status: "approved",
       description: undefined,
       documents: undefined,
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Submit error:", err);
   }
 }
