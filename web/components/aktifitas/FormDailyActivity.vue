@@ -127,7 +127,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   // Submit daily activity
   try {
-    const res = await fetch("panel/items/daily_activities", {
+    const res = await fetch("/panel/items/daily_activities", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
