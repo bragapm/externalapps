@@ -5,6 +5,8 @@ import IcUser from "@/assets/icons/ic-user.svg";
 import IcBell from "@/assets/icons/ic-bell.svg";
 
 import Logo from "@/assets/images/logo.png";
+import NewLogo from "@/assets/images/new-logo.png";
+
 import type { DropdownMenuItem } from "@nuxt/ui";
 
 const authStore = useAuth();
@@ -56,14 +58,10 @@ onMounted(() => {
     >
       <section class="flex items-center gap-4">
         <IcMenu />
-        <div class="flex gap-2 items-center">
-          <div class="rounded-full w-8 h-8 bg-gray-800" />
-          <div class="font-bold text-[10px] uppercase text-grey-950">
-            <p>External</p>
-            <p>Apps</p>
-          </div>
-        </div>
-        <img :src="Logo" alt="" srcset="" />
+        <img :src="NewLogo" alt="" srcset="" class="w-12 h-auto" />
+
+        <h1 class="text-3xl font-semibold">X-RELS</h1>
+        <p class="text-sm">(External Relation & Sustainability)</p>
       </section>
       <section
         v-if="!isAuthPage"
