@@ -1,58 +1,36 @@
 <script setup lang="ts">
-import * as z from "zod";
-import type { FormSubmitEvent } from "@nuxt/ui";
 import { ref, reactive, onMounted } from "vue";
+// Removed: import * as z from "zod";
+// Removed: import type { FormSubmitEvent } from "@nuxt/ui";
 
 const authStore = useAuth();
+const toast = useToast();
 const emit = defineEmits(["success"]);
 
-// Validation Schema
-const schema = z
-  .object({
-    date: z.string().min(1, "Tanggal kerja wajib diisi"),
-    start_time: z.string().min(1, "Jam mulai wajib diisi"),
-    end_time: z.string().min(1, "Jam selesai wajib diisi"),
-    pics: z.number().min(1, "PIC wajib dipilih"),
-    location: z.string().min(1, "Lokasi wajib diisi"),
-    report_type: z.number({ required_error: "Jenis report wajib dipilih" }),
-    title: z.string().min(1, "Judul aktivitas wajib diisi"),
-    status: z.string().min(1, "Status wajib dipilih"),
-    description: z.string().min(1, "Deskripsi wajib diisi"),
-    documents: z
-      .instanceof(File)
-      .optional()
-      .refine((file) => !file || file.size < 5 * 1024 * 1024, {
-        message: "Ukuran file maksimal 5MB",
-      }),
-  })
-  .refine(({ start_time, end_time }) => start_time < end_time, {
-    message: "Jam selesai harus setelah jam mulai",
-    path: ["end_time"],
-  });
+// Loading and alert states
+const isSubmitting = ref(false);
+const isLoadingData = ref(true);
 
-type Schema = z.output<typeof schema>;
+// Removed the Zod schema and its type
+// type Schema = z.output<typeof schema>;
 
-const state = reactive<Partial<Schema>>({
+// Form state - empty by default
+const state = reactive<any>({
+  // Changed type to `any` for simplicity
   date: undefined,
-  start_time: "10:00",
-  end_time: "18:00",
-  pics: 1,
-  location: "Kantor A",
+  start_time: undefined,
+  end_time: undefined,
+  pics: [],
+  location: undefined,
   report_type: undefined,
-  title: "Headline Report",
-  status: "approved",
+  title: undefined,
+  status: undefined,
   description: undefined,
   documents: undefined,
 });
 
 // Dropdown options
-const picOptions = [
-  { label: "Beben Nardi", value: 1 },
-  { label: "Ayu Laras", value: 2 },
-  { label: "Rico Wijaya", value: 3 },
-];
-
-// Report types fetched from API
+const picOptions = ref<{ label: string; value: string }[]>([]);
 const reportTypeOptions = ref<{ label: string; value: number }[]>([]);
 
 const statusOptions = [
@@ -61,6 +39,37 @@ const statusOptions = [
   { label: "Close", value: "close" },
 ];
 
+// Fetch PIC options from Directus users
+async function fetchPicOptions() {
+  try {
+    const res = await fetch("/panel/users?filter[status][_eq]=active", {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        result?.errors?.[0]?.message || "Gagal mengambil data PIC"
+      );
+    }
+
+    picOptions.value = result.data.map((user: any) => ({
+      label: `${user.first_name} ${user.last_name}`.trim() || user.email,
+      value: user.id,
+    }));
+  } catch (err) {
+    console.error("Error fetching PIC options:", err);
+    toast.add({
+      title: "Error",
+      description: "Gagal mengambil data PIC",
+    });
+  }
+}
+
+// Fetch report types
 async function fetchReportTypes() {
   try {
     const res = await fetch(
@@ -86,47 +95,104 @@ async function fetchReportTypes() {
     }));
   } catch (err) {
     console.error("Error fetching report types:", err);
+    toast.add({
+      title: "Error",
+      description: "Gagal mengambil jenis report",
+    });
   }
 }
 
-onMounted(() => {
-  fetchReportTypes();
+// Initialize data on mount
+onMounted(async () => {
+  try {
+    await Promise.all([fetchPicOptions(), fetchReportTypes()]);
+  } finally {
+    isLoadingData.value = false;
+  }
 });
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  const token = authStore.accessToken;
+// Reset form to initial empty state
+function resetForm() {
+  Object.assign(state, {
+    date: undefined,
+    start_time: undefined,
+    end_time: undefined,
+    pics: [],
+    location: undefined,
+    report_type: undefined,
+    title: undefined,
+    status: undefined,
+    description: undefined,
+    documents: undefined,
+  });
+}
 
-  let uploadedDocumentIds: string[] = [];
+// Updated onSubmit function to accept a generic event object
+async function onSubmit(event: any) {
+  if (isSubmitting.value) return;
 
-  // Upload document
-  if (event.data.documents) {
-    try {
-      const documentForm = new FormData();
-      documentForm.append("file", event.data.documents);
+  const data = state;
 
-      const uploadRes = await fetch("/panel/files", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: documentForm,
-      });
-
-      const uploadResult = await uploadRes.json();
-
-      if (!uploadRes.ok || !uploadResult.data?.id) {
-        throw new Error("Gagal mengunggah dokumen");
-      }
-
-      uploadedDocumentIds = [uploadResult.data.id];
-    } catch (err) {
-      console.error("Upload error:", err);
-      return;
-    }
+  // Manual validation check for required fields
+  if (
+    !data.date ||
+    !data.start_time ||
+    !data.end_time ||
+    data.pics.length === 0 ||
+    !data.location ||
+    !data.report_type ||
+    !data.title ||
+    !data.status ||
+    !data.description
+  ) {
+    toast.add({
+      title: "Error",
+      description: "Mohon lengkapi semua bidang yang diperlukan.",
+    });
+    return;
   }
 
-  // Submit daily activity
+  isSubmitting.value = true;
+  const token = authStore.accessToken;
+
   try {
+    let uploadedDocumentIds: string[] = [];
+
+    // Upload document if exists
+    if (data.documents) {
+      try {
+        const documentForm = new FormData();
+        documentForm.append("file", data.documents);
+
+        const uploadRes = await fetch("/panel/files", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: documentForm,
+        });
+
+        const uploadResult = await uploadRes.json();
+
+        if (!uploadRes.ok || !uploadResult.data?.id) {
+          throw new Error("Gagal mengunggah dokumen");
+        }
+
+        uploadedDocumentIds = [uploadResult.data.id];
+      } catch (err) {
+        throw new Error("Gagal mengunggah dokumen: " + (err as Error).message);
+      }
+    }
+
+    // Prepare the pics payload in the required format
+    const picsPayload = data.pics.map((picId: string) => ({
+      daily_activities_id: "+",
+      directus_users_id: {
+        id: picId,
+      },
+    }));
+
+    // Submit daily activity
     const res = await fetch("/panel/items/daily_activities", {
       method: "POST",
       headers: {
@@ -134,15 +200,18 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        date: event.data.date,
-        start_time: event.data.start_time + ":00",
-        end_time: event.data.end_time + ":00",
-        location: event.data.location,
-        title: event.data.title,
-        description: event.data.description,
-        status: event.data.status,
-        pics: [event.data.pics],
-        report_type: event.data.report_type,
+        date: data.date,
+        start_time: data.start_time + ":00",
+        end_time: data.end_time + ":00",
+        location: data.location,
+        title: data.title,
+        description: data.description,
+        status: data.status,
+        // Use the new structured payload for pics
+        pics: {
+          create: picsPayload,
+        },
+        report_type: data.report_type,
         documents: uploadedDocumentIds.map((id) => ({
           directus_files_id: id,
         })),
@@ -157,42 +226,62 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       );
     }
 
-    emit("success");
-
-    // Reset form
-    Object.assign(state, {
-      date: undefined,
-      start_time: "10:00",
-      end_time: "18:00",
-      pics: 1,
-      location: "Kantor A",
-      report_type: undefined,
-      title: "Headline Report",
-      status: "approved",
-      description: undefined,
-      documents: undefined,
+    // Success
+    toast.add({
+      title: "Berhasil",
+      description: "Aktivitas harian berhasil disimpan",
     });
+
+    emit("success");
+    resetForm();
   } catch (err) {
     console.error("Submit error:", err);
+    toast.add({
+      title: "Error",
+      description:
+        (err as Error).message || "Terjadi kesalahan saat menyimpan data",
+    });
+  } finally {
+    isSubmitting.value = false;
   }
+}
+
+function onCancel() {
+  resetForm();
 }
 </script>
 
 <template>
   <div class="w-full max-w-2xl mx-auto p-3">
-    <div class="flex flex-col h-[60dvh] 2xl:h-fit">
+    <!-- Loading state for initial data -->
+    <div v-if="isLoadingData" class="flex justify-center items-center h-40">
+      <UIcon
+        name="i-heroicons-arrow-path"
+        class="animate-spin text-2xl text-primary"
+      />
+      <span class="ml-2">Memuat data...</span>
+    </div>
+
+    <div v-else class="flex flex-col h-[60dvh] 2xl:h-fit">
       <!-- Form Content - Scrollable -->
       <div class="overflow-y-auto space-y-4">
+        <!-- Removed :schema="schema" and the @error listener -->
         <UForm
           id="daily-activity-form"
-          :schema="schema"
           :state="state"
           class="space-y-4"
           @submit="onSubmit"
         >
           <!-- Tanggal Kerja -->
           <UFormField label="Tanggal Kerja" name="date">
-            <UInput v-model="state.date" type="date" size="lg" class="w-full" />
+            <UInput
+              v-model="state.date"
+              type="date"
+              size="lg"
+              class="w-full"
+              :disabled="isSubmitting"
+              required
+            />
           </UFormField>
 
           <!-- Jam Mulai & Jam Selesai -->
@@ -203,6 +292,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 type="time"
                 size="lg"
                 class="w-full"
+                :disabled="isSubmitting"
+                required
               />
             </UFormField>
             <UFormField label="Jam Selesai" name="end_time">
@@ -211,11 +302,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 type="time"
                 size="lg"
                 class="w-full"
+                :disabled="isSubmitting"
+                required
               />
             </UFormField>
           </div>
 
-          <!-- PIC -->
+          <!-- PIC - Multiple selection -->
           <UFormField label="PIC" name="pics">
             <USelect
               v-model="state.pics"
@@ -223,12 +316,23 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               placeholder="Pilih PIC"
               size="lg"
               class="w-full"
+              multiple
+              value-attribute="value"
+              option-attribute="label"
+              :disabled="isSubmitting"
             />
           </UFormField>
 
           <!-- Lokasi -->
           <UFormField label="Lokasi" name="location">
-            <UInput v-model="state.location" size="lg" class="w-full" />
+            <UInput
+              v-model="state.location"
+              size="lg"
+              class="w-full"
+              :disabled="isSubmitting"
+              placeholder="Masukkan lokasi"
+              required
+            />
           </UFormField>
 
           <!-- Jenis Report -->
@@ -239,12 +343,21 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               placeholder="Pilih Jenis Report"
               size="lg"
               class="w-full"
+              :disabled="isSubmitting"
+              required
             />
           </UFormField>
 
           <!-- Judul Aktivitas -->
           <UFormField label="Judul Aktivitas" name="title">
-            <UInput v-model="state.title" size="lg" class="w-full" />
+            <UInput
+              v-model="state.title"
+              size="lg"
+              class="w-full"
+              :disabled="isSubmitting"
+              placeholder="Masukkan judul aktivitas"
+              required
+            />
           </UFormField>
 
           <!-- Status -->
@@ -255,6 +368,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               placeholder="Pilih Status"
               size="lg"
               class="w-full"
+              :disabled="isSubmitting"
+              required
             />
           </UFormField>
 
@@ -266,6 +381,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               size="lg"
               :rows="4"
               class="w-full"
+              :disabled="isSubmitting"
+              required
             />
           </UFormField>
 
@@ -276,6 +393,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             label="Upload Dokumen"
             placeholder="Pilih file..."
             accept=".pdf,.docx,.jpg,.jpeg,.png"
+            :disabled="isSubmitting"
           />
         </UForm>
       </div>
@@ -289,14 +407,21 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         color="primary"
         size="xl"
         class="w-full justify-center"
+        :loading="isSubmitting"
+        :disabled="isLoadingData"
       >
-        Simpan
+        <template #leading v-if="isSubmitting">
+          <UIcon name="i-heroicons-arrow-path" class="animate-spin" />
+        </template>
+        {{ isSubmitting ? "Menyimpan..." : "Simpan" }}
       </UButton>
       <UButton
         type="button"
         size="xl"
         class="w-full justify-center"
         variant="outline"
+        :disabled="isSubmitting"
+        @click="onCancel"
       >
         Batal
       </UButton>
