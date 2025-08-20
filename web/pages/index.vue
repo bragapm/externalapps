@@ -103,30 +103,33 @@ const table = useTemplateRef("table");
 </script>
 
 <template>
-  <DashboardHeader />
-  <div class="flex gap-4 w-full my-4">
+  <!-- <DashboardHeader /> -->
+  <div class="flex gap-4 w-full mb-4">
     <div class="flex flex-col gap-4 w-1/2">
-      <!-- Card Dummy -->
-      <section class="grid grid-cols-2 gap-4">
-        <div class="bg-grey-100 p-3 rounded-lg space-y-1">
-          <h3 class="text-gray-800 font-medium">Jumlah Absen</h3>
-          <h1 class="text-[#D32E36] font-semibold text-4xl">17/20</h1>
-          <p class="text-sm text-gray-400">Update Hari Ini</p>
+      <section class="bg-grey-100 p-4 rounded-lg w-full">
+        <div class="flex justify-between items-center">
+          <div class="space-y-2">
+            <h3 class="text-gray-800 font-medium">Jumlah Absen</h3>
+            <h1 class="text-[#D32E36] font-semibold text-4xl">17/20</h1>
+            <p class="text-sm text-gray-400">Update Hari Ini</p>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-gray-800 font-medium">Jumlah Cuti</h3>
+            <h1 class="text-[#D32E36] font-semibold text-4xl">2/20</h1>
+            <p class="text-sm text-gray-400">Update Hari Ini</p>
+          </div>
         </div>
-        <div class="bg-grey-100 p-3 rounded-lg space-y-1">
-          <h3 class="text-gray-800 font-medium">Jumlah Cuti</h3>
-          <h1 class="text-[#D32E36] font-semibold text-4xl">2/20</h1>
-          <p class="text-sm text-gray-400">Update Hari Ini</p>
-        </div>
-        <div class="bg-grey-100 p-3 rounded-lg space-y-1">
-          <h3 class="text-gray-800 font-medium">Jumlah Alfa</h3>
+        <div class="mt-4 space-y-2">
+          <h3 class="text-gray-800 font-medium">Perjalanan Dinas</h3>
           <h1 class="text-[#D32E36] font-semibold text-4xl">1/20</h1>
           <p class="text-sm text-gray-400">Update Hari Ini</p>
         </div>
-        <div class="bg-grey-100 p-3 rounded-lg space-y-1">
-          <h3 class="text-gray-800 font-medium">Perjalanan Dinas</h3>
-          <h1 class="text-[#D32E36] font-semibold text-4xl">3/20</h1>
-          <p class="text-sm text-gray-400">Update Hari Ini</p>
+        <div class="mt-4 w-full">
+          <UButton
+            class="w-full flex justify-center"
+            label="Cek Absen"
+            size="lg"
+          />
         </div>
       </section>
 
