@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 definePageMeta({
   middleware: "auth",
 });
@@ -6,121 +6,255 @@ definePageMeta({
 import { Calendar } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { ref, reactive, onMounted, onUnmounted, nextTick, watch } from "vue";
 
-// Calendar instance
-let calendar = null;
-const calendarEl = ref(null);
+// ===== Types =====
+interface WorkPlan {
+  id: number;
+  title: string;
+  description: string;
+  status: string;
+  date: string;
+}
 
-// Reactive data
+interface WorkPlansResponse {
+  data: WorkPlan[];
+}
+
+interface WorkPlanSingleResponse {
+  data: WorkPlan;
+}
+
+// ===== Stores =====
+const authStore = useAuth();
+const toast = useToast();
+
+// ===== Calendar refs =====
+let calendar: Calendar | null = null;
+const calendarEl = ref<HTMLElement | null>(null);
 const selectedView = ref("Bulanan");
 const currentMonthYear = ref("January 2025");
 
-const viewOptions = [
-  { label: "Bulanan", value: "Bulanan" },
-  { label: "Mingguan", value: "Mingguan" },
-  { label: "Harian", value: "Harian" },
-];
+// ===== Slideover =====
+const isSlideoverOpen = ref(false);
+const slideoverTitle = ref("Tambah Rencana Kerja");
 
-// Sample events data
-const events = [
-  {
-    id: "1",
-    title: "PDC - Anggil I Jadal Rencana Kerja",
-    start: "2025-07-08",
-    backgroundColor: "#3B82F6",
-    borderColor: "#3B82F6",
-    textColor: "#ffffff",
-  },
-  {
-    id: "2",
-    title: "PDC - Anggil I Jadal Rencana Kerja",
-    start: "2025-07-07",
-    backgroundColor: "#3B82F6",
-    borderColor: "#3B82F6",
-    textColor: "#ffffff",
-  },
-  {
-    id: "3",
-    title: "PDC - Anggil I Jadal Test Juni",
-    start: "2025-06-09",
-    backgroundColor: "#10B981",
-    borderColor: "#10B981",
-    textColor: "#ffffff",
-  },
-  {
-    id: "4",
-    title: "PDC - Anggil I Jadal Rencana Kerja",
-    start: "2025-07-08",
-    backgroundColor: "#F59E0B",
-    borderColor: "#F59E0B",
-    textColor: "#ffffff",
-  },
-];
+// ===== Form state =====
+const form = reactive({
+  title: "",
+  description: "",
+  status: "open",
+  date: "",
+});
 
-// Initialize calendar
+const editingId = ref<number | null>(null);
+const events = ref<any[]>([]);
+
+// ===== API =====
+async function fetchWorkPlans() {
+  try {
+    const res = await $fetch<WorkPlansResponse>(
+      "/panel/items/work_plans?fields=*",
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+
+    events.value = res.data.map((item) => ({
+      id: item.id,
+      title: item.title,
+      start: item.date,
+      extendedProps: {
+        description: item.description,
+        status: item.status,
+      },
+      backgroundColor: item.status === "open" ? "#3B82F6" : "#6B7280",
+      borderColor: item.status === "open" ? "#3B82F6" : "#6B7280",
+      textColor: "#fff",
+    }));
+
+    if (calendar) {
+      calendar.removeAllEvents();
+      calendar.addEventSource(events.value);
+    }
+  } catch (err) {
+    console.error("Failed to fetch work plans", err);
+  }
+}
+
+async function submitForm() {
+  try {
+    const payload = {
+      title: form.title,
+      description: form.description,
+      status: form.status,
+      date: form.date,
+    };
+
+    let res: WorkPlanSingleResponse;
+
+    if (editingId.value) {
+      // Update existing
+      res = await $fetch<WorkPlanSingleResponse>(
+        `/panel/items/work_plans/${editingId.value}?fields=*`,
+        {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${authStore.accessToken}` },
+          body: payload,
+        }
+      );
+
+      const ev = calendar?.getEventById(editingId.value.toString());
+      if (ev) {
+        ev.setProp("title", res.data.title);
+        ev.setStart(res.data.date);
+        ev.setProp(
+          "backgroundColor",
+          res.data.status === "open" ? "#3B82F6" : "#6B7280"
+        );
+        ev.setProp(
+          "borderColor",
+          res.data.status === "open" ? "#3B82F6" : "#6B7280"
+        );
+        ev.setExtendedProp("description", res.data.description);
+        ev.setExtendedProp("status", res.data.status);
+      }
+
+      toast.add({ title: "Berhasil update rencana kerja!" });
+    } else {
+      // Create new
+      res = await $fetch<WorkPlanSingleResponse>(
+        "/panel/items/work_plans?fields=*",
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${authStore.accessToken}` },
+          body: payload,
+        }
+      );
+
+      calendar?.addEvent({
+        id: res.data.id,
+        title: res.data.title,
+        start: res.data.date,
+        backgroundColor: res.data.status === "open" ? "#3B82F6" : "#6B7280",
+        borderColor: res.data.status === "open" ? "#3B82F6" : "#6B7280",
+        textColor: "#fff",
+        extendedProps: {
+          description: res.data.description,
+          status: res.data.status,
+        },
+      });
+
+      toast.add({ title: "Berhasil simpan rencana kerja!" });
+    }
+
+    resetForm();
+  } catch (err) {
+    console.error("Failed to submit form", err);
+    toast.add({ title: "Gagal simpan!" });
+  }
+}
+
+async function deleteWorkPlan() {
+  if (!editingId.value) return;
+
+  try {
+    await $fetch(`/panel/items/work_plans/${editingId.value}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+    });
+
+    calendar?.getEventById(editingId.value.toString())?.remove();
+    toast.add({ title: "Berhasil hapus rencana kerja!" });
+
+    resetForm();
+  } catch (err) {
+    console.error("Failed to delete work plan", err);
+    toast.add({ title: "Gagal hapus!" });
+  }
+}
+
+function resetForm() {
+  Object.assign(form, {
+    title: "",
+    description: "",
+    status: "open",
+    date: "",
+  });
+  editingId.value = null;
+  slideoverTitle.value = "Tambah Rencana Kerja";
+  isSlideoverOpen.value = false;
+}
+
+// ===== Calendar setup =====
 onMounted(async () => {
   await nextTick();
 
-  // Double check the element exists before creating calendar
-  if (!calendarEl.value) {
-    console.error("Calendar element not found");
-    return;
-  }
+  if (!calendarEl.value) return;
 
-  try {
-    calendar = new Calendar(calendarEl.value, {
-      plugins: [dayGridPlugin, interactionPlugin],
-      initialView: "dayGridMonth",
-      headerToolbar: false,
-      locale: "id",
-      firstDay: 1,
-      height: "auto",
-      events: events,
-      dayHeaderFormat: { weekday: "long" },
-      dayHeaderClassNames: "text-sm font-medium text-gray-700 py-3",
-      dayCellClassNames: "border-gray-200 min-h-[120px]",
-      eventClassNames: "text-xs rounded px-2 py-1 mb-1 cursor-pointer",
-      dayMaxEvents: false, // Show all events
-      moreLinkClick: "popover",
-      eventClick: function (info) {
-        // Handle event click
-        console.log("Event clicked:", info.event.title);
-      },
-      dateClick: function (info) {
-        // Handle date click
-        console.log("Date clicked:", info.dateStr);
-      },
-      datesSet: function (info) {
-        updateMonthYear(calendar.getDate());
-      },
-      // Custom day header content
-      dayHeaderContent: function (arg) {
-        const dayNames = [
-          "Minggu",
-          "Senin",
-          "Selasa",
-          "Rabu",
-          "Kamis",
-          "Jumat",
-          "Sabtu",
-        ];
-        return dayNames[arg.date.getDay()];
-      },
-      // Custom day cell content
-      dayCellContent: function (arg) {
-        return arg.date.getDate();
-      },
-    });
+  calendar = new Calendar(calendarEl.value, {
+    plugins: [dayGridPlugin, interactionPlugin],
+    initialView: "dayGridMonth",
+    headerToolbar: false,
+    locale: "id",
+    firstDay: 1,
+    height: "auto",
+    events: events.value,
+    dayHeaderFormat: { weekday: "long" },
+    dayHeaderClassNames: "text-sm font-medium text-gray-700 py-3",
+    dayCellClassNames: "border-gray-200 min-h-[120px]",
+    eventClassNames: "text-xs rounded px-2 py-1 mb-1 cursor-pointer",
+    dayMaxEvents: false,
+    moreLinkClick: "popover",
 
-    calendar.render();
-    // updateMonthYear(calendar.getDate());
-  } catch (error) {
-    console.error("Error initializing calendar:", error);
-  }
+    eventClick(info) {
+      const ev = info.event;
+
+      editingId.value = Number(ev.id);
+      slideoverTitle.value = "Edit Rencana Kerja";
+
+      form.title = ev.title;
+      form.description = ev.extendedProps.description;
+      form.status = ev.extendedProps.status;
+      form.date = ev.startStr;
+
+      isSlideoverOpen.value = true;
+    },
+
+    dateClick(info) {
+      resetForm();
+      form.date = info.dateStr;
+      isSlideoverOpen.value = true;
+    },
+
+    datesSet(info) {
+      updateMonthYear(calendar!.getDate());
+    },
+
+    dayHeaderContent(arg) {
+      const dayNames = [
+        "Minggu",
+        "Senin",
+        "Selasa",
+        "Rabu",
+        "Kamis",
+        "Jumat",
+        "Sabtu",
+      ];
+      return dayNames[arg.date.getDay()];
+    },
+    dayCellContent(arg) {
+      return arg.date.getDate();
+    },
+  });
+
+  calendar.render();
+  await fetchWorkPlans();
 });
 
-// Update month/year display
-function updateMonthYear(date) {
+function updateMonthYear(date: Date) {
   const months = [
     "January",
     "February",
@@ -135,45 +269,32 @@ function updateMonthYear(date) {
     "November",
     "December",
   ];
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  currentMonthYear.value = `${month} ${year}`;
+  currentMonthYear.value = `${months[date.getMonth()]} ${date.getFullYear()}`;
 }
 
-// Navigation functions
 function previousMonth() {
-  if (calendar) {
-    calendar.prev();
-  }
+  calendar?.prev();
 }
-
 function nextMonth() {
-  if (calendar) {
-    calendar.next();
-  }
+  calendar?.next();
 }
 
-// Cleanup
 onUnmounted(() => {
-  if (calendar) {
-    calendar.destroy();
-    calendar = null;
-  }
+  calendar?.destroy();
+  calendar = null;
 });
 
-// Watch for view changes
 watch(selectedView, (newView) => {
-  if (calendar) {
-    switch (newView) {
-      case "Mingguan":
-        calendar.changeView("dayGridWeek");
-        break;
-      case "Harian":
-        calendar.changeView("dayGridDay");
-        break;
-      default:
-        calendar.changeView("dayGridMonth");
-    }
+  if (!calendar) return;
+  switch (newView) {
+    case "Mingguan":
+      calendar.changeView("dayGridWeek");
+      break;
+    case "Harian":
+      calendar.changeView("dayGridDay");
+      break;
+    default:
+      calendar.changeView("dayGridMonth");
   }
 });
 </script>
@@ -186,7 +307,6 @@ watch(selectedView, (newView) => {
         <h1 class="text-4xl font-semibold text-gray-900">
           {{ currentMonthYear }}
         </h1>
-
         <UButton
           icon="i-lucide-chevron-left"
           variant="ghost"
@@ -207,29 +327,105 @@ watch(selectedView, (newView) => {
       <div class="flex gap-3">
         <USelect
           v-model="selectedView"
-          :items="viewOptions"
+          :items="[
+            { label: 'Bulanan', value: 'Bulanan' },
+            { label: 'Mingguan', value: 'Mingguan' },
+            { label: 'Harian', value: 'Harian' },
+          ]"
           size="lg"
           variant="ghost"
-          placeholder="Pilih Tampilan"
           class="border border-gray-300"
-          :ui="{
-            content: 'bg-grey-100 rounded-lg border border-gray-300',
-          }"
         />
         <UButton
-          icon="i-lucide-download"
-          variant="outline"
-          color="gray"
+          icon="i-heroicons-plus"
+          label="Tambah Rencana Kerja"
+          class="text-sm"
           size="lg"
+          @click="
+            resetForm();
+            isSlideoverOpen = true;
+          "
         />
-        <UButton size="lg"> + Buat Rencana Kerja </UButton>
       </div>
     </header>
 
-    <!-- Calendar Container -->
-    <div class="">
+    <!-- Calendar -->
+    <div>
       <div ref="calendarEl" class="p-6"></div>
     </div>
+
+    <!-- Slideover -->
+    <USlideover
+      v-model:open="isSlideoverOpen"
+      :title="slideoverTitle"
+      :ui="{ content: 'w-full max-w-[40vw] m-9 rounded-lg' }"
+    >
+      <template #body>
+        <form class="flex flex-col h-full" @submit.prevent="submitForm">
+          <div class="flex-1 overflow-y-auto space-y-4 pr-2">
+            <UFormField label="Tanggal" required>
+              <UInput
+                v-model="form.date"
+                type="date"
+                size="lg"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField label="Judul" required>
+              <UInput
+                v-model="form.title"
+                size="lg"
+                placeholder="Masukkan judul"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField label="Deskripsi">
+              <UTextarea
+                v-model="form.description"
+                size="lg"
+                placeholder="Masukkan deskripsi"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UFormField label="Status" required>
+              <USelect
+                v-model="form.status"
+                :items="[
+                  { label: 'Open', value: 'open' },
+                  { label: 'Closed', value: 'closed' },
+                ]"
+                class="w-full"
+              />
+            </UFormField>
+          </div>
+          <div
+            class="absolute left-6 right-6 bottom-6 pt-4 mt-4 space-y-4 bg-white border-t"
+          >
+            <UButton type="submit" color="primary" size="xl" class="w-full">{{
+              editingId ? "Update" : "Simpan"
+            }}</UButton>
+            <UButton
+              v-if="editingId"
+              type="button"
+              variant="solid"
+              size="xl"
+              class="w-full"
+              @click="deleteWorkPlan"
+              >Hapus</UButton
+            >
+            <UButton
+              type="button"
+              variant="outline"
+              size="xl"
+              class="w-full"
+              @click="isSlideoverOpen = false"
+              >Batal</UButton
+            >
+          </div>
+        </form>
+      </template>
+    </USlideover>
   </div>
 </template>
 
