@@ -1,7 +1,5 @@
 <script setup lang="ts">
-definePageMeta({
-  middleware: "auth",
-});
+definePageMeta({ middleware: "auth" });
 
 import { Calendar } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -15,7 +13,7 @@ interface WorkPlan {
   description: string;
   status: string;
   date: string;
-  pic?: string; // add PIC
+  user?: { id: string; first_name: string; last_name: string; email: string };
 }
 
 interface WorkPlansResponse {
@@ -24,6 +22,13 @@ interface WorkPlansResponse {
 
 interface WorkPlanSingleResponse {
   data: WorkPlan;
+}
+
+interface DirectusUser {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
 }
 
 // ===== Stores =====
@@ -51,22 +56,31 @@ const form = reactive({
   description: "",
   status: "open",
   date: "",
-  pic: "",
+  user: "", // store user id
 });
 
 const editingId = ref<number | null>(null);
 const events = ref<any[]>([]);
 
+// ===== Users for PIC select =====
+const users = ref<DirectusUser[]>([]);
+async function fetchUsers() {
+  try {
+    const res = await $fetch<{ data: DirectusUser[] }>("/panel/users", {
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+    });
+    users.value = res.data;
+  } catch (err) {
+    console.error("Failed to fetch users", err);
+  }
+}
+
 // ===== API =====
 async function fetchWorkPlans() {
   try {
     const res = await $fetch<WorkPlansResponse>(
-      "/panel/items/work_plans?fields=*",
-      {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
+      "/panel/items/work_plans?fields=*,user.*",
+      { headers: { Authorization: `Bearer ${authStore.accessToken}` } }
     );
 
     events.value = res.data.map((item) => ({
@@ -76,7 +90,7 @@ async function fetchWorkPlans() {
       extendedProps: {
         description: item.description,
         status: item.status,
-        pic: item.pic,
+        user: item.user, // full user object
       },
       backgroundColor: item.status === "open" ? "#3B82F6" : "#6B7280",
       borderColor: item.status === "open" ? "#3B82F6" : "#6B7280",
@@ -99,15 +113,14 @@ async function submitForm() {
       description: form.description,
       status: form.status,
       date: form.date,
-      pic: form.pic,
+      user: form.user || null, // send user id
     };
 
     let res: WorkPlanSingleResponse;
 
     if (editingId.value) {
-      // Update existing
       res = await $fetch<WorkPlanSingleResponse>(
-        `/panel/items/work_plans/${editingId.value}?fields=*`,
+        `/panel/items/work_plans/${editingId.value}?fields=*,user.*`,
         {
           method: "PATCH",
           headers: { Authorization: `Bearer ${authStore.accessToken}` },
@@ -121,7 +134,9 @@ async function submitForm() {
         ev.setStart(res.data.date);
         ev.setProp(
           "backgroundColor",
-          res.data.status === "open" ? "#3B82F6" : "#6B7280"
+          res.data.status === "open"
+            ? "rgba(0, 149, 255, 0.5)"
+            : "rgba(107, 114, 128, 0.5)"
         );
         ev.setProp(
           "borderColor",
@@ -129,14 +144,13 @@ async function submitForm() {
         );
         ev.setExtendedProp("description", res.data.description);
         ev.setExtendedProp("status", res.data.status);
-        ev.setExtendedProp("pic", res.data.pic);
+        ev.setExtendedProp("user", res.data.user);
       }
 
       toast.add({ title: "Berhasil update rencana kerja!" });
     } else {
-      // Create new
       res = await $fetch<WorkPlanSingleResponse>(
-        "/panel/items/work_plans?fields=*",
+        "/panel/items/work_plans?fields=*,user.*",
         {
           method: "POST",
           headers: { Authorization: `Bearer ${authStore.accessToken}` },
@@ -154,7 +168,7 @@ async function submitForm() {
         extendedProps: {
           description: res.data.description,
           status: res.data.status,
-          pic: res.data.pic,
+          user: res.data.user,
         },
       });
 
@@ -193,7 +207,7 @@ function resetForm() {
     description: "",
     status: "open",
     date: "",
-    pic: "",
+    user: "",
   });
   editingId.value = null;
   slideoverTitle.value = "Tambah Rencana Kerja";
@@ -203,6 +217,7 @@ function resetForm() {
 // ===== Calendar setup =====
 onMounted(async () => {
   await nextTick();
+  await fetchUsers();
 
   if (!calendarEl.value) return;
 
@@ -223,7 +238,6 @@ onMounted(async () => {
 
     eventClick(info) {
       const ev = info.event;
-
       editingId.value = Number(ev.id);
       slideoverTitle.value = "Edit Rencana Kerja";
 
@@ -231,7 +245,7 @@ onMounted(async () => {
       form.description = ev.extendedProps.description;
       form.status = ev.extendedProps.status;
       form.date = ev.startStr;
-      form.pic = ev.extendedProps.pic;
+      form.user = ev.extendedProps.user?.id || "";
 
       isSlideoverOpen.value = true;
     },
@@ -239,10 +253,8 @@ onMounted(async () => {
     dateClick(info) {
       const dateStr = info.dateStr;
       selectedDate.value = dateStr;
-
       eventsForSelectedDate.value =
         calendar?.getEvents().filter((ev) => ev.startStr === dateStr) || [];
-
       isDayReviewOpen.value = true;
     },
 
@@ -404,12 +416,18 @@ watch(selectedView, (newView) => {
                 class="w-full"
               />
             </UFormField>
-
             <UFormField label="PIC">
-              <UInput
-                v-model="form.pic"
+              <USelectMenu
+                v-model="form.user"
+                :items="
+                  users.map((u) => ({
+                    label:
+                      `${u.first_name} ${u.last_name || ''}`.trim() || u.email,
+                    value: u.id,
+                  }))
+                "
                 size="lg"
-                placeholder="Masukkan PIC"
+                placeholder="Pilih PIC"
                 class="w-full"
               />
             </UFormField>
@@ -472,16 +490,21 @@ watch(selectedView, (newView) => {
             <div
               v-for="ev in eventsForSelectedDate"
               :key="ev.id"
-              class="p-4 rounded-lg border bg-white shadow-sm"
+              class="p-4 rounded-lg border-l-2 border-green-300"
             >
-              <h3 class="text-md font-semibold text-gray-800">
+              <h3 class="text-md font-medium text-gray-900">
                 {{ ev.title }}
               </h3>
-              <p class="text-sm text-gray-600">
-                <strong>PIC:</strong> {{ ev.extendedProps.pic || "-" }}
+              <p class="text-xs text-gray-900 mt-2">
+                PIC:
+                {{
+                  ev.extendedProps.user?.first_name ||
+                  ev.extendedProps.user?.email ||
+                  "-"
+                }}
               </p>
-              <p class="text-sm text-gray-700 mt-1">
-                <strong>Description:</strong>
+              <p class="text-xs text-gray-900 mt-">
+                Description:
                 {{ ev.extendedProps.description || "-" }}
               </p>
               <p
