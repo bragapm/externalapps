@@ -402,25 +402,21 @@ watch(selectedView, (newView) => {
           <div
             class="absolute left-6 right-6 bottom-6 pt-4 mt-4 space-y-4 bg-white border-t"
           >
-            <UButton type="submit" color="primary" size="xl" class="w-full">{{
-              editingId ? "Update" : "Simpan"
-            }}</UButton>
+            <UButton
+              type="submit"
+              color="primary"
+              size="xl"
+              class="w-full flex justify-center"
+              >{{ editingId ? "Update" : "Simpan" }}</UButton
+            >
             <UButton
               v-if="editingId"
               type="button"
-              variant="solid"
-              size="xl"
-              class="w-full"
-              @click="deleteWorkPlan"
-              >Hapus</UButton
-            >
-            <UButton
-              type="button"
               variant="outline"
               size="xl"
-              class="w-full"
-              @click="isSlideoverOpen = false"
-              >Batal</UButton
+              class="w-full flex justify-center"
+              @click="deleteWorkPlan"
+              >Hapus</UButton
             >
           </div>
         </form>
