@@ -15,6 +15,7 @@ interface WorkPlan {
   description: string;
   status: string;
   date: string;
+  pic?: string; // add PIC
 }
 
 interface WorkPlansResponse {
@@ -35,9 +36,14 @@ const calendarEl = ref<HTMLElement | null>(null);
 const selectedView = ref("Bulanan");
 const currentMonthYear = ref("January 2025");
 
-// ===== Slideover =====
+// ===== Slideover: Form =====
 const isSlideoverOpen = ref(false);
 const slideoverTitle = ref("Tambah Rencana Kerja");
+
+// ===== Slideover: Day Review =====
+const isDayReviewOpen = ref(false);
+const selectedDate = ref<string | null>(null);
+const eventsForSelectedDate = ref<any[]>([]);
 
 // ===== Form state =====
 const form = reactive({
@@ -45,6 +51,7 @@ const form = reactive({
   description: "",
   status: "open",
   date: "",
+  pic: "",
 });
 
 const editingId = ref<number | null>(null);
@@ -69,6 +76,7 @@ async function fetchWorkPlans() {
       extendedProps: {
         description: item.description,
         status: item.status,
+        pic: item.pic,
       },
       backgroundColor: item.status === "open" ? "#3B82F6" : "#6B7280",
       borderColor: item.status === "open" ? "#3B82F6" : "#6B7280",
@@ -91,6 +99,7 @@ async function submitForm() {
       description: form.description,
       status: form.status,
       date: form.date,
+      pic: form.pic,
     };
 
     let res: WorkPlanSingleResponse;
@@ -120,6 +129,7 @@ async function submitForm() {
         );
         ev.setExtendedProp("description", res.data.description);
         ev.setExtendedProp("status", res.data.status);
+        ev.setExtendedProp("pic", res.data.pic);
       }
 
       toast.add({ title: "Berhasil update rencana kerja!" });
@@ -144,6 +154,7 @@ async function submitForm() {
         extendedProps: {
           description: res.data.description,
           status: res.data.status,
+          pic: res.data.pic,
         },
       });
 
@@ -182,6 +193,7 @@ function resetForm() {
     description: "",
     status: "open",
     date: "",
+    pic: "",
   });
   editingId.value = null;
   slideoverTitle.value = "Tambah Rencana Kerja";
@@ -219,14 +231,19 @@ onMounted(async () => {
       form.description = ev.extendedProps.description;
       form.status = ev.extendedProps.status;
       form.date = ev.startStr;
+      form.pic = ev.extendedProps.pic;
 
       isSlideoverOpen.value = true;
     },
 
     dateClick(info) {
-      resetForm();
-      form.date = info.dateStr;
-      isSlideoverOpen.value = true;
+      const dateStr = info.dateStr;
+      selectedDate.value = dateStr;
+
+      eventsForSelectedDate.value =
+        calendar?.getEvents().filter((ev) => ev.startStr === dateStr) || [];
+
+      isDayReviewOpen.value = true;
     },
 
     datesSet(info) {
@@ -354,7 +371,7 @@ watch(selectedView, (newView) => {
       <div ref="calendarEl" class="p-6"></div>
     </div>
 
-    <!-- Slideover -->
+    <!-- Slideover: Add/Edit -->
     <USlideover
       v-model:open="isSlideoverOpen"
       :title="slideoverTitle"
@@ -384,6 +401,15 @@ watch(selectedView, (newView) => {
                 v-model="form.description"
                 size="lg"
                 placeholder="Masukkan deskripsi"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UFormField label="PIC">
+              <UInput
+                v-model="form.pic"
+                size="lg"
+                placeholder="Masukkan PIC"
                 class="w-full"
               />
             </UFormField>
@@ -420,6 +446,61 @@ watch(selectedView, (newView) => {
             >
           </div>
         </form>
+      </template>
+    </USlideover>
+
+    <!-- Slideover: Review Day -->
+    <USlideover
+      v-model:open="isDayReviewOpen"
+      title="Review Rencana Kerja Hari ini"
+      :ui="{ content: 'w-full max-w-[40vw] m-9 rounded-lg' }"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <h2 class="text-lg font-semibold text-gray-900">
+            {{
+              new Date(selectedDate!).toLocaleDateString("id-ID", {
+                weekday: "long",
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })
+            }}
+          </h2>
+
+          <div v-if="eventsForSelectedDate.length > 0" class="space-y-4">
+            <div
+              v-for="ev in eventsForSelectedDate"
+              :key="ev.id"
+              class="p-4 rounded-lg border bg-white shadow-sm"
+            >
+              <h3 class="text-md font-semibold text-gray-800">
+                {{ ev.title }}
+              </h3>
+              <p class="text-sm text-gray-600">
+                <strong>PIC:</strong> {{ ev.extendedProps.pic || "-" }}
+              </p>
+              <p class="text-sm text-gray-700 mt-1">
+                <strong>Description:</strong>
+                {{ ev.extendedProps.description || "-" }}
+              </p>
+              <p
+                class="text-xs mt-2 inline-block px-2 py-1 rounded"
+                :class="
+                  ev.extendedProps.status === 'open'
+                    ? 'bg-blue-100 text-blue-600'
+                    : 'bg-gray-200 text-gray-600'
+                "
+              >
+                {{ ev.extendedProps.status }}
+              </p>
+            </div>
+          </div>
+
+          <p v-else class="text-sm text-gray-500">
+            Tidak ada rencana kerja hari ini.
+          </p>
+        </div>
       </template>
     </USlideover>
   </div>
