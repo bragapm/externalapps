@@ -216,21 +216,33 @@ const {
   isFetching: isChartLoading,
   isError: isChartError,
 } = useQuery({
-  queryKey: ["chart-data"],
+  queryKey: ["chart-data", startDate, endDate, search],
   queryFn: async () => {
+    const filters: any[] = [];
+
+    if (startDate.value) {
+      filters.push({ date: { _gte: startDate.value } });
+    }
+    if (endDate.value) {
+      filters.push({ date: { _lte: endDate.value } });
+    }
+    if (search.value) {
+      filters.push({ title: { _icontains: search.value.trim() } });
+    }
+
+    const queryParams: Record<string, string> = {
+      fields: "report_type.name,status",
+      limit: "-1",
+      filter: JSON.stringify({ _and: filters }),
+    };
+
     const response = await $fetch<{
-      data: {
-        report_type: { name: string };
-        status: string;
-      }[];
-    }>(
-      "/panel/items/daily_activities?fields=report_type.name,status&limit=-1",
-      {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
-    );
+      data: { report_type: { name: string }; status: string }[];
+    }>("/panel/items/daily_activities?" + new URLSearchParams(queryParams), {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    });
 
     return response.data;
   },
@@ -241,12 +253,12 @@ const chartDatasets = ref<
   { label: string; data: number[]; backgroundColor: string }[]
 >([]);
 
-watch(chartData, (data) => {
-  if (!data) return;
+const computedChartData = computed(() => {
+  if (!chartData.value) return { labels: [], datasets: [] };
 
   const grouped: Record<string, { open: number; close: number }> = {};
 
-  data.forEach((item) => {
+  chartData.value.forEach((item) => {
     const reportName = item.report_type?.name ?? "Unknown";
     const status = item.status?.toLowerCase();
 
@@ -261,19 +273,21 @@ watch(chartData, (data) => {
     }
   });
 
-  chartLabels.value = Object.keys(grouped);
-  chartDatasets.value = [
+  const labels = Object.keys(grouped);
+  const datasets = [
     {
       label: "Open",
-      data: chartLabels.value.map((label) => grouped[label].open),
+      data: labels.map((label) => grouped[label].open),
       backgroundColor: "#3B82F6",
     },
     {
       label: "Close",
-      data: chartLabels.value.map((label) => grouped[label].close),
+      data: labels.map((label) => grouped[label].close),
       backgroundColor: "#22C55E",
     },
   ];
+
+  return { labels, datasets };
 });
 
 const queryClient = useQueryClient();
@@ -321,8 +335,8 @@ function handleLeaveRequestSuccess() {
       class="w-full"
       title="Report Status"
       :stacked="false"
-      :labels="chartLabels"
-      :datasets="chartDatasets"
+      :labels="computedChartData.labels"
+      :datasets="computedChartData.datasets"
     />
     <DashboardTable
       v-model:pageSize="pageSize"
