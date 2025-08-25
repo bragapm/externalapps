@@ -11,6 +11,7 @@ const UCheckbox = resolveComponent("UCheckbox");
 const startDate = ref();
 const endDate = ref();
 const search = ref("");
+const uploadedBy = ref<string | null>(null);
 const currentQueryParams = ref<Record<string, string>>();
 
 const page = ref(1);
@@ -19,8 +20,29 @@ const auth = useAuth();
 const selectedId = ref<string | null>(null);
 const openReview = ref(false);
 
+const { data: userOptions } = useQuery({
+  queryKey: ["users"],
+  queryFn: async () => {
+    const res = await $fetch<{ data: any[] }>("/panel/users", {
+      headers: { Authorization: `Bearer ${auth.accessToken}` },
+    });
+    return res.data.map((u) => ({
+      label: `${u.first_name || ""} ${u.last_name || ""}`.trim() || u.email,
+      value: u.id,
+    }));
+  },
+});
+
 const { data: tableData, isFetching } = useQuery({
-  queryKey: ["weekly-activities", page, pageSize, startDate, endDate, search], // Add filter dependencies
+  queryKey: [
+    "weekly-activities",
+    page,
+    pageSize,
+    startDate,
+    endDate,
+    search,
+    uploadedBy,
+  ],
   queryFn: async () => {
     const filters: any[] = [];
 
@@ -45,6 +67,17 @@ const { data: tableData, isFetching } = useQuery({
       });
     }
 
+    if (uploadedBy.value) {
+      const userId =
+        typeof uploadedBy.value === "object" && uploadedBy.value !== null
+          ? (uploadedBy.value as any).value || uploadedBy.value
+          : uploadedBy.value;
+
+      filters.push({
+        user_created: { _eq: userId },
+      });
+    }
+
     const queryParams: Record<string, string> = {
       fields: [
         "*",
@@ -60,11 +93,10 @@ const { data: tableData, isFetching } = useQuery({
     };
 
     if (filters.length > 0) {
-      if (filters.length === 1) {
-        queryParams.filter = JSON.stringify(filters[0]);
-      } else {
-        queryParams.filter = JSON.stringify({ _and: filters });
-      }
+      queryParams.filter =
+        filters.length === 1
+          ? JSON.stringify(filters[0])
+          : JSON.stringify({ _and: filters });
     }
 
     currentQueryParams.value = queryParams;
@@ -191,8 +223,11 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
     <DashboardTableHeaderControls
       v-model:search="search"
       @update-date="handleDateUpdate"
-      :collection="'business_trips'"
+      v-model:selected-user="uploadedBy"
+      :collection="'weekly_activities'"
       :queryParams="currentQueryParams"
+      :show-user-filter="true"
+      :user-options="userOptions"
     >
       <template #slideover-button>
         <USlideover
@@ -217,6 +252,7 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
         </USlideover>
       </template>
     </DashboardTableHeaderControls>
+
     <DashboardTable
       v-model:page="page"
       v-model:pageSize="pageSize"

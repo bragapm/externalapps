@@ -2,9 +2,15 @@
 const props = defineProps<{
   collection?: string;
   queryParams?: Record<string, string> | undefined;
+  showUserFilter?: boolean; // New prop to control user filter visibility
+  userOptions?: Array<{ value: string | null; label: string }>; // User options for filter
+  selectedUser?: string | null; // Selected user value
 }>();
+
 const emit = defineEmits<{
   updateDate: [startDate: string | undefined, endDate: string | undefined];
+  // Renamed to follow the standard v-model pattern
+  "update:selectedUser"?: [userId: string | null];
 }>();
 
 const toast = useToast();
@@ -25,7 +31,8 @@ const searchInput = ref(search.value);
 const handleSearch = (input: string) => {
   search.value = input;
 };
-watch(searchInput, debounce(handleSearch, 500));
+// Removed debounce, now triggers on every input change
+watch(searchInput, handleSearch);
 
 const exportData = async () => {
   const { limit, page, ...restQuery } = props.queryParams ?? {};
@@ -80,10 +87,17 @@ const exportData = async () => {
         size="lg"
       />
       <USelectMenu
-        v-model="intervalValue"
-        :items="intervalOptions"
-        class="w-32"
-        :searchInput="false"
+        v-if="showUserFilter && userOptions"
+        :model-value="selectedUser"
+        :items="userOptions"
+        placeholder="Filter by user"
+        value-attribute="value"
+        option-attribute="label"
+        searchable
+        clearable
+        @update:model-value="(userId) => emit('update:selectedUser', userId)"
+        class="min-w-[200px]"
+        size="lg"
       />
       <UButton
         @click="exportData"
