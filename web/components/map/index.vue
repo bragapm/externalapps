@@ -50,12 +50,12 @@ onMounted(async () => {
       style,
       bounds:
         sharedMap?.value?.data.map_state.boundArray ||
-        (bbox(
-          mapData?.value?.data.initial_map_view || [
-            [95.01, -11.01], // Southwest coordinates (longitude, latitude)
-            [141.02, 6.08], // Northeast coordinates (longitude, latitude)
-          ] // Indonesia Bounds
-        ) as LngLatBoundsLike),
+        mapData.value?.data?.initial_map_view
+          ? (bbox(mapData?.value?.data.initial_map_view) as LngLatBoundsLike)
+          : [
+              [95.01, -11.01], // Southwest coordinates (longitude, latitude)
+              [141.02, 6.08], // Northeast coordinates (longitude, latitude)
+            ],
     })
   );
 
