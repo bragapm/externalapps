@@ -43,7 +43,7 @@ export default defineNuxtConfig({
         proxy:
           process.env.NODE_ENV === "production"
             ? "http://directus:8055/**"
-            : "https://externalapps.braga.co.id/panel/**",
+            : "https://xrels.braga.co.id/panel/**",
       },
     },
   },
@@ -61,7 +61,7 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
-   ui: {
+  ui: {
     theme: {
       colors: [
         "primary",
