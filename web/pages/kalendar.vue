@@ -6,7 +6,6 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { ref, reactive, onMounted, onUnmounted, nextTick, watch } from "vue";
 
-// ===== Types =====
 interface WorkPlan {
   id: number;
   title: string;
@@ -31,39 +30,49 @@ interface DirectusUser {
   email: string;
 }
 
-// ===== Stores =====
 const authStore = useAuth();
 const toast = useToast();
 
-// ===== Calendar refs =====
 let calendar: Calendar | null = null;
 const calendarEl = ref<HTMLElement | null>(null);
 const selectedView = ref("Bulanan");
 const currentMonthYear = ref("January 2025");
 
-// ===== Slideover: Form =====
 const isSlideoverOpen = ref(false);
 const slideoverTitle = ref("Tambah Rencana Kerja");
 
-// ===== Slideover: Day Review =====
 const isDayReviewOpen = ref(false);
 const selectedDate = ref<string | null>(null);
 const eventsForSelectedDate = ref<any[]>([]);
 
-// ===== Form state =====
 const form = reactive({
   title: "",
   description: "",
   status: "open",
   date: "",
-  user: "", // store user id
+  user: null as any, // Change to store the full user object
 });
 
 const editingId = ref<number | null>(null);
 const events = ref<any[]>([]);
 
-// ===== Users for PIC select =====
 const users = ref<DirectusUser[]>([]);
+
+// Computed property to get user options for dropdown
+const userOptions = computed(() => {
+  return users.value.map((u) => ({
+    label: `${u.first_name} ${u.last_name || ""}`.trim() || u.email,
+    value: u.id,
+  }));
+});
+
+// Helper function to get user display name
+function getUserDisplayName(userId: string): string {
+  const user = users.value.find((u) => u.id === userId);
+  if (!user) return "-";
+  return `${user.first_name} ${user.last_name || ""}`.trim() || user.email;
+}
+
 async function fetchUsers() {
   try {
     const res = await $fetch<{ data: DirectusUser[] }>("/panel/users", {
@@ -75,7 +84,6 @@ async function fetchUsers() {
   }
 }
 
-// ===== API =====
 async function fetchWorkPlans() {
   try {
     const res = await $fetch<WorkPlansResponse>(
@@ -113,7 +121,7 @@ async function submitForm() {
       description: form.description,
       status: form.status,
       date: form.date,
-      user: form.user || null, // send user id
+      user: form.user?.value || null, // Extract the value from the selected object
     };
 
     let res: WorkPlanSingleResponse;
@@ -134,9 +142,7 @@ async function submitForm() {
         ev.setStart(res.data.date);
         ev.setProp(
           "backgroundColor",
-          res.data.status === "open"
-            ? "rgba(0, 149, 255, 0.5)"
-            : "rgba(107, 114, 128, 0.5)"
+          res.data.status === "open" ? "#3B82F6" : "#6B7280"
         );
         ev.setProp(
           "borderColor",
@@ -176,6 +182,13 @@ async function submitForm() {
     }
 
     resetForm();
+
+    // Refresh day review events
+    if (isDayReviewOpen.value && selectedDate.value === res.data.date) {
+      eventsForSelectedDate.value =
+        calendar?.getEvents().filter((ev) => ev.startStr === res.data.date) ||
+        [];
+    }
   } catch (err) {
     console.error("Failed to submit form", err);
     toast.add({ title: "Gagal simpan!" });
@@ -207,7 +220,7 @@ function resetForm() {
     description: "",
     status: "open",
     date: "",
-    user: "",
+    user: null,
   });
   editingId.value = null;
   slideoverTitle.value = "Tambah Rencana Kerja";
@@ -245,11 +258,14 @@ onMounted(async () => {
       form.description = ev.extendedProps.description;
       form.status = ev.extendedProps.status;
       form.date = ev.startStr;
-      form.user = ev.extendedProps.user?.id || "";
+
+      // Fix: Find and set the full user object
+      const userId = ev.extendedProps.user?.id || "";
+      form.user =
+        userOptions.value.find((option) => option.value === userId) || null;
 
       isSlideoverOpen.value = true;
     },
-
     dateClick(info) {
       const dateStr = info.dateStr;
       selectedDate.value = dateStr;
@@ -419,16 +435,12 @@ watch(selectedView, (newView) => {
             <UFormField label="PIC">
               <USelectMenu
                 v-model="form.user"
-                :items="
-                  users.map((u) => ({
-                    label:
-                      `${u.first_name} ${u.last_name || ''}`.trim() || u.email,
-                    value: u.id,
-                  }))
-                "
+                :items="userOptions"
                 size="lg"
                 placeholder="Pilih PIC"
                 class="w-full"
+                searchable
+                by="value"
               />
             </UFormField>
 
@@ -498,12 +510,12 @@ watch(selectedView, (newView) => {
               <p class="text-xs text-gray-900 mt-2">
                 PIC:
                 {{
-                  ev.extendedProps.user?.first_name ||
-                  ev.extendedProps.user?.email ||
-                  "-"
+                  ev.extendedProps.user
+                    ? getUserDisplayName(ev.extendedProps.user.id)
+                    : "-"
                 }}
               </p>
-              <p class="text-xs text-gray-900 mt-">
+              <p class="text-xs text-gray-900 mt-1">
                 Description:
                 {{ ev.extendedProps.description || "-" }}
               </p>
