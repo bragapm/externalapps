@@ -30,6 +30,14 @@ interface DirectusUser {
   email: string;
 }
 
+interface FormItem {
+  title: string;
+  description: string;
+  status: string;
+  date: string;
+  user: any;
+}
+
 const authStore = useAuth();
 const toast = useToast();
 
@@ -45,17 +53,19 @@ const isDayReviewOpen = ref(false);
 const selectedDate = ref<string | null>(null);
 const eventsForSelectedDate = ref<any[]>([]);
 
-const form = reactive({
-  title: "",
-  description: "",
-  status: "open",
-  date: "",
-  user: null as any, // Change to store the full user object
-});
+// Updated to handle multiple forms
+const forms = ref<FormItem[]>([
+  {
+    title: "",
+    description: "",
+    status: "open",
+    date: "",
+    user: null,
+  },
+]);
 
 const editingId = ref<number | null>(null);
 const events = ref<any[]>([]);
-
 const users = ref<DirectusUser[]>([]);
 
 // Computed property to get user options for dropdown
@@ -71,6 +81,24 @@ function getUserDisplayName(userId: string): string {
   const user = users.value.find((u) => u.id === userId);
   if (!user) return "-";
   return `${user.first_name} ${user.last_name || ""}`.trim() || user.email;
+}
+
+// Add new form
+function addNewForm() {
+  forms.value.push({
+    title: "",
+    description: "",
+    status: "open",
+    date: "",
+    user: null,
+  });
+}
+
+// Remove form by index
+function removeForm(index: number) {
+  if (forms.value.length > 1) {
+    forms.value.splice(index, 1);
+  }
 }
 
 async function fetchUsers() {
@@ -98,7 +126,7 @@ async function fetchWorkPlans() {
       extendedProps: {
         description: item.description,
         status: item.status,
-        user: item.user, // full user object
+        user: item.user,
       },
       backgroundColor: item.status === "open" ? "#3B82F6" : "#6B7280",
       borderColor: item.status === "open" ? "#3B82F6" : "#6B7280",
@@ -116,18 +144,27 @@ async function fetchWorkPlans() {
 
 async function submitForm() {
   try {
-    const payload = {
-      title: form.title,
-      description: form.description,
-      status: form.status,
-      date: form.date,
-      user: form.user?.value || null, // Extract the value from the selected object
-    };
+    // Validate forms
+    const validForms = forms.value.filter(
+      (form) => form.title.trim() && form.date
+    );
 
-    let res: WorkPlanSingleResponse;
+    if (validForms.length === 0) {
+      toast.add({ title: "Minimal satu form harus diisi dengan lengkap!" });
+      return;
+    }
 
     if (editingId.value) {
-      res = await $fetch<WorkPlanSingleResponse>(
+      // Edit mode - only update single item
+      const payload = {
+        title: forms.value[0].title,
+        description: forms.value[0].description,
+        status: forms.value[0].status,
+        date: forms.value[0].date,
+        user: forms.value[0].user?.value || null,
+      };
+
+      const res = await $fetch<WorkPlanSingleResponse>(
         `/panel/items/work_plans/${editingId.value}?fields=*,user.*`,
         {
           method: "PATCH",
@@ -155,39 +192,58 @@ async function submitForm() {
 
       toast.add({ title: "Berhasil update rencana kerja!" });
     } else {
-      res = await $fetch<WorkPlanSingleResponse>(
-        "/panel/items/work_plans?fields=*,user.*",
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${authStore.accessToken}` },
-          body: payload,
-        }
-      );
+      // Create mode - submit multiple items
+      const promises = validForms.map((form) => {
+        const payload = {
+          title: form.title,
+          description: form.description,
+          status: form.status,
+          date: form.date,
+          user: form.user?.value || null,
+        };
 
-      calendar?.addEvent({
-        id: res.data.id,
-        title: res.data.title,
-        start: res.data.date,
-        backgroundColor: res.data.status === "open" ? "#3B82F6" : "#6B7280",
-        borderColor: res.data.status === "open" ? "#3B82F6" : "#6B7280",
-        textColor: "#fff",
-        extendedProps: {
-          description: res.data.description,
-          status: res.data.status,
-          user: res.data.user,
-        },
+        return $fetch<WorkPlanSingleResponse>(
+          "/panel/items/work_plans?fields=*,user.*",
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${authStore.accessToken}` },
+            body: payload,
+          }
+        );
       });
 
-      toast.add({ title: "Berhasil simpan rencana kerja!" });
+      const results = await Promise.all(promises);
+
+      // Add all new events to calendar
+      results.forEach((res) => {
+        calendar?.addEvent({
+          id: res.data.id,
+          title: res.data.title,
+          start: res.data.date,
+          backgroundColor: res.data.status === "open" ? "#3B82F6" : "#6B7280",
+          borderColor: res.data.status === "open" ? "#3B82F6" : "#6B7280",
+          textColor: "#fff",
+          extendedProps: {
+            description: res.data.description,
+            status: res.data.status,
+            user: res.data.user,
+          },
+        });
+      });
+
+      toast.add({
+        title: `Berhasil simpan ${results.length} rencana kerja!`,
+      });
     }
 
     resetForm();
 
-    // Refresh day review events
-    if (isDayReviewOpen.value && selectedDate.value === res.data.date) {
+    // Refresh day review events if applicable
+    if (isDayReviewOpen.value && selectedDate.value) {
       eventsForSelectedDate.value =
-        calendar?.getEvents().filter((ev) => ev.startStr === res.data.date) ||
-        [];
+        calendar
+          ?.getEvents()
+          .filter((ev) => ev.startStr === selectedDate.value) || [];
     }
   } catch (err) {
     console.error("Failed to submit form", err);
@@ -215,13 +271,15 @@ async function deleteWorkPlan() {
 }
 
 function resetForm() {
-  Object.assign(form, {
-    title: "",
-    description: "",
-    status: "open",
-    date: "",
-    user: null,
-  });
+  forms.value = [
+    {
+      title: "",
+      description: "",
+      status: "open",
+      date: "",
+      user: null,
+    },
+  ];
   editingId.value = null;
   slideoverTitle.value = "Tambah Rencana Kerja";
   isSlideoverOpen.value = false;
@@ -254,15 +312,19 @@ onMounted(async () => {
       editingId.value = Number(ev.id);
       slideoverTitle.value = "Edit Rencana Kerja";
 
-      form.title = ev.title;
-      form.description = ev.extendedProps.description;
-      form.status = ev.extendedProps.status;
-      form.date = ev.startStr;
-
-      // Fix: Find and set the full user object
-      const userId = ev.extendedProps.user?.id || "";
-      form.user =
-        userOptions.value.find((option) => option.value === userId) || null;
+      // Reset to single form for editing
+      forms.value = [
+        {
+          title: ev.title,
+          description: ev.extendedProps.description,
+          status: ev.extendedProps.status,
+          date: ev.startStr,
+          user:
+            userOptions.value.find(
+              (option) => option.value === ev.extendedProps.user?.id
+            ) || null,
+        },
+      ];
 
       isSlideoverOpen.value = true;
     },
@@ -403,68 +465,120 @@ watch(selectedView, (newView) => {
     <USlideover
       v-model:open="isSlideoverOpen"
       :title="slideoverTitle"
-      :ui="{ content: 'w-full max-w-[40vw] m-9 rounded-lg' }"
+      :ui="{ content: 'w-full max-w-[50vw] m-9 rounded-lg' }"
     >
       <template #body>
         <form class="flex flex-col h-full" @submit.prevent="submitForm">
-          <div class="flex-1 overflow-y-auto space-y-4 pr-2">
-            <UFormField label="Tanggal" required>
-              <UInput
-                v-model="form.date"
-                type="date"
-                size="lg"
-                class="w-full"
-              />
-            </UFormField>
-            <UFormField label="Judul" required>
-              <UInput
-                v-model="form.title"
-                size="lg"
-                placeholder="Masukkan judul"
-                class="w-full"
-              />
-            </UFormField>
-            <UFormField label="Deskripsi">
-              <UTextarea
-                v-model="form.description"
-                size="lg"
-                placeholder="Masukkan deskripsi"
-                class="w-full"
-              />
-            </UFormField>
-            <UFormField label="PIC">
-              <USelectMenu
-                v-model="form.user"
-                :items="userOptions"
-                size="lg"
-                placeholder="Pilih PIC"
-                class="w-full"
-                searchable
-                by="value"
-              />
-            </UFormField>
+          <div class="flex-1 overflow-y-auto space-y-6 pr-2">
+            <!-- Multiple Forms Section -->
+            <div
+              v-for="(form, index) in forms"
+              :key="index"
+              class="border rounded-lg p-4 space-y-4"
+              :class="
+                forms.length > 1
+                  ? 'border-gray-300 bg-gray-50'
+                  : 'border-transparent'
+              "
+            >
+              <!-- Form Header with Remove Button -->
+              <div
+                v-if="forms.length > 1"
+                class="flex items-center justify-between pb-2 border-b border-gray-200"
+              >
+                <h3 class="text-sm font-medium text-gray-700">
+                  Rencana Kerja #{{ index + 1 }}
+                </h3>
+                <UButton
+                  icon="i-heroicons-trash"
+                  variant="ghost"
+                  size="sm"
+                  @click="removeForm(index)"
+                  :disabled="forms.length === 1"
+                />
+              </div>
 
-            <UFormField label="Status" required>
-              <USelect
-                v-model="form.status"
-                :items="[
-                  { label: 'Open', value: 'open' },
-                  { label: 'Closed', value: 'closed' },
-                ]"
-                class="w-full"
+              <UFormField label="Tanggal" required>
+                <UInput
+                  v-model="form.date"
+                  type="date"
+                  size="lg"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField label="Judul" required>
+                <UInput
+                  v-model="form.title"
+                  size="lg"
+                  placeholder="Masukkan judul"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField label="Deskripsi">
+                <UTextarea
+                  v-model="form.description"
+                  size="lg"
+                  placeholder="Masukkan deskripsi"
+                  class="w-full"
+                  rows="3"
+                />
+              </UFormField>
+
+              <UFormField label="PIC">
+                <USelectMenu
+                  v-model="form.user"
+                  :items="userOptions"
+                  size="lg"
+                  placeholder="Pilih PIC"
+                  class="w-full"
+                  searchable
+                  by="value"
+                />
+              </UFormField>
+
+              <UFormField label="Status" required>
+                <USelect
+                  v-model="form.status"
+                  :items="[
+                    { label: 'Open', value: 'open' },
+                    { label: 'Closed', value: 'closed' },
+                  ]"
+                  size="lg"
+                  class="w-full"
+                />
+              </UFormField>
+            </div>
+
+            <!-- Add New Form Button (only show in create mode) -->
+            <div v-if="!editingId" class="flex justify-center pt-4">
+              <UButton
+                icon="i-heroicons-plus"
+                label="Tambah Form Lain"
+                variant="outline"
+                color="primary"
+                @click="addNewForm"
+                type="button"
               />
-            </UFormField>
+            </div>
           </div>
+
+          <!-- Action Buttons -->
           <div
-            class="absolute left-6 right-6 bottom-6 pt-4 mt-4 space-y-4 bg-white border-t"
+            class="sticky bottom-0 left-0 right-0 pt-4 mt-4 space-y-4 bg-white border-t border-gray-200 px-6"
           >
             <UButton
               type="submit"
               color="primary"
               size="xl"
               class="w-full flex justify-center"
-              >{{ editingId ? "Update" : "Simpan" }}</UButton
             >
+              {{
+                editingId ? "Update" : `Simpan ${forms.length} Rencana Kerja`
+              }}
+            </UButton>
+
             <UButton
               v-if="editingId"
               type="button"
@@ -472,8 +586,9 @@ watch(selectedView, (newView) => {
               size="xl"
               class="w-full flex justify-center"
               @click="deleteWorkPlan"
-              >Hapus</UButton
             >
+              Hapus
+            </UButton>
           </div>
         </form>
       </template>
