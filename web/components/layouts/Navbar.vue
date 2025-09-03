@@ -7,6 +7,7 @@ import IcMapFlat from "~/assets/icons/ic-map-flat.svg";
 import IcTopnav from "~/assets/icons/ic-topnav.svg";
 import IcLogin from "~/assets/icons/ic-login.svg";
 import IcLogout from "~/assets/icons/ic-logout.svg";
+import NewLogo from "@/assets/images/new-logo.png";
 
 const route = useRoute();
 const toast = useToast();
@@ -62,7 +63,11 @@ const authStore = useAuth();
         icon="i-heroicons-bars-3"
         size="lg"
       />
-      <img :src="Logo" />
+      <div class="flex items-center gap-4">
+        <img :src="NewLogo" class="w-[2rem] h-auto" />
+        <h1 class="text-xl font-semibold">X-RELS</h1>
+        <p class="text-xs">(External Relation & Sustainability)</p>
+      </div>
       <!-- <NuxtImg
         v-if="generalSettingsData?.data?.project_logo_horizontal"
         provider="directus"
