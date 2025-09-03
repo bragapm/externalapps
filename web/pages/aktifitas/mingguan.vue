@@ -156,9 +156,9 @@ const columns: TableColumn<Record<string, any>>[] = [
     id: "dokumen",
     header: "Dokumen",
     cell: ({ row }) => {
-      const docs = row.original.documents;
-      if (!docs?.length) return "-";
-      const fileId = docs[0]?.directus_files_id;
+      const fileId = row.original.document;
+      if (!fileId) return "-";
+
       return h(
         "a",
         {
@@ -170,6 +170,7 @@ const columns: TableColumn<Record<string, any>>[] = [
       );
     },
   },
+
   {
     id: "updated",
     header: "Last Update",
