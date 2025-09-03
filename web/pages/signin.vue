@@ -8,6 +8,7 @@ import IcLogoGeodashboardFull from "~/assets/icons/ic-logo-geodashboard-full.svg
 import IcSpinner from "~/assets/icons/ic-spinner.svg";
 import { useGeneralSettings, useMapData } from "~/utils";
 
+import NewLogo from "@/assets/images/new-logo.png";
 import Logo from "@/assets/images/logo.png";
 import Bg from "@/assets/images/login.png";
 
@@ -99,20 +100,19 @@ onMounted(() => {
         >
           <div class="flex flex-col text-center space-y-5 mb-16">
             <div class="flex flex-col items-center gap-2">
-              <div class="flex gap-2 mx-auto">
-                <div class="rounded-full w-8 h-8 bg-gray-800" />
+              <!-- <div class="flex gap-2 mx-auto">
                 <div
                   class="font-bold text-[10px] uppercase text-grey-950 text-left"
                 >
-                  <p>External</p>
+                  <p>X-RELS</p>
                   <p>Apps</p>
                 </div>
-              </div>
-              <img :src="Logo" class="w-[12rem] h-auto mx-auto" />
+              </div> -->
+              <img :src="NewLogo" class="w-[3rem] h-auto mx-auto" />
             </div>
             <div class="flex flex-col items-center gap-1">
               <h1 class="text-4xl font-medium text-grey-800">
-                Welcome to the External Apps
+                Welcome to the X-RELS Apps
               </h1>
               <p class="text-grey-500 text-sm">
                 Access and manage all integrated applications in one place.
