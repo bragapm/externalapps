@@ -101,7 +101,7 @@ function isToday(date: Date) {
 
     <!-- Button -->
     <div class="mt-4">
-      <UButton block class="!text-white mt-4" size="lg">Cek Absen</UButton>
+      <UButton block class="!text-white mt-4" size="lg">Daily Check-in</UButton>
     </div>
   </div>
 </template>
