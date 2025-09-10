@@ -13,29 +13,84 @@ type Absensi = {
   id: string;
   name: string;
   role: string;
+  nik: string;
+  isafeId: string;
   status: AbsensiStatus;
 };
 
 const data = ref<Absensi[]>([
   {
     id: "1",
+    nik: "1234567890",
+    isafeId: "ISF001",
     name: "Priya Nair",
     role: "Dept Head",
     status: "Perjalanan Dinas",
   },
-  { id: "2", name: "Puteri Aprilia", role: "Admin", status: "sakit" },
-  { id: "3", name: "Angelica", role: "Non-Organic", status: "Cuti" },
-  { id: "4", name: "Maria", role: "Organic", status: "Hadir" },
+  {
+    id: "2",
+    nik: "9876543210",
+    isafeId: "ISF002",
+    name: "Puteri Aprilia",
+    role: "Admin",
+    status: "sakit",
+  },
+  {
+    id: "3",
+    nik: "1122334455",
+    isafeId: "ISF003",
+    name: "Angelica",
+    role: "Non-Organic",
+    status: "Cuti",
+  },
+  {
+    id: "4",
+    nik: "2233445566",
+    isafeId: "ISF004",
+    name: "Maria",
+    role: "Organic",
+    status: "Hadir",
+  },
   {
     id: "5",
+    nik: "3344556677",
+    isafeId: "ISF005",
     name: "Santa Sitorius",
     role: "Organic",
     status: "Perjalanan Dinas",
   },
-  { id: "6", name: "Alma", role: "Organic", status: "sakit" },
-  { id: "7", name: "Adi Subrata", role: "Non-Organic", status: "Cuti" },
-  { id: "8", name: "Fahmi", role: "Organic", status: "sakit" },
-  { id: "9", name: "Yasmin", role: "Non-Organic", status: "Cuti" },
+  {
+    id: "6",
+    nik: "4455667788",
+    isafeId: "ISF006",
+    name: "Alma",
+    role: "Organic",
+    status: "sakit",
+  },
+  {
+    id: "7",
+    nik: "5566778899",
+    isafeId: "ISF007",
+    name: "Adi Subrata",
+    role: "Non-Organic",
+    status: "Cuti",
+  },
+  {
+    id: "8",
+    nik: "6677889900",
+    isafeId: "ISF008",
+    name: "Fahmi",
+    role: "Organic",
+    status: "sakit",
+  },
+  {
+    id: "9",
+    nik: "7788990011",
+    isafeId: "ISF009",
+    name: "Yasmin",
+    role: "Non-Organic",
+    status: "Cuti",
+  },
 ]);
 
 const rowSelection = ref<Record<string, boolean>>({});
@@ -71,6 +126,8 @@ const columns: TableColumn<Absensi>[] = [
     accessorKey: "name",
     header: "Nama",
   },
+  { accessorKey: "nik", header: "NIK" },
+  { accessorKey: "isafeId", header: "iSafe ID" },
   {
     accessorKey: "role",
     header: "Role/Jabatan",
@@ -100,28 +157,35 @@ const columns: TableColumn<Absensi>[] = [
 ];
 
 const table = useTemplateRef("table");
+
+const today = new Date();
+const formattedDate = new Intl.DateTimeFormat("id-ID", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+}).format(today);
 </script>
 
 <template>
   <!-- <DashboardHeader /> -->
   <div class="flex gap-4 w-full mb-4">
-    <div class="flex flex-col gap-4 w-1/2">
+    <div class="flex flex-col gap-4 w-[65%]">
       <DashboardAbsensiSummary />
       <section class="grid grid-cols-3 gap-4">
         <div class="bg-grey-100 p-4 rounded-lg space-y-2">
           <h3 class="text-gray-800 font-medium">Jumlah Absensi</h3>
           <h1 class="text-[#D32E36] font-semibold text-4xl">17/20</h1>
-          <p class="text-sm text-gray-400">Update Hari Ini</p>
+          <p class="text-sm text-gray-400">{{ formattedDate }}</p>
         </div>
         <div class="bg-grey-100 p-4 rounded-lg space-y-2">
           <h3 class="text-gray-800 font-medium">Jumlah Cuti</h3>
           <h1 class="text-[#D32E36] font-semibold text-4xl">2/20</h1>
-          <p class="text-sm text-gray-400">Update Hari Ini</p>
+          <p class="text-sm text-gray-400">{{ formattedDate }}</p>
         </div>
         <div class="bg-grey-100 p-4 rounded-lg space-y-2">
           <h3 class="text-gray-800 font-medium">Jumlah Absen</h3>
           <h1 class="text-[#D32E36] font-semibold text-4xl">1/20</h1>
-          <p class="text-sm text-gray-400">Update Hari Ini</p>
+          <p class="text-sm text-gray-400">{{ formattedDate }}</p>
         </div>
       </section>
 
@@ -140,7 +204,9 @@ const table = useTemplateRef("table");
 
     <section class="bg-grey-100 p-4 rounded-lg w-[75%] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="font-medium text-gray-800">Live Absensi</h3>
+        <h3 class="font-medium text-gray-800">
+          Live Absensi - {{ formattedDate }}
+        </h3>
         <button
           class="font-medium text-xs border border-gray-300 flex items-center gap-2 p-2 rounded-[4px] text-grey-800"
         >
