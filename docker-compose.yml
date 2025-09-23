@@ -67,38 +67,20 @@ services:
       - ADMIN_EMAIL
       - ADMIN_PASSWORD
       - ADMIN_TOKEN
+        # SSO
+      - AUTH_PROVIDERS="ugems"
+      - AUTH_UGEMS_ALLOW_PUBLIC_REGISTRATION="true"
+      - AUTH_UGEMS_CLIENT_ID=${AUTH_UGEMS_CLIENT_ID}
+      - AUTH_UGEMS_CLIENT_SECRET=${AUTH_UGEMS_CLIENT_SECRET}
+      - AUTH_UGEMS_DEFAULT_ROLE_ID=${AUTH_UGEMS_DEFAULT_ROLE_ID}
+      - AUTH_UGEMS_DRIVER="openid"
+      - AUTH_UGEMS_ICON="google"
+      - AUTH_UGEMS_IDENTIFIER_KEY="email"
+      - AUTH_UGEMS_ISSUER_URL=${AUTH_UGEMS_ISSUER_URL}
+      - AUTH_UGEMS_LABEL="Ugems"
+      - AUTH_UGEMS_MODE="cookie"
     deploy:
       replicas: ${DIRECTUS_REPLICAS:-1}
-    restart: unless-stopped
-
-  geoprocessing:
-    build:
-      context: manager/python
-    environment:
-      - DB_CONNECTION_STRING
-      - STORAGE_S3_KEY
-      - STORAGE_S3_SECRET
-      - STORAGE_S3_ENDPOINT
-      - STORAGE_S3_BUCKET
-      - STORAGE_S3_REGION
-      - STORAGE_S3_ROOT
-      - ADMIN_TOKEN
-      - DIRECTUS_PUBLIC_URL
-    restart: unless-stopped
-
-  graphile:
-    build:
-      context: manager/javascript
-    environment:
-      - DB_CONNECTION_STRING
-      - STORAGE_S3_KEY
-      - STORAGE_S3_SECRET
-      - STORAGE_S3_ENDPOINT
-      - STORAGE_S3_BUCKET
-      - STORAGE_S3_REGION
-      - STORAGE_S3_ROOT
-      - ADMIN_TOKEN
-      - DIRECTUS_PUBLIC_URL
     restart: unless-stopped
 
   web:
