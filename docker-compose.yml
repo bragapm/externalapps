@@ -68,17 +68,17 @@ services:
       - ADMIN_PASSWORD
       - ADMIN_TOKEN
         # SSO
-      - AUTH_PROVIDERS="ugems"
-      - AUTH_UGEMS_ALLOW_PUBLIC_REGISTRATION="true"
+      - AUTH_PROVIDERS=ugems
+      - AUTH_UGEMS_ALLOW_PUBLIC_REGISTRATION=true
       - AUTH_UGEMS_CLIENT_ID=${AUTH_UGEMS_CLIENT_ID}
       - AUTH_UGEMS_CLIENT_SECRET=${AUTH_UGEMS_CLIENT_SECRET}
       - AUTH_UGEMS_DEFAULT_ROLE_ID=${AUTH_UGEMS_DEFAULT_ROLE_ID}
-      - AUTH_UGEMS_DRIVER="openid"
-      - AUTH_UGEMS_ICON="google"
-      - AUTH_UGEMS_IDENTIFIER_KEY="email"
+      - AUTH_UGEMS_DRIVER=openid
+      - AUTH_UGEMS_ICON=google
+      - AUTH_UGEMS_IDENTIFIER_KEY=email
       - AUTH_UGEMS_ISSUER_URL=${AUTH_UGEMS_ISSUER_URL}
-      - AUTH_UGEMS_LABEL="Ugems"
-      - AUTH_UGEMS_MODE="cookie"
+      - AUTH_UGEMS_LABEL=Ugems
+      - AUTH_UGEMS_MODE=cookie
     deploy:
       replicas: ${DIRECTUS_REPLICAS:-1}
     restart: unless-stopped
@@ -94,7 +94,7 @@ services:
       - "80:80"
     depends_on:
       - directus
-      - web
+      # - web
     volumes:
       - "./server/nginx.conf:/etc/nginx/nginx.conf:ro"
     restart: unless-stopped
