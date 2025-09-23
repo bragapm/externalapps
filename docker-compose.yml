@@ -78,7 +78,7 @@ services:
       - AUTH_UGEMS_IDENTIFIER_KEY=email
       - AUTH_UGEMS_ISSUER_URL=${AUTH_UGEMS_ISSUER_URL}
       - AUTH_UGEMS_LABEL=Ugems
-      - AUTH_UGEMS_MODE=cookie
+      - AUTH_UGEMS_MODE=session
     deploy:
       replicas: ${DIRECTUS_REPLICAS:-1}
     restart: unless-stopped
