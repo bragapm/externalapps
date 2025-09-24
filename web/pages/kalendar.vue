@@ -4,7 +4,15 @@ definePageMeta({ middleware: "auth" });
 import { Calendar } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { ref, reactive, onMounted, onUnmounted, nextTick, watch } from "vue";
+import {
+  ref,
+  reactive,
+  onMounted,
+  onUnmounted,
+  nextTick,
+  watch,
+  computed,
+} from "vue";
 
 interface WorkPlan {
   id: number;
@@ -12,11 +20,40 @@ interface WorkPlan {
   description: string;
   status: string;
   date: string;
-  user?: { id: string; first_name: string; last_name: string; email: string };
+  user?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+}
+
+interface LeaveRequest {
+  id: number;
+  user_created: string;
+  date_created: string;
+  user_updated: string | null;
+  date_updated: string | null;
+  start_date: string;
+  end_date: string;
+  status: string;
+  reason: string;
+  leave_type: string;
+  document: string | null;
+  user: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  } | null;
 }
 
 interface WorkPlansResponse {
   data: WorkPlan[];
+}
+
+interface LeaveRequestsResponse {
+  data: LeaveRequest[];
 }
 
 interface WorkPlanSingleResponse {
@@ -41,19 +78,26 @@ interface FormItem {
 const authStore = useAuth();
 const toast = useToast();
 
-let calendar: Calendar | null = null;
-const calendarEl = ref<HTMLElement | null>(null);
+// Tab management
+const activeTab = ref("rencana-kerja");
+
+// Calendar instances for each tab
+let workPlanCalendar: Calendar | null = null;
+let leaveCalendar: Calendar | null = null;
+
+const workPlanCalendarEl = ref<HTMLElement | null>(null);
+const leaveCalendarEl = ref<HTMLElement | null>(null);
+
 const selectedView = ref("Bulanan");
 const currentMonthYear = ref("January 2025");
 
+// Work Plans related
 const isSlideoverOpen = ref(false);
 const slideoverTitle = ref("Tambah Rencana Kerja");
-
 const isDayReviewOpen = ref(false);
 const selectedDate = ref<string | null>(null);
 const eventsForSelectedDate = ref<any[]>([]);
 
-// Updated to handle multiple forms
 const forms = ref<FormItem[]>([
   {
     title: "",
@@ -65,8 +109,13 @@ const forms = ref<FormItem[]>([
 ]);
 
 const editingId = ref<number | null>(null);
-const events = ref<any[]>([]);
+const workPlanEvents = ref<any[]>([]);
+const leaveEvents = ref<any[]>([]);
 const users = ref<DirectusUser[]>([]);
+
+// Leave requests related
+const isLeaveDayReviewOpen = ref(false);
+const leaveEventsForSelectedDate = ref<any[]>([]);
 
 // Computed property to get user options for dropdown
 const userOptions = computed(() => {
@@ -104,7 +153,9 @@ function removeForm(index: number) {
 async function fetchUsers() {
   try {
     const res = await $fetch<{ data: DirectusUser[] }>("/panel/users", {
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
     });
     users.value = res.data;
   } catch (err) {
@@ -116,10 +167,14 @@ async function fetchWorkPlans() {
   try {
     const res = await $fetch<WorkPlansResponse>(
       "/panel/items/work_plans?fields=*,user.*",
-      { headers: { Authorization: `Bearer ${authStore.accessToken}` } }
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
     );
 
-    events.value = res.data.map((item) => ({
+    workPlanEvents.value = res.data.map((item) => ({
       id: item.id,
       title: item.title,
       start: item.date,
@@ -133,12 +188,81 @@ async function fetchWorkPlans() {
       textColor: "#fff",
     }));
 
-    if (calendar) {
-      calendar.removeAllEvents();
-      calendar.addEventSource(events.value);
+    if (workPlanCalendar) {
+      workPlanCalendar.removeAllEvents();
+      workPlanCalendar.addEventSource(workPlanEvents.value);
     }
   } catch (err) {
     console.error("Failed to fetch work plans", err);
+  }
+}
+
+async function fetchLeaveRequests() {
+  try {
+    const res = await $fetch<LeaveRequestsResponse>(
+      "/panel/items/leave_requests?fields=*,user.*",
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+
+    leaveEvents.value = res.data.map((item) => {
+      // Calculate duration for multi-day leaves
+      const startDate = new Date(item.start_date);
+      const endDate = new Date(item.end_date);
+      const duration =
+        Math.ceil(
+          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+        ) + 1;
+
+      return {
+        id: item.id,
+        title: `${item.leave_type} - ${
+          item.user ? getUserDisplayName(item.user.id) : "Unknown"
+        }`,
+        start: item.start_date,
+        end:
+          item.end_date !== item.start_date
+            ? new Date(new Date(item.end_date).getTime() + 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split("T")[0]
+            : undefined,
+        extendedProps: {
+          reason: item.reason,
+          status: item.status,
+          leave_type: item.leave_type,
+          user: item.user,
+          duration: duration,
+          start_date: item.start_date,
+          end_date: item.end_date,
+        },
+        backgroundColor: getLeaveStatusColor(item.status),
+        borderColor: getLeaveStatusColor(item.status),
+        textColor: "#fff",
+      };
+    });
+
+    if (leaveCalendar) {
+      leaveCalendar.removeAllEvents();
+      leaveCalendar.addEventSource(leaveEvents.value);
+    }
+  } catch (err) {
+    console.error("Failed to fetch leave requests", err);
+  }
+}
+
+function getLeaveStatusColor(status: string): string {
+  switch (status) {
+    case "approved":
+      return "#10B981"; // green
+    case "rejected":
+      return "#EF4444"; // red
+    case "waiting":
+      return "#F59E0B"; // yellow
+    default:
+      return "#6B7280"; // gray
   }
 }
 
@@ -150,7 +274,9 @@ async function submitForm() {
     );
 
     if (validForms.length === 0) {
-      toast.add({ title: "Minimal satu form harus diisi dengan lengkap!" });
+      toast.add({
+        title: "Minimal satu form harus diisi dengan lengkap!",
+      });
       return;
     }
 
@@ -168,12 +294,14 @@ async function submitForm() {
         `/panel/items/work_plans/${editingId.value}?fields=*,user.*`,
         {
           method: "PATCH",
-          headers: { Authorization: `Bearer ${authStore.accessToken}` },
+          headers: {
+            Authorization: `Bearer ${authStore.accessToken}`,
+          },
           body: payload,
         }
       );
 
-      const ev = calendar?.getEventById(editingId.value.toString());
+      const ev = workPlanCalendar?.getEventById(editingId.value.toString());
       if (ev) {
         ev.setProp("title", res.data.title);
         ev.setStart(res.data.date);
@@ -190,7 +318,9 @@ async function submitForm() {
         ev.setExtendedProp("user", res.data.user);
       }
 
-      toast.add({ title: "Berhasil update rencana kerja!" });
+      toast.add({
+        title: "Berhasil update rencana kerja!",
+      });
     } else {
       // Create mode - submit multiple items
       const promises = validForms.map((form) => {
@@ -206,7 +336,9 @@ async function submitForm() {
           "/panel/items/work_plans?fields=*,user.*",
           {
             method: "POST",
-            headers: { Authorization: `Bearer ${authStore.accessToken}` },
+            headers: {
+              Authorization: `Bearer ${authStore.accessToken}`,
+            },
             body: payload,
           }
         );
@@ -216,7 +348,7 @@ async function submitForm() {
 
       // Add all new events to calendar
       results.forEach((res) => {
-        calendar?.addEvent({
+        workPlanCalendar?.addEvent({
           id: res.data.id,
           title: res.data.title,
           start: res.data.date,
@@ -241,13 +373,15 @@ async function submitForm() {
     // Refresh day review events if applicable
     if (isDayReviewOpen.value && selectedDate.value) {
       eventsForSelectedDate.value =
-        calendar
+        workPlanCalendar
           ?.getEvents()
           .filter((ev) => ev.startStr === selectedDate.value) || [];
     }
   } catch (err) {
     console.error("Failed to submit form", err);
-    toast.add({ title: "Gagal simpan!" });
+    toast.add({
+      title: "Gagal simpan!",
+    });
   }
 }
 
@@ -257,16 +391,23 @@ async function deleteWorkPlan() {
   try {
     await $fetch(`/panel/items/work_plans/${editingId.value}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
     });
 
-    calendar?.getEventById(editingId.value.toString())?.remove();
-    toast.add({ title: "Berhasil hapus rencana kerja!" });
+    workPlanCalendar?.getEventById(editingId.value.toString())?.remove();
+
+    toast.add({
+      title: "Berhasil hapus rencana kerja!",
+    });
 
     resetForm();
   } catch (err) {
     console.error("Failed to delete work plan", err);
-    toast.add({ title: "Gagal hapus!" });
+    toast.add({
+      title: "Gagal hapus!",
+    });
   }
 }
 
@@ -285,61 +426,73 @@ function resetForm() {
   isSlideoverOpen.value = false;
 }
 
-// ===== Calendar setup =====
-onMounted(async () => {
-  await nextTick();
-  await fetchUsers();
-
-  if (!calendarEl.value) return;
-
-  calendar = new Calendar(calendarEl.value, {
+function initializeCalendar(
+  calendarEl: HTMLElement,
+  events: any[],
+  isWorkPlan: boolean = true
+) {
+  const calendar = new Calendar(calendarEl, {
     plugins: [dayGridPlugin, interactionPlugin],
     initialView: "dayGridMonth",
     headerToolbar: false,
     locale: "id",
     firstDay: 1,
     height: "auto",
-    events: events.value,
+    events: events,
     dayHeaderFormat: { weekday: "long" },
     dayHeaderClassNames: "text-sm font-medium text-gray-700 py-3",
     dayCellClassNames: "border-gray-200 min-h-[120px]",
     eventClassNames: "text-xs rounded px-2 py-1 mb-1 cursor-pointer",
     dayMaxEvents: false,
     moreLinkClick: "popover",
-
     eventClick(info) {
-      const ev = info.event;
-      editingId.value = Number(ev.id);
-      slideoverTitle.value = "Edit Rencana Kerja";
+      if (isWorkPlan) {
+        const ev = info.event;
+        editingId.value = Number(ev.id);
+        slideoverTitle.value = "Edit Rencana Kerja";
 
-      // Reset to single form for editing
-      forms.value = [
-        {
-          title: ev.title,
-          description: ev.extendedProps.description,
-          status: ev.extendedProps.status,
-          date: ev.startStr,
-          user:
-            userOptions.value.find(
-              (option) => option.value === ev.extendedProps.user?.id
-            ) || null,
-        },
-      ];
-
-      isSlideoverOpen.value = true;
+        // Reset to single form for editing
+        forms.value = [
+          {
+            title: ev.title,
+            description: ev.extendedProps.description,
+            status: ev.extendedProps.status,
+            date: ev.startStr,
+            user:
+              userOptions.value.find(
+                (option) => option.value === ev.extendedProps.user?.id
+              ) || null,
+          },
+        ];
+        isSlideoverOpen.value = true;
+      }
     },
     dateClick(info) {
       const dateStr = info.dateStr;
       selectedDate.value = dateStr;
-      eventsForSelectedDate.value =
-        calendar?.getEvents().filter((ev) => ev.startStr === dateStr) || [];
-      isDayReviewOpen.value = true;
-    },
 
+      if (isWorkPlan) {
+        eventsForSelectedDate.value =
+          workPlanCalendar
+            ?.getEvents()
+            .filter((ev) => ev.startStr === dateStr) || [];
+        isDayReviewOpen.value = true;
+      } else {
+        leaveEventsForSelectedDate.value =
+          leaveCalendar?.getEvents().filter((ev) => {
+            const eventStart = new Date(ev.startStr);
+            const eventEnd = ev.endStr ? new Date(ev.endStr) : eventStart;
+            const clickedDate = new Date(dateStr);
+
+            // Check if clicked date is within the leave period
+            return clickedDate >= eventStart && clickedDate <= eventEnd;
+          }) || [];
+        isLeaveDayReviewOpen.value = true;
+      }
+    },
     datesSet(info) {
-      updateMonthYear(calendar!.getDate());
+      updateMonthYear(calendar.getDate());
     },
-
     dayHeaderContent(arg) {
       const dayNames = [
         "Minggu",
@@ -357,8 +510,33 @@ onMounted(async () => {
     },
   });
 
-  calendar.render();
-  await fetchWorkPlans();
+  return calendar;
+}
+
+// ===== Calendar setup =====
+onMounted(async () => {
+  await nextTick();
+  await fetchUsers();
+
+  if (workPlanCalendarEl.value) {
+    workPlanCalendar = initializeCalendar(
+      workPlanCalendarEl.value,
+      workPlanEvents.value,
+      true
+    );
+    workPlanCalendar.render();
+    await fetchWorkPlans();
+  }
+
+  if (leaveCalendarEl.value) {
+    leaveCalendar = initializeCalendar(
+      leaveCalendarEl.value,
+      leaveEvents.value,
+      false
+    );
+    leaveCalendar.render();
+    await fetchLeaveRequests();
+  }
 });
 
 function updateMonthYear(date: Date) {
@@ -380,19 +558,33 @@ function updateMonthYear(date: Date) {
 }
 
 function previousMonth() {
-  calendar?.prev();
+  if (activeTab.value === "rencana-kerja") {
+    workPlanCalendar?.prev();
+  } else {
+    leaveCalendar?.prev();
+  }
 }
+
 function nextMonth() {
-  calendar?.next();
+  if (activeTab.value === "rencana-kerja") {
+    workPlanCalendar?.next();
+  } else {
+    leaveCalendar?.next();
+  }
 }
 
 onUnmounted(() => {
-  calendar?.destroy();
-  calendar = null;
+  workPlanCalendar?.destroy();
+  leaveCalendar?.destroy();
+  workPlanCalendar = null;
+  leaveCalendar = null;
 });
 
 watch(selectedView, (newView) => {
+  const calendar =
+    activeTab.value === "rencana-kerja" ? workPlanCalendar : leaveCalendar;
   if (!calendar) return;
+
   switch (newView) {
     case "Mingguan":
       calendar.changeView("dayGridWeek");
@@ -404,10 +596,50 @@ watch(selectedView, (newView) => {
       calendar.changeView("dayGridMonth");
   }
 });
+
+// Watch for tab changes to update current date display
+watch(activeTab, async (newTab) => {
+  await nextTick();
+  const calendar =
+    newTab === "rencana-kerja" ? workPlanCalendar : leaveCalendar;
+  if (calendar) {
+    updateMonthYear(calendar.getDate());
+  }
+});
 </script>
 
 <template>
   <div class="min-h-screen bg-grey-100 rounded-lg">
+    <!-- Tabs -->
+    <div class="px-6 pt-6 pb-4">
+      <div class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8">
+          <button
+            @click="activeTab = 'rencana-kerja'"
+            :class="[
+              'py-2 px-1 border-b-2 font-medium text-sm',
+              activeTab === 'rencana-kerja'
+                ? 'border-red-500 text-red-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+            ]"
+          >
+            Rencana Kerja
+          </button>
+          <button
+            @click="activeTab = 'cuti'"
+            :class="[
+              'py-2 px-1 border-b-2 font-medium text-sm',
+              activeTab === 'cuti'
+                ? 'border-red-500 text-red-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+            ]"
+          >
+            Rencana Cuti
+          </button>
+        </nav>
+      </div>
+    </div>
+
     <!-- Header -->
     <header class="flex items-center justify-between p-6">
       <div class="flex items-center gap-3">
@@ -444,6 +676,7 @@ watch(selectedView, (newView) => {
           class="border border-gray-300"
         />
         <UButton
+          v-if="activeTab === 'rencana-kerja'"
           icon="i-heroicons-plus"
           label="Tambah Rencana Kerja"
           class="text-sm"
@@ -456,12 +689,20 @@ watch(selectedView, (newView) => {
       </div>
     </header>
 
-    <!-- Calendar -->
-    <div>
-      <div ref="calendarEl" class="p-6"></div>
+    <!-- Calendar Content -->
+    <div class="mt-6">
+      <!-- Work Plan Calendar -->
+      <div v-show="activeTab === 'rencana-kerja'">
+        <div ref="workPlanCalendarEl" class="p-6"></div>
+      </div>
+
+      <!-- Leave Calendar -->
+      <div v-show="activeTab === 'cuti'">
+        <div ref="leaveCalendarEl" class="p-6"></div>
+      </div>
     </div>
 
-    <!-- Slideover: Add/Edit -->
+    <!-- Slideover: Add/Edit Work Plan -->
     <USlideover
       v-model:open="isSlideoverOpen"
       :title="slideoverTitle"
@@ -578,7 +819,6 @@ watch(selectedView, (newView) => {
                 editingId ? "Update" : `Simpan ${forms.length} Rencana Kerja`
               }}
             </UButton>
-
             <UButton
               v-if="editingId"
               type="button"
@@ -594,7 +834,7 @@ watch(selectedView, (newView) => {
       </template>
     </USlideover>
 
-    <!-- Slideover: Review Day -->
+    <!-- Slideover: Review Work Plan Day -->
     <USlideover
       v-model:open="isDayReviewOpen"
       title="Review Rencana Kerja Hari ini"
@@ -612,7 +852,6 @@ watch(selectedView, (newView) => {
               })
             }}
           </h2>
-
           <div v-if="eventsForSelectedDate.length > 0" class="space-y-4">
             <div
               v-for="ev in eventsForSelectedDate"
@@ -631,8 +870,7 @@ watch(selectedView, (newView) => {
                 }}
               </p>
               <p class="text-xs text-gray-900 mt-1">
-                Description:
-                {{ ev.extendedProps.description || "-" }}
+                Description: {{ ev.extendedProps.description || "-" }}
               </p>
               <p
                 class="text-xs mt-2 inline-block px-2 py-1 rounded"
@@ -646,10 +884,91 @@ watch(selectedView, (newView) => {
               </p>
             </div>
           </div>
-
           <p v-else class="text-sm text-gray-500">
             Tidak ada rencana kerja hari ini.
           </p>
+        </div>
+      </template>
+    </USlideover>
+
+    <!-- Slideover: Review Leave Day -->
+    <USlideover
+      v-model:open="isLeaveDayReviewOpen"
+      title="Review Cuti Hari ini"
+      :ui="{ content: 'w-full max-w-[40vw] m-9 rounded-lg' }"
+    >
+      <template #body>
+        <div class="space-y-4">
+          <h2 class="text-lg font-semibold text-gray-900">
+            {{
+              new Date(selectedDate!).toLocaleDateString("id-ID", {
+                weekday: "long",
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })
+            }}
+          </h2>
+          <div v-if="leaveEventsForSelectedDate.length > 0" class="space-y-4">
+            <div
+              v-for="ev in leaveEventsForSelectedDate"
+              :key="ev.id"
+              class="p-4 rounded-lg border-l-2"
+              :class="[
+                ev.extendedProps.status === 'approved'
+                  ? 'border-green-300 bg-green-50'
+                  : ev.extendedProps.status === 'rejected'
+                  ? 'border-red-300 bg-red-50'
+                  : 'border-yellow-300 bg-yellow-50',
+              ]"
+            >
+              <h3 class="text-md font-medium text-gray-900">
+                {{ ev.extendedProps.leave_type }}
+              </h3>
+              <p class="text-xs text-gray-900 mt-2">
+                Karyawan:
+                {{
+                  ev.extendedProps.user
+                    ? getUserDisplayName(ev.extendedProps.user.id)
+                    : "-"
+                }}
+              </p>
+              <p class="text-xs text-gray-900 mt-1">
+                Alasan: {{ ev.extendedProps.reason || "-" }}
+              </p>
+              <p class="text-xs text-gray-900 mt-1">
+                Durasi:
+                {{
+                  ev.extendedProps.start_date === ev.extendedProps.end_date
+                    ? "1 hari"
+                    : `${ev.extendedProps.duration} hari (${new Date(
+                        ev.extendedProps.start_date
+                      ).toLocaleDateString("id-ID")} - ${new Date(
+                        ev.extendedProps.end_date
+                      ).toLocaleDateString("id-ID")})`
+                }}
+              </p>
+              <p
+                class="text-xs mt-2 inline-block px-2 py-1 rounded font-medium"
+                :class="[
+                  ev.extendedProps.status === 'approved'
+                    ? 'bg-green-100 text-green-700'
+                    : ev.extendedProps.status === 'rejected'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-yellow-100 text-yellow-700',
+                ]"
+              >
+                {{
+                  ev.extendedProps.status === "approved"
+                    ? "Disetujui"
+                    : ev.extendedProps.status === "rejected"
+                    ? "Ditolak"
+                    : "Menunggu"
+                }}
+              </p>
+            </div>
+          </div>
+          <p v-else class="text-sm text-gray-500">Tidak ada cuti hari ini.</p>
         </div>
       </template>
     </USlideover>

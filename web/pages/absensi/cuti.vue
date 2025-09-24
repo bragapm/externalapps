@@ -262,7 +262,22 @@ const columns: TableColumn<Record<string, any>>[] = [
   </div>
   <USlideover
     v-model:open="openReview"
-    title="Review Pengajuan Cuti"
+    :title="
+      (() => {
+        const item =
+          selectedId && tableData?.data?.find((d) => d.id === selectedId);
+        if (!item) return 'Review Plan Cuti';
+        const tanggalMulai = new Date(item.start_date).toLocaleDateString(
+          'id-ID',
+          {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        );
+        return `Review Plan Cuti - ${tanggalMulai}`;
+      })()
+    "
     :ui="{
       content: 'w-full max-w-[30vw] m-9 rounded-lg',
       body: 'relative',

@@ -232,7 +232,22 @@ function refetchBusinessTrips() {
 
   <USlideover
     v-model:open="openReview"
-    title="Detail Perjalanan Dinas"
+    :title="
+      (() => {
+        const item =
+          selectedId && tableData?.data?.find((d) => d.id === selectedId);
+        if (!item) return 'Review Plan Perjalanan Dinas';
+        const tanggalMulai = new Date(item.start_date).toLocaleDateString(
+          'id-ID',
+          {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        );
+        return `Review Perjalanan Dinas - ${tanggalMulai}`;
+      })()
+    "
     :ui="{
       content: 'w-full max-w-[30vw] m-9 rounded-lg',
       body: 'relative',

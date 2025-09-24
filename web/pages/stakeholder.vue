@@ -20,7 +20,9 @@ const currentQueryParams = ref<Record<string, string>>();
 // Form state
 const showAddForm = ref(false);
 const showEditForm = ref(false);
+const showPreviewModal = ref(false);
 const selectedStakeholder = ref<Stakeholder | null>(null);
+const previewStakeholder = ref<Stakeholder | null>(null);
 
 // Types
 interface Stakeholder {
@@ -129,8 +131,8 @@ const formatDate = (dateString: string) => {
 
 // Action handlers
 function handleView(stakeholder: Stakeholder) {
-  console.log("View stakeholder:", stakeholder);
-  // You can implement view modal here
+  previewStakeholder.value = stakeholder;
+  showPreviewModal.value = true;
 }
 
 function handleEdit(stakeholder: Stakeholder) {
@@ -148,6 +150,11 @@ function handleSuccess() {
   showAddForm.value = false;
   showEditForm.value = false;
   selectedStakeholder.value = null;
+}
+
+function handleClosePreview() {
+  showPreviewModal.value = false;
+  previewStakeholder.value = null;
 }
 
 // Table Columns
@@ -253,6 +260,19 @@ const columns: TableColumn<Record<string, any>>[] = [
     header: "Aksi",
     cell: ({ row }: { row: Row<any> }) =>
       h("div", { class: "flex gap-2 items-center" }, [
+        // 👁️ View/Eye icon
+        h("svg", {
+          xmlns: "http://www.w3.org/2000/svg",
+          class:
+            "w-4 h-4 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors",
+          fill: "none",
+          viewBox: "0 0 24 24",
+          stroke: "currentColor",
+          onClick: () => handleView(row.original),
+          innerHTML: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`,
+          title: "View",
+        }),
+
         // 🖊️ Edit icon
         h("svg", {
           xmlns: "http://www.w3.org/2000/svg",
@@ -373,5 +393,11 @@ const columns: TableColumn<Record<string, any>>[] = [
       :stakeholder="selectedStakeholder"
       @success="handleSuccess"
     />
+    <StakeholderDetailStakeholder
+      v-model="showPreviewModal"
+      :stakeholder-id="selectedStakeholder?.id"
+    />
+
+    <!-- Preview Modal -->
   </div>
 </template>

@@ -11,6 +11,8 @@ import {
   BarController,
 } from "chart.js";
 
+import ChartDataLabels from "chartjs-plugin-datalabels";
+
 // Register only once and globally
 let isRegistered = false;
 
@@ -25,7 +27,8 @@ export function registerChartJS() {
     CategoryScale,
     LinearScale,
     Tooltip,
-    Legend
+    Legend,
+    ChartDataLabels
   );
 
   isRegistered = true;

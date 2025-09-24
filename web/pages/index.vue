@@ -6,6 +6,7 @@ import { h, ref, resolveComponent } from "vue";
 import type { TableColumn, TableRow } from "@nuxt/ui";
 
 const UCheckbox = resolveComponent("UCheckbox");
+import dummy from "~/assets/images/dummy.png";
 
 type AbsensiStatus = "Perjalanan Dinas" | "sakit" | "Cuti" | "Hadir";
 
@@ -232,7 +233,13 @@ const formattedDate = new Intl.DateTimeFormat("id-ID", {
     </section>
   </div>
   <div>
-    <section class="bg-grey-100 px-5 py-6 rounded-lg mb-12">
+    <section class="bg-grey-100 px-5 py-6 rounded-lg mt-4 mb-6">
+      <h3 class="font-medium text-gray-800">
+        Struktur Organisasi Dept External Relations
+      </h3>
+      <img :src="dummy" alt="Struktur Organisasi" class="mt-4 mx-auto py-12" />
+    </section>
+    <section class="bg-grey-100 px-5 py-6 rounded-lg mb-6">
       <DashboardChartAbsensi />
     </section>
   </div>

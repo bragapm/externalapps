@@ -11,7 +11,7 @@ const emit = defineEmits(["success"]);
 const isSubmitting = ref(false);
 const isLoadingData = ref(true);
 
-// Removed the Zod schema and its type
+// Removed the Zod schema and its tyfpe
 // type Schema = z.output<typeof schema>;
 
 // Form state - empty by default
@@ -124,6 +124,8 @@ function resetForm() {
     status: undefined,
     description: undefined,
     documents: undefined,
+    colllab: undefined,
+    source: undefined,
   });
 }
 
@@ -207,6 +209,8 @@ async function onSubmit(event: any) {
         title: data.title,
         description: data.description,
         status: data.status,
+        source: data.source,
+        collab: data.colllab,
         // Use the new structured payload for pics
         pics: {
           create: picsPayload,
@@ -372,6 +376,28 @@ function onCancel() {
               required
             />
           </UFormField>
+          <UFormField label="Kolaborasi Dengan" name="collab">
+            <UInput
+              v-model="state.colllab"
+              size="lg"
+              class="w-full"
+              :disabled="isSubmitting"
+              placeholder="Masukkan Informasi Kolaborasi"
+              required
+            />
+          </UFormField>
+
+          <!-- Judul Aktivitas -->
+          <UFormField label="Sumber Informasi" name="source">
+            <UInput
+              v-model="state.source"
+              size="lg"
+              class="w-full"
+              :disabled="isSubmitting"
+              placeholder="Masukkan Sumber Informasi"
+              required
+            />
+          </UFormField>
 
           <!-- Deskripsi -->
           <UFormField label="Deskripsi" name="description">
@@ -413,7 +439,7 @@ function onCancel() {
         <template #leading v-if="isSubmitting">
           <UIcon name="i-heroicons-arrow-path" class="animate-spin" />
         </template>
-        {{ isSubmitting ? "Menyimpan..." : "Simpan" }}
+        {{ isSubmitting ? "Submitting..." : "Submit to Depthead" }}
       </UButton>
       <UButton
         type="button"

@@ -22,6 +22,7 @@ interface Props {
   showPeriodSelector?: boolean;
   periodOptions?: Array<{ label: string; value: string }>;
   stacked?: boolean;
+  showDataLabels?: boolean; // New prop to control data labels visibility
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -30,6 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
   maxValue: undefined,
   showPeriodSelector: false,
   stacked: false,
+  showDataLabels: true, // Default to true
   periodOptions: () => [
     { label: "Bulan", value: "Bulan" },
     { label: "Minggu", value: "Minggu" },
@@ -80,6 +82,25 @@ const createChart = () => {
           mode: "index",
           intersect: false,
         },
+        // Add data labels plugin configuration
+        datalabels: {
+          display: props.showDataLabels,
+          color: "#374151", // Dark gray color
+          font: {
+            size: 11,
+            weight: "bold",
+          },
+          align: "end",
+          anchor: "end",
+          offset: 4,
+          formatter: (value: number) => {
+            // Format the value (you can customize this)
+            if (value === 0) return ""; // Don't show label for zero values
+            return value.toLocaleString(); // Add thousand separators
+          },
+          // Hide labels that would overlap or be too close to chart edges
+          clip: true,
+        },
       },
       scales: {
         x: {
@@ -119,6 +140,12 @@ const createChart = () => {
               },
         },
       },
+      // Reduced padding since labels are now inside bars
+      layout: {
+        padding: {
+          top: 10,
+        },
+      },
     },
   };
 
@@ -126,7 +153,12 @@ const createChart = () => {
 };
 
 watch(
-  [() => props.labels, () => props.datasets, () => props.stacked],
+  [
+    () => props.labels,
+    () => props.datasets,
+    () => props.stacked,
+    () => props.showDataLabels,
+  ],
   () => {
     createChart();
   },
