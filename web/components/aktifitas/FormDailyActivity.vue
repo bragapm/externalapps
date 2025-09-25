@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
-// Removed: import * as z from "zod";
-// Removed: import type { FormSubmitEvent } from "@nuxt/ui";
+import { ref, reactive, onMounted, watch } from "vue";
 
 const authStore = useAuth();
 const toast = useToast();
 const emit = defineEmits(["success"]);
 
+// Props for edit mode
+const props = defineProps<{
+  editData?: any;
+  isEdit?: boolean;
+}>();
+
 // Loading and alert states
 const isSubmitting = ref(false);
 const isLoadingData = ref(true);
 
-// Removed the Zod schema and its tyfpe
-// type Schema = z.output<typeof schema>;
-
 // Form state - empty by default
 const state = reactive<any>({
-  // Changed type to `any` for simplicity
   date: undefined,
   start_time: undefined,
   end_time: undefined,
@@ -27,6 +27,8 @@ const state = reactive<any>({
   status: undefined,
   description: undefined,
   documents: undefined,
+  colllab: undefined,
+  source: undefined,
 });
 
 // Dropdown options
@@ -102,14 +104,52 @@ async function fetchReportTypes() {
   }
 }
 
+// Function to populate form with edit data
+function populateEditData() {
+  if (props.editData && props.isEdit) {
+    Object.assign(state, {
+      date: props.editData.date || undefined,
+      start_time: props.editData.start_time
+        ? props.editData.start_time.slice(0, 5)
+        : undefined, // Remove seconds from time
+      end_time: props.editData.end_time
+        ? props.editData.end_time.slice(0, 5)
+        : undefined, // Remove seconds from time
+      pics: props.editData.pics || [],
+      location: props.editData.location || undefined,
+      report_type: props.editData.report_type || undefined,
+      title: props.editData.title || undefined,
+      status: props.editData.status || undefined,
+      description: props.editData.description || undefined,
+      colllab: props.editData.collab || undefined,
+      source: props.editData.source || undefined,
+      // Note: documents are not populated as they're file inputs
+      documents: undefined,
+    });
+  }
+}
+
 // Initialize data on mount
 onMounted(async () => {
   try {
     await Promise.all([fetchPicOptions(), fetchReportTypes()]);
+    // Populate form with edit data after options are loaded
+    populateEditData();
   } finally {
     isLoadingData.value = false;
   }
 });
+
+// Watch for changes in editData prop
+watch(
+  () => props.editData,
+  () => {
+    if (props.editData && props.isEdit) {
+      populateEditData();
+    }
+  },
+  { deep: true, immediate: true }
+);
 
 // Reset form to initial empty state
 function resetForm() {
@@ -129,7 +169,7 @@ function resetForm() {
   });
 }
 
-// Updated onSubmit function to accept a generic event object
+// Updated onSubmit function to handle both create and update
 async function onSubmit(event: any) {
   if (isSubmitting.value) return;
 
@@ -194,50 +234,68 @@ async function onSubmit(event: any) {
       },
     }));
 
-    // Submit daily activity
-    const res = await fetch("/panel/items/daily_activities", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    // Prepare payload
+    const payload = {
+      date: data.date,
+      start_time: data.start_time + ":00",
+      end_time: data.end_time + ":00",
+      location: data.location,
+      title: data.title,
+      description: data.description,
+      status: data.status,
+      source: data.source,
+      collab: data.colllab,
+      pics: {
+        create: picsPayload,
       },
-      body: JSON.stringify({
-        date: data.date,
-        start_time: data.start_time + ":00",
-        end_time: data.end_time + ":00",
-        location: data.location,
-        title: data.title,
-        description: data.description,
-        status: data.status,
-        source: data.source,
-        collab: data.colllab,
-        // Use the new structured payload for pics
-        pics: {
-          create: picsPayload,
-        },
-        report_type: data.report_type,
+      report_type: data.report_type,
+      ...(uploadedDocumentIds.length > 0 && {
         documents: uploadedDocumentIds.map((id) => ({
           directus_files_id: id,
         })),
       }),
+    };
+
+    // Determine if we're updating or creating
+    const isEditMode = props.isEdit && props.editData?.id;
+    const url = isEditMode
+      ? `/panel/items/daily_activities/${props.editData.id}`
+      : "/panel/items/daily_activities";
+    const method = isEditMode ? "PATCH" : "POST";
+
+    // Submit daily activity
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
     });
 
     const result = await res.json();
 
     if (!res.ok) {
       throw new Error(
-        result?.errors?.[0]?.message || "Gagal menyimpan aktivitas harian"
+        result?.errors?.[0]?.message ||
+          (isEditMode
+            ? "Gagal mengupdate aktivitas harian"
+            : "Gagal menyimpan aktivitas harian")
       );
     }
 
     // Success
     toast.add({
       title: "Berhasil",
-      description: "Aktivitas harian berhasil disimpan",
+      description: isEditMode
+        ? "Aktivitas harian berhasil diupdate"
+        : "Aktivitas harian berhasil disimpan",
     });
 
     emit("success");
-    resetForm();
+    if (!isEditMode) {
+      resetForm();
+    }
   } catch (err) {
     console.error("Submit error:", err);
     toast.add({
@@ -269,7 +327,6 @@ function onCancel() {
     <div v-else class="flex flex-col h-[60dvh] 2xl:h-fit">
       <!-- Form Content - Scrollable -->
       <div class="overflow-y-auto space-y-4">
-        <!-- Removed :schema="schema" and the @error listener -->
         <UForm
           id="daily-activity-form"
           :state="state"
@@ -376,6 +433,8 @@ function onCancel() {
               required
             />
           </UFormField>
+
+          <!-- Kolaborasi -->
           <UFormField label="Kolaborasi Dengan" name="collab">
             <UInput
               v-model="state.colllab"
@@ -387,7 +446,7 @@ function onCancel() {
             />
           </UFormField>
 
-          <!-- Judul Aktivitas -->
+          <!-- Sumber Informasi -->
           <UFormField label="Sumber Informasi" name="source">
             <UInput
               v-model="state.source"
@@ -439,7 +498,13 @@ function onCancel() {
         <template #leading v-if="isSubmitting">
           <UIcon name="i-heroicons-arrow-path" class="animate-spin" />
         </template>
-        {{ isSubmitting ? "Submitting..." : "Submit to Depthead" }}
+        {{
+          isSubmitting
+            ? "Submitting..."
+            : isEdit
+            ? "Update Data"
+            : "Submit to Depthead"
+        }}
       </UButton>
       <UButton
         type="button"

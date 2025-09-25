@@ -19,6 +19,11 @@ const currentQueryParams = ref<Record<string, string>>();
 const selectedId = ref<string | null>(null);
 const selectedDate = ref<string | null>(null);
 
+// Edit functionality states
+const openEdit = ref(false);
+const editData = ref<any>(null);
+const isLoadingEditData = ref(false);
+
 const {
   data: tableData,
   error: tableError,
@@ -86,6 +91,57 @@ const {
     return r;
   },
 });
+
+// Function to fetch detailed data for editing
+async function fetchEditData(id: string) {
+  isLoadingEditData.value = true;
+  try {
+    const response = await $fetch<{
+      data: Record<string, any>;
+    }>(
+      `/panel/items/daily_activities/${id}?fields=*,pics.directus_users_id.id,report_type.id,documents.directus_files_id`,
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    );
+
+    // Transform the data to match form expectations
+    const data = response.data;
+
+    // Transform pics data to array of user IDs
+    const pics = (data.pics || [])
+      .map((pic: any) => pic.directus_users_id?.id)
+      .filter(Boolean);
+
+    return {
+      ...data,
+      pics: pics,
+      report_type: data.report_type?.id || data.report_type,
+      // Keep other fields as they are
+    };
+  } catch (error) {
+    console.error("Error fetching edit data:", error);
+    throw error;
+  } finally {
+    isLoadingEditData.value = false;
+  }
+}
+
+// Function to handle edit button click
+async function handleEditClick(id: string, date: string) {
+  try {
+    const data = await fetchEditData(id);
+    editData.value = data;
+    selectedId.value = id;
+    selectedDate.value = date;
+    openEdit.value = true;
+  } catch (error) {
+    // Handle error - you might want to show a toast notification
+    console.error("Failed to load edit data:", error);
+  }
+}
 
 type submissionStatus = "in_progress" | "approved" | "draft";
 
@@ -196,6 +252,9 @@ const columns: TableColumn<Record<string, any>>[] = [
         h(UIcon, {
           name: "lucide:pencil",
           class: "w-4 h-4 cursor-pointer text-gray-600 hover:text-gray-800",
+          onClick: () => {
+            handleEditClick(row.original.id, row.original.date);
+          },
         }),
       ]);
     },
@@ -293,9 +352,30 @@ const computedChartData = computed(() => {
 const queryClient = useQueryClient();
 
 function handleLeaveRequestSuccess() {
-  //  Refetch Fucntion After Submit
+  //  Refetch Function After Submit
   queryClient.invalidateQueries({ queryKey: ["table-data"] });
 }
+
+function handleEditSuccess() {
+  // Refetch table data after successful edit
+  queryClient.invalidateQueries({ queryKey: ["table-data"] });
+  queryClient.invalidateQueries({ queryKey: ["chart-data"] });
+
+  // Close the edit modal
+  openEdit.value = false;
+  editData.value = null;
+  selectedId.value = null;
+  selectedDate.value = null;
+}
+
+// Watch for openEdit changes to reset data when modal is closed
+watch(openEdit, (newVal) => {
+  if (!newVal) {
+    editData.value = null;
+    selectedId.value = null;
+    selectedDate.value = null;
+  }
+});
 </script>
 
 <template>
@@ -331,6 +411,7 @@ function handleLeaveRequestSuccess() {
         </USlideover>
       </template>
     </DashboardTableHeaderControls>
+
     <ChartBarChart
       class="w-full"
       title="Report Status"
@@ -338,6 +419,7 @@ function handleLeaveRequestSuccess() {
       :labels="computedChartData.labels"
       :datasets="computedChartData.datasets"
     />
+
     <DashboardTable
       v-model:pageSize="pageSize"
       v-model:page="page"
@@ -346,6 +428,8 @@ function handleLeaveRequestSuccess() {
       :totalData="tableData?.meta?.filter_count"
     />
   </div>
+
+  <!-- Review Modal -->
   <USlideover
     v-model:open="openReview"
     :title="`Review Daily Activity, ${selectedDate}`"
@@ -357,6 +441,41 @@ function handleLeaveRequestSuccess() {
   >
     <template #body>
       <AktifitasDetailDailyActivity v-if="selectedId" :id="selectedId" />
+    </template>
+  </USlideover>
+
+  <!-- Edit Modal -->
+  <USlideover
+    v-model:open="openEdit"
+    :title="`Edit Daily Activity - ${selectedDate || ''}`"
+    :ui="{
+      content: 'w-full max-w-[40vw] m-9 rounded-lg',
+      body: 'flex-1 overflow-y-auto relative',
+      title: 'text-sm font-semibold text-gray-900',
+    }"
+  >
+    <template #body>
+      <div class="w-full">
+        <!-- Loading state while fetching edit data -->
+        <div
+          v-if="isLoadingEditData"
+          class="flex justify-center items-center h-40"
+        >
+          <UIcon
+            name="i-heroicons-arrow-path"
+            class="animate-spin text-2xl text-primary"
+          />
+          <span class="ml-2">Loading edit data...</span>
+        </div>
+
+        <!-- Edit form -->
+        <AktifitasFormDailyActivity
+          v-else-if="editData"
+          :editData="editData"
+          :isEdit="true"
+          @success="handleEditSuccess"
+        />
+      </div>
     </template>
   </USlideover>
 </template>
