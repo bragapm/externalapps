@@ -1,4 +1,5 @@
 .env
+.history
 
 # Elastic Beanstalk Files
 # .elasticbeanstalk/*
