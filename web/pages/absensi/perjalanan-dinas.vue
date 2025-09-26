@@ -72,12 +72,7 @@ const { data: tableData, isFetching } = useQuery<ApiResponse>({
     currentQueryParams.value = queryParams;
 
     return await $fetch<ApiResponse>(
-      `/panel/items/business_trips?${new URLSearchParams(queryParams)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-      }
+      `/panel/items/business_trips?${new URLSearchParams(queryParams)}`
     ).then((res) => {
       return res;
     });
