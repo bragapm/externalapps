@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 definePageMeta({ middleware: "auth" });
 
-import { h, ref, resolveComponent } from "vue";
-import { useQuery } from "@tanstack/vue-query";
+import { h, ref, resolveComponent, watch } from "vue";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import type { TableColumn } from "@nuxt/ui";
 
 const UIcon = resolveComponent("UIcon");
@@ -19,6 +19,13 @@ const pageSize = ref("10");
 const auth = useAuth();
 const selectedId = ref<string | null>(null);
 const openReview = ref(false);
+
+// Edit functionality states
+const openEdit = ref(false);
+const editData = ref<any>(null);
+const isLoadingEditData = ref(false);
+
+const queryClient = useQueryClient();
 
 const { data: userOptions } = useQuery({
   queryKey: ["users"],
@@ -112,6 +119,65 @@ const { data: tableData, isFetching } = useQuery({
   },
 });
 
+// Function to fetch detailed data for editing
+async function fetchEditData(id: string) {
+  isLoadingEditData.value = true;
+  try {
+    const response = await $fetch<{
+      data: Record<string, any>;
+    }>(
+      `/panel/items/weekly_activities/${id}?fields=*,daily_activities.id,daily_activities.date,daily_activities.title,document`,
+      {
+        headers: {
+          Authorization: `Bearer ${auth.accessToken}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching edit data:", error);
+    throw error;
+  } finally {
+    isLoadingEditData.value = false;
+  }
+}
+
+// Function to handle edit button click
+async function handleEditClick(id: string) {
+  try {
+    const data = await fetchEditData(id);
+    editData.value = data;
+    selectedId.value = id;
+    openEdit.value = true;
+  } catch (error) {
+    console.error("Failed to load edit data:", error);
+    // You might want to show a toast notification here
+    alert("Gagal memuat data untuk edit");
+  }
+}
+
+// Handle successful edit
+function handleEditSuccess() {
+  queryClient.invalidateQueries({ queryKey: ["weekly-activities"] });
+  openEdit.value = false;
+  editData.value = null;
+  selectedId.value = null;
+}
+
+// Handle successful create
+function handleCreateSuccess() {
+  queryClient.invalidateQueries({ queryKey: ["weekly-activities"] });
+}
+
+// Watch for openEdit changes to reset data when modal is closed
+watch(openEdit, (newVal) => {
+  if (!newVal) {
+    editData.value = null;
+    selectedId.value = null;
+  }
+});
+
 const columns: TableColumn<Record<string, any>>[] = [
   {
     id: "select",
@@ -170,7 +236,6 @@ const columns: TableColumn<Record<string, any>>[] = [
       );
     },
   },
-
   {
     id: "updated",
     header: "Last Update",
@@ -198,6 +263,13 @@ const columns: TableColumn<Record<string, any>>[] = [
           onClick: () => {
             selectedId.value = row.original.id;
             openReview.value = true;
+          },
+        }),
+        h(UIcon, {
+          name: "lucide:pencil",
+          class: "w-4 h-4 cursor-pointer hover:text-gray-700",
+          onClick: () => {
+            handleEditClick(row.original.id);
           },
         }),
         h(UIcon, {
@@ -247,7 +319,7 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
 
           <template #body>
             <div class="w-full">
-              <AktifitasFormWeeklyActivity />
+              <AktifitasFormWeeklyActivity @success="handleCreateSuccess" />
             </div>
           </template>
         </USlideover>
@@ -263,6 +335,7 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
     />
   </div>
 
+  <!-- Review Modal -->
   <USlideover
     v-model:open="openReview"
     :title="`Review Weekly Activity`"
@@ -274,6 +347,41 @@ function handleDateUpdate(startDateInput?: string, endDateInput?: string) {
   >
     <template #body>
       <AktifitasDetailWeeklyActivity v-if="selectedId" :id="selectedId" />
+    </template>
+  </USlideover>
+
+  <!-- Edit Modal -->
+  <USlideover
+    v-model:open="openEdit"
+    title="Edit Weekly Activity"
+    :ui="{
+      content: 'w-full max-w-[40vw] m-9 rounded-lg',
+      body: 'flex-1 overflow-y-auto relative',
+      title: 'text-sm font-semibold text-gray-900',
+    }"
+  >
+    <template #body>
+      <div class="w-full">
+        <!-- Loading state while fetching edit data -->
+        <div
+          v-if="isLoadingEditData"
+          class="flex justify-center items-center h-40"
+        >
+          <UIcon
+            name="i-heroicons-arrow-path"
+            class="animate-spin text-2xl text-primary"
+          />
+          <span class="ml-2">Loading edit data...</span>
+        </div>
+
+        <!-- Edit form -->
+        <AktifitasFormWeeklyActivity
+          v-else-if="editData"
+          :editData="editData"
+          :isEdit="true"
+          @success="handleEditSuccess"
+        />
+      </div>
     </template>
   </USlideover>
 </template>
