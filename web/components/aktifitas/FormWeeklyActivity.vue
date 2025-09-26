@@ -95,11 +95,7 @@ const endDate = computed(() => tanggalKerja.value || "");
 const fetchReports = async () => {
   if (!tanggalKerja.value) return [];
   const url = `/panel/items/daily_activities?fields=id,status,date,title,report_type.name&filter[date][_between]=${startDate.value},${endDate.value}`;
-  const res = await $fetch<any>(url, {
-    headers: {
-      Authorization: `Bearer ${authStore.accessToken}`,
-    },
-  });
+  const res = await $fetch<any>(url, {});
   return res.data;
 };
 
@@ -135,11 +131,7 @@ const openDetail = ref(false);
 const fetchReportDetail = async (id: string) => {
   const url = `/panel/items/daily_activities/${id}?fields=id,title,description,location,date,start_time,end_time,status,report_type.name,user_created.first_name,user_created.last_name,pics.directus_users_id.first_name,documents.directus_files_id.id,documents.directus_files_id.title`;
 
-  return await $fetch<any>(url, {
-    headers: {
-      Authorization: `Bearer ${authStore.accessToken}`,
-    },
-  });
+  return await $fetch<any>(url, {});
 };
 
 const handleOpenDetail = async (id: string) => {
@@ -197,9 +189,6 @@ const handleSubmit = async () => {
       const fileRes = await $fetch<any>("/panel/files", {
         method: "POST",
         body: formData,
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
       });
       payload.document = fileRes.id ?? fileRes.data?.id ?? fileRes;
     }
@@ -215,9 +204,6 @@ const handleSubmit = async () => {
     await $fetch(url, {
       method,
       body: payload,
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
     });
 
     alert(

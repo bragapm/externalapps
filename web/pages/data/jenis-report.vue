@@ -33,7 +33,7 @@ const { data: statusData, isLoading } = useQuery<StatusData[]>({
       "/panel/items/report_types",
       {
         method: "GET",
-        headers: { Authorization: `Bearer ${authStore.accessToken}` },
+
         params: {
           fields: ["id", "name", "active"],
         },
@@ -47,7 +47,6 @@ const { data: statusData, isLoading } = useQuery<StatusData[]>({
 const { mutate: createReportType, isPending: isCreating } = useMutation({
   mutationFn: async (payload: { name: string }) => {
     await $fetch("/panel/items/report_types", {
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
       method: "POST",
       body: payload,
     });
@@ -64,7 +63,7 @@ const { mutate: toggleStatus } = useMutation({
   mutationFn: async ({ id, newValue }: { id: number; newValue: boolean }) => {
     await $fetch(`/panel/items/report_types/${id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+
       body: { active: newValue },
     });
   },
@@ -78,7 +77,7 @@ const { mutate: updateReportType, isPending: isUpdating } = useMutation({
   mutationFn: async ({ id, name }: { id: number; name: string }) => {
     await $fetch(`/panel/items/report_types/${id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+
       body: { name },
     });
   },
@@ -94,7 +93,6 @@ const { mutate: deleteReportType, isPending: isDeleting } = useMutation({
   mutationFn: async (id: number) => {
     await $fetch(`/panel/items/report_types/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
     });
   },
   onSuccess: () => {

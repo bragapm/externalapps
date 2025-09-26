@@ -16,10 +16,6 @@ const handleShare = async (event: Event) => {
         body: JSON.stringify({
           map_state: { boundArray: mapRefStore.map?.getBounds().toArray() },
         }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + authStore.accessToken,
-        },
       }
     );
     navigator.clipboard.writeText(

@@ -58,12 +58,7 @@ const geocode = async (val: string) => {
     const res = await fetch(
       "https://api.openrouteservice.org/geocode/search?boundary.country=ID&sources=openstreetmap&text=" +
         val,
-      {
-        headers: {
-          Authorization: orsApiKey,
-          "Content-Type": "application/json",
-        },
-      }
+      {}
     );
     const result = await res.json();
     features.value = result.features;

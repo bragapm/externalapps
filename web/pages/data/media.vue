@@ -47,9 +47,7 @@ const openEdit = ref(false);
 const { data: medias, isLoading } = useQuery({
   queryKey: ["medias"],
   queryFn: async (): Promise<MediaPartner[]> => {
-    const res = await $fetch<ApiResponse>("/panel/items/medias", {
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
-    });
+    const res = await $fetch<ApiResponse>("/panel/items/medias", {});
     return res.data;
   },
 });
@@ -59,7 +57,7 @@ const createMedia = useMutation({
   mutationFn: async (payload: MediaPartner) => {
     return await $fetch("/panel/items/medias", {
       method: "POST",
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+
       body: payload,
     });
   },
@@ -74,7 +72,7 @@ const updateMedia = useMutation({
   mutationFn: async (payload: MediaPartner) => {
     return await $fetch(`/panel/items/medias/${payload.id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+
       body: payload,
     });
   },
@@ -89,7 +87,6 @@ const deleteMedia = useMutation({
   mutationFn: async (id: number) => {
     return await $fetch(`/panel/items/medias/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
     });
   },
   onSuccess: () => {

@@ -118,9 +118,7 @@ const uploadFiles = async (files: File[]): Promise<string[]> => {
 
     const response = await $fetch<{ data: { id: string } }>("/panel/files", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
+
       body: formData,
     });
 
@@ -141,7 +139,6 @@ const { mutate: createVillageProfile, isPending: isCreating } = useMutation({
     attachments: any[];
   }) => {
     await $fetch("/panel/items/village_profiles", {
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
       method: "POST",
       body: payload,
     });
@@ -174,7 +171,6 @@ const { mutate: updateVillageProfile, isPending: isUpdating } = useMutation({
     };
   }) => {
     await $fetch(`/panel/items/village_profiles/${payload.id}`, {
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
       method: "PATCH",
       body: payload.data,
     });

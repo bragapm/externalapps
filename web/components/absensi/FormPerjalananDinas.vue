@@ -74,16 +74,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       const formData = new FormData();
       formData.append("file", event.data.attachment);
 
-      const uploadRes = await fetch(
-        "https://externalapps.braga.co.id/panel/files",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const uploadRes = await fetch("/panel/files", {
+        method: "POST",
+
+        body: formData,
+      });
 
       const result = await uploadRes.json();
 
@@ -103,25 +98,19 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   // Step 2: Submit to business_trips
   try {
-    const res = await fetch(
-      "https://externalapps.braga.co.id/panel/items/business_trips",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          start_date: event.data.start_date,
-          end_date: event.data.end_date,
-          destination: event.data.location,
-          purpose: event.data.tujuan,
-          transportation: event.data.transportation,
-          status: "in_progress",
-          document: uploadedAssetId,
-        }),
-      }
-    );
+    const res = await fetch("/panel/items/business_trips", {
+      method: "POST",
+
+      body: JSON.stringify({
+        start_date: event.data.start_date,
+        end_date: event.data.end_date,
+        destination: event.data.location,
+        purpose: event.data.tujuan,
+        transportation: event.data.transportation,
+        status: "in_progress",
+        document: uploadedAssetId,
+      }),
+    });
 
     const result = await res.json();
 

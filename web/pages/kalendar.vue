@@ -152,11 +152,7 @@ function removeForm(index: number) {
 
 async function fetchUsers() {
   try {
-    const res = await $fetch<{ data: DirectusUser[] }>("/panel/users", {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
+    const res = await $fetch<{ data: DirectusUser[] }>("/panel/users", {});
     users.value = res.data;
   } catch (err) {
     console.error("Failed to fetch users", err);
@@ -167,11 +163,7 @@ async function fetchWorkPlans() {
   try {
     const res = await $fetch<WorkPlansResponse>(
       "/panel/items/work_plans?fields=*,user.*",
-      {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
+      {}
     );
 
     workPlanEvents.value = res.data.map((item) => ({
@@ -201,11 +193,7 @@ async function fetchLeaveRequests() {
   try {
     const res = await $fetch<LeaveRequestsResponse>(
       "/panel/items/leave_requests?fields=*,user.*",
-      {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
+      {}
     );
 
     leaveEvents.value = res.data.map((item) => {
@@ -294,9 +282,7 @@ async function submitForm() {
         `/panel/items/work_plans/${editingId.value}?fields=*,user.*`,
         {
           method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${authStore.accessToken}`,
-          },
+
           body: payload,
         }
       );
@@ -336,9 +322,6 @@ async function submitForm() {
           "/panel/items/work_plans?fields=*,user.*",
           {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${authStore.accessToken}`,
-            },
             body: payload,
           }
         );
@@ -391,9 +374,6 @@ async function deleteWorkPlan() {
   try {
     await $fetch(`/panel/items/work_plans/${editingId.value}`, {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
     });
 
     workPlanCalendar?.getEventById(editingId.value.toString())?.remove();

@@ -92,11 +92,7 @@ function resetForm() {
 const fetchMedias = async () => {
   try {
     loadingMedias.value = true;
-    const response = await $fetch<any>("panel/items/medias", {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
+    const response = await $fetch<any>("panel/items/medias", {});
     mediaOptions.value = response.data.map((media: any) => ({
       label: media.name,
       value: media.id.toString(),
@@ -133,9 +129,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       await $fetch(`panel/items/publications/${props.publication.id}`, {
         method: "PATCH",
         body: publicationData,
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
       });
 
       toast.add({
@@ -156,9 +149,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         await $fetch("panel/items/publications", {
           method: "POST",
           body: publicationData,
-          headers: {
-            Authorization: `Bearer ${authStore.accessToken}`,
-          },
         });
       }
 

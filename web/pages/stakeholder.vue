@@ -57,9 +57,7 @@ const UCheckbox = resolveComponent("UCheckbox");
 const { data: stakeholders, isLoading } = useQuery({
   queryKey: ["stakeholders"],
   queryFn: async (): Promise<Stakeholder[]> => {
-    const res = await $fetch<ApiResponse>("/panel/items/stakeholders", {
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
-    });
+    const res = await $fetch<ApiResponse>("/panel/items/stakeholders");
     return res.data;
   },
 });

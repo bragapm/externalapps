@@ -35,9 +35,6 @@ const { data, isFetching } = useQuery<BusinessTrip>({
     return await $fetch<BusinessTrip>(
       `/panel/items/business_trips/${props.id}`,
       {
-        headers: {
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
         params: {
           fields: [
             "id",

@@ -57,9 +57,6 @@ const {
     const res = await $fetch<{ data: DailyActivity }>(
       `/panel/items/daily_activities/${props.id}`,
       {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
         params: {
           fields: [
             "id,title,description,location,date,start_time,end_time,status",
@@ -94,7 +91,7 @@ const statusColorMap: Record<string, string> = {
 
 // Helper function to get full image URL with auth token
 const getImageUrl = (fileId: string) => {
-  return `https://externalapps.braga.co.id/panel/assets/${fileId}?access_token=${authStore.accessToken}`;
+  return `/panel/assets/${fileId}?access_token=${authStore.accessToken}`;
 };
 </script>
 

@@ -37,9 +37,6 @@ const {
     const res = await $fetch<{ data: VillageProfile }>(
       `/panel/items/village_profiles/${props.id}`,
       {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
         params: {
           fields: [
             "id,name,location",
@@ -57,7 +54,7 @@ const {
 });
 
 const getImageUrl = (fileId: string) => {
-  return `https://externalapps.braga.co.id/panel/assets/${fileId}?access_token=${authStore.accessToken}`;
+  return `/panel/assets/${fileId}?access_token=${authStore.accessToken}`;
 };
 
 const isImageFile = (file: DirectusFile) => {

@@ -56,9 +56,6 @@ const {
     const res = await $fetch<{ data: WeeklyActivity }>(
       `/panel/items/weekly_activities/${props.id}`,
       {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
         params: {
           fields: [
             "id,title,summary,date_created",

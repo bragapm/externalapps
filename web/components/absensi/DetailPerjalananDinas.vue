@@ -32,12 +32,7 @@ const { data, isLoading, error } = useQuery<BusinessTripDetail>({
   queryKey: ["business-trip-detail", props.id],
   queryFn: async (): Promise<BusinessTripDetail> => {
     return await $fetch<BusinessTripDetail>(
-      `/panel/items/business_trips/${props.id}?fields=*,user.first_name,user.last_name`,
-      {
-        headers: {
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-      }
+      `/panel/items/business_trips/${props.id}?fields=*,user.first_name,user.last_name`
     );
   },
   enabled: !!props.id, // Only run query if id is provided

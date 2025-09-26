@@ -30,12 +30,7 @@ const { data, isLoading, error } = useQuery<LeaveRequestDetail>({
   queryKey: ["leave-request-detail", props.id],
   queryFn: async (): Promise<LeaveRequestDetail> => {
     return await $fetch<LeaveRequestDetail>(
-      `/panel/items/leave_requests/${props.id}?fields=*,user.first_name,user.last_name`,
-      {
-        headers: {
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-      }
+      `/panel/items/leave_requests/${props.id}?fields=*,user.first_name,user.last_name`
     );
   },
   enabled: !!props.id, // Only run query if id is provided

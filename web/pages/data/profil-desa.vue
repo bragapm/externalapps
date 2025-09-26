@@ -75,7 +75,7 @@ const {
       "/panel/items/village_profiles",
       {
         method: "GET",
-        headers: { Authorization: `Bearer ${authStore.accessToken}` },
+
         params: {
           fields: "*",
         },
@@ -91,7 +91,7 @@ const fetchVillageProfile = async (id: number): Promise<VillageProfileData> => {
     `/panel/items/village_profiles/${id}`,
     {
       method: "GET",
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+
       params: {
         fields: "*",
       },
@@ -105,7 +105,7 @@ const { mutate: toggleStatus } = useMutation({
   mutationFn: async ({ id, newValue }: { id: number; newValue: boolean }) => {
     await $fetch(`/panel/items/village_profiles/${id}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+
       body: { status: newValue },
     });
   },
@@ -119,7 +119,6 @@ const { mutate: deleteVillageProfile, isPending: isDeleting } = useMutation({
   mutationFn: async (id: number) => {
     await $fetch(`/panel/items/village_profiles/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${authStore.accessToken}` },
     });
   },
   onSuccess: () => {

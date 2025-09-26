@@ -76,11 +76,7 @@ const {
     const r = await $fetch<{
       data: Record<string, any>[];
       meta: { filter_count: number };
-    }>(`/panel/items/daily_activities?` + new URLSearchParams(queryParams), {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    })
+    }>(`/panel/items/daily_activities?` + new URLSearchParams(queryParams), {})
       .then((r) => r)
       .catch((err) => {
         throw err; // re-throw to let useQuery handle it if needed
@@ -99,12 +95,7 @@ async function fetchEditData(id: string) {
     const response = await $fetch<{
       data: Record<string, any>;
     }>(
-      `/panel/items/daily_activities/${id}?fields=*,pics.directus_users_id.id,report_type.id,documents.directus_files_id`,
-      {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
+      `/panel/items/daily_activities/${id}?fields=*,pics.directus_users_id.id,report_type.id,documents.directus_files_id`
     );
 
     // Transform the data to match form expectations
@@ -297,11 +288,7 @@ const {
 
     const response = await $fetch<{
       data: { report_type: { name: string }; status: string }[];
-    }>("/panel/items/daily_activities?" + new URLSearchParams(queryParams), {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
+    }>("/panel/items/daily_activities?" + new URLSearchParams(queryParams), {});
 
     return response.data;
   },

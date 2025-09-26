@@ -30,9 +30,7 @@ const queryClient = useQueryClient();
 const { data: userOptions } = useQuery({
   queryKey: ["users"],
   queryFn: async () => {
-    const res = await $fetch<{ data: any[] }>("/panel/users", {
-      headers: { Authorization: `Bearer ${auth.accessToken}` },
-    });
+    const res = await $fetch<{ data: any[] }>("/panel/users", {});
     return res.data.map((u) => ({
       label: `${u.first_name || ""} ${u.last_name || ""}`.trim() || u.email,
       value: u.id,
@@ -111,11 +109,10 @@ const { data: tableData, isFetching } = useQuery({
     return await $fetch<{
       data: any[];
       meta: { filter_count: number };
-    }>(`/panel/items/weekly_activities?${new URLSearchParams(queryParams)}`, {
-      headers: {
-        Authorization: `Bearer ${auth.accessToken}`,
-      },
-    });
+    }>(
+      `/panel/items/weekly_activities?${new URLSearchParams(queryParams)}`,
+      {}
+    );
   },
 });
 
@@ -127,11 +124,7 @@ async function fetchEditData(id: string) {
       data: Record<string, any>;
     }>(
       `/panel/items/weekly_activities/${id}?fields=*,daily_activities.id,daily_activities.date,daily_activities.title,document`,
-      {
-        headers: {
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-      }
+      {}
     );
 
     return response.data;

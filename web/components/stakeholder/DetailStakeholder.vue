@@ -136,9 +136,6 @@ const stakeholderMutation = useMutation({
 
       const uploadRes = await fetch("/panel/files", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         body: assetForm,
       });
 
@@ -158,10 +155,7 @@ const stakeholderMutation = useMutation({
 
     const res = await fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+
       body: JSON.stringify({
         name: data.formData.name,
         organization: data.formData.organization,

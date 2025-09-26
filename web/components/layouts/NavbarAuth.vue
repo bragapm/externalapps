@@ -38,10 +38,7 @@ const { isPending, isError, data, error } = useQuery({
       ].join(","),
     });
     const res = await $fetch<{ data: UserMe }>(
-      "/panel/users/me?" + queryString,
-      {
-        headers: { Authorization: "Bearer " + authStore.accessToken },
-      }
+      "/panel/users/me?" + queryString
     );
     return res.data;
   },
@@ -112,9 +109,7 @@ const { isPending, isError, data, error } = useQuery({
               class="flex items-center space-x-2 px-2 py-2 w-full"
             >
               <IcSettings class="text-grey-400" />
-              <p class="text-xs font-medium text-grey-200">
-                Account Setting
-              </p>
+              <p class="text-xs font-medium text-grey-200">Account Setting</p>
             </button>
             <button class="flex items-center space-x-2 px-2 py-2 w-full">
               <IcHelp class="text-grey-400" />

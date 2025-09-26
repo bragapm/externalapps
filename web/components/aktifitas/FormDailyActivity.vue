@@ -44,11 +44,7 @@ const statusOptions = [
 // Fetch PIC options from Directus users
 async function fetchPicOptions() {
   try {
-    const res = await fetch("/panel/users?filter[status][_eq]=active", {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
+    const res = await fetch("/panel/users?filter[status][_eq]=active", {});
 
     const result = await res.json();
 
@@ -76,11 +72,7 @@ async function fetchReportTypes() {
   try {
     const res = await fetch(
       "/panel/items/report_types?filter[active][_eq]=true",
-      {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
+      {}
     );
 
     const result = await res.json();
@@ -208,9 +200,7 @@ async function onSubmit(event: any) {
 
         const uploadRes = await fetch("/panel/files", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+
           body: documentForm,
         });
 
@@ -266,10 +256,6 @@ async function onSubmit(event: any) {
     // Submit daily activity
     const res = await fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify(payload),
     });
 

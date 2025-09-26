@@ -57,16 +57,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       const assetForm = new FormData();
       assetForm.append("file", event.data.attachment);
 
-      const uploadRes = await fetch(
-        "https://externalapps.braga.co.id/panel/files",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: assetForm,
-        }
-      );
+      const uploadRes = await fetch("/panel/files", {
+        method: "POST",
+
+        body: assetForm,
+      });
 
       const uploadResult = await uploadRes.json();
 
@@ -82,24 +77,18 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   // Step 2: Submit leave request
   try {
-    const res = await fetch(
-      "https://externalapps.braga.co.id/panel/items/leave_requests",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          start_date: event.data.start_date,
-          end_date: event.data.end_date,
-          reason: event.data.reason,
-          leave_type: event.data.leave_type,
-          status: "waiting", // default status
-          document: uploadedAssetId,
-        }),
-      }
-    );
+    const res = await fetch("/panel/items/leave_requests", {
+      method: "POST",
+
+      body: JSON.stringify({
+        start_date: event.data.start_date,
+        end_date: event.data.end_date,
+        reason: event.data.reason,
+        leave_type: event.data.leave_type,
+        status: "waiting", // default status
+        document: uploadedAssetId,
+      }),
+    });
 
     const result = await res.json();
     emit("success");
