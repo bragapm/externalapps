@@ -2,7 +2,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const nuxtApp = useNuxtApp();
 
   if (import.meta.server) {
-    const refreshToken = useCookie("geodashboard_refresh_token");
+    const refreshToken = useCookie("directus_session_token");
 
     if (!refreshToken.value) {
       const shareId = to.query.share_id;

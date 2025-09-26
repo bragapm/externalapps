@@ -38,7 +38,7 @@ export const useAuth = defineStore("authData", () => {
     await fetch("/panel/auth/logout", {
       method: "POST",
       body: JSON.stringify({
-        mode: "cookie",
+        mode: "session",
       }),
     });
     appLoad.value = false;
@@ -79,7 +79,7 @@ export const useAuth = defineStore("authData", () => {
         {
           method: "POST",
           body: JSON.stringify({
-            mode: "cookie",
+            mode: "session",
           }),
         }
       );
@@ -108,6 +108,6 @@ export const useAuth = defineStore("authData", () => {
     mutateAuthModal,
     appLoad,
     tryRefresh,
-    getUserData
+    getUserData,
   };
 });

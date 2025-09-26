@@ -60,7 +60,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
     const { data } = await $fetch<{ data: AuthPayload }>("/panel/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password, mode: "cookie" }),
+      body: JSON.stringify({ email, password, mode: "session" }),
     });
     console.log("data", data);
     signin(data.access_token);

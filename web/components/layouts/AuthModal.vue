@@ -55,7 +55,7 @@ const handleSignin = async (event: FormSubmitEvent<SigninData>) => {
   try {
     const { data } = await $fetch<{ data: AuthPayload }>("/panel/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password, mode: "cookie" }),
+      body: JSON.stringify({ email, password, mode: "session" }),
     });
     signin(data.access_token);
     setTimeout(() => {
