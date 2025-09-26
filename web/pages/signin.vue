@@ -78,6 +78,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   }
 }
 
+function signInWithUgems() {
+  window.location.href =
+    "https://xrels.braga.co.id/panel/auth/login/ugems?redirect=https://xrels.braga.co.id/";
+}
+
 onMounted(() => {
   if (accessToken.value !== null && accessToken.value !== "") {
     router.push("/");
@@ -169,15 +174,15 @@ onMounted(() => {
           </UForm>
           <USeparator color="secondary" class="opacity-25" />
 
-          <!-- <div class="w-full border border-grey-600 mb-7" />
+          <div class="w-full border border-grey-600 mb-7" />
           <UButton
             block
+            @click="signInWithUgems"
             variant="outline"
             size="xl"
             class="mb-7"
             label="Sign In with Google"
             :ui="{ rounded: 'rounded-xxs' }"
-            :disabled="isLoading"
           >
             <template #leading>
               <img
@@ -185,7 +190,7 @@ onMounted(() => {
                 class="h-5"
               />
             </template>
-          </UButton> -->
+          </UButton>
           <p class="text-center text-grey-500 text-sm mt-5">
             ©{{ new Date().getFullYear() }} Provided by DigiTech - External Apps
             Powered by Braga Technologies
