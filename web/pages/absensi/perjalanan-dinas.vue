@@ -250,7 +250,7 @@ function refetchBusinessTrips() {
     }"
   >
     <template #body>
-      <AbsensiReviewPerjalananDinas v-if="selectedId" :id="selectedId" />
+      <AbsensiDetailPerjalananDinas v-if="selectedId" :id="selectedId" />
     </template>
   </USlideover>
 </template>

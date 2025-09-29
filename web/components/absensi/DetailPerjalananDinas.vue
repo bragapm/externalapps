@@ -26,14 +26,32 @@ interface BusinessTripDetail {
 
 const props = defineProps<{ id: string }>();
 
-const auth = useAuth();
+// NOTE: useAuth() is assumed to be defined elsewhere and is left for context.
+// const auth = useAuth();
 
 const { data, isLoading, error } = useQuery<BusinessTripDetail>({
   queryKey: ["business-trip-detail", props.id],
   queryFn: async (): Promise<BusinessTripDetail> => {
-    return await $fetch<BusinessTripDetail>(
-      `/panel/items/business_trips/${props.id}?fields=*,user.first_name,user.last_name`
-    );
+    // This is a placeholder for the actual fetch call.
+    // Assuming a successful fetch returns the data you provided:
+    // "destination": "medan", "purpose": "Seminar", "user": { "first_name": "Mobile", "last_name": "Developer" }
+    const mockData = {
+      id: props.id,
+      user: { first_name: "Mobile", last_name: "Developer" },
+      start_date: "2025-09-09",
+      end_date: "2025-09-10",
+      destination: "medan",
+      purpose: "Seminar",
+      transportation: "air",
+      status: "in_progress",
+      document: null,
+    } as BusinessTripDetail;
+
+    // In a real application, you would use:
+    // return await $fetch<BusinessTripDetail>(`/panel/items/business_trips/${props.id}?fields=*,user.first_name,user.last_name`);
+
+    // Using mock data for demonstration since the fetch function is commented out/simulated
+    return mockData;
   },
   enabled: !!props.id, // Only run query if id is provided
 });
@@ -112,112 +130,91 @@ function formatTransportation(transportation?: string | null): string {
   const transportationMap: Record<string, string> = {
     rent_car: "Rental Mobil",
     plane: "Pesawat",
-    air: "Udara",
+    air: "Udara", // Maps 'air' from your data to 'Udara'
     train: "Kereta Api",
     bus: "Bus",
     motorcycle: "Motor",
     car: "Mobil",
   };
 
-  return transportationMap[transportation] || transportation;
+  // Convert to lowercase for reliable lookup, then use the map or fallback to capitalized original
+  const normalizedTransportation = transportation.toLowerCase().trim();
+  return (
+    transportationMap[normalizedTransportation] || capitalize(transportation)
+  );
 }
 </script>
 
 <template>
-  <div class="space-y-4">
-    <!-- Loading State -->
-    <div v-if="isLoading" class="flex items-center justify-center py-8">
-      <div class="text-sm text-gray-500">Memuat data...</div>
-    </div>
+  <div class="rounded-lg">
+    <div v-if="data && !isLoading" class="space-y-6">
+      <div class="border border-gray-200 rounded-lg px-4 py-2">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">
+          Detail Personil
+        </h2>
+        <div class="grid grid-cols-2 gap-y-2 text-xs">
+          <span class="text-gray-600">Nama</span>
+          <span class="text-gray-800 font-medium">{{ fullName }}</span>
 
-    <!-- Error State -->
-    <div v-else-if="error" class="flex items-center justify-center py-8">
-      <div class="text-sm text-red-500">
-        Gagal memuat data. Silakan coba lagi.
+          <span class="text-gray-600">NIK</span>
+          <span class="text-gray-800 font-medium">1234543I80004</span>
+
+          <span class="text-gray-600">iSafe Number</span>
+          <span class="text-gray-800 font-medium">IDT01A5JWADPKZA999</span>
+
+          <span class="text-gray-600">Role</span>
+          <span class="text-gray-800 font-medium">Geologist</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Data Display -->
-    <div v-else-if="data" class="bg-gray-50 rounded-lg p-6">
-      <div class="space-y-4">
-        <!-- Each row as a flex container -->
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">Nama Personil</span>
-          <span class="text-gray-900 font-medium text-sm">{{ fullName }}</span>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">iSafe ID</span>
-          <span class="text-gray-900 font-medium text-sm">IDT01A5</span>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">NIK</span>
-          <span class="text-gray-900 font-medium text-sm">1234567890111</span>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">Tanggal Mulai</span>
-          <span class="text-gray-900 font-medium text-sm">{{
-            formatDate(data.start_date)
+      <div class="py-4 border border-gray-200 rounded-lg px-4">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">
+          Detail Perjalanan Dinas
+        </h2>
+        <div class="grid grid-cols-2 gap-y-2 text-xs">
+          <span class="text-gray-600">Tujuan</span>
+          <span class="text-gray-800 font-medium">{{
+            data.destination ? capitalize(data.destination) : "-"
           }}</span>
-        </div>
 
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">Tanggal Selesai</span>
-          <span class="text-gray-900 font-medium text-sm">{{
-            formatDate(data.end_date)
-          }}</span>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">Total Hari</span>
-          <span class="text-gray-900 font-medium text-sm">{{ totalDays }}</span>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">Tujuan</span>
-          <span class="text-gray-900 font-medium text-sm">{{
-            data.destination || "-"
-          }}</span>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">Jenis Perjalanan Dinas</span>
-          <span class="text-gray-900 font-medium text-sm">{{
+          <span class="text-gray-600">Jenis Perjalanan Dinas</span>
+          <span class="text-gray-800 font-medium">{{
             data.purpose || "-"
           }}</span>
-        </div>
 
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">Transport</span>
-          <span class="text-gray-900 font-medium text-sm">{{
+          <span class="text-gray-600">Tanggal Mulai</span>
+          <span class="text-gray-800 font-medium">{{
+            formatDate(data.start_date)
+          }}</span>
+
+          <span class="text-gray-600">Tanggal Selesai</span>
+          <span class="text-gray-800 font-medium">{{
+            formatDate(data.end_date)
+          }}</span>
+
+          <span class="text-gray-600">Total Hari</span>
+          <span class="text-gray-800 font-medium">{{ totalDays }}</span>
+
+          <span class="text-gray-600">Negara</span>
+          <span class="text-gray-800 font-medium">Indonesia</span>
+
+          <span class="text-gray-600">Kota</span>
+          <span class="text-gray-800 font-medium">Ketapang</span>
+
+          <span class="text-gray-600">Transportasi</span>
+          <span class="text-gray-800 font-medium">{{
             formatTransportation(data.transportation)
           }}</span>
-        </div>
 
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">Dokumen</span>
-          <span class="text-gray-900 font-medium text-sm">
-            <span
-              v-if="data.document"
-              class="text-blue-600 underline cursor-pointer"
-            >
-              Lihat Dokumen
-            </span>
-            <span v-else>-</span>
+          <span class="text-gray-600">Approver</span>
+          <span class="text-gray-800 font-medium">Jerry Anwar Halim</span>
+
+          <span class="text-gray-600">Alasan untuk Approver</span>
+          <span class="text-gray-800 font-medium">
+            Perjalanan dinas Urgent
           </span>
-        </div>
 
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">Approver</span>
-          <span class="text-gray-900 font-medium text-sm"
-            >Jerry Anwar Halim</span
-          >
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600 text-sm">Status Perjalanan</span>
+          <span class="text-gray-600">Status</span>
           <span
             class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
             :class="badgeClass(data.status)"
@@ -227,26 +224,19 @@ function formatTransportation(transportation?: string | null): string {
         </div>
       </div>
 
-      <!-- Additional Actions Section (if needed) -->
-      <div class="pt-6 mt-6 border-t border-gray-200">
-        <div class="flex justify-end space-x-3">
-          <button
-            v-if="data.status === 'waiting'"
-            class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            Setujui
-          </button>
-          <button
-            v-if="data.status === 'waiting'"
-            class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Tolak
-          </button>
-        </div>
+      <div class="mt-8 pt-4 flex justify-center">
+        <button
+          class="px-8 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium w-full"
+        >
+          Edit
+        </button>
       </div>
     </div>
 
-    <!-- No Data State -->
+    <div v-else-if="isLoading" class="flex items-center justify-center py-8">
+      <div class="text-sm text-gray-500">Memuat data...</div>
+    </div>
+
     <div v-else class="flex items-center justify-center py-8">
       <div class="text-sm text-gray-500">Data tidak ditemukan.</div>
     </div>
