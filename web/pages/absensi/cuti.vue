@@ -42,6 +42,9 @@ const currentQueryParams = ref<Record<string, string>>();
 
 const selectedId = ref<string | null>(null);
 const openReview = ref(false);
+const openEdit = ref(false);
+const editId = ref<string | null>(null);
+const editData = ref<any>(null);
 
 const queryClient = useQueryClient();
 
@@ -94,8 +97,14 @@ function handleDateUpdate(start?: string, end?: string) {
 }
 
 function handleLeaveRequestSuccess() {
-  //  Refetch Fucntion After Submit
   queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
+}
+
+function handleEditSubmitted() {
+  queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
+  openEdit.value = false;
+  editId.value = null;
+  editData.value = null;
 }
 
 // Function to calculate total days between dates
@@ -180,17 +189,15 @@ const columns: TableColumn<Record<string, any>>[] = [
       if (row.original.total_days) {
         return `${row.original.total_days} Hari`;
       }
-      // Calculate from start and end dates if total_days is not provided
       if (row.original.start_date && row.original.end_date) {
         return calculateTotalDays(
           row.original.start_date,
           row.original.end_date
         );
       }
-      return "-"; // fallback
+      return "-";
     },
   },
-
   {
     id: "status",
     header: "Status",
@@ -218,19 +225,29 @@ const columns: TableColumn<Record<string, any>>[] = [
       );
     },
   },
-
   {
     id: "action",
     header: "Action",
     cell: ({ row }) =>
-      h(UIcon, {
-        name: "lucide:eye",
-        class: "w-4 h-4 text-gray-600 hover:text-black cursor-pointer",
-        onClick: () => {
-          selectedId.value = row.original.id;
-          openReview.value = true;
-        },
-      }),
+      h("div", { class: "flex gap-2" }, [
+        h(UIcon, {
+          name: "lucide:eye",
+          class: "w-4 h-4 text-gray-600 hover:text-black cursor-pointer",
+          onClick: () => {
+            selectedId.value = row.original.id;
+            openReview.value = true;
+          },
+        }),
+        h(UIcon, {
+          name: "lucide:pencil",
+          class: "w-4 h-4 text-blue-600 hover:text-blue-800 cursor-pointer",
+          onClick: () => {
+            editId.value = row.original.id;
+            editData.value = row.original;
+            openEdit.value = true;
+          },
+        }),
+      ]),
   },
 ];
 </script>
@@ -255,6 +272,7 @@ const columns: TableColumn<Record<string, any>>[] = [
       :totalData="tableData?.meta?.filter_count"
     />
   </div>
+
   <USlideover
     v-model:open="openReview"
     :title="
@@ -281,6 +299,39 @@ const columns: TableColumn<Record<string, any>>[] = [
   >
     <template #body>
       <AbsensiDetailCuti v-if="selectedId" :id="selectedId" />
+    </template>
+  </USlideover>
+
+  <USlideover
+    v-model:open="openEdit"
+    :title="
+      (() => {
+        const item = editId && tableData?.data?.find((d) => d.id === editId);
+        if (!item) return 'Edit Pengajuan Cuti';
+        const tanggalMulai = new Date(item.start_date).toLocaleDateString(
+          'id-ID',
+          {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        );
+        return `Edit Pengajuan Cuti - ${tanggalMulai}`;
+      })()
+    "
+    :ui="{
+      content: 'w-full max-w-[30vw] m-9 rounded-lg',
+      body: 'relative',
+      title: 'text-sm font-semibold text-gray-900',
+    }"
+  >
+    <template #body>
+      <AbsensiFormCuti
+        v-if="editId"
+        :editId="editId"
+        :editData="editData"
+        @success="handleEditSubmitted"
+      />
     </template>
   </USlideover>
 </template>
