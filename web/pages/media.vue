@@ -87,11 +87,7 @@ const { data: publicationsResponse, isPending: isLoading } = useQuery({
     try {
       const response = await $fetch(
         `/panel/items/publications?${queryParams.value}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authStore.accessToken}`,
-          },
-        }
+        {}
       );
 
       return response;
@@ -109,10 +105,7 @@ const { data: chartResponse } = useQuery({
     try {
       // Fetch all publications for manual aggregation of both media and sentiment
       const allPublications = await $fetch(
-        "/panel/items/publications?fields=*,media.*&limit=-1",
-        {
-          headers: { Authorization: `Bearer ${authStore.accessToken}` },
-        }
+        "/panel/items/publications?fields=*,media.*&limit=-1"
       );
 
       console.log("Chart - All publications:", allPublications);
@@ -121,7 +114,7 @@ const { data: chartResponse } = useQuery({
       const mediaCount = {};
       const sentimentCount = {};
 
-      allPublications.data?.forEach((item) => {
+      allPublications.data?.forEach((item: any) => {
         // Count media
         const mediaName = item.media?.name || "Unknown Media";
         mediaCount[mediaName] = (mediaCount[mediaName] || 0) + 1;
@@ -159,28 +152,46 @@ const { data: chartResponse } = useQuery({
   },
 });
 
-// Transform publications data for table display
-const data = computed(() => {
-  const publications =
-    publicationsResponse.value?.data?.map((item: any) => ({
-      id: item.id,
-      nama_media: item.media?.name || "N/A",
-      pic: item.media?.pic || "N/A",
-      jabatan: item.media?.role || "N/A",
-      jumlah_berita: 1, // This represents 1 publication per row
-      lampiran: item.file ? item.file : item.link ? "Link" : "N/A",
-      kontak: item.media?.phone_number || "N/A",
-      email: item.media?.email || "N/A",
-      title: item.title,
-      status: item.status,
-      link: item.link,
-      file: item.file,
-      date_created: item.date_created,
-      media: item.media, // Keep full media object for editing
-    })) || [];
+// grouping data
 
-  console.log("Transformed data for table:", publications);
-  return publications;
+const data = computed(() => {
+  const publications = publicationsResponse.value?.data || [];
+
+  const grouped = publications.reduce((acc, item) => {
+    const key = `${item.media?.id || "no-media"}-${item.title}`;
+    if (!acc[key]) {
+      acc[key] = {
+        id: item.id,
+        nama_media: item.media?.name || "N/A",
+        pic: item.media?.pic || "N/A",
+        jabatan: item.media?.role || "N/A",
+        jumlah_berita: 0,
+        lampiran: [],
+        kontak: item.media?.phone_number || "N/A",
+        email: item.media?.email || "N/A",
+        title: item.title,
+        status: item.status,
+        details: [], // store all grouped rows
+      };
+    }
+
+    // aggregate count
+    acc[key].jumlah_berita += 1;
+
+    // collect attachments
+    if (item.file) {
+      acc[key].lampiran.push({ type: "file", value: item.file });
+    } else if (item.link) {
+      acc[key].lampiran.push({ type: "link", value: item.link });
+    }
+
+    // store full row for detail view
+    acc[key].details.push(item);
+
+    return acc;
+  }, {} as Record<string, any>);
+
+  return Object.values(grouped);
 });
 
 // Total data count
@@ -465,122 +476,158 @@ const sentimentChartData = computed(() => chartData.value.sentimentData);
       v-model:open="openDetail"
       title="Detail Publikasi"
       :ui="{
-        content: 'w-full max-w-[40vw] m-9 rounded-lg',
+        content: 'w-full max-w-[55vw] m-9 rounded-lg',
         body: 'relative',
         title: 'text-sm font-semibold text-gray-900',
       }"
     >
       <template #body>
-        <div v-if="selectedPublication" class="space-y-4 p-4">
-          <div class="grid grid-cols-1 gap-4">
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <h3 class="font-semibold text-gray-900 mb-3">
-                Informasi Publikasi
-              </h3>
+        <div v-if="selectedPublication" class="flex flex-col h-full">
+          <!-- General Info Section -->
+          <div class="bg-white p-6 border-b">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4">
+              Informasi Media
+            </h3>
 
-              <div class="space-y-3">
-                <div>
-                  <label class="text-sm font-medium text-gray-700"
-                    >Judul:</label
-                  >
-                  <p class="text-gray-900">
-                    {{ selectedPublication.title || "N/A" }}
-                  </p>
-                </div>
+            <div class="grid grid-cols-2 gap-y-3 text-sm">
+              <div class="text-gray-600">Media Partner</div>
+              <div class="text-gray-900 font-medium">
+                {{ selectedPublication.nama_media || "N/A" }}
+              </div>
 
-                <div>
-                  <label class="text-sm font-medium text-gray-700"
-                    >Media:</label
-                  >
-                  <p class="text-gray-900">
-                    {{ selectedPublication.nama_media || "N/A" }}
-                  </p>
-                </div>
+              <div class="text-gray-600">Jabatan</div>
+              <div class="text-gray-900 font-medium">
+                {{ selectedPublication.jabatan || "N/A" }}
+              </div>
 
-                <div>
-                  <label class="text-sm font-medium text-gray-700">PIC:</label>
-                  <p class="text-gray-900">
-                    {{ selectedPublication.pic || "N/A" }}
-                  </p>
-                </div>
+              <div class="text-gray-600">PIC</div>
+              <div class="text-gray-900 font-medium">
+                {{ selectedPublication.pic || "N/A" }}
+              </div>
 
-                <div>
-                  <label class="text-sm font-medium text-gray-700"
-                    >Jabatan:</label
-                  >
-                  <p class="text-gray-900">
-                    {{ selectedPublication.jabatan || "N/A" }}
-                  </p>
-                </div>
+              <div class="text-gray-600">Email</div>
+              <div class="text-gray-900 font-medium">
+                {{ selectedPublication.email || "N/A" }}
+              </div>
 
-                <div>
-                  <label class="text-sm font-medium text-gray-700"
-                    >Status:</label
-                  >
-                  <span
-                    :class="`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                      selectedPublication.status
-                    )}`"
-                  >
-                    {{ getStatusLabel(selectedPublication.status) }}
-                  </span>
-                </div>
-
-                <div>
-                  <label class="text-sm font-medium text-gray-700"
-                    >Kontak:</label
-                  >
-                  <p class="text-gray-900">
-                    {{ selectedPublication.kontak || "N/A" }}
-                  </p>
-                </div>
-
-                <div>
-                  <label class="text-sm font-medium text-gray-700"
-                    >Email:</label
-                  >
-                  <p class="text-gray-900">
-                    {{ selectedPublication.email || "N/A" }}
-                  </p>
-                </div>
-
-                <div>
-                  <label class="text-sm font-medium text-gray-700"
-                    >Lampiran:</label
-                  >
-                  <div class="mt-1">
-                    <a
-                      v-if="selectedPublication.file"
-                      :href="`/assets/${selectedPublication.file}`"
-                      target="_blank"
-                      class="inline-flex items-center text-blue-500 hover:text-blue-600 underline"
-                    >
-                      <i class="i-heroicons-document w-4 h-4 mr-1"></i>
-                      Lihat File
-                    </a>
-                    <a
-                      v-else-if="selectedPublication.link"
-                      :href="selectedPublication.link"
-                      target="_blank"
-                      class="inline-flex items-center text-blue-500 hover:text-blue-600 underline"
-                    >
-                      <i class="i-heroicons-link w-4 h-4 mr-1"></i>
-                      Buka Link
-                    </a>
-                    <span v-else class="text-gray-500">Tidak ada lampiran</span>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="text-sm font-medium text-gray-700"
-                    >Dibuat:</label
-                  >
-                  <p class="text-gray-900">
-                    {{ formatDate(selectedPublication.date_created) }}
-                  </p>
-                </div>
+              <div class="text-gray-600">Nomer Hp</div>
+              <div class="text-gray-900 font-medium">
+                {{ selectedPublication.kontak || "N/A" }}
               </div>
             </div>
+          </div>
+
+          <!-- Publications Table -->
+          <div class="flex-1 overflow-auto p-6">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm border-collapse">
+                <thead>
+                  <tr class="bg-gray-100">
+                    <th
+                      class="text-left font-medium text-gray-700 p-3 border-b border-gray-200"
+                    >
+                      Judul Berita
+                    </th>
+                    <th
+                      class="text-left font-medium text-gray-700 p-3 border-b border-gray-200"
+                    >
+                      Link
+                    </th>
+                    <th
+                      class="text-left font-medium text-gray-700 p-3 border-b border-gray-200"
+                    >
+                      Sentimen
+                    </th>
+                    <th
+                      class="text-left font-medium text-gray-700 p-3 border-b border-gray-200"
+                    >
+                      Dokumen
+                    </th>
+                    <th
+                      class="text-left font-medium text-gray-700 p-3 border-b border-gray-200"
+                    >
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(detail, i) in selectedPublication.details"
+                    :key="detail.id"
+                    class="hover:bg-gray-50 border-b border-gray-100"
+                  >
+                    <td class="p-3 text-gray-900">
+                      {{ detail.title || "N/A" }}
+                    </td>
+                    <td class="p-3 text-gray-900">
+                      <a
+                        v-if="detail.link"
+                        :href="detail.link"
+                        target="_blank"
+                        class="text-blue-600 hover:text-blue-700 truncate block max-w-[200px]"
+                      >
+                        {{ detail.link }}
+                      </a>
+                      <span v-else class="text-gray-500">N/A</span>
+                    </td>
+                    <td class="p-3">
+                      <span
+                        :class="`inline-flex px-3 py-1 rounded text-xs font-medium ${getStatusColor(
+                          detail.status
+                        )}`"
+                      >
+                        {{ getStatusLabel(detail.status) }}
+                      </span>
+                    </td>
+                    <td class="p-3">
+                      <a
+                        v-if="detail.file"
+                        :href="`/assets/${detail.file}`"
+                        target="_blank"
+                        class="text-blue-600 hover:text-blue-700"
+                      >
+                        Dokumen.pdf
+                      </a>
+                      <span v-else class="text-gray-500">N/A</span>
+                    </td>
+                    <td class="p-3">
+                      <div class="flex items-center gap-3">
+                        <button
+                          type="button"
+                          class="text-gray-600 hover:text-gray-900"
+                          title="Lihat"
+                        >
+                          <i class="i-heroicons-eye w-5 h-5"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="text-blue-600 hover:text-blue-700"
+                          title="Edit"
+                        >
+                          <i class="i-heroicons-pencil-square w-5 h-5"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Footer Buttons -->
+          <div class="border-t p-6 space-y-3">
+            <button
+              type="button"
+              class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 rounded"
+            >
+              Hapus Media
+            </button>
+            <button
+              type="button"
+              class="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2.5 rounded"
+            >
+              Edit
+            </button>
           </div>
         </div>
       </template>
