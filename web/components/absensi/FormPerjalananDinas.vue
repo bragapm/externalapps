@@ -6,13 +6,18 @@ const authStore = useAuth();
 const toast = useToast();
 const emit = defineEmits(["submitted"]);
 
+const props = defineProps<{
+  editId?: string | null;
+  editData?: any;
+}>();
+
 const schema = z
   .object({
     start_date: z.string(),
     end_date: z.string(),
     location: z.string(),
     tujuan: z.string(),
-    agenda: z.string().optional(), // agenda is not in API but kept for UI
+    agenda: z.string().optional(),
     transportation: z.string({
       required_error: "Jenis transportasi wajib dipilih",
     }),
@@ -55,6 +60,22 @@ const transportOptions = [
 
 const open = ref(false);
 
+watch(
+  () => props.editId,
+  (newId) => {
+    if (newId && props.editData) {
+      state.start_date = props.editData.start_date?.split("T")[0];
+      state.end_date = props.editData.end_date?.split("T")[0];
+      state.location = props.editData.destination;
+      state.tujuan = props.editData.purpose;
+      state.transportation = props.editData.transportation;
+      state.agenda = undefined;
+      state.attachment = undefined;
+    }
+  },
+  { immediate: true }
+);
+
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   const token = authStore.accessToken;
 
@@ -68,7 +89,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   let uploadedAssetId: string | null = null;
 
-  // Step 1: Upload file to /assets
   if (event.data.attachment) {
     try {
       const formData = new FormData();
@@ -76,7 +96,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
       const uploadRes = await fetch("/panel/files", {
         method: "POST",
-
         body: formData,
       });
 
@@ -96,20 +115,32 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     }
   }
 
-  // Step 2: Submit to business_trips
   try {
-    const res = await fetch("/panel/items/business_trips", {
-      method: "POST",
+    const payload: any = {
+      start_date: event.data.start_date,
+      end_date: event.data.end_date,
+      destination: event.data.location,
+      purpose: event.data.tujuan,
+      transportation: event.data.transportation,
+    };
 
-      body: JSON.stringify({
-        start_date: event.data.start_date,
-        end_date: event.data.end_date,
-        destination: event.data.location,
-        purpose: event.data.tujuan,
-        transportation: event.data.transportation,
-        status: "in_progress",
-        document: uploadedAssetId,
-      }),
+    if (!props.editId) {
+      payload.status = "in_progress";
+    }
+
+    if (uploadedAssetId) {
+      payload.document = uploadedAssetId;
+    }
+
+    const url = props.editId
+      ? `/panel/items/business_trips/${props.editId}`
+      : `/panel/items/business_trips`;
+
+    const method = props.editId ? "PATCH" : "POST";
+
+    const res = await fetch(url, {
+      method,
+      body: JSON.stringify(payload),
     });
 
     const result = await res.json();
@@ -122,11 +153,20 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     toast.add({
       title: "Berhasil",
-      description: "Perjalanan dinas berhasil dikirim.",
+      description: props.editId
+        ? "Perjalanan dinas berhasil diperbarui."
+        : "Perjalanan dinas berhasil dikirim.",
     });
 
-    open.value = false;
+    if (!props.editId) {
+      open.value = false;
+    }
+
     emit("submitted");
+
+    Object.keys(state).forEach((key) => {
+      state[key as keyof Schema] = undefined;
+    });
   } catch (err: any) {
     toast.add({
       title: "Gagal",
@@ -134,10 +174,77 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     });
   }
 }
+
+watch(open, (isOpen) => {
+  if (!isOpen && !props.editId) {
+    Object.keys(state).forEach((key) => {
+      state[key as keyof Schema] = undefined;
+    });
+  }
+});
 </script>
 
 <template>
+  <div v-if="editId">
+    <UForm
+      id="perjalanan-dinas-form"
+      :schema="schema"
+      :state="state"
+      class="space-y-4"
+      @submit="onSubmit"
+    >
+      <div class="flex gap-2 w-full">
+        <UFormField label="Tanggal Mulai" name="start_date">
+          <UInput v-model="state.start_date" type="date" class="w-full" />
+        </UFormField>
+
+        <UFormField label="Tanggal Selesai" name="end_date">
+          <UInput v-model="state.end_date" type="date" class="w-full" />
+        </UFormField>
+      </div>
+      <UFormField label="Lokasi" name="location">
+        <UInput v-model="state.location" class="w-full" />
+      </UFormField>
+      <UFormField label="Tujuan" name="tujuan">
+        <UInput v-model="state.tujuan" class="w-full" />
+      </UFormField>
+      <UFormField label="Agenda" name="agenda">
+        <USelect
+          v-model="state.agenda"
+          :items="agendaOptions"
+          placeholder="Pilih jenis agenda"
+          class="w-full"
+        />
+      </UFormField>
+      <UFormField label="Transportasi" name="transportation">
+        <USelect
+          v-model="state.transportation"
+          :items="transportOptions"
+          placeholder="Pilih jenis transportasi"
+          class="w-full"
+        />
+      </UFormField>
+      <CoreCustomFileInput
+        v-model="state.attachment"
+        name="attachment"
+        label="Dokumen Pendukung"
+        placeholder="Pilih file..."
+        accept=".pdf,.docx"
+      />
+      <div class="w-full space-y-3 pt-4">
+        <UButton
+          type="submit"
+          form="perjalanan-dinas-form"
+          class="w-full justify-center"
+        >
+          Update
+        </UButton>
+      </div>
+    </UForm>
+  </div>
+
   <USlideover
+    v-else
     v-model:open="open"
     title="Ajukan Perjalanan Dinas"
     :ui="{ content: 'm-9' }"
@@ -150,7 +257,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     />
     <template #body>
       <UForm
-        id="perjalanan-dinas-form"
+        id="perjalanan-dinas-form-create"
         :schema="schema"
         :state="state"
         class="space-y-4"
@@ -200,7 +307,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       <div class="w-full space-y-3">
         <UButton
           type="submit"
-          form="perjalanan-dinas-form"
+          form="perjalanan-dinas-form-create"
           class="w-full justify-center"
         >
           Submit

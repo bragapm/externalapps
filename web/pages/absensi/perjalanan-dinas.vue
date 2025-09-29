@@ -40,6 +40,9 @@ const auth = useAuth();
 const currentQueryParams = ref<Record<string, string>>();
 const selectedId = ref<string | null>(null);
 const openReview = ref(false);
+const openEdit = ref(false);
+const editId = ref<string | null>(null);
+const editData = ref<any>(null);
 
 const { data: tableData, isFetching } = useQuery<ApiResponse>({
   queryKey: ["business-trips", page, pageSize, startDate, endDate, search],
@@ -107,7 +110,6 @@ const columns: TableColumn<Record<string, any>>[] = [
     header: "Tanggal Mulai",
     cell: ({ row }) => {
       try {
-        // Handle null start_date
         if (!row.original.start_date) return "-";
         return new Date(row.original.start_date).toLocaleDateString("id-ID");
       } catch (error) {
@@ -120,7 +122,6 @@ const columns: TableColumn<Record<string, any>>[] = [
     header: "Tanggal Selesai",
     cell: ({ row }) => {
       try {
-        // Handle null end_date
         if (!row.original.end_date) return "-";
         return new Date(row.original.end_date).toLocaleDateString("id-ID");
       } catch (error) {
@@ -149,7 +150,6 @@ const columns: TableColumn<Record<string, any>>[] = [
     cell: ({ row }) => {
       const status = row.original.status;
 
-      // Handle null status
       if (!status) {
         return h(
           "span",
@@ -187,20 +187,38 @@ const columns: TableColumn<Record<string, any>>[] = [
     id: "action",
     header: "Action",
     cell: ({ row }) =>
-      h(UIcon, {
-        name: "lucide:eye",
-        class: "w-4 h-4 text-gray-600 hover:text-black cursor-pointer",
-        onClick: () => {
-          selectedId.value = row.original.id;
-          openReview.value = true;
-        },
-      }),
+      h("div", { class: "flex gap-2" }, [
+        h(UIcon, {
+          name: "lucide:eye",
+          class: "w-4 h-4 text-gray-600 hover:text-black cursor-pointer",
+          onClick: () => {
+            selectedId.value = row.original.id;
+            openReview.value = true;
+          },
+        }),
+        h(UIcon, {
+          name: "lucide:pencil",
+          class: "w-4 h-4 text-blue-600 hover:text-blue-800 cursor-pointer",
+          onClick: () => {
+            editId.value = row.original.id;
+            editData.value = row.original;
+            openEdit.value = true;
+          },
+        }),
+      ]),
   },
 ];
 
 const queryClient = useQueryClient();
 function refetchBusinessTrips() {
   queryClient.invalidateQueries({ queryKey: ["business-trips"] });
+}
+
+function handleEditSubmitted() {
+  refetchBusinessTrips();
+  openEdit.value = false;
+  editId.value = null;
+  editData.value = null;
 }
 </script>
 
@@ -251,6 +269,39 @@ function refetchBusinessTrips() {
   >
     <template #body>
       <AbsensiDetailPerjalananDinas v-if="selectedId" :id="selectedId" />
+    </template>
+  </USlideover>
+
+  <USlideover
+    v-model:open="openEdit"
+    :title="
+      (() => {
+        const item = editId && tableData?.data?.find((d) => d.id === editId);
+        if (!item) return 'Edit Perjalanan Dinas';
+        const tanggalMulai = new Date(item.start_date).toLocaleDateString(
+          'id-ID',
+          {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        );
+        return `Edit Perjalanan Dinas - ${tanggalMulai}`;
+      })()
+    "
+    :ui="{
+      content: 'w-full max-w-[30vw] m-9 rounded-lg',
+      body: 'relative',
+      title: 'text-sm font-semibold text-gray-900',
+    }"
+  >
+    <template #body>
+      <AbsensiFormPerjalananDinas
+        v-if="editId"
+        :editId="editId"
+        :editData="editData"
+        @submitted="handleEditSubmitted"
+      />
     </template>
   </USlideover>
 </template>
