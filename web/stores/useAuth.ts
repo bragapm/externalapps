@@ -60,11 +60,6 @@ export const useAuth = defineStore("authData", () => {
       data: UserData;
     }>("/panel/users/me?fields=*.*", {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + accessToken,
-        "Cache-Control": "no-store",
-      },
     });
     if (data) {
       userData.value = data;
