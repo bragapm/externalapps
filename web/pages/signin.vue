@@ -181,14 +181,11 @@ onMounted(() => {
             variant="outline"
             size="xl"
             class="mb-7"
-            label="Sign In with Google"
+            label="Sign In with UGEMS"
             :ui="{ rounded: 'rounded-xxs' }"
           >
             <template #leading>
-              <img
-                src="https://lh3.googleusercontent.com/COxitqgJr1sJnIDe8-jiKhxDx1FrYbtRHKJ9z_hELisAlapwE9LUPh6fcXIfb5vwpbMl4xl9H9TRFPc5NOO8Sb3VSgIBrfRYvW6cUA"
-                class="h-5"
-              />
+              <!-- <img src="Ugems" class="h-5" /> -->
             </template>
           </UButton>
           <p class="text-center text-grey-500 text-sm mt-5">
