@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import * as z from "zod";
 import type { FormSubmitEvent } from "@nuxt/ui";
-const authStore = useAuth();
 import { useQueryClient } from "@tanstack/vue-query";
 
+const authStore = useAuth();
 const queryClient = useQueryClient();
 
 const schema = z.object({
@@ -41,7 +41,7 @@ const state = reactive({
 
 const toast = useToast();
 const loading = ref(false);
-const mediaOptions = ref([]);
+const mediaOptions = ref<{ label: string; value: string }[]>([]);
 const loadingMedias = ref(false);
 
 // Status options
@@ -50,37 +50,6 @@ const statusOptions = [
   { label: "Negatif", value: "negative" },
   { label: "Netral", value: "neutral" },
 ];
-
-// Initialize form data based on mode
-watch(
-  () => props.publication,
-  (newPublication) => {
-    if (props.mode === "edit" && newPublication) {
-      // Populate form with existing data
-      state.media_partner = newPublication.media?.id?.toString() || "";
-      state.contact = newPublication.media?.phone_number || "";
-      state.publications = [
-        {
-          title: newPublication.title || "",
-          file: newPublication.file || "",
-          link: newPublication.link || "",
-          status: newPublication.status || "positive",
-        },
-      ];
-    }
-  },
-  { immediate: true }
-);
-
-// Reset form when mode changes to create
-watch(
-  () => props.mode,
-  (newMode) => {
-    if (newMode === "create") {
-      resetForm();
-    }
-  }
-);
 
 function resetForm() {
   state.media_partner = "";
@@ -99,18 +68,68 @@ const fetchMedias = async () => {
     }));
   } catch (error) {
     console.error("Error fetching medias:", error);
-    toast.add({
-      title: "Error",
-    });
+    toast.add({ title: "Error" });
   } finally {
     loadingMedias.value = false;
   }
 };
 
-// Load medias when component mounts
-onMounted(() => {
-  fetchMedias();
+// Populate form when editing
+const populateEditForm = () => {
+  if (props.mode === "edit" && props.publication) {
+    console.log("Publication data:", props.publication);
+    console.log("Media options:", mediaOptions.value);
+
+    // Get the actual publication data (it's nested in details[0])
+    const pubData = props.publication.details?.[0] || props.publication;
+
+    // Set media partner
+    const mediaId = pubData.media?.id;
+    state.media_partner = mediaId ? mediaId.toString() : "";
+
+    // Set contact from media phone_number
+    state.contact = pubData.media?.phone_number || "";
+
+    state.publications = [
+      {
+        title: pubData.title || "",
+        file: pubData.file || "",
+        link: pubData.link || "",
+        status: pubData.status || "positive",
+      },
+    ];
+
+    console.log("Form state after populate:", state);
+  }
+};
+
+// Load medias when component mounts and populate form after
+onMounted(async () => {
+  await fetchMedias();
+  populateEditForm();
 });
+
+// Watch for mode and publication changes
+watch(
+  () => [props.mode, props.publication],
+  ([newMode]) => {
+    if (newMode === "create") {
+      resetForm();
+    } else if (newMode === "edit" && mediaOptions.value.length > 0) {
+      populateEditForm();
+    }
+  }
+);
+
+// Also watch for when media options are loaded
+watch(
+  () => mediaOptions.value.length,
+  (length) => {
+    if (length > 0 && props.mode === "edit") {
+      populateEditForm();
+    }
+  }
+);
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {

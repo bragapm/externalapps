@@ -158,10 +158,12 @@ const data = computed(() => {
   const publications = publicationsResponse.value?.data || [];
 
   const grouped = publications.reduce((acc, item) => {
-    const key = `${item.media?.id || "no-media"}-${item.title}`;
+    // 💡 CHANGE THE KEY HERE: Group by Media ID only
+    const key = `${item.media?.id || "no-media"}`;
+
     if (!acc[key]) {
       acc[key] = {
-        id: item.id,
+        id: item.id, // ID of the first publication in the group
         nama_media: item.media?.name || "N/A",
         pic: item.media?.pic || "N/A",
         jabatan: item.media?.role || "N/A",
@@ -169,16 +171,19 @@ const data = computed(() => {
         lampiran: [],
         kontak: item.media?.phone_number || "N/A",
         email: item.media?.email || "N/A",
+        // The title and status fields should reflect the group,
+        // perhaps from the first item or be made generic.
+        // I'll use the first item's values for now.
         title: item.title,
         status: item.status,
-        details: [], // store all grouped rows
+        details: [],
       };
     }
 
     // aggregate count
     acc[key].jumlah_berita += 1;
 
-    // collect attachments
+    // collect attachments (this aggregation might be less useful now)
     if (item.file) {
       acc[key].lampiran.push({ type: "file", value: item.file });
     } else if (item.link) {
