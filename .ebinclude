@@ -1,7 +1,7 @@
 cache/
 manager/
 server/
-extensions/dist/
+extensions/extensions/
 extensions/Dockerfile
 web/.output/
 web/Dockerfile

@@ -9,8 +9,5 @@ COPY ./extensions ./
 
 RUN npm run build
 
-COPY ./extensions .
-RUN npm run build
-
 FROM directus/directus:11.9.3
 COPY --from=builder /app/extensions/dist /directus/extensions/dist
