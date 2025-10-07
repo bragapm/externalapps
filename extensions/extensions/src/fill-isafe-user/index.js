@@ -10,7 +10,9 @@ export default ({ filter, action }, { logger, services, env }) => {
 
     let newPayload = { ...payload };
     newPayload.nik = userInfo.nik;
+    newPayload.auth_data = JSON.parse(payload.auth_data);
     newPayload.auth_data.provider_token = accessToken;
+    newPayload.auth_data = JSON.stringify(newPayload.auth_data)
 
     return newPayload;
   });
@@ -23,7 +25,9 @@ export default ({ filter, action }, { logger, services, env }) => {
 
     let newPayload = { ...payload };
     newPayload.nik = userInfo.nik;
+    newPayload.auth_data = JSON.parse(payload.auth_data);
     newPayload.auth_data.provider_token = accessToken;
+    newPayload.auth_data = JSON.stringify(newPayload.auth_data)
     return newPayload;
   });
 
