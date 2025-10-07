@@ -1,0 +1,53 @@
+{
+  "name": "extensions",
+  "description": "Please enter a description for your extension",
+  "icon": "extension",
+  "version": "1.0.0",
+  "keywords": [
+    "directus",
+    "directus-extension",
+    "directus-extension-bundle"
+  ],
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "directus:extension": {
+    "type": "bundle",
+    "path": {
+      "app": "dist/app.js",
+      "api": "dist/api.js"
+    },
+    "entries": [
+      {
+        "type": "endpoint",
+        "name": "ugis",
+        "source": "src/ugis/index.js"
+      },
+      {
+        "type": "hook",
+        "name": "fill-isafe-user",
+        "source": "src/fill-isafe-user/index.js"
+      },
+      {
+        "type": "endpoint",
+        "name": "upresence",
+        "source": "src/upresence/index.js"
+      }
+    ],
+    "host": "^10.10.0"
+  },
+  "scripts": {
+    "build": "directus-extension build && node copy-package.js",
+    "dev": "directus-extension build -w --no-minify",
+    "link": "directus-extension link",
+    "validate": "directus-extension validate",
+    "add": "directus-extension add"
+  },
+  "devDependencies": {
+    "@directus/extensions-sdk": "16.0.2"
+  },
+  "dependencies": {
+    "@directus/errors": "^2.0.4"
+  }
+}
